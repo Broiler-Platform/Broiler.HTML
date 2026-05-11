@@ -8,7 +8,7 @@ Broiler.HTML already includes deterministic image rendering, font-loading hooks 
 
 | Suite | Link | Scope | Current status | Explicit reason / next step |
 | --- | --- | --- | --- | --- |
-| Web Platform Tests (WPT) | https://github.com/web-platform-tests/wpt | Broad HTML/CSS/web-platform interoperability | Tracked, not yet automated in-repo | The renderer already exposes Ahem font loading and deterministic pixel-diff APIs, but the repository does not yet include vendored WPT fixtures, references, or a runner. |
+| Web Platform Tests (WPT) | https://github.com/web-platform-tests/wpt | Broad HTML/CSS/web-platform interoperability | Tracked, not yet automated in-repo | The renderer already exposes Ahem font loading and deterministic pixel-diff APIs, but the repository does not yet include checked-in WPT fixtures, reference renderings, or a runner. |
 | WPT live results | https://wpt.fyi/ | Published interoperability results | Referenced only | Useful as an external comparison target once Broiler.HTML starts publishing suite results. |
 | CSS 2.1 test suite | https://test.csswg.org/suites/css2.1/20110323/html4/ | CSS 2.1 rendering conformance | Skipped in current repo snapshot | No checked-in harness or baseline-image corpus exists yet. |
 | Acid3 | http://acid3.acidtests.org/ | Historical HTML/CSS/DOM renderer milestone test | Tracked manually | Source comments reference Acid3-related work, but the repository does not currently contain the corresponding test assets or automated checks. |
