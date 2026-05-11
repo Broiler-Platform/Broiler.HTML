@@ -11,7 +11,7 @@ Broiler.HTML is a modular .NET HTML renderer split into focused assemblies for p
 
 ## Solution layout
 
-The solution lives under `/home/runner/work/Broiler.HTML/Broiler.HTML/Source/Broiler.HTML.slnx` and is organized into these main assemblies:
+The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized into these main assemblies:
 
 - `Broiler.HTML.Primitives` - shared primitive types
 - `Broiler.HTML.Utils` - common utilities and resource helpers
@@ -39,7 +39,7 @@ The solution lives under `/home/runner/work/Broiler.HTML/Broiler.HTML/Source/Bro
 Run the repository build from the solution directory:
 
 ```bash
-cd /home/runner/work/Broiler.HTML/Broiler.HTML/Source
+cd Source
 dotnet build Broiler.HTML.slnx
 dotnet test Broiler.HTML.slnx
 ```

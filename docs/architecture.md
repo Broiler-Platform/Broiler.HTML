@@ -78,7 +78,7 @@ Use `HtmlRender` for direct drawing/image generation and `HtmlPanel` / `HtmlLabe
 The repository currently supports these repeatable checks directly:
 
 ```bash
-cd /home/runner/work/Broiler.HTML/Broiler.HTML/Source
+cd Source
 dotnet build Broiler.HTML.slnx
 dotnet test Broiler.HTML.slnx
 ```
