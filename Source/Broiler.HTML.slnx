@@ -5,6 +5,7 @@
   <Project Path="Broiler.HTML.Dom/Broiler.HTML.Dom.csproj" />
   <Project Path="Broiler.HTML.Image.Compat/Broiler.HTML.Image.Compat.csproj" />
   <Project Path="Broiler.HTML.Image/Broiler.HTML.Image.csproj" />
+  <Project Path="Broiler.HTML.Tool/Broiler.HTML.Tool.csproj" />
   <Project Path="Broiler.HTML.Orchestration/Broiler.HTML.Orchestration.csproj" />
   <Project Path="Broiler.HTML.Primitives/Broiler.HTML.Primitives.csproj" />
   <Project Path="Broiler.HTML.Rendering/Broiler.HTML.Rendering.csproj" />

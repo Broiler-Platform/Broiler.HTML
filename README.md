@@ -28,6 +28,7 @@ The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized in
 ## Public API highlights
 
 - `Broiler.HTML.Image.HtmlRender` renders HTML to in-memory bitmaps, PNG bytes, and files.
+- `Broiler.HTML.Tool` exposes a cross-platform command-line renderer for HTML-to-image workflows.
 - `Broiler.HTML.Image.PixelDiffRunner` compares rendered output to a baseline image.
 - `Broiler.HTML.Image.MismatchClassifier` classifies visual mismatches for compliance triage.
 - `Broiler.HTML.WPF.HtmlRender` renders HTML into WPF drawing contexts and images.
@@ -46,6 +47,41 @@ dotnet test Broiler.HTML.slnx
 
 `Broiler.HTML.WPF` now enables Windows targeting so solution-wide restore/build validation also works on non-Windows CI hosts.
 The current solution does not contain checked-in test projects yet, so `dotnet test` currently acts as a repository validation command rather than a substantive automated renderer test suite.
+
+## Command-line HTML renderer
+
+The repository now includes a cross-platform .NET tool project at `Source/Broiler.HTML.Tool` for rendering HTML to PNG or JPEG from Windows, Linux, or macOS.
+
+Run it directly from the repository:
+
+```bash
+dotnet run --project Source/Broiler.HTML.Tool -- --input ./page.html --output ./page.png --width 1280 --height 720
+```
+
+Render an inline HTML string:
+
+```bash
+dotnet run --project Source/Broiler.HTML.Tool -- --html "<html><body><h1>Hello</h1></body></html>" --output ./hello.jpg --format jpeg --width 800 --height 600
+```
+
+Auto-size to the rendered content:
+
+```bash
+dotnet run --project Source/Broiler.HTML.Tool -- --input ./page.html --output ./page.png --auto-size --max-width 1200
+```
+
+The tool supports these standard arguments:
+
+- `--input <path>` or `--html <markup>` (exactly one is required)
+- `--output <path>`
+- `--format png|jpg|jpeg`
+- `--width <pixels>` and `--height <pixels>` for fixed-size rendering
+- `--auto-size` with optional `--max-width` / `--max-height`
+- `--quality <1-100>` for JPEG output
+- `--base-url <url>` to resolve relative assets when rendering inline HTML
+- `--help` to display usage
+
+For local HTML files, the CLI automatically uses the source file as the base URL so relative stylesheets and images resolve consistently.
 
 ## Documentation
 

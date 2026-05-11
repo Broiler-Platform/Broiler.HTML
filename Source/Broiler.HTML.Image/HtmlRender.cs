@@ -29,7 +29,8 @@ public static class HtmlRender
         BColor backgroundColor = default,
         CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null) =>
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
+        string baseUrl = null) =>
         RenderToImageAutoSizedCore(
             html,
             maxWidth,
@@ -37,7 +38,8 @@ public static class HtmlRender
             backgroundColor == default ? null : backgroundColor,
             cssData,
             stylesheetLoad,
-            imageLoad);
+            imageLoad,
+            baseUrl);
 
     public static BBitmap? RenderToImageAtAnchor(string html, string elementId, int width, int height,
         BColor backgroundColor = default,
@@ -93,7 +95,8 @@ public static class HtmlRender
         BColor backgroundColor = default,
         CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
+        string baseUrl = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
@@ -104,7 +107,8 @@ public static class HtmlRender
             backgroundColor == default ? null : backgroundColor,
             cssData,
             stylesheetLoad,
-            imageLoad);
+            imageLoad,
+            baseUrl);
         bitmap.Save(filePath, format, quality);
     }
 
@@ -171,7 +175,8 @@ public static class HtmlRender
         BColor? backgroundColor,
         CssData cssData,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad)
+        EventHandler<HtmlImageLoadEventArgs> imageLoad,
+        string baseUrl)
     {
         if (string.IsNullOrEmpty(html))
             return new BBitmap(1, 1);
@@ -187,7 +192,7 @@ public static class HtmlRender
         if (imageLoad != null)
             container.ImageLoad += imageLoad;
 
-        container.SetHtml(html, cssData);
+        container.SetHtml(html, cssData, baseUrl);
 
         if (backgroundColor is null)
             bgColor = ResolveCanvasBackground(container, bgColor);
