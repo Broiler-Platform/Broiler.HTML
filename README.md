@@ -1,60 +1,57 @@
-# HTML Renderer
+# Broiler.HTML
 
-**Cross framework** (WinForms/WPF/PDF/Metro/Mono/etc.), **Multipurpose** (UI Controls / Image generation / PDF generation / etc.), **100% managed** (C#), High performance HTML Rendering library.
+Broiler.HTML is a modular .NET HTML renderer split into focused assemblies for parsing, CSS processing, layout, painting, image generation, and WPF hosting.
 
-The library is 100% managed **C#** code without any external dependencies (no WebBrowser control, ActiveX / COM or MSHTML dll), the only requirement is **.NET Framework 4.6.2 or higher**.
+## Repository goals
 
-![Renderer.png](https://raw.githubusercontent.com/ArthurHub/HTML-Renderer/master/Art/demo_winforms.png)
+- keep the renderer modular and maintainable
+- document the public API and architecture of the current Broiler.HTML codebase
+- track public compliance suites and their status from inside the repository
+- make baseline build and compliance checks repeatable
 
+## Solution layout
 
-## Issues & Documentation
+The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized into these main assemblies:
 
-For questions and issues, use the official [GitHub repository](https://github.com/ArthurHub/HTML-Renderer).
+- `Broiler.HTML.Primitives` - shared primitive types
+- `Broiler.HTML.Utils` - common utilities and resource helpers
+- `Broiler.HTML.Adapters` - backend-neutral adapter abstractions
+- `Broiler.HTML.Core` - core entities and deterministic IR helpers
+- `Broiler.HTML.CSS` - CSS parsing and stylesheet handling
+- `Broiler.HTML.Dom` - DOM/layout processing
+- `Broiler.HTML.Orchestration` - HTML parsing and renderer orchestration
+- `Broiler.HTML.Rendering` - paint-time handlers and rendering logic
+- `Broiler.HTML.Image` / `Broiler.HTML.Image.Compat` - image rendering, deterministic comparison, and Skia compatibility
+- `Broiler.HTML.WPF` - WPF rendering surface and controls
+- `Broiler.HTML` - shared public surface used by platform adapters
 
-For documentation, check out the project on the [CodePlex Archive](https://codeplexarchive.org/project/HtmlRenderer) or the [personal blog](https://theartofdev.com/tag/html-renderer/).
+## Public API highlights
 
+- `Broiler.HTML.Image.HtmlRender` renders HTML to in-memory bitmaps, PNG bytes, and files.
+- `Broiler.HTML.Image.PixelDiffRunner` compares rendered output to a baseline image.
+- `Broiler.HTML.Image.MismatchClassifier` classifies visual mismatches for compliance triage.
+- `Broiler.HTML.WPF.HtmlRender` renders HTML into WPF drawing contexts and images.
+- `Broiler.HTML.WPF.HtmlPanel` and `Broiler.HTML.WPF.HtmlLabel` expose WPF controls.
+- `Broiler.HTML.Adapters.RAdapter` is the backend extension point for graphics, fonts, images, clipboard, and context-menu services.
 
-## Download
+## Build and validation
 
-The release packages on [GitHub](https://github.com/ArthurHub/HTML-Renderer/releases) or the [CodePlex Archive](https://codeplexarchive.org/project/HtmlRenderer) also contains a Demo application to explore HML Renderer's capabilities.
+Run the repository build from the solution directory:
 
-The latest NuGet packages can be found on NuGet.org:
+```bash
+cd Source
+dotnet build Broiler.HTML.slnx
+dotnet test Broiler.HTML.slnx
+```
 
-* [HtmlRenderer.WinForms](https://www.nuget.org/packages/HtmlRenderer.WinForms)
-* [HtmlRenderer.WPF](https://www.nuget.org/packages/HtmlRenderer.WPF)
-* [HtmlRenderer.Mono](https://www.nuget.org/packages/HtmlRenderer.Mono)
-* [HtmlRenderer.PdfSharp](https://www.nuget.org/packages/HtmlRenderer.PdfSharp)
-* [HtmlRenderer.Core](https://www.nuget.org/packages/HtmlRenderer.Core)
+`Broiler.HTML.WPF` now enables Windows targeting so solution-wide restore/build validation also works on non-Windows CI hosts.
+The current solution does not contain checked-in test projects yet, so `dotnet test` currently acts as a repository validation command rather than a substantive automated renderer test suite.
 
+## Documentation
 
-## Features and Benefits
+- [Architecture and API notes](docs/architecture.md)
+- [Compliance suites and status tracking](docs/compliance.md)
 
-* Extensive HTML 4.01 and CSS level 2 specifications support.
-* Support separating CSS from HTML by loading stylesheet code separately.
-* Support text selection, copy-paste and context menu.
-* WinForms controls: HtmlPanel, HtmlLabel and HtmlToolTip.
-* WPF controls: HtmlPanel and HtmlLabel.
-* Works on Mono.
-* Create images/PDFs from HTML snippets.
-* Handles "real world" malformed HTML, it doesn't have to be XHTML.
-* 100% managed code and no external dependencies.
-* Lightweight, just two DLLs (~300K).
-* High performance and low memory footprint.
-* Extendable and configurable.
-* Powerful [Demo application](https://codeplexarchive.org/ProjectTab/Wiki/HtmlRenderer/Documentation/Demo%20application) to explore and learn the library.
+## Compliance status
 
-
-## WinForms/WPF controls
-
-* *HtmlPanel* - The full power of HTML control build to replace WebBrowser control, accepts HTML, text selection, scrollbars, link click intercept, image load intercept and much more.
-* *HtmlLabel* - As WinForms label but accepts HTML, text selection, auto-size capabilities, transparent background and more.
-* *HtmlToolTip* - As WinForms ToolTip control but accepts HTML and ability to handle links (WinForms only).
-
-
-## Sample application's
-
-* Render HTML content generated by rich web editors like forums, blogs, etc.
-* Render Office documents converted to HTML.
-* Create WinForms UI that requires text selection with clipboard support.
-* [Create images from HTML code snippets](https://codeplexarchive.org/ProjectTab/Wiki/HtmlRenderer/Documentation/Image%20generation).
-* Create PDF document from HTML code snippets.
+Broiler.HTML already contains deterministic render and pixel-diff primitives that can be used to benchmark output against public suites. The tracked suites, current status, and explicit skip reasons are documented in [docs/compliance.md](docs/compliance.md).
