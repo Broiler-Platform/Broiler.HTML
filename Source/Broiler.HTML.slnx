@@ -1,0 +1,14 @@
+<Solution>
+  <Project Path="Broiler.HTML.Adapters/Broiler.HTML.Adapters.csproj" />
+  <Project Path="Broiler.HTML.Core/Broiler.HTML.Core.csproj" />
+  <Project Path="Broiler.HTML.CSS/Broiler.HTML.CSS.csproj" />
+  <Project Path="Broiler.HTML.Dom/Broiler.HTML.Dom.csproj" />
+  <Project Path="Broiler.HTML.Image.Compat/Broiler.HTML.Image.Compat.csproj" />
+  <Project Path="Broiler.HTML.Image/Broiler.HTML.Image.csproj" />
+  <Project Path="Broiler.HTML.Orchestration/Broiler.HTML.Orchestration.csproj" />
+  <Project Path="Broiler.HTML.Primitives/Broiler.HTML.Primitives.csproj" />
+  <Project Path="Broiler.HTML.Rendering/Broiler.HTML.Rendering.csproj" />
+  <Project Path="Broiler.HTML.Utils/Broiler.HTML.Utils.csproj" />
+  <Project Path="Broiler.HTML.WPF/Broiler.HTML.WPF.csproj" />
+  <Project Path="Broiler.HTML/Broiler.HTML.csproj" />
+</Solution>

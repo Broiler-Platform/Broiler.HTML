@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release.WPF\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Broiler.HTML\Broiler.HTML.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.CSS\Broiler.HTML.CSS.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Image.Compat\Broiler.HTML.Image.Compat.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Image\Broiler.HTML.Image.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
+</Project>

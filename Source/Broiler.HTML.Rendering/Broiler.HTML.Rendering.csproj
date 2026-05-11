@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Core\Utils\ImageError.png" />
+    <EmbeddedResource Include="Core\Utils\ImageLoad.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Broiler.HTML.Primitives\Broiler.HTML.Primitives.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Utils\Broiler.HTML.Utils.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Adapters\Broiler.HTML.Adapters.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
+  </ItemGroup>
+</Project>
