@@ -107,7 +107,7 @@ internal static class CssDefaults
         /* Not in the specification but necessary */
         a               { color: #0055BB; text-decoration:underline }
         table           { border-color:#dfdfdf; }
-        td, th          { border-color:#dfdfdf; overflow: hidden; }
+        td, th          { border-color:#dfdfdf; }
         /* Replaced inline elements — WHATWG default rendering */
         iframe          { border: 2px inset; display: inline-block }
         object          { display: inline-block }
