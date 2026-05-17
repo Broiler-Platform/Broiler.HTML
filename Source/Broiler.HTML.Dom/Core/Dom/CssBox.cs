@@ -79,7 +79,8 @@ internal class CssBox : CssBoxProperties, IDisposable
 
     protected bool _wordsSizeMeasured;
     private CssBox _listItemBox;
-    private IImageLoadHandler _imageLoadHandler;
+    private List<IImageLoadHandler?>? _backgroundImageLoadHandlers;
+    private bool _backgroundImagesInitialized;
 
     /// <summary>
     /// CSS property names that were applied with <c>!important</c> during
@@ -146,7 +147,28 @@ internal class CssBox : CssBoxProperties, IDisposable
     /// Returns the loaded background image handle, or null if no background image is loaded.
     /// Used by <c>FragmentTreeBuilder</c> to capture background images for the new paint path.
     /// </summary>
-    internal object LoadedBackgroundImage => _imageLoadHandler?.Image;
+    internal object? LoadedBackgroundImage
+    {
+        get
+        {
+            if (_backgroundImageLoadHandlers == null || _backgroundImageLoadHandlers.Count == 0)
+                return null;
+
+            if (_backgroundImageLoadHandlers.Count == 1)
+                return _backgroundImageLoadHandlers[0]?.Image;
+
+            var layers = new object?[_backgroundImageLoadHandlers.Count];
+            bool hasImage = false;
+            for (int i = 0; i < _backgroundImageLoadHandlers.Count; i++)
+            {
+                var image = _backgroundImageLoadHandlers[i]?.Image;
+                layers[i] = image;
+                hasImage |= image != null;
+            }
+
+            return hasImage ? layers : null;
+        }
+    }
 
     public CssBox(CssBox parentBox, HtmlTag tag, Uri baseUrl)
     {
@@ -629,7 +651,11 @@ internal class CssBox : CssBoxProperties, IDisposable
 
     public virtual void Dispose()
     {
-        _imageLoadHandler?.Dispose();
+        if (_backgroundImageLoadHandlers != null)
+        {
+            foreach (var imageLoadHandler in _backgroundImageLoadHandlers)
+                imageLoadHandler?.Dispose();
+        }
 
         foreach (var childBox in Boxes)
             childBox.Dispose();
@@ -2342,29 +2368,81 @@ internal class CssBox : CssBoxProperties, IDisposable
     /// </summary>
     protected void LoadBackgroundImageIfNeeded()
     {
-        if (BackgroundImage == CssConstants.None || _imageLoadHandler != null)
+        if (BackgroundImage == CssConstants.None || _backgroundImagesInitialized)
             return;
 
-        _imageLoadHandler = ContainerInt.CreateImageLoadHandler(OnImageLoadComplete);
+        _backgroundImagesInitialized = true;
+        var layers = SplitBackgroundImageLayers(BackgroundImage);
+        if (layers.Count == 0)
+            return;
 
-        // CSS background-image stores the value with a url() wrapper
-        // (e.g. "url(data:image/png;base64,...)").  Strip the wrapper
-        // so ImageLoadHandler.LoadImage can detect data: URIs via its
-        // src.StartsWith("data:image") check (§14.2.1).
-        var src = BackgroundImage;
-        if (src.StartsWith("url(", StringComparison.OrdinalIgnoreCase) && src.EndsWith(")"))
+        _backgroundImageLoadHandlers = new List<IImageLoadHandler?>(layers.Count);
+        foreach (var layer in layers)
         {
-            src = src.Substring(4, src.Length - 5).Trim();
-            // Remove optional quotes around the URL
-            if (src.Length >= 2 &&
-                ((src[0] == '\'' && src[^1] == '\'') ||
-                 (src[0] == '"' && src[^1] == '"')))
+            var src = TryExtractBackgroundImageUrl(layer);
+            if (string.IsNullOrEmpty(src))
             {
-                src = src[1..^1];
+                _backgroundImageLoadHandlers.Add(null);
+                continue;
+            }
+
+            var imageLoadHandler = ContainerInt.CreateImageLoadHandler(OnImageLoadComplete);
+            _backgroundImageLoadHandlers.Add(imageLoadHandler);
+            imageLoadHandler.LoadImage(src, HtmlTag?.Attributes, BaseUrl);
+        }
+    }
+
+    private static List<string> SplitBackgroundImageLayers(string backgroundImage)
+    {
+        var layers = new List<string>();
+        if (string.IsNullOrWhiteSpace(backgroundImage))
+            return layers;
+
+        int depth = 0;
+        int start = 0;
+        for (int i = 0; i < backgroundImage.Length; i++)
+        {
+            switch (backgroundImage[i])
+            {
+                case '(':
+                    depth++;
+                    break;
+                case ')':
+                    if (depth > 0)
+                        depth--;
+                    break;
+                case ',' when depth == 0:
+                    layers.Add(backgroundImage[start..i].Trim());
+                    start = i + 1;
+                    break;
             }
         }
 
-        _imageLoadHandler.LoadImage(src, HtmlTag?.Attributes, BaseUrl);
+        layers.Add(backgroundImage[start..].Trim());
+        return layers;
+    }
+
+    private static string? TryExtractBackgroundImageUrl(string layer)
+    {
+        if (string.IsNullOrWhiteSpace(layer))
+            return null;
+
+        layer = layer.Trim();
+        if (!layer.StartsWith("url(", StringComparison.OrdinalIgnoreCase))
+            return layer.Contains('(') ? null : layer;
+
+        if (!layer.EndsWith(")", StringComparison.Ordinal))
+            return null;
+
+        var src = layer.Substring(4, layer.Length - 5).Trim();
+        if (src.Length >= 2 &&
+            ((src[0] == '\'' && src[^1] == '\'') ||
+             (src[0] == '"' && src[^1] == '"')))
+        {
+            src = src[1..^1];
+        }
+
+        return src;
     }
 
     internal virtual void MeasureWordsSize(RGraphics g)

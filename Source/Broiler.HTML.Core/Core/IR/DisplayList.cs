@@ -129,6 +129,8 @@ public sealed class DrawTiledImageItem : DisplayItem
     public RectangleF SourceRect { get; init; }
     /// <summary>Rectangle to fill with the tiled pattern.</summary>
     public RectangleF FillRect { get; init; }
+    /// <summary>Background positioning area used to place or space tiles.</summary>
+    public RectangleF PositioningArea { get; init; }
     /// <summary>Tile origin (top-left of first tile).</summary>
     public PointF TileOrigin { get; init; }
     /// <summary>CSS background-repeat value.</summary>

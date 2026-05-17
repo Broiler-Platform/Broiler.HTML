@@ -403,6 +403,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         float tileH = item.TileHeight > 0 ? item.TileHeight : srcRect.Height;
 
         var fill = item.FillRect;
+        var positioningArea = item.PositioningArea == RectangleF.Empty ? fill : item.PositioningArea;
         var origin = item.TileOrigin;
 
         // Clip to the element's padding box
@@ -416,7 +417,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
                 DrawClippedImage(g, image, new RectangleF(origin.X, origin.Y, tileW, tileH), srcRect, clip);
                 break;
             case "space":
-                DrawSpace(g, image, fill, clip, origin, srcRect, tileW, tileH);
+                DrawSpace(g, image, fill, clip, positioningArea, origin, srcRect, tileW, tileH);
                 break;
             case "repeat-x":
                 {
@@ -481,13 +482,14 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         RImage image,
         RectangleF fill,
         RectangleF clip,
+        RectangleF positioningArea,
         PointF origin,
         RectangleF srcRect,
         float tileW,
         float tileH)
     {
-        var xPositions = GetSpacePositions(fill.X, fill.Width, tileW, origin.X);
-        var yPositions = GetSpacePositions(fill.Y, fill.Height, tileH, origin.Y);
+        var xPositions = GetSpacePositions(positioningArea.X, positioningArea.Width, tileW, origin.X);
+        var yPositions = GetSpacePositions(positioningArea.Y, positioningArea.Height, tileH, origin.Y);
 
         foreach (var y in yPositions)
         {
