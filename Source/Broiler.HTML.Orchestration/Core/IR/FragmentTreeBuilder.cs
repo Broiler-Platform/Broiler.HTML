@@ -19,15 +19,18 @@ internal static class FragmentTreeBuilder
     /// Builds a <see cref="Fragment"/> tree from the given root <see cref="CssBox"/>.
     /// Should be called after <c>PerformLayout</c> has completed.
     /// </summary>
-    public static Fragment Build(CssBox root) => BuildFragment(root);
+    public static Fragment Build(CssBox root) => BuildFragment(root, parentHasTransform: false);
 
-    private static Fragment BuildFragment(CssBox box)
+    private static Fragment BuildFragment(CssBox box, bool parentHasTransform)
     {
         var style = ComputedStyleBuilder.FromBox(box, box.HtmlTag?.Name);
+        bool hasTransformAncestor = parentHasTransform
+            || (!string.IsNullOrEmpty(style.Transform)
+            && !style.Transform.Equals("none", StringComparison.OrdinalIgnoreCase));
 
         var children = new List<Fragment>(box.Boxes.Count);
         foreach (var child in box.Boxes)
-            children.Add(BuildFragment(child));
+            children.Add(BuildFragment(child, hasTransformAncestor));
 
         List<LineFragment>? lines = null;
         if (box.LineBoxes.Count > 0)
@@ -114,6 +117,7 @@ internal static class FragmentTreeBuilder
             Style = style,
             CreatesStackingContext = IsStackingContext(box),
             StackLevel = GetStackLevel(box),
+            HasTransformAncestor = hasTransformAncestor,
             BackgroundImageHandle = bgImage,
             ImageHandle = imgHandle,
             ImageSourceRect = imgSourceRect,

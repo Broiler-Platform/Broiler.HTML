@@ -77,6 +77,7 @@ internal static class CssUtils
             "background-position" => cssBox.BackgroundPosition,
             "background-repeat" => cssBox.BackgroundRepeat,
             "background-attachment" => cssBox.BackgroundAttachment,
+            "background-origin" => cssBox.BackgroundOrigin,
             "background-size" => cssBox.BackgroundSize,
             "background-gradient" => cssBox.BackgroundGradient,
             "background-gradient-angle" => cssBox.BackgroundGradientAngle,
@@ -409,6 +410,9 @@ internal static class CssUtils
                 break;
             case "background-attachment":
                 cssBox.BackgroundAttachment = value;
+                break;
+            case "background-origin":
+                cssBox.BackgroundOrigin = value;
                 break;
             case "background-size":
                 cssBox.BackgroundSize = value;
