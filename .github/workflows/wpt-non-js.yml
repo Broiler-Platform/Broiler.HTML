@@ -5,8 +5,6 @@ on:
   pull_request:
     paths:
       - '.github/workflows/wpt-non-js.yml'
-      - 'README.md'
-      - 'docs/**'
       - 'package.json'
       - 'package-lock.json'
       - 'scripts/wpt/**'
@@ -16,12 +14,13 @@ on:
       - main
     paths:
       - '.github/workflows/wpt-non-js.yml'
-      - 'README.md'
-      - 'docs/**'
       - 'package.json'
       - 'package-lock.json'
       - 'scripts/wpt/**'
       - 'Source/**'
+
+permissions:
+  contents: read
 
 jobs:
   wpt-non-js:
