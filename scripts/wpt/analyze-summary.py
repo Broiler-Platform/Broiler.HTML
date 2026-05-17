@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shlex
 from collections import Counter
 from pathlib import Path
 
@@ -174,7 +175,7 @@ def format_duration(duration_ms: float | None) -> str:
 
 
 def shell_quote(value: str) -> str:
-    return "'" + value.replace("'", "'\"'\"'") + "'"
+    return shlex.quote(value)
 
 
 if __name__ == "__main__":
