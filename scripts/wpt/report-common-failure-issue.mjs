@@ -284,7 +284,7 @@ function findCommonPathPrefix(paths) {
 
   const pathSegments = paths.map((entry) => entry.split('/'));
   const prefix = [];
-  for (let index = 0; index < pathSegments[0].length - 1; index += 1) {
+  for (let index = 0; index < pathSegments[0].length; index += 1) {
     const segment = pathSegments[0][index];
     if (!segment || !pathSegments.every((parts) => parts[index] === segment)) {
       break;

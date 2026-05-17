@@ -109,3 +109,15 @@ test('parseArguments reads summary and repository from the environment', () => {
   assert.equal(options.repository, 'MaiRat/Broiler.HTML');
   assert.equal(options.issueToken, 'token');
 });
+
+test('buildIssueTitle keeps a single shared path segment', () => {
+  const group = selectMostCommonFailureGroup({
+    failed: [
+      { path: 'css', timeout: true, error: 'Render css with Broiler.HTML timed out after 30000ms.', totalDurationMs: 30000 },
+      { path: 'css', timeout: true, error: 'Render css with Broiler.HTML timed out after 30000ms.', totalDurationMs: 29900 }
+    ]
+  });
+
+  assert.equal(group.commonPathPrefix, 'css');
+  assert.equal(buildIssueTitle(group), 'WPT non-JS CI: broiler-render timeout in css');
+});
