@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
+import http from 'node:http';
 import test from 'node:test';
 
-import { createSummaryMarkdown, formatDiffRatio, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand } from './run-non-js.mjs';
+import { createSummaryMarkdown, formatDiffRatio, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync } from './run-non-js.mjs';
 
 test('normalizeDiffRatio accepts finite numbers and numeric strings', () => {
   assert.equal(normalizeDiffRatio(0.25), 0.25);
@@ -66,6 +67,40 @@ test('runCommand reports timed out child processes clearly', () => {
     }),
     /Synthetic timeout test timed out after 25ms\./
   );
+});
+
+test('runCommandAsync keeps in-process HTTP servers responsive', async () => {
+  const server = http.createServer((request, response) => {
+    response.statusCode = 200;
+    response.end('ok');
+  });
+
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string');
+
+  try {
+    const result = await runCommandAsync(process.execPath, [
+      '-e',
+      `fetch('http://127.0.0.1:${address.port}/').then(async (response) => {
+        const body = await response.text();
+        if (!response.ok || body !== 'ok') {
+          process.exit(2);
+        }
+      }).catch((error) => {
+        console.error(error);
+        process.exit(1);
+      });`
+    ], {
+      description: 'Synthetic async HTTP fetch test',
+      timeoutMs: 5000,
+      timeoutMessageMs: 5000
+    });
+
+    assert.equal(result.status, 0);
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  }
 });
 
 test('normalizeCompareReport accepts PascalCase compare reports from the .NET CLI', () => {
