@@ -3,7 +3,6 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const defaultRecentIssueWindowDays = 7;
 const defaultExampleLimit = 5;
 const issueSignaturePrefix = 'broiler-wpt-signature:';
 
@@ -32,16 +31,9 @@ async function main(argv = process.argv.slice(2), env = process.env) {
     return 0;
   }
 
-  const recentIssues = await listRepositoryIssues(repository, options.issueToken);
-  const issueTitle = buildIssueTitle(failureGroup);
-  if (!shouldCreateIssue(recentIssues, failureGroup.signature, options.recentIssueWindowDays, new Date(), issueTitle)) {
-    console.log(`A matching open or recent issue already exists for ${failureGroup.signature}; skipping creation.`);
-    return 0;
-  }
-
   const workflowRunUrl = buildWorkflowRunUrl(options);
   const issue = await createIssue(repository, options.issueToken, {
-    title: issueTitle,
+    title: buildIssueTitle(failureGroup),
     body: buildIssueBody(summary, failureGroup, workflowRunUrl, options)
   });
 
@@ -54,7 +46,6 @@ function parseArguments(args, env = process.env) {
     summaryPath: env.SUMMARY_JSON ? path.resolve(env.SUMMARY_JSON) : null,
     repository: env.GITHUB_REPOSITORY ?? null,
     issueToken: env.ISSUE_TOKEN ?? '',
-    recentIssueWindowDays: defaultRecentIssueWindowDays,
     exampleLimit: defaultExampleLimit,
     serverUrl: env.GITHUB_SERVER_URL ?? 'https://github.com',
     runId: env.GITHUB_RUN_ID ?? null,
@@ -69,9 +60,6 @@ function parseArguments(args, env = process.env) {
         break;
       case '--repo':
         options.repository = readValue(args, ++index, argument);
-        break;
-      case '--recent-days':
-        options.recentIssueWindowDays = readInteger(args, ++index, argument, 1);
         break;
       case '--example-limit':
         options.exampleLimit = readInteger(args, ++index, argument, 1);
@@ -397,41 +385,6 @@ function buildWorkflowRunUrl(options) {
   return `${options.serverUrl}/${options.repository}/actions/runs/${options.runId}${attemptSuffix}`;
 }
 
-function shouldCreateIssue(issues, signature, recentIssueWindowDays, now = new Date(), title = null) {
-  const signatureMarker = `${issueSignaturePrefix}${signature}`;
-  const recentThreshold = new Date(now.getTime() - recentIssueWindowDays * 24 * 60 * 60 * 1000);
-
-  return !issues.some((issue) => {
-    const titleMatches = typeof issue?.title === 'string' && title !== null && issue.title === title;
-    const signatureMatches = typeof issue?.body === 'string' && issue.body.includes(signatureMarker);
-    if (!titleMatches && !signatureMatches) {
-      return false;
-    }
-
-    if (issue.state === 'open') {
-      return true;
-    }
-
-    const createdAt = typeof issue.created_at === 'string' ? new Date(issue.created_at) : null;
-    return createdAt instanceof Date && !Number.isNaN(createdAt.valueOf()) && createdAt >= recentThreshold;
-  });
-}
-
-async function listRepositoryIssues(repository, issueToken) {
-  const searchParameters = new URLSearchParams({
-    state: 'all',
-    sort: 'created',
-    direction: 'desc',
-    per_page: '100'
-  });
-
-  return githubApiRequest(
-    repository,
-    issueToken,
-    `/repos/${repository.owner}/${repository.repo}/issues?${searchParameters.toString()}`
-  ).then((issues) => issues.filter((issue) => !issue.pull_request));
-}
-
 async function createIssue(repository, issueToken, issue) {
   return githubApiRequest(
     repository,
@@ -474,8 +427,7 @@ export {
   main,
   normalizeFailure,
   parseArguments,
-  selectMostCommonFailureGroup,
-  shouldCreateIssue
+  selectMostCommonFailureGroup
 };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

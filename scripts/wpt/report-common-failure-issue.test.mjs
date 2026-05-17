@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
+import { mkdtemp, writeFile, rm } from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
 import test from 'node:test';
 
 import {
   buildIssueBody,
   buildIssueTitle,
+  main,
   parseArguments,
-  selectMostCommonFailureGroup,
-  shouldCreateIssue
+  selectMostCommonFailureGroup
 } from './report-common-failure-issue.mjs';
 
 test('selectMostCommonFailureGroup prefers the most frequent timeout phase', () => {
@@ -72,30 +75,60 @@ test('buildIssueBody includes diagnostic context and rerun arguments', () => {
   assert.match(body, /Background content is missing\./);
 });
 
-test('shouldCreateIssue blocks matching open or recent issues only', () => {
-  const now = new Date('2026-05-17T13:00:00.000Z');
-  const matchingClosedIssue = {
-    state: 'closed',
-    title: 'WPT non-JS CI: broiler-render timeout in css/css-backgrounds',
-    body: '<!-- broiler-wpt-signature:timeout:broiler-render -->',
-    created_at: '2026-05-11T12:00:00.000Z'
-  };
-  const oldMatchingClosedIssue = {
-    state: 'closed',
-    title: 'WPT non-JS CI: broiler-render timeout in css/css-backgrounds',
-    body: '<!-- broiler-wpt-signature:timeout:broiler-render -->',
-    created_at: '2026-05-01T12:00:00.000Z'
-  };
-  const matchingOpenTitleOnlyIssue = {
-    state: 'open',
-    title: 'WPT non-JS CI: broiler-render timeout in css/css-backgrounds',
-    body: 'Manually created tracker issue.'
+test('main always creates a new issue without querying existing issues', async () => {
+  const tempDirectory = await mkdtemp(path.join(os.tmpdir(), 'broiler-wpt-issue-'));
+  const summaryPath = path.join(tempDirectory, 'summary.json');
+  await writeFile(summaryPath, JSON.stringify({
+    generatedAt: '2026-05-17T12:00:00.000Z',
+    wptRoot: '/tmp/wpt',
+    outputRoot: '/tmp/out',
+    viewport: { width: 800, height: 600 },
+    timeouts: { perTestMs: 30000 },
+    passedCount: 4,
+    failedCount: 1,
+    timedOutCount: 0,
+    totalCandidates: 5,
+    failed: [
+      {
+        path: 'css/css-backgrounds/background-attachment-fixed.html',
+        timeout: false,
+        diffRatio: 0.42,
+        totalDurationMs: 2500,
+        mismatch: {
+          category: 'MissingContent',
+          summary: 'Background content is missing.'
+        }
+      }
+    ]
+  }), 'utf8');
+
+  const originalFetch = globalThis.fetch;
+  const requests = [];
+  globalThis.fetch = async (url, init = {}) => {
+    requests.push({ url, init });
+    return {
+      ok: true,
+      json: async () => ({ number: 42, html_url: 'https://github.com/MaiRat/Broiler.HTML/issues/42' }),
+      text: async () => ''
+    };
   };
 
-  assert.equal(shouldCreateIssue([matchingClosedIssue], 'timeout:broiler-render', 7, now, 'WPT non-JS CI: broiler-render timeout in css/css-backgrounds'), false);
-  assert.equal(shouldCreateIssue([oldMatchingClosedIssue], 'timeout:broiler-render', 7, now, 'WPT non-JS CI: broiler-render timeout in css/css-backgrounds'), true);
-  assert.equal(shouldCreateIssue([matchingOpenTitleOnlyIssue], 'timeout:broiler-render', 7, now, 'WPT non-JS CI: broiler-render timeout in css/css-backgrounds'), false);
-  assert.equal(shouldCreateIssue([{ state: 'open', body: '<!-- broiler-wpt-signature:mismatch:MissingContent -->' }], 'timeout:broiler-render', 7, now, 'WPT non-JS CI: broiler-render timeout in css/css-backgrounds'), true);
+  try {
+    const exitCode = await main(['--summary', summaryPath, '--repo', 'MaiRat/Broiler.HTML', '--example-limit', '1'], {
+      ISSUE_TOKEN: 'token',
+      GITHUB_SERVER_URL: 'https://github.com',
+      GITHUB_RUN_ID: '123',
+      GITHUB_RUN_ATTEMPT: '1'
+    });
+
+    assert.equal(exitCode, 0);
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].url, 'https://api.github.com/repos/MaiRat/Broiler.HTML/issues');
+    assert.equal(requests[0].init.method, 'POST');
+  } finally {
+    globalThis.fetch = originalFetch;
+    await rm(tempDirectory, { recursive: true, force: true });
+  }
 });
 
 test('parseArguments reads summary and repository from the environment', () => {
