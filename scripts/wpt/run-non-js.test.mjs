@@ -62,10 +62,15 @@ test('parseArguments reads timeout from the environment and lets CLI arguments o
 });
 
 test('parseArguments collects repeated include and exclude filters', () => {
-  const options = parseArguments(['--include', 'css/css-backgrounds', '--exclude', 'background-attachment-fixed']);
+  const options = parseArguments([
+    '--include', 'css/css-backgrounds',
+    '--include', 'css/css-text',
+    '--exclude', 'background-attachment-fixed',
+    '--exclude', 'background_repeat_space'
+  ]);
 
-  assert.deepEqual(options.includes, ['css/css-backgrounds']);
-  assert.deepEqual(options.excludes, ['background-attachment-fixed']);
+  assert.deepEqual(options.includes, ['css/css-backgrounds', 'css/css-text']);
+  assert.deepEqual(options.excludes, ['background-attachment-fixed', 'background_repeat_space']);
 });
 
 test('runCommand reports timed out child processes clearly', () => {
