@@ -489,7 +489,7 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
         return;
       }
 
-      if (!allowExitCodes.includes(code ?? 1)) {
+      if (code === null || !allowExitCodes.includes(code)) {
         reject(new Error([
           `${description ?? command} failed with exit code ${code ?? 'unknown'}.`,
           stdout.trim() ? `STDOUT:\n${stdout.trim()}` : null,
