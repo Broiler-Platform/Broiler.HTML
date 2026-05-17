@@ -105,6 +105,19 @@ jobs:
           }
           EOF
 
+      - name: Create triage issue for the most common WPT failure
+        if: always()
+        continue-on-error: true
+        timeout-minutes: 5
+        env:
+          SUMMARY_JSON: ${{ runner.temp }}/wpt-artifacts/summary.json
+          # ISSUE_TOKEN should be a fine-grained PAT or GitHub App token with
+          # Issues: Read and write permission on this repository. The script uses
+          # it only to inspect existing issues and create a new one when the same
+          # WPT failure signature is not already open or recently filed.
+          ISSUE_TOKEN: ${{ secrets.ISSUE_TOKEN }}
+        run: node ./scripts/wpt/report-common-failure-issue.mjs --recent-days 7 --example-limit 5
+
       - name: Upload WPT artifacts
         if: always()
         uses: actions/upload-artifact@v4
