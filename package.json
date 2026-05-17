@@ -1,0 +1,14 @@
+{
+  "name": "broiler.html",
+  "version": "1.0.0",
+  "description": "Playwright-based non-JS WPT runner for Broiler.HTML compliance checks.",
+  "scripts": {
+    "wpt:run": "node ./scripts/wpt/run-non-js.mjs",
+    "wpt:install-browsers": "playwright install chromium"
+  },
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

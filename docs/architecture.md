@@ -83,4 +83,4 @@ dotnet build Broiler.HTML.slnx
 dotnet test Broiler.HTML.slnx
 ```
 
-For visual compliance work, render a fixture with `Broiler.HTML.Image.HtmlRender`, compare it with `PixelDiffRunner`, and classify failures with `MismatchClassifier`.
+For visual compliance work, render a fixture with `Broiler.HTML.Image.HtmlRender`, compare it with `PixelDiffRunner`, and classify failures with `MismatchClassifier`. The repository-level wrappers for that flow are `Broiler.HTML.Tool compare` and `scripts/wpt/run-non-js.mjs`.
