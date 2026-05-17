@@ -130,6 +130,14 @@ npm run wpt:run -- --wpt-root ./artifacts/wpt-source --test-timeout-ms 60000
 BROILER_WPT_TEST_TIMEOUT_MS=60000 npm run wpt:run -- --wpt-root ./artifacts/wpt-source
 ```
 
+To analyze the resulting `summary.json` (including older artifacts whose `report.json` files came from the .NET CLI's PascalCase JSON), run:
+
+```bash
+python3 ./scripts/wpt/analyze-summary.py ./artifacts/wpt/summary.json --emit-rerun-args
+```
+
+The analyzer groups timeout phases, summarizes mismatch categories, and emits focused `--include` arguments for rerunning just the failing cases.
+
 If your selected WPT cases use fixture fonts such as Ahem, pass them through to the Broiler renderer:
 
 ```bash
@@ -137,6 +145,11 @@ npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/p
 ```
 
 The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, runs a focused non-JS subset, uploads the diff artifacts, and adds the rendered summary to the workflow summary page.
+
+Recent CI runs showed two main patterns:
+
+- the observed batch timeouts were caused by the Broiler render phase exhausting the 30000 ms per-test budget on a subset of `css/css-backgrounds` cases
+- the non-timeout visual mismatches clustered around `MissingContent` for `background-attachment-fixed*` cases, plus a smaller `MinorDiff` in `background-attachment-local-hidden.html`
 
 ## Documentation
 
