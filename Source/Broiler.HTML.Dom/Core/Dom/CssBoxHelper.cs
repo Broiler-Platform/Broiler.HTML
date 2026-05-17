@@ -135,7 +135,10 @@ internal static class CssBoxHelper
             currentMaxBottom = Math.Max(currentMaxBottom, startBox.Rectangles[line].Bottom);
 
         foreach (var b in startBox.Boxes)
+        {
+            currentMaxBottom = Math.Max(currentMaxBottom, b.ActualBottom);
             currentMaxBottom = Math.Max(currentMaxBottom, GetMaximumBottom(b, currentMaxBottom));
+        }
 
         return currentMaxBottom;
     }
