@@ -1,0 +1,100 @@
+name: Non-JS WPT compliance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/wpt-non-js.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/wpt/**'
+      - 'Source/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/wpt-non-js.yml'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/wpt/**'
+      - 'Source/**'
+
+permissions:
+  contents: read
+
+jobs:
+  wpt-non-js:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npm run wpt:install-browsers
+
+      - name: Build solution
+        run: dotnet build Source/Broiler.HTML.slnx
+
+      - name: Prepare WPT checkout
+        run: npm run wpt:prepare -- --output "${RUNNER_TEMP}/wpt" --ref main
+
+      - name: Run non-JS WPT subset
+        run: >
+          npm run wpt:run -- --wpt-root "${RUNNER_TEMP}/wpt"
+          --output "${RUNNER_TEMP}/wpt-artifacts"
+          --include css/css-backgrounds
+          --limit 20
+          --width 800
+          --height 600
+          --exit-zero-on-differences
+
+      - name: Add WPT summary to workflow summary
+        if: always()
+        run: |
+          if [ -f "${RUNNER_TEMP}/wpt-artifacts/summary.md" ]; then
+            cat "${RUNNER_TEMP}/wpt-artifacts/summary.md" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: Flag visual discrepancies
+        if: always()
+        env:
+          SUMMARY_JSON: ${{ runner.temp }}/wpt-artifacts/summary.json
+        run: |
+          node --input-type=module - <<'EOF'
+          import { existsSync, readFileSync } from 'node:fs';
+
+          const summaryPath = process.env.SUMMARY_JSON;
+          if (!summaryPath || !existsSync(summaryPath)) {
+            console.log('No WPT summary JSON was produced.');
+            process.exit(0);
+          }
+
+          const summary = JSON.parse(readFileSync(summaryPath, 'utf8'));
+          if (summary.failedCount > 0) {
+            console.log(`::warning::${summary.failedCount} WPT case(s) differed from Chromium. See the uploaded workflow artifact for diffs.`);
+          }
+          EOF
+
+      - name: Upload WPT artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: non-js-wpt-artifacts
+          path: ${{ runner.temp }}/wpt-artifacts
+          if-no-files-found: warn

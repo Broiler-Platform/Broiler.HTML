@@ -28,7 +28,7 @@ The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized in
 ## Public API highlights
 
 - `Broiler.HTML.Image.HtmlRender` renders HTML to in-memory bitmaps, PNG bytes, and files.
-- `Broiler.HTML.Tool` exposes a cross-platform command-line renderer for HTML-to-image workflows.
+- `Broiler.HTML.Tool` exposes a cross-platform command-line renderer plus image-diff reporting for HTML compliance workflows.
 - `Broiler.HTML.Image.PixelDiffRunner` compares rendered output to a baseline image.
 - `Broiler.HTML.Image.MismatchClassifier` classifies visual mismatches for compliance triage.
 - `Broiler.HTML.WPF.HtmlRender` renders HTML into WPF drawing contexts and images.
@@ -79,9 +79,55 @@ The tool supports these standard arguments:
 - `--auto-size` with optional `--max-width` / `--max-height`
 - `--quality <1-100>` for JPEG output
 - `--base-url <url>` to resolve relative assets when rendering inline HTML
+- `--font [Alias=]<path>` to register deterministic fixture fonts such as WPT Ahem
 - `--help` to display usage
 
 For local HTML files, the CLI automatically uses the source file as the base URL so relative stylesheets and images resolve consistently.
+
+Compare a Broiler render against a reference browser screenshot:
+
+```bash
+dotnet run --project Source/Broiler.HTML.Tool -- compare --actual ./broiler.png --baseline ./chromium.png --diff-output ./diff.png --json-output ./report.json
+```
+
+## WPT non-JS compliance runner
+
+The repository now includes a Playwright-based runner for local [web-platform-tests](https://github.com/web-platform-tests/wpt) checkouts that:
+
+- discovers HTML/XHTML cases while skipping files that appear to depend on JavaScript
+- renders each selected case through the Broiler CLI
+- captures a Chromium reference screenshot with JavaScript disabled
+- compares the two images with `PixelDiffRunner` / `MismatchClassifier`
+- writes per-test diff artifacts plus `summary.json` and `summary.md`
+
+Set it up from the repository root:
+
+```bash
+npm install
+npm run wpt:install-browsers
+npm run wpt:prepare -- --output ./artifacts/wpt-source
+```
+
+The prepare step can either clone the official WPT repository or copy an existing local checkout:
+
+```bash
+npm run wpt:prepare -- --output ./artifacts/wpt-source --source /path/to/existing/wpt --force
+```
+
+Run a focused batch against the prepared WPT tree:
+
+```bash
+dotnet build Source/Broiler.HTML.slnx
+npm run wpt:run -- --wpt-root ./artifacts/wpt-source --include css/css-backgrounds --limit 20 --width 800 --height 600
+```
+
+If your selected WPT cases use fixture fonts such as Ahem, pass them through to the Broiler renderer:
+
+```bash
+npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/path/to/wpt/fonts/Ahem.ttf
+```
+
+The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, runs a focused non-JS subset, uploads the diff artifacts, and adds the rendered summary to the workflow summary page.
 
 ## Documentation
 
