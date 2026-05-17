@@ -105,13 +105,20 @@ Set it up from the repository root:
 ```bash
 npm install
 npm run wpt:install-browsers
+npm run wpt:prepare -- --output ./artifacts/wpt-source
 ```
 
-Run a focused batch against a local WPT checkout:
+The prepare step can either clone the official WPT repository or copy an existing local checkout:
+
+```bash
+npm run wpt:prepare -- --output ./artifacts/wpt-source --source /path/to/existing/wpt --force
+```
+
+Run a focused batch against the prepared WPT tree:
 
 ```bash
 dotnet build Source/Broiler.HTML.slnx
-npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-backgrounds --limit 20 --width 800 --height 600
+npm run wpt:run -- --wpt-root ./artifacts/wpt-source --include css/css-backgrounds --limit 20 --width 800 --height 600
 ```
 
 If your selected WPT cases use fixture fonts such as Ahem, pass them through to the Broiler renderer:
@@ -119,6 +126,8 @@ If your selected WPT cases use fixture fonts such as Ahem, pass them through to 
 ```bash
 npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/path/to/wpt/fonts/Ahem.ttf
 ```
+
+The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, runs a focused non-JS subset, uploads the diff artifacts, and adds the rendered summary to the workflow summary page.
 
 ## Documentation
 

@@ -8,7 +8,7 @@ Broiler.HTML already includes deterministic image rendering, font-loading hooks 
 
 | Suite | Link | Scope | Current status | Explicit reason / next step |
 | --- | --- | --- | --- | --- |
-| Web Platform Tests (WPT) | https://github.com/web-platform-tests/wpt | Broad HTML/CSS/web-platform interoperability | Partially automated in-repo | `scripts/wpt/run-non-js.mjs` runs a local WPT checkout through the Broiler CLI and Chromium/Playwright with JavaScript disabled, then writes image diffs and JSON/Markdown summaries. The next step is expanding the curated case selection and wiring the runner into CI. |
+| Web Platform Tests (WPT) | https://github.com/web-platform-tests/wpt | Broad HTML/CSS/web-platform interoperability | Partially automated in-repo | `scripts/wpt/prepare-wpt.mjs` prepares a checkout and `scripts/wpt/run-non-js.mjs` runs it through the Broiler CLI and Chromium/Playwright with JavaScript disabled, then writes image diffs and JSON/Markdown summaries. `.github/workflows/wpt-non-js.yml` runs a curated subset in CI and uploads the resulting artifacts. |
 | WPT live results | https://wpt.fyi/ | Published interoperability results | Referenced only | Useful as an external comparison target once Broiler.HTML starts publishing suite results. |
 | CSS 2.1 test suite | https://test.csswg.org/suites/css2.1/20110323/html4/ | CSS 2.1 rendering conformance | Skipped in current repo snapshot | No checked-in harness or baseline-image corpus exists yet. |
 | Acid3 | http://acid3.acidtests.org/ | Historical HTML/CSS/DOM renderer milestone test | Tracked manually | Source comments reference Acid3-related work, but the repository does not currently contain the corresponding test assets or automated checks. |
@@ -19,10 +19,10 @@ Broiler.HTML already includes deterministic image rendering, font-loading hooks 
 The repeatable in-repo workflow is:
 
 1. Build the solution and install the Playwright dependency/browser (`npm install` and `npm run wpt:install-browsers`).
-2. Point `scripts/wpt/run-non-js.mjs` at a local WPT checkout with `--wpt-root`.
+2. Prepare a local checkout with `scripts/wpt/prepare-wpt.mjs` (clone the official repo or copy an existing tree).
 3. Let the runner skip JS-dependent files, render each selected case through `Broiler.HTML.Tool`, and capture a Chromium screenshot with JavaScript disabled.
 4. Compare the output against the reference image with `PixelDiffRunner.Compare(...)`.
-5. Use `MismatchClassifier.Classify(...)` plus the generated `summary.json` / `summary.md` files to triage failures and track regressions.
+5. Use `MismatchClassifier.Classify(...)` plus the generated `summary.json` / `summary.md` files to triage failures and track regressions locally or through `.github/workflows/wpt-non-js.yml`.
 
 ## Status publication
 

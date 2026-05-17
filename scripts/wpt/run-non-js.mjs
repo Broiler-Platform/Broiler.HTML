@@ -5,7 +5,6 @@ import { promises as fs } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { chromium } from 'playwright';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, '..', '..');
@@ -75,6 +74,7 @@ try {
   const server = await startStaticServer(options.wptRoot);
   console.log(`Serving WPT files from ${server.baseUrl}`);
 
+  const { chromium } = await import('playwright');
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: options.width, height: options.height },
@@ -173,7 +173,7 @@ try {
 
   if (failures.length > 0) {
     console.error(`${failures.length} test(s) differed from Chromium.`);
-    process.exit(1);
+    process.exit(options.exitZeroOnDifferences ? 0 : 1);
   }
 
   console.log(`All ${passes.length} rendered test(s) matched Chromium within the configured thresholds.`);
@@ -194,7 +194,8 @@ function parseArguments(args) {
     height: 600,
     fonts: [],
     pixelDiffThreshold: 0.001,
-    colorTolerance: 5
+    colorTolerance: 5,
+    exitZeroOnDifferences: false
   };
 
   for (let index = 0; index < args.length; index += 1) {
@@ -230,6 +231,9 @@ function parseArguments(args) {
         break;
       case '--color-tolerance':
         options.colorTolerance = readInteger(args, ++index, argument, 0, 255);
+        break;
+      case '--exit-zero-on-differences':
+        options.exitZeroOnDifferences = true;
         break;
       default:
         throw new Error(`Unknown argument: ${argument}`);
@@ -513,6 +517,7 @@ Options:
   --font [Alias=]<path>          Register a local font with Broiler before each render. Repeat as needed.
   --pixel-diff-threshold <0-1>   Pixel diff pass threshold. Defaults to 0.001.
   --color-tolerance <0-255>      Per-channel diff tolerance. Defaults to 5.
+  --exit-zero-on-differences     Keep exit code 0 when visual mismatches are found.
   -h, --help                     Show help.
 
 Notes:
