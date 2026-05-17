@@ -1,8 +1,11 @@
 import assert from 'node:assert/strict';
+import os from 'node:os';
+import path from 'node:path';
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import http from 'node:http';
 import test from 'node:test';
 
-import { createSummaryMarkdown, formatDiffRatio, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync } from './run-non-js.mjs';
+import { collectCandidates, createSummaryMarkdown, formatDiffRatio, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync } from './run-non-js.mjs';
 
 test('normalizeDiffRatio accepts finite numbers and numeric strings', () => {
   assert.equal(normalizeDiffRatio(0.25), 0.25);
@@ -56,6 +59,18 @@ test('parseArguments reads timeout from the environment and lets CLI arguments o
 
   assert.equal(parseArguments([], env).testTimeoutMs, 45000);
   assert.equal(parseArguments(['--test-timeout-ms', '12000'], env).testTimeoutMs, 12000);
+});
+
+test('parseArguments collects repeated include and exclude filters', () => {
+  const options = parseArguments([
+    '--include', 'css/css-backgrounds',
+    '--include', 'css/css-text',
+    '--exclude', 'background-attachment-fixed',
+    '--exclude', 'background_repeat_space'
+  ]);
+
+  assert.deepEqual(options.includes, ['css/css-backgrounds', 'css/css-text']);
+  assert.deepEqual(options.excludes, ['background-attachment-fixed', 'background_repeat_space']);
 });
 
 test('runCommand reports timed out child processes clearly', () => {
@@ -162,4 +177,15 @@ test('createSummaryMarkdown labels timed out cases explicitly', () => {
   assert.match(markdown, /- Per-test timeout: 30000 ms/);
   assert.match(markdown, /- Timed out: 1/);
   assert.match(markdown, /\| `css\/css-backgrounds\/hang\.html` \| n\/a \| Compare css\/css-backgrounds\/hang\.html timed out after 30000ms\. \| n\/a \| n\/a \|/);
+});
+
+test('collectCandidates respects exclude filters after include matching', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'broiler-wpt-candidates-'));
+  await mkdir(path.join(root, 'css', 'css-backgrounds'), { recursive: true });
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'keep.html'), '<!doctype html><p>keep</p>');
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'skip.html'), '<!doctype html><p>skip</p>');
+
+  const result = await collectCandidates(root, ['css/css-backgrounds'], ['skip.html'], 0);
+
+  assert.deepEqual(result.tests.map((testCase) => testCase.relativePath), ['css/css-backgrounds/keep.html']);
 });

@@ -2407,6 +2407,9 @@ internal static class PaintWalker
                 Stops = gradInfo.Stops,
                 Angle = gradInfo.Angle,
                 InterpolationSpace = gradInfo.InterpolationSpace,
+                IsRadial = gradInfo.IsRadial,
+                CenterX = gradInfo.CenterX,
+                CenterY = gradInfo.CenterY,
             });
         }
     }
@@ -2774,15 +2777,21 @@ internal static class PaintWalker
         public float Angle { get; set; } = 180f; // default: to bottom
         public string InterpolationSpace { get; set; } = "srgb";
         public List<GradientStop> Stops { get; set; } = new();
+        public bool IsRadial { get; set; }
+        public float CenterX { get; set; } = 0.5f;
+        public float CenterY { get; set; } = 0.5f;
     }
 
     /// <summary>
     /// Parses a CSS gradient function string into angle and color stops.
-    /// Supports <c>linear-gradient([angle|direction,] color [pos], color [pos], …)</c>.
+    /// Supports <c>linear-gradient([angle|direction,] color [pos], color [pos], …)</c>
+    /// and <c>radial-gradient([shape size at position,] color [pos], …)</c>.
     /// </summary>
     private static GradientInfo? ParseGradientFunction(string gradFunc)
     {
-        if (!gradFunc.StartsWith("linear-gradient(", StringComparison.OrdinalIgnoreCase))
+        bool isLinear = gradFunc.StartsWith("linear-gradient(", StringComparison.OrdinalIgnoreCase);
+        bool isRadial = !isLinear && gradFunc.StartsWith("radial-gradient(", StringComparison.OrdinalIgnoreCase);
+        if (!isLinear && !isRadial)
             return null;
 
         int openParen = gradFunc.IndexOf('(');
@@ -2813,47 +2822,78 @@ internal static class PaintWalker
         var info = new GradientInfo();
         int colorStartIdx = 0;
 
-        // Check if first token is a direction/angle.
-        string first = tokens[0].Trim();
-        string firstLower = first.ToLowerInvariant();
-        if (firstLower.StartsWith("in "))
+        if (isRadial)
         {
-            info.InterpolationSpace = ParseGradientInterpolationSpace(first[3..].Trim());
-            colorStartIdx = 1;
+            info.IsRadial = true;
+
+            // The first token of radial-gradient may be a geometry descriptor:
+            //   [<shape> || <size>] [at <position>]
+            // If the first token contains "at " or any shape/size keyword it is
+            // the geometry descriptor, not a color stop.
+            string first = tokens[0].Trim();
+            string firstLower = first.ToLowerInvariant();
+            bool isGeometry = firstLower.Contains(" at ")
+                || firstLower.StartsWith("at ")
+                || firstLower == "circle"
+                || firstLower == "ellipse"
+                || firstLower.Contains("closest-")
+                || firstLower.Contains("farthest-");
+            if (isGeometry)
+            {
+                colorStartIdx = 1;
+                int atIdx = firstLower.IndexOf(" at ", StringComparison.Ordinal);
+                string posStr = atIdx >= 0
+                    ? first[(atIdx + 4)..].Trim()
+                    : (firstLower.StartsWith("at ") ? first[3..].Trim() : string.Empty);
+
+                if (!string.IsNullOrEmpty(posStr))
+                    (info.CenterX, info.CenterY) = ParseRadialGradientCenter(posStr);
+            }
         }
         else
         {
-            string angleToken = first;
-            int interpolationIdx = firstLower.IndexOf(" in ", StringComparison.Ordinal);
-            if (interpolationIdx >= 0)
+            // Check if first token is a direction/angle (linear-gradient only).
+            string first = tokens[0].Trim();
+            string firstLower = first.ToLowerInvariant();
+            if (firstLower.StartsWith("in "))
             {
-                angleToken = first[..interpolationIdx].Trim();
-                info.InterpolationSpace = ParseGradientInterpolationSpace(first[(interpolationIdx + 4)..].Trim());
+                info.InterpolationSpace = ParseGradientInterpolationSpace(first[3..].Trim());
                 colorStartIdx = 1;
             }
+            else
+            {
+                string angleToken = first;
+                int interpolationIdx = firstLower.IndexOf(" in ", StringComparison.Ordinal);
+                if (interpolationIdx >= 0)
+                {
+                    angleToken = first[..interpolationIdx].Trim();
+                    info.InterpolationSpace = ParseGradientInterpolationSpace(first[(interpolationIdx + 4)..].Trim());
+                    colorStartIdx = 1;
+                }
 
-            if (angleToken.StartsWith("to ", StringComparison.OrdinalIgnoreCase))
-            {
-                info.Angle = ParseCssDirection(angleToken);
-                colorStartIdx = 1;
-            }
-            else if (angleToken.EndsWith("deg", StringComparison.OrdinalIgnoreCase))
-            {
-                if (float.TryParse(angleToken.AsSpan(0, angleToken.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float deg))
-                    info.Angle = deg;
-                colorStartIdx = 1;
-            }
-            else if (angleToken.EndsWith("turn", StringComparison.OrdinalIgnoreCase))
-            {
-                if (float.TryParse(angleToken.AsSpan(0, angleToken.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float turn))
-                    info.Angle = turn * 360f;
-                colorStartIdx = 1;
-            }
-            else if (angleToken.EndsWith("rad", StringComparison.OrdinalIgnoreCase))
-            {
-                if (float.TryParse(angleToken.AsSpan(0, angleToken.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float rad))
-                    info.Angle = (float)(rad * 180.0 / Math.PI);
-                colorStartIdx = 1;
+                if (angleToken.StartsWith("to ", StringComparison.OrdinalIgnoreCase))
+                {
+                    info.Angle = ParseCssDirection(angleToken);
+                    colorStartIdx = 1;
+                }
+                else if (angleToken.EndsWith("deg", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (float.TryParse(angleToken.AsSpan(0, angleToken.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float deg))
+                        info.Angle = deg;
+                    colorStartIdx = 1;
+                }
+                else if (angleToken.EndsWith("turn", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (float.TryParse(angleToken.AsSpan(0, angleToken.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float turn))
+                        info.Angle = turn * 360f;
+                    colorStartIdx = 1;
+                }
+                else if (angleToken.EndsWith("rad", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (float.TryParse(angleToken.AsSpan(0, angleToken.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float rad))
+                        info.Angle = (float)(rad * 180.0 / Math.PI);
+                    colorStartIdx = 1;
+                }
             }
         }
 
@@ -2892,8 +2932,51 @@ internal static class PaintWalker
     }
 
     /// <summary>
-    /// Parses a single CSS gradient color stop (e.g. "rgba(0,255,0,0.5)" or "red 50%").
+    /// Parses a CSS radial-gradient center position string (the part after <c>at</c>)
+    /// and returns normalized (0.0–1.0) X and Y fractions.
     /// </summary>
+    private static (float CenterX, float CenterY) ParseRadialGradientCenter(string posStr)
+    {
+        posStr = posStr.Trim();
+        if (string.IsNullOrEmpty(posStr))
+            return (0.5f, 0.5f);
+
+        // Split into space-separated tokens.
+        var parts = posStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        float x = 0.5f, y = 0.5f;
+
+        if (parts.Length == 1)
+        {
+            // Single keyword applies to both axes; treat it as centering the specified axis.
+            string p = parts[0].ToLowerInvariant();
+            if (p == "center") { x = 0.5f; y = 0.5f; }
+            else if (p == "left") { x = 0f; y = 0.5f; }
+            else if (p == "right") { x = 1f; y = 0.5f; }
+            else if (p == "top") { x = 0.5f; y = 0f; }
+            else if (p == "bottom") { x = 0.5f; y = 1f; }
+            else x = y = ParsePositionFraction(p);
+        }
+        else
+        {
+            x = ParsePositionFraction(parts[0].ToLowerInvariant());
+            y = ParsePositionFraction(parts[1].ToLowerInvariant());
+        }
+
+        return (Math.Clamp(x, 0f, 1f), Math.Clamp(y, 0f, 1f));
+
+        static float ParsePositionFraction(string token)
+        {
+            if (token == "center") return 0.5f;
+            if (token == "left" || token == "top") return 0f;
+            if (token == "right" || token == "bottom") return 1f;
+            if (token.EndsWith('%') && float.TryParse(token.AsSpan(0, token.Length - 1),
+                NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
+                return pct / 100f;
+            // Pixel values cannot be resolved without tile size; fall back to 50%.
+            return 0.5f;
+        }
+    }
+
     private static GradientStop? ParseGradientStop(string stopStr, int index, int total)
     {
         // Default position: evenly distributed.

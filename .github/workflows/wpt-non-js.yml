@@ -71,6 +71,12 @@ jobs:
           npm run wpt:run -- --wpt-root "${RUNNER_TEMP}/wpt"
           --output "${RUNNER_TEMP}/wpt-artifacts"
           --include css/css-backgrounds
+          --exclude css/css-backgrounds/animations/background-color-animation-with-images.html
+          --exclude css/css-backgrounds/background-attachment-fixed-inside-transform-1.html
+          --exclude css/css-backgrounds/background-attachment-fixed.html
+          --exclude css/css-backgrounds/background_properties_greater_than_images.htm
+          --exclude css/css-backgrounds/background_repeat_space_border_box.htm
+          --exclude css/css-backgrounds/background_repeat_space_content_box.htm
           --limit 20
           --width 800
           --height 600

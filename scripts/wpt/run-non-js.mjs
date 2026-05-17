@@ -65,7 +65,7 @@ async function main(argv = process.argv.slice(2)) {
     }
 
     console.log(`Scanning ${options.wptRoot} for non-JS WPT candidates...`);
-    const scanResult = await collectCandidates(options.wptRoot, options.includes, options.limit);
+    const scanResult = await collectCandidates(options.wptRoot, options.includes, options.excludes, options.limit);
     console.log(`Selected ${scanResult.tests.length} candidate(s); skipped ${scanResult.skippedForJavaScript.length} JS-dependent file(s).`);
 
     if (scanResult.tests.length === 0) {
@@ -231,6 +231,7 @@ function parseArguments(args, env = process.env) {
     wptRoot: null,
     output: null,
     includes: [],
+    excludes: [],
     limit: 0,
     width: 800,
     height: 600,
@@ -256,6 +257,9 @@ function parseArguments(args, env = process.env) {
         break;
       case '--include':
         options.includes.push(readValue(args, ++index, argument));
+        break;
+      case '--exclude':
+        options.excludes.push(readValue(args, ++index, argument));
         break;
       case '--limit':
         options.limit = readInteger(args, ++index, argument, 0);
@@ -332,7 +336,7 @@ function readNumber(args, index, argumentName, min, max) {
   return value;
 }
 
-async function collectCandidates(root, includes, limit) {
+async function collectCandidates(root, includes, excludes, limit) {
   const tests = [];
   const skippedForJavaScript = [];
   await walk('');
@@ -364,7 +368,7 @@ async function collectCandidates(root, includes, limit) {
         continue;
       }
 
-      if (!isCandidateDocument(entry.name, relativePath, includes)) {
+      if (!isCandidateDocument(entry.name, relativePath, includes, excludes)) {
         continue;
       }
 
@@ -387,13 +391,17 @@ function shouldSkipDirectory(name) {
   return skippedDirectoryNames.has(name.toLowerCase());
 }
 
-function isCandidateDocument(fileName, relativePath, includes) {
+function isCandidateDocument(fileName, relativePath, includes, excludes = []) {
   const extension = path.extname(fileName).toLowerCase();
   if (!['.htm', '.html', '.xht', '.xhtml'].includes(extension)) {
     return false;
   }
 
   const lowerRelativePath = relativePath.toLowerCase();
+  if (excludes.some((exclude) => lowerRelativePath.includes(exclude.toLowerCase()))) {
+    return false;
+  }
+
   if (lowerRelativePath.endsWith('-ref.html') || lowerRelativePath.endsWith('-ref.htm') || lowerRelativePath.endsWith('-ref.xhtml') ||
       lowerRelativePath.endsWith('-notref.html') || lowerRelativePath.endsWith('-notref.htm') || lowerRelativePath.endsWith('-notref.xhtml')) {
     return false;
@@ -773,6 +781,7 @@ Options:
   --wpt-root <dir>               Path to a local web-platform-tests checkout.
   --output <dir>                 Directory for screenshots, diffs, and summaries. Defaults to ./artifacts/wpt.
   --include <substring>          Restrict to relative paths containing the substring. Repeat as needed.
+  --exclude <substring>          Skip relative paths containing the substring. Repeat as needed.
   --limit <count>                Stop after selecting this many candidate files.
   --width <pixels>               Chromium/Broiler viewport width. Defaults to 800.
   --height <pixels>              Chromium/Broiler viewport height. Defaults to 600.
@@ -790,7 +799,7 @@ Notes:
   - Relative assets are served from a temporary local HTTP server so Chromium and Broiler resolve them from the same base URL.`;
 }
 
-export { createSummaryMarkdown, formatDiffRatio, main, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync };
+export { collectCandidates, createSummaryMarkdown, formatDiffRatio, main, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   process.exit(await main());

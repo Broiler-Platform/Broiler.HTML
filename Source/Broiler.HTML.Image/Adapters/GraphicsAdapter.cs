@@ -344,6 +344,22 @@ internal sealed class GraphicsAdapter : RGraphics
         return new ImageAdapter(bitmap);
     }
 
+    public override RImage? CreateRadialGradientTile(int width, int height, Color[] colors, float[] positions, float centerX, float centerY)
+    {
+        if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
+            return null;
+
+        var bitmap = new BBitmap(width, height);
+        using var tileCanvas = bitmap.OpenRasterCanvas();
+        var gradientColors = new BColor[colors.Length];
+        for (int i = 0; i < colors.Length; i++)
+            gradientColors[i] = new BColor(colors[i].R, colors[i].G, colors[i].B, colors[i].A);
+
+        tileCanvas.FillRadialGradientRect(new RectangleF(0, 0, width, height), gradientColors, positions, centerX, centerY);
+
+        return new ImageAdapter(bitmap);
+    }
+
     public override void Dispose()
     {
         if (_restoreOnDispose)

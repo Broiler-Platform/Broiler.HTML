@@ -101,5 +101,13 @@ public abstract class RGraphics : IDisposable
     /// <param name="angle">Gradient angle in degrees (0 = top, 90 = right, 180 = bottom).</param>
     public virtual RImage? CreateLinearGradientTile(int width, int height, Color[] colors, float[] positions, float angle) => null;
 
+    /// <summary>
+    /// Creates an off-screen bitmap tile filled with a radial gradient.
+    /// <paramref name="centerX"/> and <paramref name="centerY"/> are normalised
+    /// fractions (0.0–1.0) of the tile dimensions.
+    /// Default implementation returns <c>null</c> (platform may not support off-screen rendering).
+    /// </summary>
+    public virtual RImage? CreateRadialGradientTile(int width, int height, Color[] colors, float[] positions, float centerX, float centerY) => null;
+
     public abstract void Dispose();
 }

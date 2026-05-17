@@ -202,6 +202,12 @@ public sealed class DrawTiledGradientItem : DisplayItem
     public float Angle { get; init; } = 180f;
     /// <summary>Color-interpolation space for the gradient ("srgb", "hsl", "oklch").</summary>
     public string InterpolationSpace { get; init; } = "srgb";
+    /// <summary>Whether this is a radial gradient (true) or a linear gradient (false).</summary>
+    public bool IsRadial { get; init; }
+    /// <summary>Horizontal center of the radial gradient as a fraction of tile width (0.0–1.0).</summary>
+    public float CenterX { get; init; } = 0.5f;
+    /// <summary>Vertical center of the radial gradient as a fraction of tile height (0.0–1.0).</summary>
+    public float CenterY { get; init; } = 0.5f;
 }
 
 /// <summary>A single color stop in a CSS gradient.</summary>
