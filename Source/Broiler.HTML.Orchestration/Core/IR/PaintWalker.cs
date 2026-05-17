@@ -14,6 +14,9 @@ namespace Broiler.HTML.Orchestration.Core.IR;
 /// </summary>
 internal static class PaintWalker
 {
+    private const float DefaultFontSizePx = 12f;
+    private const float DefaultLineHeightMultiplier = 1.2f;
+
     /// <summary>Default selection highlight color (semi-transparent blue).</summary>
     private static readonly Color SelectionHighlightColor = Color.FromArgb(0x69, 0x33, 0x99, 0xFF);
 
@@ -981,9 +984,9 @@ internal static class PaintWalker
     private static float GetPositionEmSize(ComputedStyle style)
     {
         float fontSize = style.ActualLineHeight > 0
-            ? (float)(style.ActualLineHeight / 1.2)
+            ? (float)(style.ActualLineHeight / DefaultLineHeightMultiplier)
             : (float)ParseFontSize(style.FontSize);
-        return fontSize > 0 ? fontSize : 12f;
+        return fontSize > 0 ? fontSize : DefaultFontSizePx;
     }
 
     private static bool IsHorizontalKeyword(string val) =>
