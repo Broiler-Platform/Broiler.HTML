@@ -1,4 +1,5 @@
 using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Core.Core.IR;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,11 @@ namespace Broiler.HTML.Orchestration.Core.IR;
 /// </summary>
 internal static class PaintWalker
 {
+    // Match PaintWalker.ParseFontSize's existing medium/default font-size fallback.
+    private const float DefaultFontSize = 12f;
+    // Broiler's default normal line-height is 1.2 × the computed font size.
+    private const float DefaultLineHeightMultiplier = 1.2f;
+
     /// <summary>Default selection highlight color (semi-transparent blue).</summary>
     private static readonly Color SelectionHighlightColor = Color.FromArgb(0x69, 0x33, 0x99, 0xFF);
 
@@ -153,8 +159,9 @@ internal static class PaintWalker
                     }
                 }
 
-                tileOrigin.X += ParsePositionValue(xVal, viewport.Width, imgW);
-                tileOrigin.Y += ParsePositionValue(yVal, viewport.Height, imgH);
+                float emSize = GetPositionEmSize(imgSource.Style);
+                tileOrigin.X += ParsePositionValue(xVal, viewport.Width, imgW, emSize);
+                tileOrigin.Y += ParsePositionValue(yVal, viewport.Height, imgH, emSize);
             }
 
             items.Add(new DrawTiledImageItem
@@ -847,7 +854,7 @@ internal static class PaintWalker
             out tileH);
 
         var tileOrigin = new PointF(positioningArea.X, positioningArea.Y);
-        ApplyBackgroundPositionOffset(ref tileOrigin, position, positioningArea.Width, positioningArea.Height, tileW > 0 ? tileW : (float)image.Width, tileH > 0 ? tileH : (float)image.Height);
+        ApplyBackgroundPositionOffset(ref tileOrigin, position, positioningArea.Width, positioningArea.Height, tileW > 0 ? tileW : (float)image.Width, tileH > 0 ? tileH : (float)image.Height, GetPositionEmSize(fragment.Style));
 
         bool hasBgBlend = !string.IsNullOrEmpty(fragment.Style.BackgroundBlendMode)
             && !fragment.Style.BackgroundBlendMode.Equals("normal", StringComparison.OrdinalIgnoreCase);
@@ -885,7 +892,7 @@ internal static class PaintWalker
             items.Add(new RestoreItem { Bounds = clipRect });
     }
 
-    private static void ApplyBackgroundPositionOffset(ref PointF tileOrigin, string position, float containerWidth, float containerHeight, float imageWidth, float imageHeight)
+    private static void ApplyBackgroundPositionOffset(ref PointF tileOrigin, string position, float containerWidth, float containerHeight, float imageWidth, float imageHeight, float emSize)
     {
         if (string.IsNullOrEmpty(position))
             return;
@@ -910,8 +917,8 @@ internal static class PaintWalker
             }
         }
 
-        tileOrigin.X += ParsePositionValue(xVal, containerWidth, imageWidth);
-        tileOrigin.Y += ParsePositionValue(yVal, containerHeight, imageHeight);
+        tileOrigin.X += ParsePositionValue(xVal, containerWidth, imageWidth, emSize);
+        tileOrigin.Y += ParsePositionValue(yVal, containerHeight, imageHeight, emSize);
     }
 
     /// <summary>
@@ -939,7 +946,7 @@ internal static class PaintWalker
     /// <param name="containerSize">Width or height of the positioning area.</param>
     /// <param name="imageSize">Width or height of the background image.</param>
     /// <returns>Offset in pixels from the origin.</returns>
-    private static float ParsePositionValue(string val, float containerSize, float imageSize)
+    private static float ParsePositionValue(string val, float containerSize, float imageSize, float emSize)
     {
         if (string.IsNullOrEmpty(val)) return 0;
 
@@ -955,20 +962,48 @@ internal static class PaintWalker
 
         if (val.EndsWith("px", StringComparison.OrdinalIgnoreCase))
         {
-            if (float.TryParse(val.AsSpan(0, val.Length - 2), out float px)) return px;
+            if (float.TryParse(val.AsSpan(0, val.Length - 2), NumberStyles.Float, CultureInfo.InvariantCulture, out float px))
+                return px;
         }
         else if (val.EndsWith("%"))
         {
             // CSS2.1 §14.2.1: percentage positions use (container - image) as
             // the reference length so that 100% places the image flush-right.
-            if (float.TryParse(val.AsSpan(0, val.Length - 1), out float pct))
+            if (float.TryParse(val.AsSpan(0, val.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
                 return (containerSize - imageSize) * pct / 100f;
         }
-        else if (float.TryParse(val, out float raw))
+        else if (CssValueParser.IsValidLength(val))
+        {
+            return (float)CssValueParser.ParseLength(val, hundredPercent: 0, emFactor: emSize, defaultUnit: null);
+        }
+        else if (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out float raw))
         {
             return raw;
         }
         return 0;
+    }
+
+    private static float GetPositionEmSize(ComputedStyle style)
+    {
+        float fontSize;
+        if (CssValueParser.IsValidLength(style.FontSize))
+        {
+            fontSize = (float)CssValueParser.ParseLength(
+                style.FontSize,
+                hundredPercent: 0,
+                emFactor: DefaultFontSize,
+                defaultUnit: null);
+        }
+        else if (style.ActualLineHeight > 0)
+        {
+            fontSize = (float)(style.ActualLineHeight / DefaultLineHeightMultiplier);
+        }
+        else
+        {
+            fontSize = (float)ParseFontSize(style.FontSize);
+        }
+
+        return fontSize > 0 ? fontSize : DefaultFontSize;
     }
 
     private static bool IsHorizontalKeyword(string val) =>
@@ -2251,8 +2286,9 @@ internal static class PaintWalker
                         else if (yVal == null) yVal = p;
                     }
                 }
-                tileOrigin.X += ParsePositionValue(xVal, positioningArea.Width, tileW);
-                tileOrigin.Y += ParsePositionValue(yVal, positioningArea.Height, tileH);
+                float emSize = GetPositionEmSize(style);
+                tileOrigin.X += ParsePositionValue(xVal, positioningArea.Width, tileW, emSize);
+                tileOrigin.Y += ParsePositionValue(yVal, positioningArea.Height, tileH, emSize);
             }
 
             items.Add(new DrawTiledGradientItem
