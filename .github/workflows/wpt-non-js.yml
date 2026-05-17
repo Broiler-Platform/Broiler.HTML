@@ -52,7 +52,7 @@ jobs:
         run: dotnet build Source/Broiler.HTML.slnx
 
       - name: Prepare WPT checkout
-        run: npm run wpt:prepare -- --output "${RUNNER_TEMP}/wpt" --ref master
+        run: npm run wpt:prepare -- --output "${RUNNER_TEMP}/wpt" --ref main
 
       - name: Run non-JS WPT subset
         run: >

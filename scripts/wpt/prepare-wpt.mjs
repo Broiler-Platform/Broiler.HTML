@@ -69,7 +69,7 @@ function parseArguments(args) {
     output: null,
     source: null,
     repo: 'https://github.com/web-platform-tests/wpt.git',
-    ref: 'master',
+    ref: 'main',
     force: false
   };
 
@@ -158,7 +158,7 @@ Options:
   --output <dir>        Destination directory for the prepared WPT tree.
   --source <dir>        Copy an existing local WPT tree instead of cloning from GitHub.
   --repo <url>          Git repository URL to clone. Defaults to the official WPT repository.
-  --ref <name>          Git ref/branch to clone. Defaults to master.
+  --ref <name>          Git ref/branch to clone. Defaults to main.
   --force               Replace the output directory if it already exists.
   -h, --help            Show help.
 
