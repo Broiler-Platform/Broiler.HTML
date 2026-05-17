@@ -22,7 +22,7 @@ The repeatable in-repo workflow is:
 2. Prepare a local checkout with `scripts/wpt/prepare-wpt.mjs` (clone the official repo or copy an existing tree).
 3. Let the runner skip JS-dependent files, render each selected case through `Broiler.HTML.Tool`, and capture a Chromium screenshot with JavaScript disabled.
 4. Compare the output against the reference image with `PixelDiffRunner.Compare(...)`.
-5. Use `MismatchClassifier.Classify(...)` plus the generated `summary.json` / `summary.md` files to triage failures and track regressions locally or through `.github/workflows/wpt-non-js.yml`.
+5. Use `MismatchClassifier.Classify(...)`, the generated `summary.json` / `summary.md` files, and `scripts/wpt/analyze-summary.py` to triage failures and track regressions locally or through `.github/workflows/wpt-non-js.yml`.
 
 ## Status publication
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { createSummaryMarkdown, formatDiffRatio, normalizeDiffRatio, parseArguments, runCommand } from './run-non-js.mjs';
+import { createSummaryMarkdown, formatDiffRatio, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand } from './run-non-js.mjs';
 
 test('normalizeDiffRatio accepts finite numbers and numeric strings', () => {
   assert.equal(normalizeDiffRatio(0.25), 0.25);
@@ -65,6 +65,35 @@ test('runCommand reports timed out child processes clearly', () => {
       timeoutMessageMs: 25
     }),
     /Synthetic timeout test timed out after 25ms\./
+  );
+});
+
+test('normalizeCompareReport accepts PascalCase compare reports from the .NET CLI', () => {
+  assert.deepEqual(
+    normalizeCompareReport({
+      DiffOutputPath: '/tmp/out/diff.png',
+      DiffRatio: 0.07416666666666667,
+      Mismatch: {
+        Category: 'MissingContent',
+        Summary: '10000/10000 sampled mismatches are background↔content transitions, indicating missing or extra elements.',
+        AverageChannelDelta: 127.5,
+        MaxChannelDelta: 255,
+        AffectedRows: 50,
+        AffectedColumns: 200
+      }
+    }),
+    {
+      diffOutputPath: '/tmp/out/diff.png',
+      diffRatio: 0.07416666666666667,
+      mismatch: {
+        category: 'MissingContent',
+        summary: '10000/10000 sampled mismatches are background↔content transitions, indicating missing or extra elements.',
+        averageChannelDelta: 127.5,
+        maxChannelDelta: 255,
+        affectedRows: 50,
+        affectedColumns: 200
+      }
+    }
   );
 });
 

@@ -100,12 +100,24 @@ async function main(argv = process.argv.slice(2)) {
         const reportPath = path.join(caseDirectory, 'report.json');
         const testUrl = `${server.baseUrl}/${test.relativePath}`;
         const testDeadline = Date.now() + options.testTimeoutMs;
+        const testStartedAt = Date.now();
+        const timings = {};
+        let timeoutPhase = null;
 
         console.log(`Running ${test.relativePath}`);
         try {
+          timeoutPhase = 'broiler-render';
+          const broilerStartedAt = Date.now();
           renderWithBroiler(test.fullPath, broilerImagePath, testUrl, options, testDeadline);
-          await renderWithChromium(context, test.relativePath, testUrl, chromiumImagePath, testDeadline, options.testTimeoutMs);
+          timings.broilerRenderMs = Date.now() - broilerStartedAt;
 
+          timeoutPhase = 'chromium-reference';
+          const chromiumStartedAt = Date.now();
+          await renderWithChromium(context, test.relativePath, testUrl, chromiumImagePath, testDeadline, options.testTimeoutMs);
+          timings.chromiumReferenceMs = Date.now() - chromiumStartedAt;
+
+          timeoutPhase = 'image-compare';
+          const compareStartedAt = Date.now();
           const compareResult = runCommand(
             'dotnet',
             [
@@ -128,18 +140,23 @@ async function main(argv = process.argv.slice(2)) {
               timeoutMessageMs: options.testTimeoutMs
             }
           );
+          timings.imageCompareMs = Date.now() - compareStartedAt;
+          timeoutPhase = null;
 
-          const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
+          const report = normalizeCompareReport(JSON.parse(await fs.readFile(reportPath, 'utf8')));
           const entry = {
             path: test.relativePath,
             broilerImagePath,
             chromiumImagePath,
-            diffImagePath: report.diffOutputPath ?? null,
+            diffImagePath: report.diffOutputPath,
             reportPath,
-            diffRatio: normalizeDiffRatio(report.diffRatio),
-            mismatch: report.mismatch ?? null,
+            diffRatio: report.diffRatio,
+            mismatch: report.mismatch,
             timeout: false,
-            error: null
+            timeoutPhase: null,
+            error: null,
+            totalDurationMs: Date.now() - testStartedAt,
+            timings
           };
 
           if (compareResult.status === 0) {
@@ -154,7 +171,7 @@ async function main(argv = process.argv.slice(2)) {
 
           const message = error instanceof Error ? error.message : String(error);
           console.error(message);
-          failures.push(await createTimedOutFailure(test.relativePath, broilerImagePath, chromiumImagePath, message));
+          failures.push(await createTimedOutFailure(test.relativePath, broilerImagePath, chromiumImagePath, message, timeoutPhase, timings, Date.now() - testStartedAt));
         }
       }
     } finally {
@@ -502,25 +519,6 @@ function isTimeoutError(error) {
   return error instanceof Error && error.name === 'TimeoutError';
 }
 
-async function createTimedOutFailure(relativePath, broilerImagePath, chromiumImagePath, message) {
-  const [hasBroilerImage, hasChromiumImage] = await Promise.all([
-    fileExists(broilerImagePath),
-    fileExists(chromiumImagePath)
-  ]);
-
-  return {
-    path: relativePath,
-    broilerImagePath: hasBroilerImage ? broilerImagePath : null,
-    chromiumImagePath: hasChromiumImage ? chromiumImagePath : null,
-    diffImagePath: null,
-    reportPath: null,
-    diffRatio: null,
-    mismatch: null,
-    timeout: true,
-    error: message
-  };
-}
-
 async function startStaticServer(root) {
   const safeRootPrefix = `${root}${path.sep}`;
   const server = http.createServer(async (request, response) => {
@@ -569,7 +567,52 @@ function contentTypeForPath(filePath) {
   return contentTypes.get(path.extname(filePath).toLowerCase()) ?? 'application/octet-stream';
 }
 
+function normalizeCompareReport(report) {
+  return {
+    diffOutputPath: readReportProperty(report, 'diffOutputPath'),
+    diffRatio: normalizeDiffRatio(readReportProperty(report, 'diffRatio')),
+    mismatch: normalizeMismatch(readReportProperty(report, 'mismatch'))
+  };
+}
+
+function readReportProperty(report, name) {
+  if (!report || typeof report !== 'object') {
+    return null;
+  }
+
+  const pascalName = `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+  return report[name] ?? report[pascalName] ?? null;
+}
+
+function normalizeMismatch(mismatch) {
+  if (!mismatch || typeof mismatch !== 'object') {
+    return null;
+  }
+
+  return {
+    category: readReportProperty(mismatch, 'category'),
+    summary: readReportProperty(mismatch, 'summary'),
+    averageChannelDelta: normalizeFiniteNumber(readReportProperty(mismatch, 'averageChannelDelta')),
+    maxChannelDelta: normalizeFiniteNumber(readReportProperty(mismatch, 'maxChannelDelta')),
+    affectedRows: normalizeFiniteNumber(readReportProperty(mismatch, 'affectedRows')),
+    affectedColumns: normalizeFiniteNumber(readReportProperty(mismatch, 'affectedColumns'))
+  };
+}
+
 function normalizeDiffRatio(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
+
+function normalizeFiniteNumber(value) {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : null;
   }
@@ -637,6 +680,28 @@ async function fileExists(filePath) {
   }
 }
 
+async function createTimedOutFailure(relativePath, broilerImagePath, chromiumImagePath, message, timeoutPhase, timings, totalDurationMs) {
+  const [hasBroilerImage, hasChromiumImage] = await Promise.all([
+    fileExists(broilerImagePath),
+    fileExists(chromiumImagePath)
+  ]);
+
+  return {
+    path: relativePath,
+    broilerImagePath: hasBroilerImage ? broilerImagePath : null,
+    chromiumImagePath: hasChromiumImage ? chromiumImagePath : null,
+    diffImagePath: null,
+    reportPath: null,
+    diffRatio: null,
+    mismatch: null,
+    timeout: true,
+    timeoutPhase,
+    error: message,
+    totalDurationMs,
+    timings
+  };
+}
+
 function getHelpText() {
   return `Usage:
   npm run wpt:run -- --wpt-root /path/to/wpt [options]
@@ -662,7 +727,7 @@ Notes:
   - Relative assets are served from a temporary local HTTP server so Chromium and Broiler resolve them from the same base URL.`;
 }
 
-export { createSummaryMarkdown, formatDiffRatio, main, normalizeDiffRatio, parseArguments, runCommand };
+export { createSummaryMarkdown, formatDiffRatio, main, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   process.exit(await main());
