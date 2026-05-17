@@ -448,14 +448,15 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
   let stderr = '';
   let timedOut = false;
   const appendOutput = (streamName, chunk) => {
+    if (stdout.length + stderr.length + chunk.length > commandOutputMaxBufferBytes) {
+      child.kill('SIGKILL');
+      return;
+    }
+
     if (streamName === 'stdout') {
       stdout += chunk;
     } else {
       stderr += chunk;
-    }
-
-    if (stdout.length + stderr.length > commandOutputMaxBufferBytes) {
-      child.kill('SIGKILL');
     }
   };
 
@@ -465,7 +466,7 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
   child.stderr?.setEncoding('utf8');
   child.stderr?.on('data', (chunk) => appendOutput('stderr', chunk));
 
-  return await new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const timer = timeoutMs > 0
       ? setTimeout(() => {
         timedOut = true;
