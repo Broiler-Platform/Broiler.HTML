@@ -10,6 +10,27 @@ import { chromium } from 'playwright';
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, '..', '..');
 const toolProjectPath = path.join(repositoryRoot, 'Source', 'Broiler.HTML.Tool', 'Broiler.HTML.Tool.csproj');
+const skippedDirectoryNames = new Set(['.git', 'node_modules', 'resources', 'support', 'reference']);
+const contentTypes = new Map([
+  ['.css', 'text/css; charset=utf-8'],
+  ['.gif', 'image/gif'],
+  ['.htm', 'text/html; charset=utf-8'],
+  ['.html', 'text/html; charset=utf-8'],
+  ['.jpg', 'image/jpeg'],
+  ['.jpeg', 'image/jpeg'],
+  ['.js', 'text/javascript; charset=utf-8'],
+  ['.json', 'application/json; charset=utf-8'],
+  ['.otf', 'font/otf'],
+  ['.png', 'image/png'],
+  ['.svg', 'image/svg+xml'],
+  ['.ttf', 'font/ttf'],
+  ['.txt', 'text/plain; charset=utf-8'],
+  ['.woff', 'font/woff'],
+  ['.woff2', 'font/woff2'],
+  ['.xht', 'application/xhtml+xml; charset=utf-8'],
+  ['.xhtml', 'application/xhtml+xml; charset=utf-8'],
+  ['.xml', 'application/xml; charset=utf-8']
+]);
 
 const options = parseArguments(process.argv.slice(2));
 if (options.help) {
@@ -125,7 +146,7 @@ try {
   }
 
   const summary = {
-    generatedAtUtc: new Date().toISOString(),
+    generatedAt: new Date().toISOString(),
     wptRoot: options.wptRoot,
     outputRoot: options.output,
     viewport: { width: options.width, height: options.height },
@@ -299,7 +320,7 @@ async function collectCandidates(root, includes, limit) {
 }
 
 function shouldSkipDirectory(name) {
-  return new Set(['.git', 'node_modules', 'resources', 'support', 'reference']).has(name.toLowerCase());
+  return skippedDirectoryNames.has(name.toLowerCase());
 }
 
 function isCandidateDocument(fileName, relativePath, includes) {
@@ -431,26 +452,7 @@ async function startStaticServer(root) {
 }
 
 function contentTypeForPath(filePath) {
-  return new Map([
-    ['.css', 'text/css; charset=utf-8'],
-    ['.gif', 'image/gif'],
-    ['.htm', 'text/html; charset=utf-8'],
-    ['.html', 'text/html; charset=utf-8'],
-    ['.jpg', 'image/jpeg'],
-    ['.jpeg', 'image/jpeg'],
-    ['.js', 'text/javascript; charset=utf-8'],
-    ['.json', 'application/json; charset=utf-8'],
-    ['.otf', 'font/otf'],
-    ['.png', 'image/png'],
-    ['.svg', 'image/svg+xml'],
-    ['.ttf', 'font/ttf'],
-    ['.txt', 'text/plain; charset=utf-8'],
-    ['.woff', 'font/woff'],
-    ['.woff2', 'font/woff2'],
-    ['.xht', 'application/xhtml+xml; charset=utf-8'],
-    ['.xhtml', 'application/xhtml+xml; charset=utf-8'],
-    ['.xml', 'application/xml; charset=utf-8']
-  ]).get(path.extname(filePath).toLowerCase()) ?? 'application/octet-stream';
+  return contentTypes.get(path.extname(filePath).toLowerCase()) ?? 'application/octet-stream';
 }
 
 function createSummaryMarkdown(summary) {
