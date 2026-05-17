@@ -146,7 +146,7 @@ npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/p
 
 The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, runs a focused non-JS subset, uploads the diff artifacts, and adds the rendered summary to the workflow summary page.
 
-When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configured, the CI job also opens a GitHub issue for the most common failure signature. The automation uses `ISSUE_TOKEN` only for GitHub Issues API calls (read existing issues, create a new issue) and expects a fine-grained PAT or GitHub App token with **Issues: Read and write** access to this repository. Matching is signature-based and recent issues are rate-limited so repeated runs do not spam duplicate triage tickets.
+When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configured, the CI job also opens a new GitHub issue for the most common failure signature in that run. The automation uses `ISSUE_TOKEN` only for GitHub Issues API calls that create the issue and expects a fine-grained PAT or GitHub App token with **Issues: Write** access to this repository.
 
 Recent CI runs showed two main patterns:
 
