@@ -12,6 +12,7 @@ const toolProjectPath = path.join(repositoryRoot, 'Source', 'Broiler.HTML.Tool',
 const skippedDirectoryNames = new Set(['.git', 'node_modules', 'resources', 'support', 'reference']);
 const defaultTestTimeoutMs = 30_000;
 const testTimeoutEnvironmentVariableName = 'BROILER_WPT_TEST_TIMEOUT_MS';
+const commandOutputMaxBufferBytes = 10 * 1024 * 1024;
 const contentTypes = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.gif', 'image/gif'],
@@ -446,7 +447,6 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
   let stdout = '';
   let stderr = '';
   let timedOut = false;
-  const maxBuffer = 10 * 1024 * 1024;
   const appendOutput = (streamName, chunk) => {
     if (streamName === 'stdout') {
       stdout += chunk;
@@ -454,7 +454,7 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
       stderr += chunk;
     }
 
-    if (stdout.length + stderr.length > maxBuffer) {
+    if (stdout.length + stderr.length > commandOutputMaxBufferBytes) {
       child.kill('SIGKILL');
     }
   };

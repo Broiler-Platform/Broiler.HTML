@@ -87,6 +87,7 @@ test('runCommandAsync keeps in-process HTTP servers responsive', async () => {
         if (!response.ok || body !== 'ok') {
           process.exit(2);
         }
+        process.exit(0);
       }).catch((error) => {
         console.error(error);
         process.exit(1);
