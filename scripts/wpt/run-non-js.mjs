@@ -600,16 +600,7 @@ function normalizeMismatch(mismatch) {
 }
 
 function normalizeDiffRatio(value) {
-  if (typeof value === 'number') {
-    return Number.isFinite(value) ? value : null;
-  }
-
-  if (typeof value === 'string' && value.trim() !== '') {
-    const parsed = Number.parseFloat(value);
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
+  return normalizeFiniteNumber(value);
 }
 
 function normalizeFiniteNumber(value) {

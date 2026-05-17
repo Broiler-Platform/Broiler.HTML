@@ -40,7 +40,8 @@ def main() -> int:
 
         print(f"Timed out cases (top {min(args.top, len(timed_out))}):")
         for entry in sorted(timed_out, key=timeout_sort_key, reverse=True)[:args.top]:
-            duration = format_duration(entry["totalDurationMs"] or summary.get("timeouts", {}).get("perTestMs"))
+            duration_value = entry["totalDurationMs"] if entry["totalDurationMs"] is not None else summary.get("timeouts", {}).get("perTestMs")
+            duration = format_duration(duration_value)
             print(f"- {entry['path']} [{duration}] phase={entry['timeoutPhase'] or 'unknown'}")
         print()
 
