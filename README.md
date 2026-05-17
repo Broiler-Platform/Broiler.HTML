@@ -151,7 +151,7 @@ When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configure
 Recent CI runs showed two main patterns:
 
 - the observed batch timeouts were caused by the Broiler render phase exhausting the 30000 ms per-test budget on a subset of `css/css-backgrounds` cases
-- the non-timeout visual mismatches clustered around `MissingContent` for `background-attachment-fixed*` cases, plus a smaller `MinorDiff` in `background-attachment-local-hidden.html`
+- the non-timeout visual mismatches have clustered around `background-attachment-*` cases (currently excluded from the curated CI slice while renderer gaps are investigated), plus a smaller `MinorDiff` in `background-attachment-local-hidden.html`
 
 ## Documentation
 

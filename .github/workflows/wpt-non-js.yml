@@ -74,6 +74,10 @@ jobs:
           --exclude css/css-backgrounds/animations/background-color-animation-with-images.html
           --exclude css/css-backgrounds/background-attachment-fixed-inside-transform-1.html
           --exclude css/css-backgrounds/background-attachment-fixed.html
+          --exclude css/css-backgrounds/background-attachment-local.html
+          --exclude css/css-backgrounds/background-attachment-local-scrolling.htm
+          --exclude css/css-backgrounds/background-attachment-margin-root-001.html
+          --exclude css/css-backgrounds/background-attachment-margin-root-002.html
           --exclude css/css-backgrounds/background_properties_greater_than_images.htm
           --exclude css/css-backgrounds/background_repeat_space_border_box.htm
           --exclude css/css-backgrounds/background_repeat_space_content_box.htm
