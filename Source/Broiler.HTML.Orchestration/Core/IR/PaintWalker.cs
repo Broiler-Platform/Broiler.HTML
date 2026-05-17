@@ -163,6 +163,7 @@ internal static class PaintWalker
                 ImageHandle = imgSource.BackgroundImageHandle,
                 SourceRect = RectangleF.Empty,
                 FillRect = viewport,
+                PositioningArea = viewport,
                 TileOrigin = tileOrigin,
                 Repeat = repeat,
             });
@@ -750,6 +751,18 @@ internal static class PaintWalker
             return;
         }
 
+        var backgroundLayers = SplitOnTopLevelCommas(fragment.Style.BackgroundImage ?? "none");
+        if (backgroundLayers.Count == 0)
+            backgroundLayers.Add("none");
+
+        var repeats = SplitOnTopLevelCommas(fragment.Style.BackgroundRepeat ?? "repeat");
+        var attachments = SplitOnTopLevelCommas(fragment.Style.BackgroundAttachment ?? "scroll");
+        var positions = SplitOnTopLevelCommas(fragment.Style.BackgroundPosition ?? "0% 0%");
+        var sizes = SplitOnTopLevelCommas(fragment.Style.BackgroundSize ?? "auto");
+        var origins = SplitOnTopLevelCommas(fragment.Style.BackgroundOrigin ?? "padding-box");
+        var clips = SplitOnTopLevelCommas(fragment.Style.BackgroundClip ?? "border-box");
+        var layerHandles = NormalizeBackgroundImageHandles(fragment.BackgroundImageHandle, backgroundLayers.Count);
+
         // Use GetPaintRects to handle inline elements (which may have zero
         // Size but non-empty InlineRects from per-line-box layout).
         var rects = GetPaintRects(fragment);
@@ -759,18 +772,29 @@ internal static class PaintWalker
             if (bounds.Width <= 0 || bounds.Height <= 0)
                 continue;
 
-            EmitBackgroundImageLayer(
-                fragment,
-                bounds,
-                fragment.BackgroundImageHandle,
-                fragment.Style.BackgroundRepeat,
-                fragment.Style.BackgroundAttachment,
-                fragment.Style.BackgroundPosition,
-                fragment.Style.BackgroundSize,
-                fragment.Style.BackgroundOrigin,
-                fragment.Style.BackgroundClip,
-                items,
-                viewport);
+            for (int i = backgroundLayers.Count - 1; i >= 0; i--)
+            {
+                var layerValue = backgroundLayers[i].Trim();
+                if (string.IsNullOrEmpty(layerValue)
+                    || layerValue.Equals("none", StringComparison.OrdinalIgnoreCase)
+                    || layerValue.Contains("gradient(", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                EmitBackgroundImageLayer(
+                    fragment,
+                    bounds,
+                    layerHandles[i],
+                    repeats.Count > 0 ? repeats[i % repeats.Count].Trim() : "repeat",
+                    attachments.Count > 0 ? attachments[i % attachments.Count].Trim() : "scroll",
+                    positions.Count > 0 ? positions[i % positions.Count].Trim() : "0% 0%",
+                    sizes.Count > 0 ? sizes[i % sizes.Count].Trim() : "auto",
+                    origins.Count > 0 ? origins[i % origins.Count].Trim() : "padding-box",
+                    clips.Count > 0 ? clips[i % clips.Count].Trim() : "border-box",
+                    items,
+                    viewport);
+            }
         }
     }
 
@@ -800,7 +824,12 @@ internal static class PaintWalker
             && viewport.Width > 0
             && viewport.Height > 0
             && !fragment.HasTransformAncestor;
-        var positioningArea = isFixed ? viewport : originRect;
+        bool isLocal = attachment == "local";
+        var positioningArea = isFixed
+            ? viewport
+            : isLocal
+                ? GetLocalBackgroundPositioningAreaRect(bounds, fragment, originRect)
+                : originRect;
         bool hasRoundedClip = TryCreateRoundedBackgroundClipItem(bounds, fragment, effectiveBackgroundClip, out var roundedClip);
 
         float tileW = 0, tileH = 0;
@@ -842,6 +871,7 @@ internal static class PaintWalker
                 ImageHandle = imageHandle,
                 SourceRect = RectangleF.Empty,
                 FillRect = clipRect,
+                PositioningArea = positioningArea,
                 TileOrigin = tileOrigin,
                 Repeat = repeat,
                 TileWidth = tileW,
@@ -1779,6 +1809,42 @@ internal static class PaintWalker
         return GetBackgroundPositioningAreaRect(borderBoxRect, fragment, "padding-box");
     }
 
+    private static RectangleF GetLocalBackgroundPositioningAreaRect(RectangleF borderBoxRect, Fragment fragment, RectangleF originRect)
+    {
+        float maxRight = originRect.Right;
+        float maxBottom = originRect.Bottom;
+
+        if (fragment.Lines != null)
+        {
+            foreach (var line in fragment.Lines)
+            {
+                maxRight = Math.Max(maxRight, line.X + line.Width);
+                maxBottom = Math.Max(maxBottom, line.Y + line.Height);
+            }
+        }
+
+        if (fragment.InlineRects != null)
+        {
+            foreach (var inlineRect in fragment.InlineRects)
+            {
+                maxRight = Math.Max(maxRight, inlineRect.Right);
+                maxBottom = Math.Max(maxBottom, inlineRect.Bottom);
+            }
+        }
+
+        foreach (var child in fragment.Children)
+        {
+            maxRight = Math.Max(maxRight, child.Bounds.Right);
+            maxBottom = Math.Max(maxBottom, child.Bounds.Bottom);
+        }
+
+        return new RectangleF(
+            originRect.X,
+            originRect.Y,
+            Math.Max(originRect.Width, maxRight - originRect.X),
+            Math.Max(originRect.Height, maxBottom - originRect.Y));
+    }
+
     private static string GetEffectiveBackgroundClip(Fragment fragment, string backgroundClip)
     {
         if (string.IsNullOrEmpty(backgroundClip))
@@ -1925,8 +1991,11 @@ internal static class PaintWalker
                 ImageHandle = ti.ImageHandle,
                 SourceRect = ti.SourceRect,
                 FillRect = OffsetRect(ti.FillRect, dx, dy),
+                PositioningArea = OffsetRect(ti.PositioningArea, dx, dy),
                 TileOrigin = new PointF(ti.TileOrigin.X + dx, ti.TileOrigin.Y + dy),
                 Repeat = ti.Repeat,
+                TileWidth = ti.TileWidth,
+                TileHeight = ti.TileHeight,
             },
             DrawTiledGradientItem tg => new DrawTiledGradientItem
             {
@@ -2241,6 +2310,19 @@ internal static class PaintWalker
         return parts;
     }
 
+    private static object?[] NormalizeBackgroundImageHandles(object? backgroundImageHandle, int layerCount)
+    {
+        var handles = new object?[Math.Max(layerCount, 1)];
+        if (backgroundImageHandle is object?[] array)
+        {
+            Array.Copy(array, handles, Math.Min(array.Length, handles.Length));
+            return handles;
+        }
+
+        handles[0] = backgroundImageHandle;
+        return handles;
+    }
+
     /// <summary>
     /// Parses a CSS background-size value for a single layer.
     /// Supports: <c>auto</c>, <c>Wpx Hpx</c>, <c>Wpx</c>.
@@ -2505,7 +2587,7 @@ internal static class PaintWalker
                 items.Add(new DrawTiledImageItem
                 {
                 Bounds = strip, ImageHandle = imageHandle,
-                SourceRect = RectangleF.Empty, FillRect = strip,
+                SourceRect = RectangleF.Empty, FillRect = strip, PositioningArea = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });
         }
@@ -2516,7 +2598,7 @@ internal static class PaintWalker
                 items.Add(new DrawTiledImageItem
                 {
                 Bounds = strip, ImageHandle = imageHandle,
-                SourceRect = RectangleF.Empty, FillRect = strip,
+                SourceRect = RectangleF.Empty, FillRect = strip, PositioningArea = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });
         }
@@ -2527,7 +2609,7 @@ internal static class PaintWalker
                 items.Add(new DrawTiledImageItem
                 {
                 Bounds = strip, ImageHandle = imageHandle,
-                SourceRect = RectangleF.Empty, FillRect = strip,
+                SourceRect = RectangleF.Empty, FillRect = strip, PositioningArea = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });
         }
@@ -2538,7 +2620,7 @@ internal static class PaintWalker
                 items.Add(new DrawTiledImageItem
                 {
                 Bounds = strip, ImageHandle = imageHandle,
-                SourceRect = RectangleF.Empty, FillRect = strip,
+                SourceRect = RectangleF.Empty, FillRect = strip, PositioningArea = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });
         }

@@ -2143,10 +2143,22 @@ internal sealed class CssParser
 
     private static string ParseImageProperty(string propValue)
     {
+        var layers = SplitImageLayers(propValue);
+        if (layers.Count <= 1)
+            return ParseSingleImageLayer(propValue);
+
+        for (int i = 0; i < layers.Count; i++)
+            layers[i] = ParseSingleImageLayer(layers[i]);
+
+        return string.Join(", ", layers);
+    }
+
+    private static string ParseSingleImageLayer(string propValue)
+    {
         int startIdx = propValue.IndexOf("url(", StringComparison.InvariantCultureIgnoreCase);
 
         if (startIdx <= -1)
-            return propValue;
+            return propValue.Trim();
 
         startIdx += 4;
 
@@ -2165,7 +2177,37 @@ internal sealed class CssParser
                 return propValue.Substring(startIdx, endIdx - startIdx + 1);
         }
 
-        return propValue;
+        return propValue.Trim();
+    }
+
+    private static List<string> SplitImageLayers(string propValue)
+    {
+        var layers = new List<string>();
+        if (string.IsNullOrWhiteSpace(propValue))
+            return layers;
+
+        int depth = 0;
+        int start = 0;
+        for (int i = 0; i < propValue.Length; i++)
+        {
+            switch (propValue[i])
+            {
+                case '(':
+                    depth++;
+                    break;
+                case ')':
+                    if (depth > 0)
+                        depth--;
+                    break;
+                case ',' when depth == 0:
+                    layers.Add(propValue[start..i].Trim());
+                    start = i + 1;
+                    break;
+            }
+        }
+
+        layers.Add(propValue[start..].Trim());
+        return layers;
     }
 
     private string ParseFontFamilyProperty(string propValue)
