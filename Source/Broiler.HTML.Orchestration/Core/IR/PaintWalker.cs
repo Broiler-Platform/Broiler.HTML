@@ -14,7 +14,9 @@ namespace Broiler.HTML.Orchestration.Core.IR;
 /// </summary>
 internal static class PaintWalker
 {
-    private const float DefaultFontSizePx = 12f;
+    // Match PaintWalker.ParseFontSize's existing medium/default font-size fallback.
+    private const float DefaultFontSize = 12f;
+    // Broiler's default normal line-height is 1.2 × the computed font size.
     private const float DefaultLineHeightMultiplier = 1.2f;
 
     /// <summary>Default selection highlight color (semi-transparent blue).</summary>
@@ -972,7 +974,7 @@ internal static class PaintWalker
         }
         else if (CssValueParser.IsValidLength(val))
         {
-            return (float)CssValueParser.ParseLength(val, 0, emSize, null);
+            return (float)CssValueParser.ParseLength(val, hundredPercent: 0, emFactor: emSize, defaultUnit: null);
         }
         else if (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out float raw))
         {
@@ -983,10 +985,25 @@ internal static class PaintWalker
 
     private static float GetPositionEmSize(ComputedStyle style)
     {
-        float fontSize = style.ActualLineHeight > 0
-            ? (float)(style.ActualLineHeight / DefaultLineHeightMultiplier)
-            : (float)ParseFontSize(style.FontSize);
-        return fontSize > 0 ? fontSize : DefaultFontSizePx;
+        float fontSize;
+        if (CssValueParser.IsValidLength(style.FontSize))
+        {
+            fontSize = (float)CssValueParser.ParseLength(
+                style.FontSize,
+                hundredPercent: 0,
+                emFactor: DefaultFontSize,
+                defaultUnit: null);
+        }
+        else if (style.ActualLineHeight > 0)
+        {
+            fontSize = (float)(style.ActualLineHeight / DefaultLineHeightMultiplier);
+        }
+        else
+        {
+            fontSize = (float)ParseFontSize(style.FontSize);
+        }
+
+        return fontSize > 0 ? fontSize : DefaultFontSize;
     }
 
     private static bool IsHorizontalKeyword(string val) =>
