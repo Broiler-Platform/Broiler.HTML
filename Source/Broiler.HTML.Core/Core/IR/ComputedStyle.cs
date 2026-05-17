@@ -101,6 +101,7 @@ public sealed class ComputedStyle
     public string BackgroundPosition { get; init; } = "0% 0%";
     public string BackgroundRepeat { get; init; } = "repeat";
     public string BackgroundAttachment { get; init; } = "scroll";
+    public string BackgroundOrigin { get; init; } = "padding-box";
     public string BackgroundSize { get; init; } = "auto";
 
     // --- List ---

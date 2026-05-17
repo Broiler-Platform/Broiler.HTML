@@ -1270,6 +1270,7 @@ internal sealed class CssParser
                 or "lighten" or "color-dodge" or "color-burn" or "hard-light" or "soft-light"
                 or "difference" or "exclusion" or "hue" or "saturation" or "color" or "luminosity",
             "isolation" => lower is "auto" or "isolate",
+            "background-origin" => lower is "border-box" or "padding-box" or "content-box",
             "background-clip" => lower is "border-box" or "padding-box" or "content-box" or "border-area" or "text",
             "filter" => lower is "none" || lower.Contains('('),
             "transform" => lower is "none" || lower.Contains('('),

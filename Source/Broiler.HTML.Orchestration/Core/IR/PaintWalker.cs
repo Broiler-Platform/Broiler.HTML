@@ -759,139 +759,129 @@ internal static class PaintWalker
             if (bounds.Width <= 0 || bounds.Height <= 0)
                 continue;
 
-            // CSS Backgrounds Level 3:
-            // - background-origin (default: padding-box) determines the positioning area
-            //   where tiling starts and background-position is resolved.
-            // - background-clip (default: border-box) determines the painting/visibility area.
-            var border = fragment.Border;
-            var originRect = new RectangleF(
-                bounds.X + (float)border.Left,
-                bounds.Y + (float)border.Top,
-                bounds.Width - (float)(border.Left + border.Right),
-                bounds.Height - (float)(border.Top + border.Bottom));
+            EmitBackgroundImageLayer(
+                fragment,
+                bounds,
+                fragment.BackgroundImageHandle,
+                fragment.Style.BackgroundRepeat,
+                fragment.Style.BackgroundAttachment,
+                fragment.Style.BackgroundPosition,
+                fragment.Style.BackgroundSize,
+                fragment.Style.BackgroundOrigin,
+                fragment.Style.BackgroundClip,
+                items,
+                viewport);
+        }
+    }
 
-            var effectiveBackgroundClip = GetEffectiveBackgroundClip(fragment, fragment.Style.BackgroundClip);
-            var clipRect = GetBackgroundClipRect(bounds, fragment, effectiveBackgroundClip);
+    private static void EmitBackgroundImageLayer(
+        Fragment fragment,
+        RectangleF bounds,
+        object? imageHandle,
+        string repeat,
+        string attachment,
+        string position,
+        string size,
+        string origin,
+        string clip,
+        List<DisplayItem> items,
+        RectangleF viewport)
+    {
+        if (imageHandle is not RImage image)
+            return;
 
-            if (clipRect.Width <= 0 || clipRect.Height <= 0)
-                continue;
+        var effectiveBackgroundClip = GetEffectiveBackgroundClip(fragment, clip);
+        var clipRect = GetBackgroundClipRect(bounds, fragment, effectiveBackgroundClip);
+        if (clipRect.Width <= 0 || clipRect.Height <= 0)
+            return;
 
-            var repeat = fragment.Style.BackgroundRepeat;
-            var isFixed = fragment.Style.BackgroundAttachment == "fixed" && viewport.Width > 0 && viewport.Height > 0;
-            bool hasRoundedClip = TryCreateRoundedBackgroundClipItem(bounds, fragment, effectiveBackgroundClip, out var roundedClip);
+        var originRect = GetBackgroundPositioningAreaRect(bounds, fragment, origin);
+        bool isFixed = attachment == "fixed"
+            && viewport.Width > 0
+            && viewport.Height > 0
+            && !fragment.HasTransformAncestor;
+        var positioningArea = isFixed ? viewport : originRect;
+        bool hasRoundedClip = TryCreateRoundedBackgroundClipItem(bounds, fragment, effectiveBackgroundClip, out var roundedClip);
 
-            // CSS Backgrounds Level 3: background-size determines the
-            // visual tile dimensions.  Resolve against the positioning area
-            // (originRect) which defaults to the padding-box.
-            float tileW = 0, tileH = 0;
-            var sizeStr = fragment.Style.BackgroundSize;
-            if (fragment.BackgroundImageHandle is RImage sizeImg)
+        float tileW = 0, tileH = 0;
+        ParseBackgroundSizeForImage(
+            size,
+            positioningArea.Width,
+            positioningArea.Height,
+            (float)image.IntrinsicWidth,
+            (float)image.IntrinsicHeight,
+            image.HasIntrinsicRatio,
+            (float)image.IntrinsicAspectRatio,
+            image.HasIntrinsicWidth,
+            image.HasIntrinsicHeight,
+            out tileW,
+            out tileH);
+
+        var tileOrigin = new PointF(positioningArea.X, positioningArea.Y);
+        ApplyBackgroundPositionOffset(ref tileOrigin, position, positioningArea.Width, positioningArea.Height, tileW > 0 ? tileW : (float)image.Width, tileH > 0 ? tileH : (float)image.Height);
+
+        bool hasBgBlend = !string.IsNullOrEmpty(fragment.Style.BackgroundBlendMode)
+            && !fragment.Style.BackgroundBlendMode.Equals("normal", StringComparison.OrdinalIgnoreCase);
+        if (hasRoundedClip)
+            items.Add(roundedClip);
+        if (hasBgBlend)
+            items.Add(new BlendModeItem { Bounds = clipRect, Mode = fragment.Style.BackgroundBlendMode });
+
+        if (effectiveBackgroundClip.Equals("border-area", StringComparison.OrdinalIgnoreCase))
+        {
+            if (image.TryGetUniformColor(out var uniformColor))
+                EmitBorderAreaBorder(bounds, fragment, items, uniformColor);
+            else
+                EmitBorderAreaTiledImage(bounds, imageHandle, fragment, items, tileOrigin, tileW, tileH, repeat);
+        }
+        else
+        {
+            items.Add(new DrawTiledImageItem
             {
-                ParseBackgroundSizeForImage(
-                    sizeStr,
-                    originRect.Width,
-                    originRect.Height,
-                    (float)sizeImg.IntrinsicWidth,
-                    (float)sizeImg.IntrinsicHeight,
-                    sizeImg.HasIntrinsicRatio,
-                    (float)sizeImg.IntrinsicAspectRatio,
-                    sizeImg.HasIntrinsicWidth,
-                    sizeImg.HasIntrinsicHeight,
-                    out tileW,
-                    out tileH);
-            }
+                Bounds = clipRect,
+                ImageHandle = imageHandle,
+                SourceRect = RectangleF.Empty,
+                FillRect = clipRect,
+                TileOrigin = tileOrigin,
+                Repeat = repeat,
+                TileWidth = tileW,
+                TileHeight = tileH,
+            });
+        }
 
-            // CSS2.1 §14.2.1: For fixed attachment, the tiling origin is
-            // the viewport origin; the image is visible only within the
-            // element's padding area.  For scroll attachment, the origin
-            // is the padding-box origin (background-origin default).
-            var tileOrigin = isFixed
-                ? new PointF(viewport.X, viewport.Y)
-                : new PointF(originRect.X, originRect.Y);
+        if (hasBgBlend)
+            items.Add(new RestoreBlendModeItem { Bounds = clipRect });
+        if (hasRoundedClip)
+            items.Add(new RestoreItem { Bounds = clipRect });
+    }
 
-            // Apply background-position offset to tile origin.
-            // CSS2.1 §14.2.1: position keywords may appear in any order
-            // and translate to percentages: left=0%, center=50%, right=100%,
-            // top=0%, bottom=100%.
-            var posStr = fragment.Style.BackgroundPosition;
-            if (!string.IsNullOrEmpty(posStr))
+    private static void ApplyBackgroundPositionOffset(ref PointF tileOrigin, string position, float containerWidth, float containerHeight, float imageWidth, float imageHeight)
+    {
+        if (string.IsNullOrEmpty(position))
+            return;
+
+        var parts = position.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        string xVal = null, yVal = null;
+        foreach (var p in parts)
+        {
+            if (IsHorizontalKeyword(p))
+                xVal = p;
+            else if (IsVerticalKeyword(p))
+                yVal = p;
+            else if (p.Equals("center", StringComparison.OrdinalIgnoreCase))
             {
-                float imgW = 0, imgH = 0;
-                if (fragment.BackgroundImageHandle is RImage bgImg)
-                {
-                    imgW = tileW > 0 ? tileW : (float)bgImg.Width;
-                    imgH = tileH > 0 ? tileH : (float)bgImg.Height;
-                }
-
-                var parts = posStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                // Resolve keywords to (xVal, yVal), handling that keywords
-                // can appear in any order.  Non-keyword values are assigned
-                // positionally (first→X, second→Y).
-                string xVal = null, yVal = null;
-                foreach (var p in parts)
-                {
-                    if (IsHorizontalKeyword(p))
-                        xVal = p;
-                    else if (IsVerticalKeyword(p))
-                        yVal = p;
-                    else if (p.Equals("center", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // "center" can be either axis; assign to the first unset axis.
-                        if (xVal == null) xVal = p;
-                        else if (yVal == null) yVal = p;
-                    }
-                    else
-                    {
-                        // Length or percentage — assign positionally.
-                        if (xVal == null) xVal = p;
-                        else if (yVal == null) yVal = p;
-                    }
-                }
-
-                tileOrigin.X += ParsePositionValue(xVal, originRect.Width, imgW);
-                tileOrigin.Y += ParsePositionValue(yVal, originRect.Height, imgH);
-            }
-
-            // CSS Compositing §8: background-blend-mode specifies how the
-            // background image blends with the background color underneath.
-            bool hasBgBlend = !string.IsNullOrEmpty(fragment.Style.BackgroundBlendMode)
-                && !fragment.Style.BackgroundBlendMode.Equals("normal", StringComparison.OrdinalIgnoreCase);
-            if (hasRoundedClip)
-                items.Add(roundedClip);
-            if (hasBgBlend)
-                items.Add(new BlendModeItem { Bounds = clipRect, Mode = fragment.Style.BackgroundBlendMode });
-
-            // CSS Backgrounds Level 4: background-clip: border-area — the
-            // background image fills only the border area (not the padding/content).
-            if (effectiveBackgroundClip.Equals("border-area", StringComparison.OrdinalIgnoreCase))
-            {
-                if (fragment.BackgroundImageHandle is RImage borderAreaImage
-                    && borderAreaImage.TryGetUniformColor(out var uniformColor))
-                    EmitBorderAreaBorder(bounds, fragment, items, uniformColor);
-                else
-                    EmitBorderAreaTiledImage(bounds, fragment, items, tileOrigin, tileW, tileH, repeat);
+                if (xVal == null) xVal = p;
+                else if (yVal == null) yVal = p;
             }
             else
             {
-                items.Add(new DrawTiledImageItem
-                {
-                    Bounds = clipRect,
-                    ImageHandle = fragment.BackgroundImageHandle,
-                    SourceRect = RectangleF.Empty,
-                    FillRect = clipRect,
-                    TileOrigin = tileOrigin,
-                    Repeat = repeat,
-                    TileWidth = tileW,
-                    TileHeight = tileH,
-                });
+                if (xVal == null) xVal = p;
+                else if (yVal == null) yVal = p;
             }
-
-            if (hasBgBlend)
-                items.Add(new RestoreBlendModeItem { Bounds = clipRect });
-            if (hasRoundedClip)
-                items.Add(new RestoreItem { Bounds = clipRect });
         }
+
+        tileOrigin.X += ParsePositionValue(xVal, containerWidth, imageWidth);
+        tileOrigin.Y += ParsePositionValue(yVal, containerHeight, imageHeight);
     }
 
     /// <summary>
@@ -1759,6 +1749,36 @@ internal static class PaintWalker
         return borderBoxRect;
     }
 
+    private static RectangleF GetBackgroundPositioningAreaRect(RectangleF borderBoxRect, Fragment fragment, string backgroundOrigin)
+    {
+        if (string.IsNullOrEmpty(backgroundOrigin) ||
+            backgroundOrigin.Equals("padding-box", StringComparison.OrdinalIgnoreCase))
+        {
+            var border = fragment.Border;
+            return new RectangleF(
+                borderBoxRect.X + (float)border.Left,
+                borderBoxRect.Y + (float)border.Top,
+                borderBoxRect.Width - (float)(border.Left + border.Right),
+                borderBoxRect.Height - (float)(border.Top + border.Bottom));
+        }
+
+        if (backgroundOrigin.Equals("border-box", StringComparison.OrdinalIgnoreCase))
+            return borderBoxRect;
+
+        if (backgroundOrigin.Equals("content-box", StringComparison.OrdinalIgnoreCase))
+        {
+            var border = fragment.Border;
+            var padding = fragment.Padding;
+            return new RectangleF(
+                borderBoxRect.X + (float)border.Left + (float)padding.Left,
+                borderBoxRect.Y + (float)border.Top + (float)padding.Top,
+                borderBoxRect.Width - (float)(border.Left + border.Right + padding.Left + padding.Right),
+                borderBoxRect.Height - (float)(border.Top + border.Bottom + padding.Top + padding.Bottom));
+        }
+
+        return GetBackgroundPositioningAreaRect(borderBoxRect, fragment, "padding-box");
+    }
+
     private static string GetEffectiveBackgroundClip(Fragment fragment, string backgroundClip)
     {
         if (string.IsNullOrEmpty(backgroundClip))
@@ -2130,13 +2150,15 @@ internal static class PaintWalker
             ParseBackgroundSize(sizeStr, fillRect.Width, fillRect.Height, out tileW, out tileH);
 
             // Determine tile origin based on attachment and position.
-            // For 'fixed' attachment: position relative to viewport.
-            // For 'scroll' attachment: position relative to the background
-            // positioning area represented by fillRect.
-            bool isFixed = attachStr.Equals("fixed", StringComparison.OrdinalIgnoreCase);
-            var tileOrigin = isFixed
-                ? new PointF(viewport.X, viewport.Y)
-                : new PointF(fillRect.X, fillRect.Y);
+            // Fixed backgrounds use the viewport as the positioning area,
+            // unless the fragment lives inside a transformed containing block,
+            // where CSS requires fixed attachment to behave like scroll.
+            bool isFixed = attachStr.Equals("fixed", StringComparison.OrdinalIgnoreCase)
+                && !fragment.HasTransformAncestor
+                && viewport.Width > 0
+                && viewport.Height > 0;
+            var positioningArea = isFixed ? viewport : fillRect;
+            var tileOrigin = new PointF(positioningArea.X, positioningArea.Y);
 
             // Apply background-position offset.
             var posParts = posStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -2160,8 +2182,8 @@ internal static class PaintWalker
                         else if (yVal == null) yVal = p;
                     }
                 }
-                tileOrigin.X += ParsePositionValue(xVal, fillRect.Width, tileW);
-                tileOrigin.Y += ParsePositionValue(yVal, fillRect.Height, tileH);
+                tileOrigin.X += ParsePositionValue(xVal, positioningArea.Width, tileW);
+                tileOrigin.Y += ParsePositionValue(yVal, positioningArea.Height, tileH);
             }
 
             items.Add(new DrawTiledGradientItem
@@ -2469,7 +2491,7 @@ internal static class PaintWalker
     /// CSS Backgrounds Level 4 <c>background-clip: border-area</c>:
     /// Emits 4 tiled-image items, one for each border strip.
     /// </summary>
-    private static void EmitBorderAreaTiledImage(RectangleF bounds, Fragment fragment, List<DisplayItem> items,
+    private static void EmitBorderAreaTiledImage(RectangleF bounds, object? imageHandle, Fragment fragment, List<DisplayItem> items,
         PointF tileOrigin, float tileW, float tileH, string repeat)
     {
         var border = fragment.Border;
@@ -2480,9 +2502,9 @@ internal static class PaintWalker
         if (bTop > 0)
         {
             var strip = new RectangleF(bounds.X, bounds.Y, bounds.Width, bTop);
-            items.Add(new DrawTiledImageItem
-            {
-                Bounds = strip, ImageHandle = fragment.BackgroundImageHandle,
+                items.Add(new DrawTiledImageItem
+                {
+                Bounds = strip, ImageHandle = imageHandle,
                 SourceRect = RectangleF.Empty, FillRect = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });
@@ -2491,9 +2513,9 @@ internal static class PaintWalker
         if (bBottom > 0)
         {
             var strip = new RectangleF(bounds.X, bounds.Bottom - bBottom, bounds.Width, bBottom);
-            items.Add(new DrawTiledImageItem
-            {
-                Bounds = strip, ImageHandle = fragment.BackgroundImageHandle,
+                items.Add(new DrawTiledImageItem
+                {
+                Bounds = strip, ImageHandle = imageHandle,
                 SourceRect = RectangleF.Empty, FillRect = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });
@@ -2502,9 +2524,9 @@ internal static class PaintWalker
         if (bLeft > 0)
         {
             var strip = new RectangleF(bounds.X, bounds.Y + bTop, bLeft, bounds.Height - bTop - bBottom);
-            items.Add(new DrawTiledImageItem
-            {
-                Bounds = strip, ImageHandle = fragment.BackgroundImageHandle,
+                items.Add(new DrawTiledImageItem
+                {
+                Bounds = strip, ImageHandle = imageHandle,
                 SourceRect = RectangleF.Empty, FillRect = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });
@@ -2513,9 +2535,9 @@ internal static class PaintWalker
         if (bRight > 0)
         {
             var strip = new RectangleF(bounds.X + bounds.Width - bRight, bounds.Y + bTop, bRight, bounds.Height - bTop - bBottom);
-            items.Add(new DrawTiledImageItem
-            {
-                Bounds = strip, ImageHandle = fragment.BackgroundImageHandle,
+                items.Add(new DrawTiledImageItem
+                {
+                Bounds = strip, ImageHandle = imageHandle,
                 SourceRect = RectangleF.Empty, FillRect = strip,
                 TileOrigin = tileOrigin, Repeat = repeat, TileWidth = tileW, TileHeight = tileH,
             });

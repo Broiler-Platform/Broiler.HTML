@@ -42,6 +42,9 @@ public sealed class Fragment
     /// <summary>Stack level (z-index or implicit order).</summary>
     public int StackLevel { get; init; }
 
+    /// <summary>Whether this fragment or one of its ancestors establishes a transformed containing block.</summary>
+    public bool HasTransformAncestor { get; init; }
+
     /// <summary>Platform-specific background image handle (Phase 3).</summary>
     public object? BackgroundImageHandle { get; init; }
 

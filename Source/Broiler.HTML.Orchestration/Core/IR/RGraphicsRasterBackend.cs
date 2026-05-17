@@ -415,6 +415,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             case "no-repeat":
                 DrawClippedImage(g, image, new RectangleF(origin.X, origin.Y, tileW, tileH), srcRect, clip);
                 break;
+            case "space":
+                DrawSpace(g, image, fill, clip, origin, srcRect, tileW, tileH);
+                break;
             case "repeat-x":
                 {
                     // Shift origin left to cover the fill area
@@ -471,6 +474,45 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
 
         g.PopClip();
+    }
+
+    private static void DrawSpace(
+        RGraphics g,
+        RImage image,
+        RectangleF fill,
+        RectangleF clip,
+        PointF origin,
+        RectangleF srcRect,
+        float tileW,
+        float tileH)
+    {
+        var xPositions = GetSpacePositions(fill.X, fill.Width, tileW, origin.X);
+        var yPositions = GetSpacePositions(fill.Y, fill.Height, tileH, origin.Y);
+
+        foreach (var y in yPositions)
+        {
+            foreach (var x in xPositions)
+                DrawClippedImage(g, image, new RectangleF(x, y, tileW, tileH), srcRect, clip);
+        }
+    }
+
+    private static List<float> GetSpacePositions(float start, float span, float tileSize, float fallbackPosition)
+    {
+        var positions = new List<float>();
+        if (tileSize <= 0 || span <= 0)
+            return positions;
+
+        int count = (int)MathF.Floor(span / tileSize);
+        if (count >= 2)
+        {
+            float gap = (span - count * tileSize) / (count - 1);
+            for (int i = 0; i < count; i++)
+                positions.Add(start + i * (tileSize + gap));
+            return positions;
+        }
+
+        positions.Add(fallbackPosition);
+        return positions;
     }
 
     private static void DrawClippedImage(

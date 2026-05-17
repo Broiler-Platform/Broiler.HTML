@@ -406,6 +406,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     public string BackgroundPosition { get; set; } = "0% 0%";
     public string BackgroundRepeat { get; set; } = "repeat";
     public string BackgroundAttachment { get; set; } = "scroll";
+    public string BackgroundOrigin { get; set; } = "padding-box";
     public string BackgroundSize { get; set; } = "auto";
     public string BackgroundGradient { get; set; } = "none";
     public string BackgroundGradientAngle { get; set; } = "90";
@@ -1529,6 +1530,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         BackgroundPosition = p.BackgroundPosition;
         BackgroundRepeat = p.BackgroundRepeat;
         BackgroundAttachment = p.BackgroundAttachment;
+        BackgroundOrigin = p.BackgroundOrigin;
         BackgroundSize = p.BackgroundSize;
         _borderTopWidth = p._borderTopWidth;
         _borderRightWidth = p._borderRightWidth;
