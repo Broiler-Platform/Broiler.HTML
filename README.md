@@ -144,7 +144,7 @@ If your selected WPT cases use fixture fonts such as Ahem, pass them through to 
 npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/path/to/wpt/fonts/Ahem.ttf
 ```
 
-The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, runs a focused non-JS subset, uploads the diff artifacts, and adds the rendered summary to the workflow summary page.
+The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, runs a focused non-JS subset, uploads the diff artifacts, and adds the rendered summary to the workflow summary page. The workflow's curated `css/css-backgrounds` slice can also exclude known unstable cases with `--exclude` filters so CI can keep tracking the stable non-JS subset while renderer gaps are investigated separately.
 
 When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configured, the CI job also opens a new GitHub issue for the most common failure signature in that run. The automation uses `ISSUE_TOKEN` only for GitHub Issues API calls that create the issue and expects a fine-grained PAT or GitHub App token with **Issues: Write** access to this repository.
 
