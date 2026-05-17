@@ -1006,7 +1006,9 @@ internal static class PaintWalker
         }
         else
         {
-            fontSize = (float)ParseFontSize(style.FontSize);
+            // ParseFontSize returns values in CSS points (matching CssConstants.FontSize = 12pt).
+            // Convert pt -> px so that em-based positions match browser rendering (12pt = 16px).
+            fontSize = (float)(ParseFontSize(style.FontSize) * (96.0 / 72.0));
         }
 
         return fontSize > 0 ? fontSize : DefaultFontSize;

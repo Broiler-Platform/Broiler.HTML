@@ -366,10 +366,11 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     {
         var bounds = item.Bounds;
         var widths = item.Widths;
-        float topLine = (float)Math.Max(1d, widths.Top / 3d);
-        float rightLine = (float)Math.Max(1d, widths.Right / 3d);
-        float bottomLine = (float)Math.Max(1d, widths.Bottom / 3d);
-        float leftLine = (float)Math.Max(1d, widths.Left / 3d);
+        // Use Math.Floor to match browser integer rounding: 25px -> 8px stripes, 9px gap.
+        float topLine = (float)Math.Max(1d, Math.Floor(widths.Top / 3d));
+        float rightLine = (float)Math.Max(1d, Math.Floor(widths.Right / 3d));
+        float bottomLine = (float)Math.Max(1d, Math.Floor(widths.Bottom / 3d));
+        float leftLine = (float)Math.Max(1d, Math.Floor(widths.Left / 3d));
         using var brush = g.GetSolidBrush(side switch
         {
             Border.Top => item.TopColor,
@@ -385,37 +386,37 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
                 g.DrawRectangle(brush, bounds.Left, bounds.Top, bounds.Width, topLine);
                 g.DrawRectangle(
                     brush,
-                    bounds.Left + (2 * leftLine),
-                    bounds.Top + (2 * topLine),
-                    Math.Max(0, bounds.Width - (2 * leftLine) - (2 * rightLine)),
+                    bounds.Left + (widths.Left - leftLine),
+                    bounds.Top + (widths.Top - topLine),
+                    Math.Max(0, bounds.Width - (widths.Left - leftLine) - leftLine - (widths.Right - rightLine) - rightLine),
                     topLine);
                 break;
             case Border.Right:
                 g.DrawRectangle(brush, bounds.Right - rightLine, bounds.Top, rightLine, bounds.Height);
                 g.DrawRectangle(
                     brush,
-                    bounds.Right - (3 * rightLine),
-                    bounds.Top + (2 * topLine),
+                    bounds.Right - widths.Right,
+                    bounds.Top + (widths.Top - topLine),
                     rightLine,
-                    Math.Max(0, bounds.Height - (2 * topLine) - (2 * bottomLine)));
+                    Math.Max(0, bounds.Height - (widths.Top - topLine) - topLine - (widths.Bottom - bottomLine) - bottomLine));
                 break;
             case Border.Bottom:
                 g.DrawRectangle(brush, bounds.Left, bounds.Bottom - bottomLine, bounds.Width, bottomLine);
                 g.DrawRectangle(
                     brush,
-                    bounds.Left + (2 * leftLine),
-                    bounds.Bottom - (3 * bottomLine),
-                    Math.Max(0, bounds.Width - (2 * leftLine) - (2 * rightLine)),
+                    bounds.Left + (widths.Left - leftLine),
+                    bounds.Bottom - widths.Bottom,
+                    Math.Max(0, bounds.Width - (widths.Left - leftLine) - leftLine - (widths.Right - rightLine) - rightLine),
                     bottomLine);
                 break;
             case Border.Left:
                 g.DrawRectangle(brush, bounds.Left, bounds.Top, leftLine, bounds.Height);
                 g.DrawRectangle(
                     brush,
-                    bounds.Left + (2 * leftLine),
-                    bounds.Top + (2 * topLine),
+                    bounds.Left + (widths.Left - leftLine),
+                    bounds.Top + (widths.Top - topLine),
                     leftLine,
-                    Math.Max(0, bounds.Height - (2 * topLine) - (2 * bottomLine)));
+                    Math.Max(0, bounds.Height - (widths.Top - topLine) - topLine - (widths.Bottom - bottomLine) - bottomLine));
                 break;
         }
     }

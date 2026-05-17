@@ -1349,6 +1349,8 @@ internal sealed class CssParser
         string? image = null;
         string? repeat = null;
         string? attachment = null;
+        string? origin = null;
+        string? clip = null;
         var positionParts = new List<string>();
         bool hasUnrecognizedToken = false;
 
@@ -1413,12 +1415,16 @@ internal sealed class CssParser
                 continue;
             }
 
-            // CSS3 background-origin / background-clip box values —
-            // accept but don't change rendering (not yet implemented).
+            // CSS3 §3.10: first <box> value sets background-origin (and clip if only one),
+            // second <box> value sets background-clip.
             if (t.Equals("content-box", StringComparison.OrdinalIgnoreCase) ||
                 t.Equals("padding-box", StringComparison.OrdinalIgnoreCase) ||
                 t.Equals("border-box", StringComparison.OrdinalIgnoreCase))
             {
+                if (origin == null)
+                    origin = t.ToLowerInvariant();
+                else
+                    clip = t.ToLowerInvariant();
                 continue;
             }
 
@@ -1498,6 +1504,9 @@ internal sealed class CssParser
         properties["background-position"] = positionParts.Count > 0
             ? string.Join(" ", positionParts)
             : "0% 0%";
+        // CSS3 §3.10: if only one <box> token, it sets both origin and clip.
+        properties["background-origin"] = origin ?? "padding-box";
+        properties["background-clip"] = clip ?? origin ?? "border-box";
 
         // For uniform CSS gradients (e.g. linear-gradient(green, green)),
         // store the solid color as background-gradient so the paint walker
