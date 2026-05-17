@@ -25,6 +25,8 @@ permissions:
 jobs:
   wpt-non-js:
     runs-on: ubuntu-latest
+    # Keep the full workflow bounded while leaving enough room for a normal
+    # WPT checkout, build, and focused 20-case render/diff run.
     timeout-minutes: 45
 
     steps:
@@ -43,18 +45,25 @@ jobs:
           cache: npm
 
       - name: Install npm dependencies
+        timeout-minutes: 10
         run: npm ci
 
       - name: Install Playwright Chromium
+        timeout-minutes: 15
         run: npm run wpt:install-browsers
 
       - name: Build solution
+        timeout-minutes: 15
         run: dotnet build Source/Broiler.HTML.slnx
 
       - name: Prepare WPT checkout
+        timeout-minutes: 10
         run: npm run wpt:prepare -- --output "${RUNNER_TEMP}/wpt"
 
       - name: Run non-JS WPT subset
+        # Reserve most of the job budget for the actual render/diff pass while
+        # still failing a stuck batch well before the overall 45-minute cap.
+        timeout-minutes: 20
         run: >
           npm run wpt:run -- --wpt-root "${RUNNER_TEMP}/wpt"
           --output "${RUNNER_TEMP}/wpt-artifacts"
@@ -94,6 +103,7 @@ jobs:
       - name: Upload WPT artifacts
         if: always()
         uses: actions/upload-artifact@v4
+        timeout-minutes: 5
         with:
           name: non-js-wpt-artifacts
           path: ${{ runner.temp }}/wpt-artifacts
