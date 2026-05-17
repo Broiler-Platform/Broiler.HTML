@@ -283,6 +283,58 @@ internal sealed class BCanvas : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fills a rectangle with a radial gradient.  The gradient centre is given as
+    /// normalised fractions of the rectangle dimensions (<paramref name="centerX"/>
+    /// and <paramref name="centerY"/> are in the range 0.0–1.0).  The gradient
+    /// radius extends to the farthest corner of the rectangle from the centre,
+    /// matching the CSS <c>farthest-corner</c> keyword behaviour.
+    /// </summary>
+    public void FillRadialGradientRect(RectangleF rect, IReadOnlyList<BColor> colors, IReadOnlyList<float>? positions, float centerX, float centerY)
+    {
+        if (colors == null || colors.Count == 0 || rect.Width <= 0 || rect.Height <= 0)
+            return;
+
+        if (colors.Count == 1)
+        {
+            FillRect(rect, colors[0]);
+            return;
+        }
+
+        var translatedRect = Translate(rect);
+        int minX = Math.Max(0, (int)Math.Floor(translatedRect.Left));
+        int minY = Math.Max(0, (int)Math.Floor(translatedRect.Top));
+        int maxX = Math.Min(CurrentTarget.Width - 1, (int)Math.Ceiling(translatedRect.Right) - 1);
+        int maxY = Math.Min(CurrentTarget.Height - 1, (int)Math.Ceiling(translatedRect.Bottom) - 1);
+
+        var normalizedPositions = NormalizeGradientPositions(colors.Count, positions);
+
+        float cx = translatedRect.Left + (centerX * translatedRect.Width);
+        float cy = translatedRect.Top + (centerY * translatedRect.Height);
+
+        // Radii to farthest corner (elliptical, one per axis).
+        float rx = Math.Max(Math.Abs(cx - translatedRect.Left), Math.Abs(cx - translatedRect.Right));
+        float ry = Math.Max(Math.Abs(cy - translatedRect.Top), Math.Abs(cy - translatedRect.Bottom));
+
+        if (rx <= 0 || ry <= 0)
+            return;
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            for (int x = minX; x <= maxX; x++)
+            {
+                if (!IsVisible(x, y))
+                    continue;
+
+                float dx = (x + 0.5f - cx) / rx;
+                float dy = (y + 0.5f - cy) / ry;
+                float t = Math.Clamp((float)Math.Sqrt((dx * dx) + (dy * dy)), 0f, 1f);
+                var color = SampleGradientColor(colors, normalizedPositions, t);
+                BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+            }
+        }
+    }
+
     public void SaveOpacityLayer(float opacity)
     {
         _layerStack.Push(new LayerState(new BBitmap(_rootBitmap.Width, _rootBitmap.Height), opacity, "normal"));
