@@ -46,6 +46,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     private string _backgroundColor = "transparent";
     private string _backgroundImage = "none";
     private string _backgroundClip = "border-box";
+    private string _clipPath = "none";
     private string _textIndent = "0";
     private string _textDecorationColor = "currentcolor";
     private string _top = "auto";
@@ -522,6 +523,12 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         {
             _backgroundClip = value ?? "border-box";
         }
+    }
+
+    public string ClipPath
+    {
+        get => _clipPath;
+        set => _clipPath = value ?? "none";
     }
 
     /// <summary>
@@ -1587,6 +1594,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         Isolation = p.Isolation;
         BoxSizing = p.BoxSizing;
         BackgroundClip = p.BackgroundClip;
+        ClipPath = p.ClipPath;
         FlexDirection = p.FlexDirection;
         JustifyContent = p.JustifyContent;
         AlignItems = p.AlignItems;

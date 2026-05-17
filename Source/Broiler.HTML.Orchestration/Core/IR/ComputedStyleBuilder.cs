@@ -132,6 +132,7 @@ internal static class ComputedStyleBuilder
             Filter = box.Filter,
             Isolation = box.Isolation,
             BackgroundClip = box.BackgroundClip,
+            ClipPath = box.ClipPath,
             Contain = box.Contain,
             Transform = box.Transform,
 

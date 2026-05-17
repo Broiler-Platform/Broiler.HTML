@@ -135,6 +135,7 @@ public sealed class ComputedStyle
     public string Filter { get; init; } = "none";
     public string Isolation { get; init; } = "auto";
     public string BackgroundClip { get; init; } = "border-box";
+    public string ClipPath { get; init; } = "none";
 
     /// <summary>
     /// CSS Containment Module Level 2: the <c>contain</c> property.

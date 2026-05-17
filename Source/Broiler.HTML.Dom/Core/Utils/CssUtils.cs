@@ -112,6 +112,7 @@ internal static class CssUtils
             "list-style-type" => cssBox.ListStyleType,
             "overflow" => cssBox.Overflow,
             "box-sizing" => cssBox.BoxSizing,
+            "clip-path" => cssBox.ClipPath,
             "transform" => cssBox.Transform,
             "align-content" => cssBox.AlignContent,
             "justify-self" => cssBox.JustifySelf,
@@ -208,6 +209,9 @@ internal static class CssUtils
                 break;
             case "background-clip":
                 cssBox.BackgroundClip = value;
+                break;
+            case "clip-path":
+                cssBox.ClipPath = value;
                 break;
             case "transform":
                 cssBox.Transform = value;

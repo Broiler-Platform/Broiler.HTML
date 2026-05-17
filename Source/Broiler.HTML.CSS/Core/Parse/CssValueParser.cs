@@ -862,7 +862,7 @@ internal sealed class CssValueParser
         {
             CssConstants.Thin => (double)1f,
             CssConstants.Medium => (double)2f,
-            CssConstants.Thick => (double)4f,
+            CssConstants.Thick => (double)5f,
             _ => Math.Abs(ParseLength(borderValue, 1, emHeight)),
         };
     }

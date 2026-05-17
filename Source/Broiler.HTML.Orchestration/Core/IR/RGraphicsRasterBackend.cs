@@ -1,4 +1,5 @@
 using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.Core.IR;
 using System;
 using System.Collections.Generic;
@@ -172,7 +173,8 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         width <= 0
         || color.A <= 0
         || string.IsNullOrEmpty(style)
-        || style.Equals("solid", StringComparison.OrdinalIgnoreCase);
+        || style.Equals("solid", StringComparison.OrdinalIgnoreCase)
+        || style.Equals("double", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsRasterBlendModeSupported(string? blendMode) =>
         string.IsNullOrEmpty(blendMode)
@@ -223,7 +225,11 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         // Top border
         if (widths.Top > 0 && item.TopColor.A > 0 && IsBorderStyleVisible(item.TopStyle))
         {
-            if (item.TopStyle == "solid")
+            if (item.TopStyle == "double")
+            {
+                DrawDoubleBorderSide(g, item, Border.Top);
+            }
+            else if (item.TopStyle == "solid")
             {
                 // Trapezoid rendering for correct corner joins with asymmetric widths
                 var pts = new PointF[4];
@@ -243,7 +249,11 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         // Left border
         if (widths.Left > 0 && item.LeftColor.A > 0 && IsBorderStyleVisible(item.LeftStyle))
         {
-            if (item.LeftStyle == "solid")
+            if (item.LeftStyle == "double")
+            {
+                DrawDoubleBorderSide(g, item, Border.Left);
+            }
+            else if (item.LeftStyle == "solid")
             {
                 var pts = new PointF[4];
                 pts[0] = new PointF(bounds.Left, bounds.Top);
@@ -262,7 +272,11 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         // Bottom border
         if (widths.Bottom > 0 && item.BottomColor.A > 0 && IsBorderStyleVisible(item.BottomStyle))
         {
-            if (item.BottomStyle == "solid")
+            if (item.BottomStyle == "double")
+            {
+                DrawDoubleBorderSide(g, item, Border.Bottom);
+            }
+            else if (item.BottomStyle == "solid")
             {
                 var pts = new PointF[4];
                 pts[0] = new PointF((float)(bounds.Left + widths.Left), (float)(bounds.Bottom - widths.Bottom));
@@ -282,7 +296,11 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         // Right border
         if (widths.Right > 0 && item.RightColor.A > 0 && IsBorderStyleVisible(item.RightStyle))
         {
-            if (item.RightStyle == "solid")
+            if (item.RightStyle == "double")
+            {
+                DrawDoubleBorderSide(g, item, Border.Right);
+            }
+            else if (item.RightStyle == "solid")
             {
                 var pts = new PointF[4];
                 pts[0] = new PointF((float)(bounds.Right - widths.Right), (float)(bounds.Top + widths.Top));
@@ -314,10 +332,10 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         // must NOT use corner fills because the fill rectangle and the
         // overlapping border trapezoids would composite the same alpha twice,
         // producing incorrect (darker) corner pixels.
-        bool hasTop = widths.Top > 0 && item.TopColor.A == 255 && item.TopStyle == "solid";
-        bool hasRight = widths.Right > 0 && item.RightColor.A == 255 && item.RightStyle == "solid";
-        bool hasBottom = widths.Bottom > 0 && item.BottomColor.A == 255 && item.BottomStyle == "solid";
-        bool hasLeft = widths.Left > 0 && item.LeftColor.A == 255 && item.LeftStyle == "solid";
+        bool hasTop = widths.Top > 0 && item.TopColor.A == 255 && IsCornerFillBorderStyle(item.TopStyle);
+        bool hasRight = widths.Right > 0 && item.RightColor.A == 255 && IsCornerFillBorderStyle(item.RightStyle);
+        bool hasBottom = widths.Bottom > 0 && item.BottomColor.A == 255 && IsCornerFillBorderStyle(item.BottomStyle);
+        bool hasLeft = widths.Left > 0 && item.LeftColor.A == 255 && IsCornerFillBorderStyle(item.LeftStyle);
 
         // Top-left corner
         if (hasTop && hasLeft && item.TopColor == item.LeftColor)
@@ -338,6 +356,68 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         if (hasBottom && hasRight && item.BottomColor == item.RightColor)
             g.DrawRectangle(g.GetSolidBrush(item.BottomColor),
                 bounds.Right - widths.Right, bounds.Bottom - widths.Bottom, widths.Right, widths.Bottom);
+    }
+
+    private static bool IsCornerFillBorderStyle(string? style) =>
+        string.Equals(style, "solid", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(style, "double", StringComparison.OrdinalIgnoreCase);
+
+    private static void DrawDoubleBorderSide(RGraphics g, DrawBorderItem item, Border side)
+    {
+        var bounds = item.Bounds;
+        var widths = item.Widths;
+        float topLine = (float)Math.Max(1d, widths.Top / 3d);
+        float rightLine = (float)Math.Max(1d, widths.Right / 3d);
+        float bottomLine = (float)Math.Max(1d, widths.Bottom / 3d);
+        float leftLine = (float)Math.Max(1d, widths.Left / 3d);
+        using var brush = g.GetSolidBrush(side switch
+        {
+            Border.Top => item.TopColor,
+            Border.Right => item.RightColor,
+            Border.Bottom => item.BottomColor,
+            Border.Left => item.LeftColor,
+            _ => Color.Empty,
+        });
+
+        switch (side)
+        {
+            case Border.Top:
+                g.DrawRectangle(brush, bounds.Left, bounds.Top, bounds.Width, topLine);
+                g.DrawRectangle(
+                    brush,
+                    bounds.Left + (2 * leftLine),
+                    bounds.Top + (2 * topLine),
+                    Math.Max(0, bounds.Width - (2 * leftLine) - (2 * rightLine)),
+                    topLine);
+                break;
+            case Border.Right:
+                g.DrawRectangle(brush, bounds.Right - rightLine, bounds.Top, rightLine, bounds.Height);
+                g.DrawRectangle(
+                    brush,
+                    bounds.Right - (3 * rightLine),
+                    bounds.Top + (2 * topLine),
+                    rightLine,
+                    Math.Max(0, bounds.Height - (2 * topLine) - (2 * bottomLine)));
+                break;
+            case Border.Bottom:
+                g.DrawRectangle(brush, bounds.Left, bounds.Bottom - bottomLine, bounds.Width, bottomLine);
+                g.DrawRectangle(
+                    brush,
+                    bounds.Left + (2 * leftLine),
+                    bounds.Bottom - (3 * bottomLine),
+                    Math.Max(0, bounds.Width - (2 * leftLine) - (2 * rightLine)),
+                    bottomLine);
+                break;
+            case Border.Left:
+                g.DrawRectangle(brush, bounds.Left, bounds.Top, leftLine, bounds.Height);
+                g.DrawRectangle(
+                    brush,
+                    bounds.Left + (2 * leftLine),
+                    bounds.Top + (2 * topLine),
+                    leftLine,
+                    Math.Max(0, bounds.Height - (2 * topLine) - (2 * bottomLine)));
+                break;
+        }
     }
 
     private static void RenderDrawText(RGraphics g, DrawTextItem item)

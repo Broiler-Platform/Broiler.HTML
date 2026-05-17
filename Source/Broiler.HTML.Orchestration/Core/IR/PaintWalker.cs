@@ -550,6 +550,10 @@ internal static class PaintWalker
                 currentBgClipTextColor = bgColor;
         }
 
+        bool clipPathClipped = TryCreateInsetClipPathItem(fragment, bounds, out var clipPathItem);
+        if (clipPathClipped)
+            items.Add(clipPathItem);
+
         // CSS2.1 §14.2: Background and borders are part of the element's
         // own rendering and are NOT clipped by the element's overflow.
         // They must be emitted before the overflow clip.
@@ -624,6 +628,8 @@ internal static class PaintWalker
 
         // Restore clip
         if (clipped)
+            items.Add(new RestoreItem { Bounds = bounds });
+        if (clipPathClipped)
             items.Add(new RestoreItem { Bounds = bounds });
 
         // Restore blend mode layer (must come after clip restore, before opacity restore)
@@ -1502,6 +1508,10 @@ internal static class PaintWalker
                 return;
         }
 
+        bool clipPathClipped = TryCreateInsetClipPathItem(fragment, bounds, out var clipPathItem);
+        if (clipPathClipped)
+            items.Add(clipPathItem);
+
         // CSS2.1 §14.2/§11.1.1: Background, background image, and borders
         // are part of the element's own rendering and are NOT clipped by
         // the element's overflow.  Emit them before the overflow clip.
@@ -1556,6 +1566,8 @@ internal static class PaintWalker
         PaintChildrenBackgroundPhase(fragment, items, propagatedFrom, viewport);
 
         if (clipped)
+            items.Add(new RestoreItem { Bounds = bounds });
+        if (clipPathClipped)
             items.Add(new RestoreItem { Bounds = bounds });
     }
 
@@ -1612,6 +1624,10 @@ internal static class PaintWalker
 
         var bounds = fragment.Bounds;
 
+        bool clipPathClipped = TryCreateInsetClipPathItem(fragment, bounds, out var clipPathItem);
+        if (clipPathClipped)
+            items.Add(clipPathItem);
+
         // Overflow clipping — paired with RestoreItem at the end
         bool clipped = false;
         if (style.Overflow is "hidden" or "auto" or "scroll")
@@ -1637,6 +1653,8 @@ internal static class PaintWalker
         PaintChildren(fragment, items, propagatedFrom, viewport, bgClipTextColor: currentBgClipTextColor, skipBlockBackgrounds: true);
 
         if (clipped)
+            items.Add(new RestoreItem { Bounds = bounds });
+        if (clipPathClipped)
             items.Add(new RestoreItem { Bounds = bounds });
     }
 
@@ -1889,6 +1907,90 @@ internal static class PaintWalker
             return "border-box";
 
         return backgroundClip;
+    }
+
+    private static bool TryCreateInsetClipPathItem(Fragment fragment, RectangleF bounds, out ClipItem clipItem)
+    {
+        clipItem = null!;
+
+        var clipPath = fragment.Style.ClipPath;
+        if (string.IsNullOrWhiteSpace(clipPath)
+            || clipPath.Equals("none", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        clipPath = clipPath.Trim();
+        if (!clipPath.StartsWith("inset(", StringComparison.OrdinalIgnoreCase)
+            || !clipPath.EndsWith(")", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var insetArgs = clipPath[6..^1];
+        int roundIndex = insetArgs.IndexOf(" round ", StringComparison.OrdinalIgnoreCase);
+        if (roundIndex >= 0)
+            insetArgs = insetArgs[..roundIndex];
+
+        var parts = insetArgs.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0 || parts.Length > 4)
+            return false;
+
+        float emSize = GetPositionEmSize(fragment.Style);
+        float top = ParseInsetClipPathValue(parts[0], bounds.Height, emSize);
+        float right = parts.Length switch
+        {
+            1 => top,
+            2 => ParseInsetClipPathValue(parts[1], bounds.Width, emSize),
+            3 => ParseInsetClipPathValue(parts[1], bounds.Width, emSize),
+            _ => ParseInsetClipPathValue(parts[1], bounds.Width, emSize),
+        };
+        float bottom = parts.Length switch
+        {
+            1 => top,
+            2 => top,
+            3 => ParseInsetClipPathValue(parts[2], bounds.Height, emSize),
+            _ => ParseInsetClipPathValue(parts[2], bounds.Height, emSize),
+        };
+        float left = parts.Length switch
+        {
+            1 => right,
+            2 => right,
+            3 => right,
+            _ => ParseInsetClipPathValue(parts[3], bounds.Width, emSize),
+        };
+
+        var clipRect = new RectangleF(
+            bounds.X + left,
+            bounds.Y + top,
+            Math.Max(0, bounds.Width - left - right),
+            Math.Max(0, bounds.Height - top - bottom));
+        if (clipRect.Width <= 0 || clipRect.Height <= 0)
+            return false;
+
+        clipItem = new ClipItem { Bounds = bounds, ClipRect = clipRect };
+        return true;
+    }
+
+    private static float ParseInsetClipPathValue(string value, float referenceLength, float emSize)
+    {
+        if (string.IsNullOrWhiteSpace(value) || value.Equals("0", StringComparison.OrdinalIgnoreCase))
+            return 0;
+
+        if (value.EndsWith("%", StringComparison.Ordinal))
+        {
+            if (float.TryParse(value.AsSpan(0, value.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
+                return referenceLength * pct / 100f;
+            return 0;
+        }
+
+        if (CssValueParser.IsValidLength(value))
+            return (float)CssValueParser.ParseLength(value, referenceLength, emSize, defaultUnit: null);
+
+        if (float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out float raw))
+            return raw;
+
+        return 0;
     }
 
     private static bool TryCreateRoundedBackgroundClipItem(RectangleF borderBoxRect, Fragment fragment, string backgroundClip, out ClipItem clipItem)
