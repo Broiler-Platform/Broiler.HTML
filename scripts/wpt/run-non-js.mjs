@@ -31,156 +31,159 @@ const contentTypes = new Map([
   ['.xml', 'application/xml; charset=utf-8']
 ]);
 
-const options = parseArguments(process.argv.slice(2));
-if (options.help) {
-  console.log(getHelpText());
-  process.exit(0);
-}
-
-if (!options.wptRoot) {
-  console.error('Missing required --wpt-root argument.');
-  console.error();
-  console.error(getHelpText());
-  process.exit(1);
-}
-
-options.wptRoot = path.resolve(options.wptRoot);
-options.output = path.resolve(options.output ?? path.join(repositoryRoot, 'artifacts', 'wpt'));
-
-try {
-  const wptRootStat = await fs.stat(options.wptRoot);
-  if (!wptRootStat.isDirectory()) {
-    throw new Error(`WPT root is not a directory: ${options.wptRoot}`);
+async function main(argv = process.argv.slice(2)) {
+  const options = parseArguments(argv);
+  if (options.help) {
+    console.log(getHelpText());
+    return 0;
   }
 
-  await fs.mkdir(options.output, { recursive: true });
-
-  const autoAhemPath = path.join(options.wptRoot, 'fonts', 'Ahem.ttf');
-  if (await fileExists(autoAhemPath) && !options.fonts.some((font) => font === autoAhemPath || font.startsWith('Ahem='))) {
-    options.fonts.unshift(`Ahem=${autoAhemPath}`);
+  if (!options.wptRoot) {
+    console.error('Missing required --wpt-root argument.');
+    console.error();
+    console.error(getHelpText());
+    return 1;
   }
 
-  console.log(`Scanning ${options.wptRoot} for non-JS WPT candidates...`);
-  const scanResult = await collectCandidates(options.wptRoot, options.includes, options.limit);
-  console.log(`Selected ${scanResult.tests.length} candidate(s); skipped ${scanResult.skippedForJavaScript.length} JS-dependent file(s).`);
-
-  if (scanResult.tests.length === 0) {
-    throw new Error('No non-JS WPT files matched the current filters.');
-  }
-
-  console.log('Building Broiler.HTML.Tool once before the batch run.');
-  runCommand('dotnet', ['build', toolProjectPath, '-nologo'], { description: 'Build Broiler.HTML.Tool' });
-
-  const server = await startStaticServer(options.wptRoot);
-  console.log(`Serving WPT files from ${server.baseUrl}`);
-
-  const { chromium } = await import('playwright');
-  const browser = await chromium.launch({ headless: true });
-  const context = await browser.newContext({
-    viewport: { width: options.width, height: options.height },
-    javaScriptEnabled: false,
-    deviceScaleFactor: 1,
-    colorScheme: 'light'
-  });
-
-  const failures = [];
-  const passes = [];
+  options.wptRoot = path.resolve(options.wptRoot);
+  options.output = path.resolve(options.output ?? path.join(repositoryRoot, 'artifacts', 'wpt'));
 
   try {
-    for (const test of scanResult.tests) {
-      const caseDirectory = path.join(options.output, 'cases', test.relativePath);
-      await fs.mkdir(caseDirectory, { recursive: true });
-
-      const broilerImagePath = path.join(caseDirectory, 'broiler.png');
-      const chromiumImagePath = path.join(caseDirectory, 'chromium.png');
-      const diffImagePath = path.join(caseDirectory, 'diff.png');
-      const reportPath = path.join(caseDirectory, 'report.json');
-      const testUrl = `${server.baseUrl}/${test.relativePath}`;
-
-      console.log(`Running ${test.relativePath}`);
-      renderWithBroiler(test.fullPath, broilerImagePath, testUrl, options);
-      await renderWithChromium(context, testUrl, chromiumImagePath);
-
-      const compareResult = runCommand(
-        'dotnet',
-        [
-          'run',
-          '--no-build',
-          '--project', toolProjectPath,
-          '--',
-          'compare',
-          '--actual', broilerImagePath,
-          '--baseline', chromiumImagePath,
-          '--diff-output', diffImagePath,
-          '--json-output', reportPath,
-          '--pixel-diff-threshold', String(options.pixelDiffThreshold),
-          '--color-tolerance', String(options.colorTolerance)
-        ],
-        {
-          description: `Compare ${test.relativePath}`,
-          allowExitCodes: [0, 1]
-        }
-      );
-
-      const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
-      const entry = {
-        path: test.relativePath,
-        broilerImagePath,
-        chromiumImagePath,
-        diffImagePath: report.diffOutputPath ?? null,
-        reportPath,
-        diffRatio: report.diffRatio,
-        mismatch: report.mismatch ?? null
-      };
-
-      if (compareResult.status === 0) {
-        passes.push(entry);
-      } else {
-        failures.push(entry);
-      }
+    const wptRootStat = await fs.stat(options.wptRoot);
+    if (!wptRootStat.isDirectory()) {
+      throw new Error(`WPT root is not a directory: ${options.wptRoot}`);
     }
-  } finally {
-    await context.close();
-    await browser.close();
-    await new Promise((resolve, reject) => server.instance.close((error) => error ? reject(error) : resolve()));
+
+    await fs.mkdir(options.output, { recursive: true });
+
+    const autoAhemPath = path.join(options.wptRoot, 'fonts', 'Ahem.ttf');
+    if (await fileExists(autoAhemPath) && !options.fonts.some((font) => font === autoAhemPath || font.startsWith('Ahem='))) {
+      options.fonts.unshift(`Ahem=${autoAhemPath}`);
+    }
+
+    console.log(`Scanning ${options.wptRoot} for non-JS WPT candidates...`);
+    const scanResult = await collectCandidates(options.wptRoot, options.includes, options.limit);
+    console.log(`Selected ${scanResult.tests.length} candidate(s); skipped ${scanResult.skippedForJavaScript.length} JS-dependent file(s).`);
+
+    if (scanResult.tests.length === 0) {
+      throw new Error('No non-JS WPT files matched the current filters.');
+    }
+
+    console.log('Building Broiler.HTML.Tool once before the batch run.');
+    runCommand('dotnet', ['build', toolProjectPath, '-nologo'], { description: 'Build Broiler.HTML.Tool' });
+
+    const server = await startStaticServer(options.wptRoot);
+    console.log(`Serving WPT files from ${server.baseUrl}`);
+
+    const { chromium } = await import('playwright');
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({
+      viewport: { width: options.width, height: options.height },
+      javaScriptEnabled: false,
+      deviceScaleFactor: 1,
+      colorScheme: 'light'
+    });
+
+    const failures = [];
+    const passes = [];
+
+    try {
+      for (const test of scanResult.tests) {
+        const caseDirectory = path.join(options.output, 'cases', test.relativePath);
+        await fs.mkdir(caseDirectory, { recursive: true });
+
+        const broilerImagePath = path.join(caseDirectory, 'broiler.png');
+        const chromiumImagePath = path.join(caseDirectory, 'chromium.png');
+        const diffImagePath = path.join(caseDirectory, 'diff.png');
+        const reportPath = path.join(caseDirectory, 'report.json');
+        const testUrl = `${server.baseUrl}/${test.relativePath}`;
+
+        console.log(`Running ${test.relativePath}`);
+        renderWithBroiler(test.fullPath, broilerImagePath, testUrl, options);
+        await renderWithChromium(context, testUrl, chromiumImagePath);
+
+        const compareResult = runCommand(
+          'dotnet',
+          [
+            'run',
+            '--no-build',
+            '--project', toolProjectPath,
+            '--',
+            'compare',
+            '--actual', broilerImagePath,
+            '--baseline', chromiumImagePath,
+            '--diff-output', diffImagePath,
+            '--json-output', reportPath,
+            '--pixel-diff-threshold', String(options.pixelDiffThreshold),
+            '--color-tolerance', String(options.colorTolerance)
+          ],
+          {
+            description: `Compare ${test.relativePath}`,
+            allowExitCodes: [0, 1]
+          }
+        );
+
+        const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
+        const entry = {
+          path: test.relativePath,
+          broilerImagePath,
+          chromiumImagePath,
+          diffImagePath: report.diffOutputPath ?? null,
+          reportPath,
+          diffRatio: normalizeDiffRatio(report.diffRatio),
+          mismatch: report.mismatch ?? null
+        };
+
+        if (compareResult.status === 0) {
+          passes.push(entry);
+        } else {
+          failures.push(entry);
+        }
+      }
+    } finally {
+      await context.close();
+      await browser.close();
+      await new Promise((resolve, reject) => server.instance.close((error) => error ? reject(error) : resolve()));
+    }
+
+    const summary = {
+      generatedAt: new Date().toISOString(),
+      wptRoot: options.wptRoot,
+      outputRoot: options.output,
+      viewport: { width: options.width, height: options.height },
+      thresholds: {
+        pixelDiffThreshold: options.pixelDiffThreshold,
+        colorTolerance: options.colorTolerance
+      },
+      totalCandidates: scanResult.tests.length,
+      skippedForJavaScriptCount: scanResult.skippedForJavaScript.length,
+      skippedForJavaScript: scanResult.skippedForJavaScript,
+      passedCount: passes.length,
+      failedCount: failures.length,
+      passed: passes,
+      failed: failures
+    };
+
+    const summaryJsonPath = path.join(options.output, 'summary.json');
+    const summaryMarkdownPath = path.join(options.output, 'summary.md');
+    await fs.writeFile(summaryJsonPath, JSON.stringify(summary, null, 2));
+    await fs.writeFile(summaryMarkdownPath, createSummaryMarkdown(summary));
+
+    console.log(`Wrote summary to ${summaryJsonPath}`);
+    console.log(`Wrote markdown summary to ${summaryMarkdownPath}`);
+
+    if (failures.length > 0) {
+      console.error(`${failures.length} test(s) differed from Chromium.`);
+      return options.exitZeroOnDifferences ? 0 : 1;
+    }
+
+    console.log(`All ${passes.length} rendered test(s) matched Chromium within the configured thresholds.`);
+    return 0;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(message);
+    return 1;
   }
-
-  const summary = {
-    generatedAt: new Date().toISOString(),
-    wptRoot: options.wptRoot,
-    outputRoot: options.output,
-    viewport: { width: options.width, height: options.height },
-    thresholds: {
-      pixelDiffThreshold: options.pixelDiffThreshold,
-      colorTolerance: options.colorTolerance
-    },
-    totalCandidates: scanResult.tests.length,
-    skippedForJavaScriptCount: scanResult.skippedForJavaScript.length,
-    skippedForJavaScript: scanResult.skippedForJavaScript,
-    passedCount: passes.length,
-    failedCount: failures.length,
-    passed: passes,
-    failed: failures
-  };
-
-  const summaryJsonPath = path.join(options.output, 'summary.json');
-  const summaryMarkdownPath = path.join(options.output, 'summary.md');
-  await fs.writeFile(summaryJsonPath, JSON.stringify(summary, null, 2));
-  await fs.writeFile(summaryMarkdownPath, createSummaryMarkdown(summary));
-
-  console.log(`Wrote summary to ${summaryJsonPath}`);
-  console.log(`Wrote markdown summary to ${summaryMarkdownPath}`);
-
-  if (failures.length > 0) {
-    console.error(`${failures.length} test(s) differed from Chromium.`);
-    process.exit(options.exitZeroOnDifferences ? 0 : 1);
-  }
-
-  console.log(`All ${passes.length} rendered test(s) matched Chromium within the configured thresholds.`);
-} catch (error) {
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(message);
-  process.exit(1);
 }
 
 function parseArguments(args) {
@@ -459,6 +462,24 @@ function contentTypeForPath(filePath) {
   return contentTypes.get(path.extname(filePath).toLowerCase()) ?? 'application/octet-stream';
 }
 
+function normalizeDiffRatio(value) {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === 'string' && value.trim() !== '') {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+}
+
+function formatDiffRatio(value) {
+  const normalized = normalizeDiffRatio(value);
+  return normalized === null ? 'n/a' : normalized.toFixed(6);
+}
+
 function createSummaryMarkdown(summary) {
   const lines = [
     '# Broiler.HTML non-JS WPT summary',
@@ -478,7 +499,7 @@ function createSummaryMarkdown(summary) {
   if (summary.failed.length > 0) {
     lines.push('## Failures', '', '| Test | Diff ratio | Category | Report | Diff |', '| --- | ---: | --- | --- | --- |');
     for (const failure of summary.failed) {
-      lines.push(`| \`${failure.path}\` | ${failure.diffRatio.toFixed(6)} | ${failure.mismatch?.category ?? 'n/a'} | \`${failure.reportPath}\` | ${failure.diffImagePath ? `\`${failure.diffImagePath}\`` : 'n/a'} |`);
+      lines.push(`| \`${failure.path}\` | ${formatDiffRatio(failure.diffRatio)} | ${failure.mismatch?.category ?? 'n/a'} | \`${failure.reportPath}\` | ${failure.diffImagePath ? `\`${failure.diffImagePath}\`` : 'n/a'} |`);
     }
     lines.push('');
   }
@@ -524,4 +545,10 @@ Notes:
   - Chromium is launched through Playwright with JavaScript disabled.
   - The runner skips files that appear to depend on JavaScript (script tags, inline handlers, javascript: URLs, or common WPT JS harness markers).
   - Relative assets are served from a temporary local HTTP server so Chromium and Broiler resolve them from the same base URL.`;
+}
+
+export { createSummaryMarkdown, formatDiffRatio, main, normalizeDiffRatio };
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exit(await main());
 }
