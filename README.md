@@ -121,6 +121,15 @@ dotnet build Source/Broiler.HTML.slnx
 npm run wpt:run -- --wpt-root ./artifacts/wpt-source --include css/css-backgrounds --limit 20 --width 800 --height 600
 ```
 
+Each selected WPT case gets a shared timeout budget across Broiler rendering, Chromium capture, and image comparison. The default is 30000 ms, and timed out cases are recorded as failures in the generated summary files instead of hanging the batch indefinitely.
+
+Adjust the timeout for slower local machines or heavier cases with either a CLI flag or an environment variable:
+
+```bash
+npm run wpt:run -- --wpt-root ./artifacts/wpt-source --test-timeout-ms 60000
+BROILER_WPT_TEST_TIMEOUT_MS=60000 npm run wpt:run -- --wpt-root ./artifacts/wpt-source
+```
+
 If your selected WPT cases use fixture fonts such as Ahem, pass them through to the Broiler renderer:
 
 ```bash

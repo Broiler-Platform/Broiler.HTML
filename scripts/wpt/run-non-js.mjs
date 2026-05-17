@@ -10,6 +10,8 @@ const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, '..', '..');
 const toolProjectPath = path.join(repositoryRoot, 'Source', 'Broiler.HTML.Tool', 'Broiler.HTML.Tool.csproj');
 const skippedDirectoryNames = new Set(['.git', 'node_modules', 'resources', 'support', 'reference']);
+const defaultTestTimeoutMs = 30_000;
+const testTimeoutEnvironmentVariableName = 'BROILER_WPT_TEST_TIMEOUT_MS';
 const contentTypes = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.gif', 'image/gif'],
@@ -97,47 +99,62 @@ async function main(argv = process.argv.slice(2)) {
         const diffImagePath = path.join(caseDirectory, 'diff.png');
         const reportPath = path.join(caseDirectory, 'report.json');
         const testUrl = `${server.baseUrl}/${test.relativePath}`;
+        const testDeadline = Date.now() + options.testTimeoutMs;
 
         console.log(`Running ${test.relativePath}`);
-        renderWithBroiler(test.fullPath, broilerImagePath, testUrl, options);
-        await renderWithChromium(context, testUrl, chromiumImagePath);
+        try {
+          renderWithBroiler(test.fullPath, broilerImagePath, testUrl, options, testDeadline);
+          await renderWithChromium(context, test.relativePath, testUrl, chromiumImagePath, testDeadline, options.testTimeoutMs);
 
-        const compareResult = runCommand(
-          'dotnet',
-          [
-            'run',
-            '--no-build',
-            '--project', toolProjectPath,
-            '--',
-            'compare',
-            '--actual', broilerImagePath,
-            '--baseline', chromiumImagePath,
-            '--diff-output', diffImagePath,
-            '--json-output', reportPath,
-            '--pixel-diff-threshold', String(options.pixelDiffThreshold),
-            '--color-tolerance', String(options.colorTolerance)
-          ],
-          {
-            description: `Compare ${test.relativePath}`,
-            allowExitCodes: [0, 1]
+          const compareResult = runCommand(
+            'dotnet',
+            [
+              'run',
+              '--no-build',
+              '--project', toolProjectPath,
+              '--',
+              'compare',
+              '--actual', broilerImagePath,
+              '--baseline', chromiumImagePath,
+              '--diff-output', diffImagePath,
+              '--json-output', reportPath,
+              '--pixel-diff-threshold', String(options.pixelDiffThreshold),
+              '--color-tolerance', String(options.colorTolerance)
+            ],
+            {
+              description: `Compare ${test.relativePath}`,
+              allowExitCodes: [0, 1],
+              timeoutMs: getRemainingTimeoutMs(testDeadline, options.testTimeoutMs, `Compare ${test.relativePath}`),
+              timeoutMessageMs: options.testTimeoutMs
+            }
+          );
+
+          const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
+          const entry = {
+            path: test.relativePath,
+            broilerImagePath,
+            chromiumImagePath,
+            diffImagePath: report.diffOutputPath ?? null,
+            reportPath,
+            diffRatio: normalizeDiffRatio(report.diffRatio),
+            mismatch: report.mismatch ?? null,
+            timeout: false,
+            error: null
+          };
+
+          if (compareResult.status === 0) {
+            passes.push(entry);
+          } else {
+            failures.push(entry);
           }
-        );
+        } catch (error) {
+          if (!isTimeoutError(error)) {
+            throw error;
+          }
 
-        const report = JSON.parse(await fs.readFile(reportPath, 'utf8'));
-        const entry = {
-          path: test.relativePath,
-          broilerImagePath,
-          chromiumImagePath,
-          diffImagePath: report.diffOutputPath ?? null,
-          reportPath,
-          diffRatio: normalizeDiffRatio(report.diffRatio),
-          mismatch: report.mismatch ?? null
-        };
-
-        if (compareResult.status === 0) {
-          passes.push(entry);
-        } else {
-          failures.push(entry);
+          const message = error instanceof Error ? error.message : String(error);
+          console.error(message);
+          failures.push(await createTimedOutFailure(test.relativePath, broilerImagePath, chromiumImagePath, message));
         }
       }
     } finally {
@@ -155,11 +172,15 @@ async function main(argv = process.argv.slice(2)) {
         pixelDiffThreshold: options.pixelDiffThreshold,
         colorTolerance: options.colorTolerance
       },
+      timeouts: {
+        perTestMs: options.testTimeoutMs
+      },
       totalCandidates: scanResult.tests.length,
       skippedForJavaScriptCount: scanResult.skippedForJavaScript.length,
       skippedForJavaScript: scanResult.skippedForJavaScript,
       passedCount: passes.length,
       failedCount: failures.length,
+      timedOutCount: failures.filter((failure) => failure.timeout).length,
       passed: passes,
       failed: failures
     };
@@ -186,7 +207,7 @@ async function main(argv = process.argv.slice(2)) {
   }
 }
 
-function parseArguments(args) {
+function parseArguments(args, env = process.env) {
   const options = {
     help: false,
     wptRoot: null,
@@ -198,6 +219,7 @@ function parseArguments(args) {
     fonts: [],
     pixelDiffThreshold: 0.001,
     colorTolerance: 5,
+    testTimeoutMs: readTimeoutFromEnvironment(env),
     exitZeroOnDifferences: false
   };
 
@@ -235,6 +257,9 @@ function parseArguments(args) {
       case '--color-tolerance':
         options.colorTolerance = readInteger(args, ++index, argument, 0, 255);
         break;
+      case '--test-timeout-ms':
+        options.testTimeoutMs = readInteger(args, ++index, argument, 1);
+        break;
       case '--exit-zero-on-differences':
         options.exitZeroOnDifferences = true;
         break;
@@ -250,6 +275,20 @@ function readValue(args, index, argumentName) {
   const value = args[index];
   if (!value || value.startsWith('-')) {
     throw new Error(`Missing value for ${argumentName}.`);
+  }
+
+  return value;
+}
+
+function readTimeoutFromEnvironment(env) {
+  const rawValue = env[testTimeoutEnvironmentVariableName];
+  if (rawValue === undefined || rawValue === '') {
+    return defaultTestTimeoutMs;
+  }
+
+  const value = Number.parseInt(rawValue, 10);
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`Invalid integer value for ${testTimeoutEnvironmentVariableName}: ${rawValue}`);
   }
 
   return value;
@@ -356,7 +395,7 @@ function requiresJavaScript(markup) {
     /testharness\.js|testdriver\.js|reftest-wait/i.test(markup);
 }
 
-function renderWithBroiler(inputPath, outputPath, baseUrl, options) {
+function renderWithBroiler(inputPath, outputPath, baseUrl, options, testDeadline) {
   const args = [
     'run',
     '--no-build',
@@ -373,31 +412,53 @@ function renderWithBroiler(inputPath, outputPath, baseUrl, options) {
     args.push('--font', font);
   }
 
-  runCommand('dotnet', args, { description: `Render ${path.basename(inputPath)} with Broiler.HTML` });
+  runCommand('dotnet', args, {
+    description: `Render ${path.basename(inputPath)} with Broiler.HTML`,
+    timeoutMs: getRemainingTimeoutMs(testDeadline, options.testTimeoutMs, `Render ${path.basename(inputPath)} with Broiler.HTML`),
+    timeoutMessageMs: options.testTimeoutMs
+  });
 }
 
-async function renderWithChromium(context, testUrl, outputPath) {
+async function renderWithChromium(context, relativePath, testUrl, outputPath, testDeadline, testTimeoutMs) {
   const page = await context.newPage();
   try {
-    await page.goto(testUrl, { waitUntil: 'load' });
-    await page.screenshot({
-      path: outputPath,
-      animations: 'disabled',
-      caret: 'hide'
-    });
+    try {
+      await page.goto(testUrl, {
+        waitUntil: 'load',
+        timeout: getRemainingTimeoutMs(testDeadline, testTimeoutMs, `Load Chromium reference for ${relativePath}`)
+      });
+      await page.screenshot({
+        path: outputPath,
+        animations: 'disabled',
+        caret: 'hide',
+        timeout: getRemainingTimeoutMs(testDeadline, testTimeoutMs, `Capture Chromium reference for ${relativePath}`)
+      });
+    } catch (error) {
+      if (isTimeoutError(error)) {
+        throw createTimeoutError(`Chromium reference for ${relativePath}`, testTimeoutMs);
+      }
+
+      throw error;
+    }
   } finally {
     await page.close();
   }
 }
 
-function runCommand(command, args, { description, allowExitCodes = [0] } = {}) {
+function runCommand(command, args, { description, allowExitCodes = [0], timeoutMs = 0, timeoutMessageMs = timeoutMs } = {}) {
   const result = spawnSync(command, args, {
     cwd: repositoryRoot,
     encoding: 'utf8',
     maxBuffer: 10 * 1024 * 1024,
     stdio: 'pipe',
-    env: process.env
+    env: process.env,
+    timeout: timeoutMs,
+    killSignal: 'SIGKILL'
   });
+
+  if (isSpawnTimeoutError(result.error)) {
+    throw createTimeoutError(description ?? command, timeoutMessageMs, result);
+  }
 
   if (result.error) {
     throw result.error;
@@ -412,6 +473,52 @@ function runCommand(command, args, { description, allowExitCodes = [0] } = {}) {
   }
 
   return result;
+}
+
+function getRemainingTimeoutMs(testDeadline, testTimeoutMs, description) {
+  const remainingTimeoutMs = testDeadline - Date.now();
+  if (remainingTimeoutMs <= 0) {
+    throw createTimeoutError(description, testTimeoutMs);
+  }
+
+  return remainingTimeoutMs;
+}
+
+function isSpawnTimeoutError(error) {
+  return error instanceof Error && (error.code === 'ETIMEDOUT' || error.errno === 'ETIMEDOUT');
+}
+
+function createTimeoutError(description, timeoutMs, result) {
+  const error = new Error([
+    `${description} timed out after ${timeoutMs}ms.`,
+    result?.stdout?.trim() ? `STDOUT:\n${result.stdout.trim()}` : null,
+    result?.stderr?.trim() ? `STDERR:\n${result.stderr.trim()}` : null
+  ].filter(Boolean).join('\n\n'));
+  error.name = 'TimeoutError';
+  return error;
+}
+
+function isTimeoutError(error) {
+  return error instanceof Error && error.name === 'TimeoutError';
+}
+
+async function createTimedOutFailure(relativePath, broilerImagePath, chromiumImagePath, message) {
+  const [hasBroilerImage, hasChromiumImage] = await Promise.all([
+    fileExists(broilerImagePath),
+    fileExists(chromiumImagePath)
+  ]);
+
+  return {
+    path: relativePath,
+    broilerImagePath: hasBroilerImage ? broilerImagePath : null,
+    chromiumImagePath: hasChromiumImage ? chromiumImagePath : null,
+    diffImagePath: null,
+    reportPath: null,
+    diffRatio: null,
+    mismatch: null,
+    timeout: true,
+    error: message
+  };
 }
 
 async function startStaticServer(root) {
@@ -489,17 +596,19 @@ function createSummaryMarkdown(summary) {
     `- Viewport: ${summary.viewport.width}x${summary.viewport.height}`,
     `- Pixel diff threshold: ${summary.thresholds.pixelDiffThreshold}`,
     `- Color tolerance: ${summary.thresholds.colorTolerance}`,
+    `- Per-test timeout: ${summary.timeouts?.perTestMs ?? defaultTestTimeoutMs} ms`,
     `- Total candidates: ${summary.totalCandidates}`,
     `- Passed: ${summary.passedCount}`,
     `- Failed: ${summary.failedCount}`,
+    `- Timed out: ${summary.timedOutCount ?? 0}`,
     `- Skipped for JavaScript: ${summary.skippedForJavaScriptCount}`,
     ''
   ];
 
   if (summary.failed.length > 0) {
-    lines.push('## Failures', '', '| Test | Diff ratio | Category | Report | Diff |', '| --- | ---: | --- | --- | --- |');
+    lines.push('## Failures', '', '| Test | Diff ratio | Result | Report | Diff |', '| --- | ---: | --- | --- | --- |');
     for (const failure of summary.failed) {
-      lines.push(`| \`${failure.path}\` | ${formatDiffRatio(failure.diffRatio)} | ${failure.mismatch?.category ?? 'n/a'} | \`${failure.reportPath}\` | ${failure.diffImagePath ? `\`${failure.diffImagePath}\`` : 'n/a'} |`);
+      lines.push(`| \`${failure.path}\` | ${formatDiffRatio(failure.diffRatio)} | ${describeFailure(failure)} | ${failure.reportPath ? `\`${failure.reportPath}\`` : 'n/a'} | ${failure.diffImagePath ? `\`${failure.diffImagePath}\`` : 'n/a'} |`);
     }
     lines.push('');
   }
@@ -513,6 +622,10 @@ function createSummaryMarkdown(summary) {
   }
 
   return `${lines.join('\n')}\n`;
+}
+
+function describeFailure(failure) {
+  return failure.timeout ? failure.error ?? 'Timed out' : failure.mismatch?.category ?? 'n/a';
 }
 
 async function fileExists(filePath) {
@@ -538,16 +651,18 @@ Options:
   --font [Alias=]<path>          Register a local font with Broiler before each render. Repeat as needed.
   --pixel-diff-threshold <0-1>   Pixel diff pass threshold. Defaults to 0.001.
   --color-tolerance <0-255>      Per-channel diff tolerance. Defaults to 5.
+  --test-timeout-ms <ms>         Per-test timeout in milliseconds. Defaults to ${defaultTestTimeoutMs}; can also be set via ${testTimeoutEnvironmentVariableName}.
   --exit-zero-on-differences     Keep exit code 0 when visual mismatches are found.
   -h, --help                     Show help.
 
 Notes:
   - Chromium is launched through Playwright with JavaScript disabled.
   - The runner skips files that appear to depend on JavaScript (script tags, inline handlers, javascript: URLs, or common WPT JS harness markers).
+  - Each selected WPT case shares a single timeout budget across Broiler rendering, Chromium capture, and image comparison.
   - Relative assets are served from a temporary local HTTP server so Chromium and Broiler resolve them from the same base URL.`;
 }
 
-export { createSummaryMarkdown, formatDiffRatio, main, normalizeDiffRatio };
+export { createSummaryMarkdown, formatDiffRatio, main, normalizeDiffRatio, parseArguments, runCommand };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   process.exit(await main());
