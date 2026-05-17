@@ -447,22 +447,23 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
   let stderr = '';
   let timedOut = false;
   const maxBuffer = 10 * 1024 * 1024;
+  const appendOutput = (streamName, chunk) => {
+    if (streamName === 'stdout') {
+      stdout += chunk;
+    } else {
+      stderr += chunk;
+    }
+
+    if (stdout.length + stderr.length > maxBuffer) {
+      child.kill('SIGKILL');
+    }
+  };
 
   child.stdout?.setEncoding('utf8');
-  child.stdout?.on('data', (chunk) => {
-    stdout += chunk;
-    if (stdout.length + stderr.length > maxBuffer) {
-      child.kill('SIGKILL');
-    }
-  });
+  child.stdout?.on('data', (chunk) => appendOutput('stdout', chunk));
 
   child.stderr?.setEncoding('utf8');
-  child.stderr?.on('data', (chunk) => {
-    stderr += chunk;
-    if (stdout.length + stderr.length > maxBuffer) {
-      child.kill('SIGKILL');
-    }
-  });
+  child.stderr?.on('data', (chunk) => appendOutput('stderr', chunk));
 
   return await new Promise((resolve, reject) => {
     const timer = timeoutMs > 0
@@ -479,7 +480,7 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
       reject(error);
     });
 
-    child.once('close', (code) => {
+    child.once('close', (code, signal) => {
       if (timer) {
         clearTimeout(timer);
       }
@@ -490,8 +491,11 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
       }
 
       if (code === null || !allowExitCodes.includes(code)) {
+        const exitDescription = code === null
+          ? `signal ${signal ?? 'unknown'}`
+          : `exit code ${code}`;
         reject(new Error([
-          `${description ?? command} failed with exit code ${code ?? 'unknown'}.`,
+          `${description ?? command} failed with ${exitDescription}.`,
           stdout.trim() ? `STDOUT:\n${stdout.trim()}` : null,
           stderr.trim() ? `STDERR:\n${stderr.trim()}` : null
         ].filter(Boolean).join('\n\n')));
