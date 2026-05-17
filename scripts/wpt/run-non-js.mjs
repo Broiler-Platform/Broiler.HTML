@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createReadStream } from 'node:fs';
 import { promises as fs } from 'node:fs';
 import http from 'node:http';
@@ -12,6 +12,7 @@ const toolProjectPath = path.join(repositoryRoot, 'Source', 'Broiler.HTML.Tool',
 const skippedDirectoryNames = new Set(['.git', 'node_modules', 'resources', 'support', 'reference']);
 const defaultTestTimeoutMs = 30_000;
 const testTimeoutEnvironmentVariableName = 'BROILER_WPT_TEST_TIMEOUT_MS';
+const commandOutputMaxBufferBytes = 10 * 1024 * 1024;
 const contentTypes = new Map([
   ['.css', 'text/css; charset=utf-8'],
   ['.gif', 'image/gif'],
@@ -108,7 +109,7 @@ async function main(argv = process.argv.slice(2)) {
         try {
           timeoutPhase = 'broiler-render';
           const broilerStartedAt = Date.now();
-          renderWithBroiler(test.fullPath, broilerImagePath, testUrl, options, testDeadline);
+          await renderWithBroiler(test.fullPath, broilerImagePath, testUrl, options, testDeadline);
           timings.broilerRenderMs = Date.now() - broilerStartedAt;
 
           timeoutPhase = 'chromium-reference';
@@ -412,7 +413,7 @@ function requiresJavaScript(markup) {
     /testharness\.js|testdriver\.js|reftest-wait/i.test(markup);
 }
 
-function renderWithBroiler(inputPath, outputPath, baseUrl, options, testDeadline) {
+async function renderWithBroiler(inputPath, outputPath, baseUrl, options, testDeadline) {
   const args = [
     'run',
     '--no-build',
@@ -429,10 +430,81 @@ function renderWithBroiler(inputPath, outputPath, baseUrl, options, testDeadline
     args.push('--font', font);
   }
 
-  runCommand('dotnet', args, {
+  await runCommandAsync('dotnet', args, {
     description: `Render ${path.basename(inputPath)} with Broiler.HTML`,
     timeoutMs: getRemainingTimeoutMs(testDeadline, options.testTimeoutMs, `Render ${path.basename(inputPath)} with Broiler.HTML`),
     timeoutMessageMs: options.testTimeoutMs
+  });
+}
+
+async function runCommandAsync(command, args, { description, allowExitCodes = [0], timeoutMs = 0, timeoutMessageMs = timeoutMs } = {}) {
+  const child = spawn(command, args, {
+    cwd: repositoryRoot,
+    env: process.env,
+    stdio: ['ignore', 'pipe', 'pipe']
+  });
+
+  let stdout = '';
+  let stderr = '';
+  let timedOut = false;
+  const appendOutput = (streamName, chunk) => {
+    if (stdout.length + stderr.length + chunk.length > commandOutputMaxBufferBytes) {
+      child.kill('SIGKILL');
+      return;
+    }
+
+    if (streamName === 'stdout') {
+      stdout += chunk;
+    } else {
+      stderr += chunk;
+    }
+  };
+
+  child.stdout?.setEncoding('utf8');
+  child.stdout?.on('data', (chunk) => appendOutput('stdout', chunk));
+
+  child.stderr?.setEncoding('utf8');
+  child.stderr?.on('data', (chunk) => appendOutput('stderr', chunk));
+
+  return new Promise((resolve, reject) => {
+    const timer = timeoutMs > 0
+      ? setTimeout(() => {
+        timedOut = true;
+        child.kill('SIGKILL');
+      }, timeoutMs)
+      : null;
+
+    child.once('error', (error) => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+      reject(error);
+    });
+
+    child.once('close', (code, signal) => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+
+      if (timedOut) {
+        reject(createTimeoutError(description ?? command, timeoutMessageMs, { stdout, stderr }));
+        return;
+      }
+
+      if (code === null || !allowExitCodes.includes(code)) {
+        const exitDescription = code === null
+          ? `signal ${signal ?? 'unknown'}`
+          : `exit code ${code}`;
+        reject(new Error([
+          `${description ?? command} failed with ${exitDescription}.`,
+          stdout.trim() ? `STDOUT:\n${stdout.trim()}` : null,
+          stderr.trim() ? `STDERR:\n${stderr.trim()}` : null
+        ].filter(Boolean).join('\n\n')));
+        return;
+      }
+
+      resolve({ status: code, stdout, stderr });
+    });
   });
 }
 
@@ -718,7 +790,7 @@ Notes:
   - Relative assets are served from a temporary local HTTP server so Chromium and Broiler resolve them from the same base URL.`;
 }
 
-export { createSummaryMarkdown, formatDiffRatio, main, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand };
+export { createSummaryMarkdown, formatDiffRatio, main, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync };
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   process.exit(await main());
