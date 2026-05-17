@@ -25,8 +25,8 @@ internal static class FragmentTreeBuilder
     {
         var style = ComputedStyleBuilder.FromBox(box, box.HtmlTag?.Name);
         bool hasTransformAncestor = parentHasTransform
-            || !string.IsNullOrEmpty(style.Transform)
-            && !style.Transform.Equals("none", StringComparison.OrdinalIgnoreCase);
+            || (!string.IsNullOrEmpty(style.Transform)
+            && !style.Transform.Equals("none", StringComparison.OrdinalIgnoreCase));
 
         var children = new List<Fragment>(box.Boxes.Count);
         foreach (var child in box.Boxes)

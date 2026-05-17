@@ -832,7 +832,7 @@ internal static class PaintWalker
             if (image.TryGetUniformColor(out var uniformColor))
                 EmitBorderAreaBorder(bounds, fragment, items, uniformColor);
             else
-                EmitBorderAreaTiledImage(bounds, imageHandle, fragment, items, tileOrigin, tileW, tileH, repeat);
+                EmitBorderAreaTiledImage(bounds, image, fragment, items, tileOrigin, tileW, tileH, repeat);
         }
         else
         {
@@ -861,7 +861,7 @@ internal static class PaintWalker
             return;
 
         var parts = position.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        string xVal = null, yVal = null;
+        string? xVal = null, yVal = null;
         foreach (var p in parts)
         {
             if (IsHorizontalKeyword(p))
