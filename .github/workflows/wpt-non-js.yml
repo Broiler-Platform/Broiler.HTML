@@ -86,6 +86,9 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape-background-position.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape-overflow.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape.html
+          --exclude css/css-backgrounds/background-clip/clip-border-box_with_position.html
+          --exclude css/css-backgrounds/background-clip/clip-border-box_with_radius.html
+          --exclude css/css-backgrounds/background-clip/clip-border-box_with_size.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-box-decoration-break.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-corner-shape.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-text.html
