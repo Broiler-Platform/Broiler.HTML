@@ -1,11 +1,15 @@
 import assert from 'node:assert/strict';
 import os from 'node:os';
 import path from 'node:path';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import http from 'node:http';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 
 import { collectCandidates, createSummaryMarkdown, formatDiffRatio, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync } from './run-non-js.mjs';
+
+const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
+const repositoryRoot = path.resolve(scriptDirectory, '..', '..');
 
 test('normalizeDiffRatio accepts finite numbers and numeric strings', () => {
   assert.equal(normalizeDiffRatio(0.25), 0.25);
@@ -188,4 +192,11 @@ test('collectCandidates respects exclude filters after include matching', async 
   const result = await collectCandidates(root, ['css/css-backgrounds'], ['skip.html'], 0);
 
   assert.deepEqual(result.tests.map((testCase) => testCase.relativePath), ['css/css-backgrounds/keep.html']);
+});
+
+test('non-JS WPT workflow excludes the known unstable LayoutShift css-backgrounds cases', async () => {
+  const workflow = await readFile(path.join(repositoryRoot, '.github', 'workflows', 'wpt-non-js.yml'), 'utf8');
+
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-334\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-area-border-image\.html/);
 });
