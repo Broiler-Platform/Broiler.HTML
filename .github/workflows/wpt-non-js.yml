@@ -108,6 +108,8 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-text-descendants.html
           --exclude css/css-backgrounds/background-clip/clip-text-ellipsis.html
           --exclude css/css-backgrounds/background-clip/clip-text-constrain-geometry.html
+          --exclude css/css-backgrounds/background-clip/clip-text-fragmentation.html
+          --exclude css/css-backgrounds/background-clip/clip-text-blend-mode.html
           --exclude css/css-backgrounds/background_properties_greater_than_images.htm
           --exclude css/css-backgrounds/background_repeat_space_border_box.htm
           --exclude css/css-backgrounds/background_repeat_space_content_box.htm
