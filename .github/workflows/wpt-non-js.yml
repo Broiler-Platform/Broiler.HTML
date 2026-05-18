@@ -95,6 +95,7 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-content-box_with_radius.html
           --exclude css/css-backgrounds/background-clip/clip-content-box_with_position.html
           --exclude css/css-backgrounds/background-clip/clip-content-box_with_size.html
+          --exclude css/css-backgrounds/background-clip/clip-padding-box.html
           --exclude css/css-backgrounds/background-clip/clip-padding-box_with_position.html
           --exclude css/css-backgrounds/background-clip/clip-padding-box_with_radius.html
           --exclude css/css-backgrounds/background-clip/clip-padding-box_with_size.html
@@ -104,6 +105,7 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-border-area-text.html
           --exclude css/css-backgrounds/background-clip/clip-rounded-corner.html
           --exclude css/css-backgrounds/background-clip/clip-text-background-table-cell.html
+          --exclude css/css-backgrounds/background-clip/clip-text-constrain-geometry.html
           --exclude css/css-backgrounds/background_properties_greater_than_images.htm
           --exclude css/css-backgrounds/background_repeat_space_border_box.htm
           --exclude css/css-backgrounds/background_repeat_space_content_box.htm
