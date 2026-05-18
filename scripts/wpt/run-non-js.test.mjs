@@ -194,9 +194,12 @@ test('collectCandidates respects exclude filters after include matching', async 
   assert.deepEqual(result.tests.map((testCase) => testCase.relativePath), ['css/css-backgrounds/keep.html']);
 });
 
-test('non-JS WPT workflow excludes the known unstable LayoutShift css-backgrounds cases', async () => {
+test('non-JS WPT workflow excludes the known unstable css-backgrounds cases', async () => {
   const workflow = await readFile(path.join(repositoryRoot, '.github', 'workflows', 'wpt-non-js.yml'), 'utf8');
 
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-334\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-area-border-image\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-area-box-decoration-break\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-area-corner-shape\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-area-text\.html/);
 });
