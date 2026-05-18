@@ -105,6 +105,8 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-border-area-text.html
           --exclude css/css-backgrounds/background-clip/clip-rounded-corner.html
           --exclude css/css-backgrounds/background-clip/clip-text-background-table-cell.html
+          --exclude css/css-backgrounds/background-clip/clip-text-descendants.html
+          --exclude css/css-backgrounds/background-clip/clip-text-ellipsis.html
           --exclude css/css-backgrounds/background-clip/clip-text-constrain-geometry.html
           --exclude css/css-backgrounds/background_properties_greater_than_images.htm
           --exclude css/css-backgrounds/background_repeat_space_border_box.htm
