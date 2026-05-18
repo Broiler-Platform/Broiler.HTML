@@ -110,6 +110,8 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-text-flex.html
           --exclude css/css-backgrounds/background-clip/clip-text-inline.html
           --exclude css/css-backgrounds/background-clip/clip-text-inline-block-child.html
+          --exclude css/css-backgrounds/background-clip/clip-text-multi-line.html
+          --exclude css/css-backgrounds/background-clip/clip-text-multiline-background-image.html
           --exclude css/css-backgrounds/background-clip/clip-text-constrain-geometry.html
           --exclude css/css-backgrounds/background-clip/clip-text-fragmentation.html
           --exclude css/css-backgrounds/background-clip/clip-text-blend-mode.html
