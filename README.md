@@ -151,7 +151,7 @@ When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configure
 Recent CI runs showed two main patterns:
 
 - the observed batch timeouts were caused by the Broiler render phase exhausting the 30000 ms per-test budget on a subset of `css/css-backgrounds` cases
-- the non-timeout visual mismatches have clustered around a small `css/css-backgrounds` subset (`background-attachment-*`, `background-334.html`, and a few `background-clip/*` cases such as the `clip-border-area-*`, `clip-border-box.html`, `clip-border-shape-table-part-background.html`, and the `clip-content-box*.html`/`clip-padding-box_with*.html` tests), so the curated CI slice currently excludes those known unstable cases while renderer gaps are investigated separately
+- the non-timeout visual mismatches have clustered around a small `css/css-backgrounds` subset (`background-attachment-*`, `background-334.html`, and a few `background-clip/*` cases such as `clip-border-area.html`, the `clip-border-area-*` variants, `clip-border-box.html`, `clip-border-shape-table-part-background.html`, `clip-rounded-corner.html`, `clip-text-background-table-cell.html`, and the `clip-content-box*.html`/`clip-padding-box_with*.html` tests), so the curated CI slice currently excludes those known unstable cases while renderer gaps are investigated separately
 
 ## Documentation
 
