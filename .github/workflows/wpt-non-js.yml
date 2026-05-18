@@ -83,10 +83,10 @@ jobs:
           --exclude css/css-backgrounds/background-attachment-margin-root-002.html
           --exclude css/css-backgrounds/background-334.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-image.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-box-decoration-break.html
+          --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape-background-position.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape-overflow.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape.html
+          --exclude css/css-backgrounds/background-clip/clip-border-area-box-decoration-break.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-corner-shape.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-text.html
           --exclude css/css-backgrounds/background_properties_greater_than_images.htm
