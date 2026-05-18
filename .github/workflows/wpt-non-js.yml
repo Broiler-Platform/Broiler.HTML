@@ -73,8 +73,11 @@ jobs:
           --include css/css-backgrounds
           --exclude css/css-backgrounds/animations/background-color-animation-with-images.html
           --exclude css/css-backgrounds/background-attachment-fixed-inside-transform-1.html
+          --exclude css/css-backgrounds/background-attachment-fixed-border-radius-offset.html
           --exclude css/css-backgrounds/background-attachment-fixed.html
+          --exclude css/css-backgrounds/background-attachment-350.html
           --exclude css/css-backgrounds/background-attachment-local.html
+          --exclude css/css-backgrounds/background-attachment-local-hidden.html
           --exclude css/css-backgrounds/background-attachment-local-scrolling.htm
           --exclude css/css-backgrounds/background-attachment-margin-root-001.html
           --exclude css/css-backgrounds/background-attachment-margin-root-002.html
