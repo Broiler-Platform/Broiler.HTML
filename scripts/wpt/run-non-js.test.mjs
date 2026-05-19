@@ -230,6 +230,7 @@ test('non-JS WPT workflow excludes the known unstable css-backgrounds cases', as
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-text-stacking-context-child\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-text-relative-child\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-text-text-align\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-text-text-decorations\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-text-on-body-not-propagated-to-root\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-text-scaled\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-text-constrain-geometry\.html/);
