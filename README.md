@@ -167,6 +167,7 @@ Recent CI runs showed two main patterns:
   `clip-text-text-align.html`,
   `clip-text-text-decorations.html`,
   `clip-text-text-emphasis.html`,
+  `clip-text-transform.html`,
   `clip-text-on-body-not-propagated-to-root.html`,
   `clip-text-scaled.html`,
   `clip-text-constrain-geometry.html`, `clip-text-fragmentation.html`,
