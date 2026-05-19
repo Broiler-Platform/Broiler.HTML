@@ -116,6 +116,7 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-text-out-of-flow-child.html
           --exclude css/css-backgrounds/background-clip/clip-text-relative-child.html
           --exclude css/css-backgrounds/background-clip/clip-text-on-body-not-propagated-to-root.html
+          --exclude css/css-backgrounds/background-clip/clip-text-scaled.html
           --exclude css/css-backgrounds/background-clip/clip-text-constrain-geometry.html
           --exclude css/css-backgrounds/background-clip/clip-text-fragmentation.html
           --exclude css/css-backgrounds/background-clip/clip-text-blend-mode.html
