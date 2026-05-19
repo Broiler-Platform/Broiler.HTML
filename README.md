@@ -159,7 +159,8 @@ Recent CI runs showed two main patterns:
   `background-clip-008.html`, `background-clip-009.html`,
   `background-clip-010.html`,
   `background-clip_padding-box.html`, `background_color_padding_box.htm`, and a
-  few `background-clip/*` cases such as `clip-border-area.html`, the
+  few `background-clip/*` cases such as `clip-border-area.html`,
+  `clip-border-area-on-body-not-propagated-to-root.html`, the
   `clip-border-area-*` variants,
   `clip-border-box.html`,
   `clip-border-shape-table-part-background.html`, `clip-rounded-corner.html`,
