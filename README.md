@@ -164,6 +164,7 @@ Recent CI runs showed two main patterns:
   `clip-text-out-of-flow-child.html`,
   `clip-text-relative-child.html`,
   `clip-text-on-body-not-propagated-to-root.html`,
+  `clip-text-scaled.html`,
   `clip-text-constrain-geometry.html`, `clip-text-fragmentation.html`,
   `clip-text-blend-mode.html`, `clip-padding-box.html`, and the
   `clip-content-box*.html`/`clip-padding-box_with*.html` tests), so the curated
