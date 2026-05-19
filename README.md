@@ -162,6 +162,7 @@ Recent CI runs showed two main patterns:
   `clip-text-multiline-linebreak.html`,
   `clip-text-multiline-background-image.html`,
   `clip-text-out-of-flow-child.html`,
+  `clip-text-relative-child.html`,
   `clip-text-on-body-not-propagated-to-root.html`,
   `clip-text-constrain-geometry.html`, `clip-text-fragmentation.html`,
   `clip-text-blend-mode.html`, `clip-padding-box.html`, and the
