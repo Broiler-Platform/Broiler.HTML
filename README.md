@@ -155,7 +155,8 @@ Recent CI runs showed two main patterns:
   `css/css-backgrounds` subset (`background-attachment-*`, `background-334.html`,
   `background-clip-002.html`, `background-clip-003.html`,
   `background-clip-004.html`, `background-clip-005.html`,
-  `background-clip-006.html`,
+  `background-clip-006.html`, `background-clip-007.html`,
+  `background-clip-008.html`,
   `background-clip_padding-box.html`, `background_color_padding_box.htm`, and a
   few `background-clip/*` cases such as `clip-border-area.html`, the
   `clip-border-area-*` variants,
