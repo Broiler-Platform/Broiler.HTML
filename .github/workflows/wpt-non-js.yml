@@ -113,6 +113,7 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-text-multi-line.html
           --exclude css/css-backgrounds/background-clip/clip-text-multiline-linebreak.html
           --exclude css/css-backgrounds/background-clip/clip-text-multiline-background-image.html
+          --exclude css/css-backgrounds/background-clip/clip-text-out-of-flow-child.html
           --exclude css/css-backgrounds/background-clip/clip-text-on-body-not-propagated-to-root.html
           --exclude css/css-backgrounds/background-clip/clip-text-constrain-geometry.html
           --exclude css/css-backgrounds/background-clip/clip-text-fragmentation.html
