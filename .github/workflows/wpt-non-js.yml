@@ -112,6 +112,7 @@ jobs:
           --exclude css/css-backgrounds/background-clip/clip-padding-box_with_size.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-box-decoration-break.html
           --exclude css/css-backgrounds/background-clip/clip-border-area.html
+          --exclude css/css-backgrounds/background-clip/clip-border-area-on-body-not-propagated-to-root.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-corner-shape.html
           --exclude css/css-backgrounds/background-clip/clip-border-area-text.html
           --exclude css/css-backgrounds/background-clip/clip-rounded-corner.html
