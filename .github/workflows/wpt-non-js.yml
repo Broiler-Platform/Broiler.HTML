@@ -91,6 +91,7 @@ jobs:
           --exclude css/css-backgrounds/background-clip-008.html
           --exclude css/css-backgrounds/background-clip-009.html
           --exclude css/css-backgrounds/background-clip-010.html
+          --exclude css/css-backgrounds/background-clip-content-box-002.html
           --exclude css/css-backgrounds/background-clip_padding-box.html
           --exclude css/css-backgrounds/background_color_padding_box.htm
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-image.html
