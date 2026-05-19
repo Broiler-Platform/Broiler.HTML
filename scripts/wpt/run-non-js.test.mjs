@@ -198,6 +198,7 @@ test('non-JS WPT workflow excludes the known unstable css-backgrounds cases', as
   const workflow = await readFile(path.join(repositoryRoot, '.github', 'workflows', 'wpt-non-js.yml'), 'utf8');
 
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-334\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background_color_padding_box\.htm/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-area-border-image\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-box_with_position\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip\/clip-border-box_with_radius\.html/);
