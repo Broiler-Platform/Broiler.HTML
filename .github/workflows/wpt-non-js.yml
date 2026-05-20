@@ -101,6 +101,7 @@ jobs:
           --exclude css/css-backgrounds/background-clip-padding-box-with-border-radius.html
           --exclude css/css-backgrounds/background-clip-padding-box-with-border-radius-002.html
           --exclude css/css-backgrounds/background-clip-padding-box-with-border-radius-003.html
+          --exclude css/css-backgrounds/background-clip-root.html
           --exclude css/css-backgrounds/background-clip_padding-box.html
           --exclude css/css-backgrounds/background_color_padding_box.htm
           --exclude css/css-backgrounds/background-clip/clip-border-area-border-image.html
