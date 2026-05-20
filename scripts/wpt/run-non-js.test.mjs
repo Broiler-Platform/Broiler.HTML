@@ -207,6 +207,8 @@ test('non-JS WPT workflow excludes the known unstable css-backgrounds cases', as
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-008\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-009\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-010\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-color\.html/);
+  assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-content-box\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-content-box-001\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-content-box-002\.html/);
   assert.match(workflow, /--exclude css\/css-backgrounds\/background-clip-content-box-with-border-radius-002\.html/);

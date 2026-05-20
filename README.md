@@ -157,7 +157,8 @@ Recent CI runs showed two main patterns:
   `background-clip-004.html`, `background-clip-005.html`,
   `background-clip-006.html`, `background-clip-007.html`,
   `background-clip-008.html`, `background-clip-009.html`,
-  `background-clip-010.html`, `background-clip-content-box-001.html`,
+  `background-clip-010.html`, `background-clip-color.html`,
+  `background-clip-content-box.html`, `background-clip-content-box-001.html`,
   `background-clip-content-box-002.html`,
   `background-clip-content-box-with-border-radius-002.html`,
   `background-clip_padding-box.html`, `background_color_padding_box.htm`, and a
