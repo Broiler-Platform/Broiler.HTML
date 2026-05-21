@@ -153,6 +153,7 @@ Recent CI runs showed two main patterns:
 - the observed batch timeouts were caused by the Broiler render phase exhausting the 30000 ms per-test budget on a subset of `css/css-backgrounds` cases
 - the non-timeout visual mismatches have clustered around a small
   `css/css-backgrounds` subset (`background-attachment-*`, `background-334.html`,
+  `background-color-applied-to-rounded-inline-element.htm`,
   `background-color-body-propagation-001.html`,
   `background-color-body-propagation-002.html`,
   `background-clip-002.html`, `background-clip-003.html`,

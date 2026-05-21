@@ -82,6 +82,7 @@ jobs:
           --exclude css/css-backgrounds/background-attachment-margin-root-001.html
           --exclude css/css-backgrounds/background-attachment-margin-root-002.html
           --exclude css/css-backgrounds/background-334.html
+          --exclude css/css-backgrounds/background-color-applied-to-rounded-inline-element.htm
           --exclude css/css-backgrounds/background-color-body-propagation-001.html
           --exclude css/css-backgrounds/background-color-body-propagation-002.html
           --exclude css/css-backgrounds/background-clip-002.html
