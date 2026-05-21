@@ -143,6 +143,17 @@ test('parseArguments reads summary and repository from the environment', () => {
   assert.equal(options.issueToken, 'token');
 });
 
+test('parseArguments rejects missing required inputs', () => {
+  assert.throws(
+    () => parseArguments([], { GITHUB_REPOSITORY: 'MaiRat/Broiler.HTML' }),
+    /Missing summary path\. Pass --summary or set SUMMARY_JSON\./
+  );
+  assert.throws(
+    () => parseArguments([], { SUMMARY_JSON: '/tmp/wpt/summary.json' }),
+    /Missing repository\. Pass --repo or set GITHUB_REPOSITORY\./
+  );
+});
+
 test('buildIssueTitle keeps a single shared path segment', () => {
   const group = selectMostCommonFailureGroup({
     failed: [
@@ -153,4 +164,35 @@ test('buildIssueTitle keeps a single shared path segment', () => {
 
   assert.equal(group.commonPathPrefix, 'css');
   assert.equal(buildIssueTitle(group), 'WPT non-JS CI: broiler-render timeout in css');
+});
+
+test('buildIssueBody shell-quotes rerun arguments for paths with apostrophes', () => {
+  const group = selectMostCommonFailureGroup({
+    failed: [
+      {
+        path: 'css/css-backgrounds/can\'t-render.html',
+        timeout: false,
+        diffRatio: 0.42,
+        totalDurationMs: 2500,
+        mismatch: {
+          category: 'MissingContent',
+          summary: 'Background content is missing.'
+        }
+      }
+    ]
+  });
+
+  const body = buildIssueBody({
+    generatedAt: '2026-05-17T12:00:00.000Z',
+    wptRoot: '/tmp/wpt',
+    outputRoot: '/tmp/out',
+    viewport: { width: 800, height: 600 },
+    timeouts: { perTestMs: 30000 },
+    passedCount: 0,
+    failedCount: 1,
+    timedOutCount: 0,
+    totalCandidates: 1
+  }, group, null, { exampleLimit: 1 });
+
+  assert.match(body, /--include 'css\/css-backgrounds\/can'\\''t-render\.html'/);
 });

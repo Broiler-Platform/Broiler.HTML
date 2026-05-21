@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Playwright-based non-JS WPT runner for Broiler.HTML compliance checks.",
   "scripts": {
+    "test": "node --test scripts/wpt/*.test.mjs",
     "wpt:prepare": "node ./scripts/wpt/prepare-wpt.mjs",
     "wpt:run": "node ./scripts/wpt/run-non-js.mjs",
     "wpt:install-browsers": "playwright install chromium"
