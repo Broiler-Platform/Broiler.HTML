@@ -46,7 +46,27 @@ dotnet test Broiler.HTML.slnx
 ```
 
 `Broiler.HTML.WPF` now enables Windows targeting so solution-wide restore/build validation also works on non-Windows CI hosts.
-The current solution does not contain checked-in test projects yet, so `dotnet test` currently acts as a repository validation command rather than a substantive automated renderer test suite.
+The current solution does not contain checked-in .NET test projects yet, so `dotnet test` currently acts as a repository validation command rather than a substantive automated renderer test suite. The checked-in automated tests currently live under `scripts/wpt/*.test.mjs`.
+
+Run those script tests from the repository root:
+
+```bash
+npm test
+```
+
+To focus on one file while iterating locally:
+
+```bash
+node --test scripts/wpt/run-non-js.test.mjs
+```
+
+To debug a specific test by name:
+
+```bash
+node --test --test-name-pattern="collectCandidates" scripts/wpt/run-non-js.test.mjs
+```
+
+When adding new tests, keep them next to the script they cover, prefer deterministic temp-directory fixtures over networked inputs, and cover both happy paths and argument-validation / failure-mode branches so CI catches regressions in the WPT tooling early.
 
 ## Command-line HTML renderer
 

@@ -77,6 +77,21 @@ test('parseArguments collects repeated include and exclude filters', () => {
   assert.deepEqual(options.excludes, ['background-attachment-fixed', 'background_repeat_space']);
 });
 
+test('parseArguments rejects invalid timeout and threshold values', () => {
+  assert.throws(
+    () => parseArguments([], { BROILER_WPT_TEST_TIMEOUT_MS: '0' }),
+    /Invalid integer value for BROILER_WPT_TEST_TIMEOUT_MS: 0/
+  );
+  assert.throws(
+    () => parseArguments(['--pixel-diff-threshold', '1.1']),
+    /Invalid numeric value for --pixel-diff-threshold: 1.1/
+  );
+  assert.throws(
+    () => parseArguments(['--color-tolerance', '256']),
+    /Invalid integer value for --color-tolerance: 256/
+  );
+});
+
 test('runCommand reports timed out child processes clearly', () => {
   assert.throws(
     () => runCommand(process.execPath, ['-e', 'setTimeout(() => {}, 200)'], {
@@ -192,6 +207,23 @@ test('collectCandidates respects exclude filters after include matching', async 
   const result = await collectCandidates(root, ['css/css-backgrounds'], ['skip.html'], 0);
 
   assert.deepEqual(result.tests.map((testCase) => testCase.relativePath), ['css/css-backgrounds/keep.html']);
+});
+
+test('collectCandidates skips support files, reference variants, and JS-dependent documents', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'broiler-wpt-candidates-'));
+  await mkdir(path.join(root, 'css', 'css-backgrounds', 'support'), { recursive: true });
+  await mkdir(path.join(root, 'css', 'reference'), { recursive: true });
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'keep.html'), '<!doctype html><p>keep</p>');
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'case-ref.html'), '<!doctype html><p>reference</p>');
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'case-notref.xhtml'), '<!doctype html><p>not reference</p>');
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'js-harness.html'), '<script src="/resources/testharness.js"></script>');
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'support', 'helper.html'), '<!doctype html><p>helper</p>');
+  await writeFile(path.join(root, 'css', 'reference', 'baseline.html'), '<!doctype html><p>baseline</p>');
+
+  const result = await collectCandidates(root, [], [], 0);
+
+  assert.deepEqual(result.tests.map((testCase) => testCase.relativePath), ['css/css-backgrounds/keep.html']);
+  assert.deepEqual(result.skippedForJavaScript, ['css/css-backgrounds/js-harness.html']);
 });
 
 test('non-JS WPT workflow excludes the known unstable css-backgrounds cases', async () => {
