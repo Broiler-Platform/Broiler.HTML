@@ -78,6 +78,24 @@
     "note": "Body-to-root background color propagation still mismatches Chromium."
   },
   {
+    "path": "css/css-backgrounds/animations/background-color-animation-field-crash.html",
+    "category": "unsupported",
+    "feature": "background-color animations",
+    "note": "CSS background-color animations are not implemented yet, so these animation snapshots still mismatch Chromium."
+  },
+  {
+    "path": "css/css-backgrounds/animations/background-color-animation-in-body.html",
+    "category": "unsupported",
+    "feature": "background-color animations",
+    "note": "CSS background-color animations are not implemented yet, so these animation snapshots still mismatch Chromium."
+  },
+  {
+    "path": "css/css-backgrounds/animations/background-color-animation-with-images.html",
+    "category": "unsupported",
+    "feature": "background-color animations",
+    "note": "CSS background-color animations are not implemented yet, so these animation snapshots still mismatch Chromium."
+  },
+  {
     "path": "css/css-backgrounds/background-clip-002.html",
     "category": "unsupported",
     "feature": "background-clip box geometry",

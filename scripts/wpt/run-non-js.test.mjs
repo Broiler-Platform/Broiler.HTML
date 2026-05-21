@@ -321,10 +321,11 @@ test('getChromiumScreenshotOptions keeps CSS animation references live', () => {
 test('non-JS WPT exclusion manifest contains unique documented paths', async () => {
   const exclusions = await readNonJsExclusionManifest(path.join(repositoryRoot, 'scripts', 'wpt', 'non-js-exclusions.json'));
 
-  assert.equal(exclusions.length, 82);
+  assert.equal(exclusions.length, 85);
   assert.equal(new Set(exclusions.map((exclusion) => exclusion.path)).size, exclusions.length);
   assert.ok(exclusions.every((exclusion) => ['unsupported', 'unstable'].includes(exclusion.category)));
   assert.ok(exclusions.some((exclusion) => exclusion.path === 'css/css-backgrounds/background-334.html' && exclusion.category === 'unstable'));
+  assert.ok(exclusions.some((exclusion) => exclusion.path === 'css/css-backgrounds/animations/background-color-animation-in-body.html' && exclusion.feature === 'background-color animations'));
   assert.ok(exclusions.some((exclusion) => exclusion.path === 'css/css-backgrounds/background-clip/clip-text-transform.html' && exclusion.feature === 'background-clip:text'));
 });
 

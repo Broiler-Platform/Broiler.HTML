@@ -49,6 +49,9 @@ The CI workflow now uses that manifest in two ways:
 | `css/css-backgrounds/background-color-applied-to-rounded-inline-element.htm` | unsupported | rounded inline background painting | Inline background painting with rounded corners does not yet match Chromium. |
 | `css/css-backgrounds/background-color-body-propagation-001.html` | unsupported | body-to-root background propagation | Body-to-root background color propagation still mismatches Chromium. |
 | `css/css-backgrounds/background-color-body-propagation-002.html` | unsupported | body-to-root background propagation | Body-to-root background color propagation still mismatches Chromium. |
+| `css/css-backgrounds/animations/background-color-animation-field-crash.html` | unsupported | background-color animations | CSS background-color animations are not implemented yet, so these animation snapshots still mismatch Chromium. |
+| `css/css-backgrounds/animations/background-color-animation-in-body.html` | unsupported | background-color animations | CSS background-color animations are not implemented yet, so these animation snapshots still mismatch Chromium. |
+| `css/css-backgrounds/animations/background-color-animation-with-images.html` | unsupported | background-color animations | CSS background-color animations are not implemented yet, so these animation snapshots still mismatch Chromium. |
 | `css/css-backgrounds/background-clip-002.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
 | `css/css-backgrounds/background-clip-003.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
 | `css/css-backgrounds/background-clip-004.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
