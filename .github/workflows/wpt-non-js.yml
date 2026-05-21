@@ -63,7 +63,15 @@ jobs:
         timeout-minutes: 10
         run: npm run wpt:prepare -- --output "${RUNNER_TEMP}/wpt"
 
-      - name: Run non-JS WPT subset
+      - name: Inventory all non-JS WPT tests
+        timeout-minutes: 10
+        run: >
+          npm run wpt:run -- --wpt-root "${RUNNER_TEMP}/wpt"
+          --output "${RUNNER_TEMP}/wpt-inventory"
+          --exclude-manifest ./scripts/wpt/non-js-exclusions.json
+          --scan-only
+
+      - name: Run focused non-JS WPT render/diff batch
         # Reserve most of the job budget for the actual render/diff pass while
         # still failing a stuck batch well before the overall 45-minute cap.
         timeout-minutes: 20
@@ -71,89 +79,7 @@ jobs:
           npm run wpt:run -- --wpt-root "${RUNNER_TEMP}/wpt"
           --output "${RUNNER_TEMP}/wpt-artifacts"
           --include css/css-backgrounds
-          --exclude css/css-backgrounds/animations/background-color-animation-with-images.html
-          --exclude css/css-backgrounds/background-attachment-fixed-inside-transform-1.html
-          --exclude css/css-backgrounds/background-attachment-fixed-border-radius-offset.html
-          --exclude css/css-backgrounds/background-attachment-fixed.html
-          --exclude css/css-backgrounds/background-attachment-350.html
-          --exclude css/css-backgrounds/background-attachment-local.html
-          --exclude css/css-backgrounds/background-attachment-local-hidden.html
-          --exclude css/css-backgrounds/background-attachment-local-scrolling.htm
-          --exclude css/css-backgrounds/background-attachment-margin-root-001.html
-          --exclude css/css-backgrounds/background-attachment-margin-root-002.html
-          --exclude css/css-backgrounds/background-334.html
-          --exclude css/css-backgrounds/background-color-applied-to-rounded-inline-element.htm
-          --exclude css/css-backgrounds/background-color-body-propagation-001.html
-          --exclude css/css-backgrounds/background-color-body-propagation-002.html
-          --exclude css/css-backgrounds/background-clip-002.html
-          --exclude css/css-backgrounds/background-clip-003.html
-          --exclude css/css-backgrounds/background-clip-004.html
-          --exclude css/css-backgrounds/background-clip-005.html
-          --exclude css/css-backgrounds/background-clip-006.html
-          --exclude css/css-backgrounds/background-clip-007.html
-          --exclude css/css-backgrounds/background-clip-008.html
-          --exclude css/css-backgrounds/background-clip-009.html
-          --exclude css/css-backgrounds/background-clip-010.html
-          --exclude css/css-backgrounds/background-clip-color.html
-          --exclude css/css-backgrounds/background-clip-content-box.html
-          --exclude css/css-backgrounds/background-clip-content-box-001.html
-          --exclude css/css-backgrounds/background-clip-content-box-002.html
-          --exclude css/css-backgrounds/background-clip-content-box-with-border-radius-002.html
-          --exclude css/css-backgrounds/background-clip-content-box-with-border-radius-003.html
-          --exclude css/css-backgrounds/background-clip-padding-box-001.html
-          --exclude css/css-backgrounds/background-clip-padding-box-with-border-radius.html
-          --exclude css/css-backgrounds/background-clip-padding-box-with-border-radius-002.html
-          --exclude css/css-backgrounds/background-clip-padding-box-with-border-radius-003.html
-          --exclude css/css-backgrounds/background-clip-root.html
-          --exclude css/css-backgrounds/background-clip_padding-box.html
-          --exclude css/css-backgrounds/background_color_padding_box.htm
-          --exclude css/css-backgrounds/background-clip/clip-border-area-border-image.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape-background-position.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape-overflow.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-border-shape.html
-          --exclude css/css-backgrounds/background-clip/clip-border-box_with_position.html
-          --exclude css/css-backgrounds/background-clip/clip-border-box_with_radius.html
-          --exclude css/css-backgrounds/background-clip/clip-border-box_with_size.html
-          --exclude css/css-backgrounds/background-clip/clip-border-box.html
-          --exclude css/css-backgrounds/background-clip/clip-border-shape-table-part-background.html
-          --exclude css/css-backgrounds/background-clip/clip-content-box.html
-          --exclude css/css-backgrounds/background-clip/clip-content-box_with_radius.html
-          --exclude css/css-backgrounds/background-clip/clip-content-box_with_position.html
-          --exclude css/css-backgrounds/background-clip/clip-content-box_with_size.html
-          --exclude css/css-backgrounds/background-clip/clip-padding-box.html
-          --exclude css/css-backgrounds/background-clip/clip-padding-box_with_position.html
-          --exclude css/css-backgrounds/background-clip/clip-padding-box_with_radius.html
-          --exclude css/css-backgrounds/background-clip/clip-padding-box_with_size.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-box-decoration-break.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-on-body-not-propagated-to-root.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-corner-shape.html
-          --exclude css/css-backgrounds/background-clip/clip-border-area-text.html
-          --exclude css/css-backgrounds/background-clip/clip-rounded-corner.html
-          --exclude css/css-backgrounds/background-clip/clip-text-background-table-cell.html
-          --exclude css/css-backgrounds/background-clip/clip-text-descendants.html
-          --exclude css/css-backgrounds/background-clip/clip-text-ellipsis.html
-          --exclude css/css-backgrounds/background-clip/clip-text-flex.html
-          --exclude css/css-backgrounds/background-clip/clip-text-inline.html
-          --exclude css/css-backgrounds/background-clip/clip-text-inline-block-child.html
-          --exclude css/css-backgrounds/background-clip/clip-text-multi-line.html
-          --exclude css/css-backgrounds/background-clip/clip-text-multiline-linebreak.html
-          --exclude css/css-backgrounds/background-clip/clip-text-multiline-background-image.html
-          --exclude css/css-backgrounds/background-clip/clip-text-out-of-flow-child.html
-          --exclude css/css-backgrounds/background-clip/clip-text-stacking-context-child.html
-          --exclude css/css-backgrounds/background-clip/clip-text-relative-child.html
-          --exclude css/css-backgrounds/background-clip/clip-text-text-align.html
-          --exclude css/css-backgrounds/background-clip/clip-text-text-decorations.html
-          --exclude css/css-backgrounds/background-clip/clip-text-text-emphasis.html
-          --exclude css/css-backgrounds/background-clip/clip-text-transform.html
-          --exclude css/css-backgrounds/background-clip/clip-text-on-body-not-propagated-to-root.html
-          --exclude css/css-backgrounds/background-clip/clip-text-scaled.html
-          --exclude css/css-backgrounds/background-clip/clip-text-constrain-geometry.html
-          --exclude css/css-backgrounds/background-clip/clip-text-fragmentation.html
-          --exclude css/css-backgrounds/background-clip/clip-text-blend-mode.html
-          --exclude css/css-backgrounds/background_properties_greater_than_images.htm
-          --exclude css/css-backgrounds/background_repeat_space_border_box.htm
-          --exclude css/css-backgrounds/background_repeat_space_content_box.htm
+          --exclude-manifest ./scripts/wpt/non-js-exclusions.json
           --limit 20
           --width 800
           --height 600
@@ -163,6 +89,10 @@ jobs:
         if: always()
         timeout-minutes: 5
         run: |
+          if [ -f "${RUNNER_TEMP}/wpt-inventory/summary.md" ]; then
+            cat "${RUNNER_TEMP}/wpt-inventory/summary.md" >> "${GITHUB_STEP_SUMMARY}"
+            echo >> "${GITHUB_STEP_SUMMARY}"
+          fi
           if [ -f "${RUNNER_TEMP}/wpt-artifacts/summary.md" ]; then
             cat "${RUNNER_TEMP}/wpt-artifacts/summary.md" >> "${GITHUB_STEP_SUMMARY}"
           fi
@@ -206,5 +136,7 @@ jobs:
         timeout-minutes: 5
         with:
           name: non-js-wpt-artifacts
-          path: ${{ runner.temp }}/wpt-artifacts
+          path: |
+            ${{ runner.temp }}/wpt-inventory
+            ${{ runner.temp }}/wpt-artifacts
           if-no-files-found: warn

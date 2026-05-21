@@ -5,12 +5,14 @@ import { promises as fs } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createNonJsExclusionTableMarkdown, readNonJsExclusionManifest } from './non-js-exclusions.mjs';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, '..', '..');
 const toolProjectPath = path.join(repositoryRoot, 'Source', 'Broiler.HTML.Tool', 'Broiler.HTML.Tool.csproj');
 const skippedDirectoryNames = new Set(['.git', 'node_modules', 'resources', 'support', 'reference']);
 const defaultTestTimeoutMs = 30_000;
+const maxListedSkippedForJavaScript = 50;
 const testTimeoutEnvironmentVariableName = 'BROILER_WPT_TEST_TIMEOUT_MS';
 const commandOutputMaxBufferBytes = 10 * 1024 * 1024;
 const contentTypes = new Map([
@@ -64,12 +66,64 @@ async function main(argv = process.argv.slice(2)) {
       options.fonts.unshift(`Ahem=${autoAhemPath}`);
     }
 
+    const documentedExclusions = options.excludeManifest
+      ? await readNonJsExclusionManifest(options.excludeManifest)
+      : [];
+    const documentedExcludePaths = documentedExclusions.map((exclusion) => exclusion.path);
+
     console.log(`Scanning ${options.wptRoot} for non-JS WPT candidates...`);
-    const scanResult = await collectCandidates(options.wptRoot, options.includes, options.excludes, options.limit);
-    console.log(`Selected ${scanResult.tests.length} candidate(s); skipped ${scanResult.skippedForJavaScript.length} JS-dependent file(s).`);
+    const discoveredResult = await collectCandidates(options.wptRoot, options.includes, [], 0);
+    const unknownDocumentedExclusions = documentedExclusions.filter((exclusion) =>
+      !discoveredResult.tests.some((testCase) => testCase.relativePath === exclusion.path));
+    if (unknownDocumentedExclusions.length > 0) {
+      throw new Error([
+        `The documented exclusion manifest references ${unknownDocumentedExclusions.length} path(s) that are not currently discoverable non-JS WPT cases.`,
+        ...unknownDocumentedExclusions.map((exclusion) => `- ${exclusion.path}`)
+      ].join('\n'));
+    }
+
+    const combinedExcludes = [...options.excludes, ...documentedExcludePaths];
+    const scanResult = combinedExcludes.length === 0 && options.limit === 0
+      ? discoveredResult
+      : await collectCandidates(options.wptRoot, options.includes, combinedExcludes, options.limit);
+    console.log(`Discovered ${discoveredResult.tests.length} non-JS candidate(s); selected ${scanResult.tests.length} after applying ${documentedExclusions.length} documented exclusion(s) and ${options.excludes.length} ad-hoc exclude filter(s).`);
+    console.log(`Skipped ${discoveredResult.skippedForJavaScript.length} JS-dependent file(s).`);
 
     if (scanResult.tests.length === 0) {
       throw new Error('No non-JS WPT files matched the current filters.');
+    }
+
+    const summary = {
+      generatedAt: new Date().toISOString(),
+      wptRoot: options.wptRoot,
+      outputRoot: options.output,
+      scanOnly: options.scanOnly,
+      viewport: { width: options.width, height: options.height },
+      thresholds: {
+        pixelDiffThreshold: options.pixelDiffThreshold,
+        colorTolerance: options.colorTolerance
+      },
+      timeouts: {
+        perTestMs: options.testTimeoutMs
+      },
+      discoveredCandidateCount: discoveredResult.tests.length,
+      totalCandidates: scanResult.tests.length,
+      documentedExclusionCount: documentedExclusions.length,
+      documentedExclusions,
+      skippedForJavaScriptCount: discoveredResult.skippedForJavaScript.length,
+      skippedForJavaScript: discoveredResult.skippedForJavaScript,
+      selectedTests: scanResult.tests.map((testCase) => testCase.relativePath),
+      passedCount: 0,
+      failedCount: 0,
+      timedOutCount: 0,
+      passed: [],
+      failed: []
+    };
+
+    if (options.scanOnly) {
+      await writeSummaryFiles(options.output, summary);
+      console.log('Scan-only mode enabled; skipped Broiler rendering, Chromium capture, and image comparison.');
+      return 0;
     }
 
     console.log('Building Broiler.HTML.Tool once before the batch run.');
@@ -181,35 +235,12 @@ async function main(argv = process.argv.slice(2)) {
       await new Promise((resolve, reject) => server.instance.close((error) => error ? reject(error) : resolve()));
     }
 
-    const summary = {
-      generatedAt: new Date().toISOString(),
-      wptRoot: options.wptRoot,
-      outputRoot: options.output,
-      viewport: { width: options.width, height: options.height },
-      thresholds: {
-        pixelDiffThreshold: options.pixelDiffThreshold,
-        colorTolerance: options.colorTolerance
-      },
-      timeouts: {
-        perTestMs: options.testTimeoutMs
-      },
-      totalCandidates: scanResult.tests.length,
-      skippedForJavaScriptCount: scanResult.skippedForJavaScript.length,
-      skippedForJavaScript: scanResult.skippedForJavaScript,
-      passedCount: passes.length,
-      failedCount: failures.length,
-      timedOutCount: failures.filter((failure) => failure.timeout).length,
-      passed: passes,
-      failed: failures
-    };
-
-    const summaryJsonPath = path.join(options.output, 'summary.json');
-    const summaryMarkdownPath = path.join(options.output, 'summary.md');
-    await fs.writeFile(summaryJsonPath, JSON.stringify(summary, null, 2));
-    await fs.writeFile(summaryMarkdownPath, createSummaryMarkdown(summary));
-
-    console.log(`Wrote summary to ${summaryJsonPath}`);
-    console.log(`Wrote markdown summary to ${summaryMarkdownPath}`);
+    summary.passedCount = passes.length;
+    summary.failedCount = failures.length;
+    summary.timedOutCount = failures.filter((failure) => failure.timeout).length;
+    summary.passed = passes;
+    summary.failed = failures;
+    await writeSummaryFiles(options.output, summary);
 
     if (failures.length > 0) {
       console.error(`${failures.length} test(s) differed from Chromium.`);
@@ -232,6 +263,7 @@ function parseArguments(args, env = process.env) {
     output: null,
     includes: [],
     excludes: [],
+    excludeManifest: null,
     limit: 0,
     width: 800,
     height: 600,
@@ -239,7 +271,8 @@ function parseArguments(args, env = process.env) {
     pixelDiffThreshold: 0.001,
     colorTolerance: 5,
     testTimeoutMs: readTimeoutFromEnvironment(env),
-    exitZeroOnDifferences: false
+    exitZeroOnDifferences: false,
+    scanOnly: false
   };
 
   for (let index = 0; index < args.length; index += 1) {
@@ -260,6 +293,9 @@ function parseArguments(args, env = process.env) {
         break;
       case '--exclude':
         options.excludes.push(readValue(args, ++index, argument));
+        break;
+      case '--exclude-manifest':
+        options.excludeManifest = readValue(args, ++index, argument);
         break;
       case '--limit':
         options.limit = readInteger(args, ++index, argument, 0);
@@ -284,6 +320,9 @@ function parseArguments(args, env = process.env) {
         break;
       case '--exit-zero-on-differences':
         options.exitZeroOnDifferences = true;
+        break;
+      case '--scan-only':
+        options.scanOnly = true;
         break;
       default:
         throw new Error(`Unknown argument: ${argument}`);
@@ -707,11 +746,14 @@ function createSummaryMarkdown(summary) {
     '',
     `- WPT root: \`${summary.wptRoot}\``,
     `- Output root: \`${summary.outputRoot}\``,
+    `- Scan only: ${summary.scanOnly ? 'yes' : 'no'}`,
     `- Viewport: ${summary.viewport.width}x${summary.viewport.height}`,
     `- Pixel diff threshold: ${summary.thresholds.pixelDiffThreshold}`,
     `- Color tolerance: ${summary.thresholds.colorTolerance}`,
     `- Per-test timeout: ${summary.timeouts?.perTestMs ?? defaultTestTimeoutMs} ms`,
+    `- Discovered non-JS candidates before exclusions: ${summary.discoveredCandidateCount ?? summary.totalCandidates}`,
     `- Total candidates: ${summary.totalCandidates}`,
+    `- Documented exclusions: ${summary.documentedExclusionCount ?? 0}`,
     `- Passed: ${summary.passedCount}`,
     `- Failed: ${summary.failedCount}`,
     `- Timed out: ${summary.timedOutCount ?? 0}`,
@@ -727,10 +769,18 @@ function createSummaryMarkdown(summary) {
     lines.push('');
   }
 
+  if ((summary.documentedExclusions?.length ?? 0) > 0) {
+    lines.push('## Documented exclusions', '', createNonJsExclusionTableMarkdown(summary.documentedExclusions), '');
+  }
+
   if (summary.skippedForJavaScript.length > 0) {
     lines.push('## Skipped for JavaScript', '');
-    for (const skipped of summary.skippedForJavaScript) {
+    for (const skipped of summary.skippedForJavaScript.slice(0, maxListedSkippedForJavaScript)) {
       lines.push(`- \`${skipped}\``);
+    }
+    const remainingSkippedCount = summary.skippedForJavaScript.length - maxListedSkippedForJavaScript;
+    if (remainingSkippedCount > 0) {
+      lines.push(`- ... ${remainingSkippedCount} more file(s) omitted from markdown; see \`summary.json\` for the full list.`);
     }
     lines.push('');
   }
@@ -740,6 +790,16 @@ function createSummaryMarkdown(summary) {
 
 function describeFailure(failure) {
   return failure.timeout ? failure.error ?? 'Timed out' : failure.mismatch?.category ?? 'n/a';
+}
+
+async function writeSummaryFiles(outputRoot, summary) {
+  const summaryJsonPath = path.join(outputRoot, 'summary.json');
+  const summaryMarkdownPath = path.join(outputRoot, 'summary.md');
+  await fs.writeFile(summaryJsonPath, JSON.stringify(summary, null, 2));
+  await fs.writeFile(summaryMarkdownPath, createSummaryMarkdown(summary));
+
+  console.log(`Wrote summary to ${summaryJsonPath}`);
+  console.log(`Wrote markdown summary to ${summaryMarkdownPath}`);
 }
 
 async function fileExists(filePath) {
@@ -782,6 +842,7 @@ Options:
   --output <dir>                 Directory for screenshots, diffs, and summaries. Defaults to ./artifacts/wpt.
   --include <substring>          Restrict to relative paths containing the substring. Repeat as needed.
   --exclude <substring>          Skip relative paths containing the substring. Repeat as needed.
+  --exclude-manifest <path>      Load exact-path exclusions plus reasons from a checked-in JSON manifest.
   --limit <count>                Stop after selecting this many candidate files.
   --width <pixels>               Chromium/Broiler viewport width. Defaults to 800.
   --height <pixels>              Chromium/Broiler viewport height. Defaults to 600.
@@ -790,6 +851,7 @@ Options:
   --color-tolerance <0-255>      Per-channel diff tolerance. Defaults to 5.
   --test-timeout-ms <ms>         Per-test timeout in milliseconds. Defaults to ${defaultTestTimeoutMs}; can also be set via ${testTimeoutEnvironmentVariableName}.
   --exit-zero-on-differences     Keep exit code 0 when visual mismatches are found.
+  --scan-only                    Enumerate candidate coverage and write summaries without rendering tests.
   -h, --help                     Show help.
 
 Notes:
