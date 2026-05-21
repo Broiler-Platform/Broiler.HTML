@@ -1,11 +1,5 @@
 [
   {
-    "path": "css/css-backgrounds/animations/background-color-animation-with-images.html",
-    "category": "unsupported",
-    "feature": "CSS animations",
-    "note": "Needs animation timeline sampling; the current screenshot harness compares only a static document state."
-  },
-  {
     "path": "css/css-backgrounds/background-attachment-fixed-inside-transform-1.html",
     "category": "unsupported",
     "feature": "background-attachment fixed/local edge cases",

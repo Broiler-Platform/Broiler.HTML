@@ -7,7 +7,18 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { createNonJsExclusionTableMarkdown, readNonJsExclusionManifest } from './non-js-exclusions.mjs';
-import { collectCandidates, createSummaryMarkdown, formatDiffRatio, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync } from './run-non-js.mjs';
+import {
+  collectCandidates,
+  createSummaryMarkdown,
+  formatDiffRatio,
+  getChromiumScreenshotOptions,
+  hasInlineCssAnimations,
+  normalizeCompareReport,
+  normalizeDiffRatio,
+  parseArguments,
+  runCommand,
+  runCommandAsync
+} from './run-non-js.mjs';
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(scriptDirectory, '..', '..');
@@ -253,10 +264,64 @@ test('collectCandidates skips support files, reference variants, and JS-dependen
   assert.deepEqual(result.skippedForJavaScript, ['css/css-backgrounds/js-harness.html']);
 });
 
+test('collectCandidates flags inline CSS animation cases', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'broiler-wpt-candidates-'));
+  await mkdir(path.join(root, 'css', 'css-backgrounds'), { recursive: true });
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'animated.html'), `
+    <!doctype html>
+    <style>
+      @keyframes pulse { from { opacity: 0; } to { opacity: 1; } }
+      div { animation: pulse 100s; }
+    </style>
+    <div>animated</div>
+  `);
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'static.html'), '<!doctype html><div>static</div>');
+
+  const result = await collectCandidates(root, [], [], 0);
+
+  assert.deepEqual(
+    result.tests.map((testCase) => ({
+      relativePath: testCase.relativePath,
+      usesCssAnimations: testCase.usesCssAnimations
+    })),
+    [
+      { relativePath: 'css/css-backgrounds/animated.html', usesCssAnimations: true },
+      { relativePath: 'css/css-backgrounds/static.html', usesCssAnimations: false }
+    ]
+  );
+});
+
+test('hasInlineCssAnimations detects animation declarations and keyframes', () => {
+  assert.equal(hasInlineCssAnimations('<style>@keyframes fade { from { opacity: 0; } to { opacity: 1; } }</style>'), true);
+  assert.equal(hasInlineCssAnimations('<style>.box { animation-duration: 100s; }</style>'), true);
+  assert.equal(hasInlineCssAnimations('<style>.box { color: red; }</style>'), false);
+});
+
+test('getChromiumScreenshotOptions keeps CSS animation references live', () => {
+  const deadline = Date.now() + 5_000;
+  const animationOptions = getChromiumScreenshotOptions(
+    { relativePath: 'css/css-backgrounds/animations/case.html', usesCssAnimations: true },
+    '/tmp/animated.png',
+    deadline,
+    5_000
+  );
+  const staticOptions = getChromiumScreenshotOptions(
+    { relativePath: 'css/css-backgrounds/case.html', usesCssAnimations: false },
+    '/tmp/static.png',
+    deadline,
+    5_000
+  );
+
+  assert.equal(animationOptions.path, '/tmp/animated.png');
+  assert.equal(animationOptions.caret, 'hide');
+  assert.ok(!('animations' in animationOptions));
+  assert.equal(staticOptions.animations, 'disabled');
+});
+
 test('non-JS WPT exclusion manifest contains unique documented paths', async () => {
   const exclusions = await readNonJsExclusionManifest(path.join(repositoryRoot, 'scripts', 'wpt', 'non-js-exclusions.json'));
 
-  assert.equal(exclusions.length, 83);
+  assert.equal(exclusions.length, 82);
   assert.equal(new Set(exclusions.map((exclusion) => exclusion.path)).size, exclusions.length);
   assert.ok(exclusions.every((exclusion) => ['unsupported', 'unstable'].includes(exclusion.category)));
   assert.ok(exclusions.some((exclusion) => exclusion.path === 'css/css-backgrounds/background-334.html' && exclusion.category === 'unstable'));

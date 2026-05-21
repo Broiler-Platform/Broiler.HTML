@@ -168,7 +168,7 @@ async function main(argv = process.argv.slice(2)) {
 
           timeoutPhase = 'chromium-reference';
           const chromiumStartedAt = Date.now();
-          await renderWithChromium(context, test.relativePath, testUrl, chromiumImagePath, testDeadline, options.testTimeoutMs);
+          await renderWithChromium(context, test, testUrl, chromiumImagePath, testDeadline, options.testTimeoutMs);
           timings.chromiumReferenceMs = Date.now() - chromiumStartedAt;
 
           timeoutPhase = 'image-compare';
@@ -418,7 +418,7 @@ async function collectCandidates(root, includes, excludes, limit) {
         continue;
       }
 
-      tests.push({ relativePath, fullPath });
+      tests.push({ relativePath, fullPath, usesCssAnimations: hasInlineCssAnimations(markup) });
       if (limit > 0 && tests.length >= limit) {
         return;
       }
@@ -458,6 +458,11 @@ function requiresJavaScript(markup) {
     /\bon[a-z]+\s*=\s*["']/i.test(markup) ||
     /javascript:/i.test(markup) ||
     /testharness\.js|testdriver\.js|reftest-wait/i.test(markup);
+}
+
+function hasInlineCssAnimations(markup) {
+  return /@keyframes\b/i.test(markup) ||
+    /\banimation(?:-[a-z-]+)?\s*:/i.test(markup);
 }
 
 async function renderWithBroiler(inputPath, outputPath, baseUrl, options, testDeadline) {
@@ -555,23 +560,18 @@ async function runCommandAsync(command, args, { description, allowExitCodes = [0
   });
 }
 
-async function renderWithChromium(context, relativePath, testUrl, outputPath, testDeadline, testTimeoutMs) {
+async function renderWithChromium(context, testCase, testUrl, outputPath, testDeadline, testTimeoutMs) {
   const page = await context.newPage();
   try {
     try {
       await page.goto(testUrl, {
         waitUntil: 'load',
-        timeout: getRemainingTimeoutMs(testDeadline, testTimeoutMs, `Load Chromium reference for ${relativePath}`)
+        timeout: getRemainingTimeoutMs(testDeadline, testTimeoutMs, `Load Chromium reference for ${testCase.relativePath}`)
       });
-      await page.screenshot({
-        path: outputPath,
-        animations: 'disabled',
-        caret: 'hide',
-        timeout: getRemainingTimeoutMs(testDeadline, testTimeoutMs, `Capture Chromium reference for ${relativePath}`)
-      });
+      await page.screenshot(getChromiumScreenshotOptions(testCase, outputPath, testDeadline, testTimeoutMs));
     } catch (error) {
       if (isTimeoutError(error)) {
-        throw createTimeoutError(`Chromium reference for ${relativePath}`, testTimeoutMs);
+        throw createTimeoutError(`Chromium reference for ${testCase.relativePath}`, testTimeoutMs);
       }
 
       throw error;
@@ -579,6 +579,20 @@ async function renderWithChromium(context, relativePath, testUrl, outputPath, te
   } finally {
     await page.close();
   }
+}
+
+function getChromiumScreenshotOptions(testCase, outputPath, testDeadline, testTimeoutMs) {
+  const options = {
+    path: outputPath,
+    caret: 'hide',
+    timeout: getRemainingTimeoutMs(testDeadline, testTimeoutMs, `Capture Chromium reference for ${testCase.relativePath}`)
+  };
+
+  if (!testCase.usesCssAnimations) {
+    options.animations = 'disabled';
+  }
+
+  return options;
 }
 
 function runCommand(command, args, { description, allowExitCodes = [0], timeoutMs = 0, timeoutMessageMs = timeoutMs } = {}) {
@@ -861,7 +875,19 @@ Notes:
   - Relative assets are served from a temporary local HTTP server so Chromium and Broiler resolve them from the same base URL.`;
 }
 
-export { collectCandidates, createSummaryMarkdown, formatDiffRatio, main, normalizeCompareReport, normalizeDiffRatio, parseArguments, runCommand, runCommandAsync };
+export {
+  collectCandidates,
+  createSummaryMarkdown,
+  formatDiffRatio,
+  getChromiumScreenshotOptions,
+  hasInlineCssAnimations,
+  main,
+  normalizeCompareReport,
+  normalizeDiffRatio,
+  parseArguments,
+  runCommand,
+  runCommandAsync
+};
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   process.exit(await main());
