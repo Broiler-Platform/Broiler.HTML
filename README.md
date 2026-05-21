@@ -115,6 +115,8 @@ dotnet run --project Source/Broiler.HTML.Tool -- compare --actual ./broiler.png 
 The repository now includes a Playwright-based runner for local [web-platform-tests](https://github.com/web-platform-tests/wpt) checkouts that:
 
 - discovers HTML/XHTML cases while skipping files that appear to depend on JavaScript
+- can inventory the full non-JS corpus without rendering via `--scan-only`
+- can apply the checked-in exclusion manifest at `scripts/wpt/non-js-exclusions.json`
 - renders each selected case through the Broiler CLI
 - captures a Chromium reference screenshot with JavaScript disabled
 - compares the two images with `PixelDiffRunner` / `MismatchClassifier`
@@ -141,6 +143,12 @@ dotnet build Source/Broiler.HTML.slnx
 npm run wpt:run -- --wpt-root ./artifacts/wpt-source --include css/css-backgrounds --limit 20 --width 800 --height 600
 ```
 
+Inventory the full discoverable non-JS corpus, apply the documented exclusions, and write a machine-readable summary without rendering every case:
+
+```bash
+npm run wpt:run -- --wpt-root ./artifacts/wpt-source --exclude-manifest ./scripts/wpt/non-js-exclusions.json --scan-only
+```
+
 Each selected WPT case gets a shared timeout budget across Broiler rendering, Chromium capture, and image comparison. The default is 30000 ms, and timed out cases are recorded as failures in the generated summary files instead of hanging the batch indefinitely.
 
 Adjust the timeout for slower local machines or heavier cases with either a CLI flag or an environment variable:
@@ -164,57 +172,9 @@ If your selected WPT cases use fixture fonts such as Ahem, pass them through to 
 npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/path/to/wpt/fonts/Ahem.ttf
 ```
 
-The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, runs a focused non-JS subset, uploads the diff artifacts, and adds the rendered summary to the workflow summary page. The workflow's curated `css/css-backgrounds` slice can also exclude known unstable cases with `--exclude` filters so CI can keep tracking the stable non-JS subset while renderer gaps are investigated separately.
+The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a focused render/diff batch for the current stable `css/css-backgrounds` slice. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
 
 When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configured, the CI job also opens a new GitHub issue for the most common failure signature in that run. The automation uses `ISSUE_TOKEN` only for GitHub Issues API calls that create the issue and expects a fine-grained PAT or GitHub App token with **Issues: Write** access to this repository.
-
-Recent CI runs showed two main patterns:
-
-- the observed batch timeouts were caused by the Broiler render phase exhausting the 30000 ms per-test budget on a subset of `css/css-backgrounds` cases
-- the non-timeout visual mismatches have clustered around a small
-  `css/css-backgrounds` subset (`background-attachment-*`, `background-334.html`,
-  `background-color-applied-to-rounded-inline-element.htm`,
-  `background-color-body-propagation-001.html`,
-  `background-color-body-propagation-002.html`,
-  `background-clip-002.html`, `background-clip-003.html`,
-  `background-clip-004.html`, `background-clip-005.html`,
-  `background-clip-006.html`, `background-clip-007.html`,
-  `background-clip-008.html`, `background-clip-009.html`,
-  `background-clip-010.html`, `background-clip-color.html`,
-  `background-clip-content-box.html`, `background-clip-content-box-001.html`,
-  `background-clip-content-box-002.html`,
-  `background-clip-content-box-with-border-radius-002.html`,
-  `background-clip-content-box-with-border-radius-003.html`,
-  `background-clip-padding-box-001.html`,
-  `background-clip-padding-box-with-border-radius.html`,
-  `background-clip-padding-box-with-border-radius-002.html`,
-  `background-clip-padding-box-with-border-radius-003.html`,
-  `background-clip-root.html`, `background-clip_padding-box.html`,
-  `background_color_padding_box.htm`, and a
-  few `background-clip/*` cases such as `clip-border-area.html`,
-  `clip-border-area-on-body-not-propagated-to-root.html`, the
-  `clip-border-area-*` variants,
-  `clip-border-box.html`,
-  `clip-border-shape-table-part-background.html`, `clip-rounded-corner.html`,
-  `clip-text-background-table-cell.html`, `clip-text-descendants.html`,
-  `clip-text-ellipsis.html`, `clip-text-flex.html`, `clip-text-inline.html`,
-  `clip-text-inline-block-child.html`, `clip-text-multi-line.html`,
-  `clip-text-multiline-linebreak.html`,
-  `clip-text-multiline-background-image.html`,
-  `clip-text-out-of-flow-child.html`,
-  `clip-text-stacking-context-child.html`,
-  `clip-text-relative-child.html`,
-  `clip-text-text-align.html`,
-  `clip-text-text-decorations.html`,
-  `clip-text-text-emphasis.html`,
-  `clip-text-transform.html`,
-  `clip-text-on-body-not-propagated-to-root.html`,
-  `clip-text-scaled.html`,
-  `clip-text-constrain-geometry.html`, `clip-text-fragmentation.html`,
-  `clip-text-blend-mode.html`, `clip-padding-box.html`, and the
-  `clip-content-box*.html`/`clip-padding-box_with*.html` tests), so the curated
-  CI slice currently excludes those known unstable cases while renderer gaps are
-  investigated separately
 
 ## Documentation
 
