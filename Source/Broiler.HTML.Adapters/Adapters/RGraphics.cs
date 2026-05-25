@@ -90,6 +90,19 @@ public abstract class RGraphics : IDisposable
     public virtual void RestoreBlendLayer() { }
 
     /// <summary>
+    /// Saves the canvas state and applies a 2D affine transform around the given origin.
+    /// The matrix elements are [a, b, c, d, e, f] matching the CSS matrix(a,b,c,d,e,f) function.
+    /// Default implementation is a no-op.
+    /// </summary>
+    public virtual void SaveTransformLayer(float[] matrix, float originX, float originY) { }
+
+    /// <summary>
+    /// Restores the canvas state from a previous <see cref="SaveTransformLayer"/> call.
+    /// Default is a no-op.
+    /// </summary>
+    public virtual void RestoreTransformLayer() { }
+
+    /// <summary>
     /// Creates an off-screen gradient image tile.  The returned <see cref="RImage"/>
     /// can be used with <see cref="GetTextureBrush"/> for tiled gradient rendering.
     /// Default implementation returns <c>null</c> (platform may not support off-screen rendering).

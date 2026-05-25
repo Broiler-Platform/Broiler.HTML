@@ -328,6 +328,18 @@ internal sealed class GraphicsAdapter : RGraphics
         _activeSkiaLayerDepth = Math.Max(0, _activeSkiaLayerDepth - 1);
     }
 
+    public override void SaveTransformLayer(float[] matrix, float originX, float originY)
+    {
+        _activeSkiaLayerDepth++;
+        ApplyCanvasOperation(canvas => _canvasCompat.SaveTransformLayer(canvas, matrix, originX, originY));
+    }
+
+    public override void RestoreTransformLayer()
+    {
+        ApplyCanvasOperation(CompatCanvasOperations.Restore);
+        _activeSkiaLayerDepth = Math.Max(0, _activeSkiaLayerDepth - 1);
+    }
+
     public override RImage? CreateLinearGradientTile(int width, int height, Color[] colors, float[] positions, float angle)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)

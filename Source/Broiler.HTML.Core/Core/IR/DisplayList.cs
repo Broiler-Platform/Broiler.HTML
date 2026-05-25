@@ -41,6 +41,8 @@ public sealed class DisplayList
 [JsonDerivedType(typeof(BlendModeItem), "BlendMode")]
 [JsonDerivedType(typeof(RestoreBlendModeItem), "RestoreBlendMode")]
 [JsonDerivedType(typeof(DrawTiledGradientItem), "DrawTiledGradient")]
+[JsonDerivedType(typeof(TransformItem), "Transform")]
+[JsonDerivedType(typeof(RestoreTransformItem), "RestoreTransform")]
 public abstract class DisplayItem
 {
     public RectangleF Bounds { get; init; }
@@ -293,3 +295,21 @@ public sealed class DrawSvgPolylineItem : DisplayItem
     public Color Stroke { get; init; }
     public float StrokeWidth { get; init; }
 }
+
+/// <summary>Applies a 2D affine transform to subsequent items until restored.</summary>
+public sealed class TransformItem : DisplayItem
+{
+    /// <summary>2D affine transform matrix elements [a, b, c, d, e, f].
+    /// Maps to the CSS matrix(a, b, c, d, e, f) function.
+    /// The transform is applied around the specified origin.</summary>
+    public float[] Matrix { get; init; } = [1, 0, 0, 1, 0, 0];
+
+    /// <summary>X coordinate of the transform origin in page coordinates.</summary>
+    public float OriginX { get; init; }
+
+    /// <summary>Y coordinate of the transform origin in page coordinates.</summary>
+    public float OriginY { get; init; }
+}
+
+/// <summary>Restores from a transform layer pushed by <see cref="TransformItem"/>.</summary>
+public sealed class RestoreTransformItem : DisplayItem { }
