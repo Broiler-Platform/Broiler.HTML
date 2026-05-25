@@ -1474,6 +1474,8 @@ internal sealed class CssParser
         string? origin = null;
         string? clip = null;
         var positionParts = new List<string>();
+        var sizeParts = new List<string>();
+        bool inSizeSection = false;
         bool hasUnrecognizedToken = false;
 
         // Extract url(...) first, then tokenise the remainder.
@@ -1519,13 +1521,30 @@ internal sealed class CssParser
             if (string.IsNullOrEmpty(t))
                 continue;
 
-            // CSS3 background-size separator: skip '/' and any following
-            // size values (e.g. "0em / 15438983.37cm auto").
+            // CSS3 background-size separator: '/' marks the boundary
+            // between position and size values.
             if (t == "/")
             {
-                // Everything after '/' until the next non-size token is
-                // background-size; consume but don't store (not rendered).
+                inSizeSection = true;
                 continue;
+            }
+
+            // While in the size section after '/', collect size values
+            // (lengths, percentages, auto, cover, contain) until a
+            // non-size token is encountered.
+            if (inSizeSection)
+            {
+                if (t.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
+                    t.Equals("cover", StringComparison.OrdinalIgnoreCase) ||
+                    t.Equals("contain", StringComparison.OrdinalIgnoreCase) ||
+                    CssValueParser.IsValidLength(t) || t.EndsWith("%"))
+                {
+                    sizeParts.Add(t.ToLowerInvariant());
+                    continue;
+                }
+                // Non-size token ends the size section; fall through
+                // to normal token processing below.
+                inSizeSection = false;
             }
 
             // attachment (CSS3 adds 'local' to scroll|fixed)
@@ -1587,11 +1606,8 @@ internal sealed class CssParser
                 continue;
             }
 
-            // CSS3 background-size keywords (after '/') — accept but
-            // don't change rendering (cover/contain/auto not yet implemented).
-            if (t.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
-                t.Equals("cover", StringComparison.OrdinalIgnoreCase) ||
-                t.Equals("contain", StringComparison.OrdinalIgnoreCase))
+            // auto keyword outside size section (background-size default)
+            if (t.Equals("auto", StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -1626,6 +1642,9 @@ internal sealed class CssParser
         properties["background-position"] = positionParts.Count > 0
             ? string.Join(" ", positionParts)
             : "0% 0%";
+        properties["background-size"] = sizeParts.Count > 0
+            ? string.Join(" ", sizeParts)
+            : "auto";
         // CSS3 §3.10: if only one <box> token, it sets both origin and clip.
         properties["background-origin"] = origin ?? "padding-box";
         properties["background-clip"] = clip ?? origin ?? "border-box";
@@ -1668,8 +1687,11 @@ internal sealed class CssParser
     {
         var images = new List<string>();
         var positions = new List<string>();
+        var sizes = new List<string>();
         var repeats = new List<string>();
         var attachments = new List<string>();
+        var origins = new List<string>();
+        var clips = new List<string>();
         string? color = null;
 
         for (int i = 0; i < layers.Count; i++)
@@ -1681,7 +1703,11 @@ internal sealed class CssParser
             string? layerImage = null;
             string? layerRepeat = null;
             string? layerAttachment = null;
+            string? layerOrigin = null;
+            string? layerClip = null;
             var layerPosition = new List<string>();
+            var layerSize = new List<string>();
+            bool inSizeSection = false;
 
             // Extract gradient function from this layer.
             string? gradientFunc = ExtractGradientFunction(ref layerStr);
@@ -1722,7 +1748,24 @@ internal sealed class CssParser
                 if (string.IsNullOrEmpty(t))
                     continue;
 
-                if (t == "/") continue;
+                if (t == "/")
+                {
+                    inSizeSection = true;
+                    continue;
+                }
+
+                if (inSizeSection)
+                {
+                    if (t.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
+                        t.Equals("cover", StringComparison.OrdinalIgnoreCase) ||
+                        t.Equals("contain", StringComparison.OrdinalIgnoreCase) ||
+                        CssValueParser.IsValidLength(t) || t.EndsWith("%"))
+                    {
+                        layerSize.Add(t.ToLowerInvariant());
+                        continue;
+                    }
+                    inSizeSection = false;
+                }
 
                 if (t.Equals("scroll", StringComparison.OrdinalIgnoreCase) ||
                     t.Equals("fixed", StringComparison.OrdinalIgnoreCase) ||
@@ -1735,7 +1778,13 @@ internal sealed class CssParser
                 if (t.Equals("content-box", StringComparison.OrdinalIgnoreCase) ||
                     t.Equals("padding-box", StringComparison.OrdinalIgnoreCase) ||
                     t.Equals("border-box", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (layerOrigin == null)
+                        layerOrigin = t.ToLowerInvariant();
+                    else
+                        layerClip = t.ToLowerInvariant();
                     continue;
+                }
 
                 if (t.Equals("repeat", StringComparison.OrdinalIgnoreCase) ||
                     t.Equals("repeat-x", StringComparison.OrdinalIgnoreCase) ||
@@ -1770,9 +1819,7 @@ internal sealed class CssParser
                     continue;
                 }
 
-                if (t.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
-                    t.Equals("cover", StringComparison.OrdinalIgnoreCase) ||
-                    t.Equals("contain", StringComparison.OrdinalIgnoreCase))
+                if (t.Equals("auto", StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 if (t.Equals("inherit", StringComparison.OrdinalIgnoreCase))
@@ -1788,15 +1835,21 @@ internal sealed class CssParser
 
             images.Add(layerImage ?? "none");
             positions.Add(layerPosition.Count > 0 ? string.Join(" ", layerPosition) : "0% 0%");
+            sizes.Add(layerSize.Count > 0 ? string.Join(" ", layerSize) : "auto");
             repeats.Add(layerRepeat ?? "repeat");
             attachments.Add(layerAttachment ?? "scroll");
+            origins.Add(layerOrigin ?? "padding-box");
+            clips.Add(layerClip ?? layerOrigin ?? "border-box");
         }
 
         properties["background-color"] = color ?? "transparent";
         properties["background-image"] = string.Join(", ", images);
         properties["background-position"] = string.Join(", ", positions);
+        properties["background-size"] = string.Join(", ", sizes);
         properties["background-repeat"] = string.Join(", ", repeats);
         properties["background-attachment"] = string.Join(", ", attachments);
+        properties["background-origin"] = string.Join(", ", origins);
+        properties["background-clip"] = string.Join(", ", clips);
     }
 
     private void ParseColorProperty(string propName, string propValue, Dictionary<string, string> properties)

@@ -577,8 +577,8 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         float tileW,
         float tileH)
     {
-        var xPositions = GetSpacePositions(positioningArea.X, positioningArea.Width, tileW, origin.X);
-        var yPositions = GetSpacePositions(positioningArea.Y, positioningArea.Height, tileH, origin.Y);
+        var xPositions = GetSpacePositions(positioningArea.X, positioningArea.Width, tileW, origin.X, fill.X, fill.Right);
+        var yPositions = GetSpacePositions(positioningArea.Y, positioningArea.Height, tileH, origin.Y, fill.Y, fill.Bottom);
 
         foreach (var y in yPositions)
         {
@@ -587,7 +587,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static List<float> GetSpacePositions(float start, float span, float tileSize, float fallbackPosition)
+    private static List<float> GetSpacePositions(float start, float span, float tileSize, float fallbackPosition, float fillStart, float fillEnd)
     {
         var positions = new List<float>();
         if (tileSize <= 0 || span <= 0)
@@ -597,8 +597,41 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         if (count >= 2)
         {
             float gap = (span - count * tileSize) / (count - 1);
+            float period = tileSize + gap;
+
+            // Core positions within the positioning area
             for (int i = 0; i < count; i++)
-                positions.Add(start + i * (tileSize + gap));
+                positions.Add(start + i * period);
+
+            // CSS Backgrounds §3.4: If the background painting area is
+            // larger than the positioning area, extend the pattern to
+            // fill the painting area.
+            if (period > 0)
+            {
+                float firstPos = positions[0];
+                float p = firstPos - period;
+                var prefix = new List<float>();
+                while (p + tileSize > fillStart)
+                {
+                    prefix.Add(p);
+                    p -= period;
+                }
+                if (prefix.Count > 0)
+                {
+                    prefix.Reverse();
+                    prefix.AddRange(positions);
+                    positions = prefix;
+                }
+
+                float lastPos = positions[positions.Count - 1];
+                p = lastPos + period;
+                while (p < fillEnd)
+                {
+                    positions.Add(p);
+                    p += period;
+                }
+            }
+
             return positions;
         }
 
