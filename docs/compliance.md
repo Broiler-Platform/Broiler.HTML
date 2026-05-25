@@ -33,7 +33,7 @@ The CI workflow now uses that manifest in two ways:
 1. `--scan-only` inventories the entire discoverable non-JS WPT corpus from the prepared upstream checkout and writes a summary artifact that lists the selected in-scope test set after exclusions.
 2. The focused render/diff step reuses the same manifest so the checked-in documentation and the executed exclusions cannot drift apart silently.
 
-All 82 previously excluded non-JS WPT cases are now enabled. No non-JavaScript testcases remain skipped.
+There are currently no excluded non-JS WPT cases.
 
 <!-- BEGIN: non-js-wpt-exclusions -->
 | Test path | Category | Feature / aspect | Reason for exclusion |
