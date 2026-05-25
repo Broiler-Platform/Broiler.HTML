@@ -295,7 +295,7 @@ internal static class CssAnimationResolver
         if (a == 255)
             return $"rgb({r}, {g}, {b})";
         else
-            return $"rgba({r}, {g}, {b}, {(a / 255.0).ToString("F3", CultureInfo.InvariantCulture)})";
+            return $"rgba({r}, {g}, {b}, {(a / 255.0).ToString("G4", CultureInfo.InvariantCulture)})";
     }
 
     /// <summary>

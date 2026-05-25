@@ -1913,7 +1913,7 @@ internal sealed class CssParser
             return double.TryParse(value.AsSpan(0, value.Length - 2),
                 System.Globalization.NumberStyles.Float,
                 System.Globalization.CultureInfo.InvariantCulture, out _);
-        if (value.EndsWith("s") && !value.EndsWith("ms"))
+        if (value.EndsWith('s'))
             return double.TryParse(value.AsSpan(0, value.Length - 1),
                 System.Globalization.NumberStyles.Float,
                 System.Globalization.CultureInfo.InvariantCulture, out _);
