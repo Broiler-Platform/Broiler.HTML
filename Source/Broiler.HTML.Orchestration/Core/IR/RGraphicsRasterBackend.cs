@@ -372,7 +372,14 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
 
     private static void DrawDoubleBorderSide(RGraphics g, DrawBorderItem item, Border side)
     {
-        var bounds = item.Bounds;
+        // Snap border bounds to integer pixel coordinates so that fractional
+        // layout positions do not cause sub-pixel coverage that adds an extra
+        // pixel to each stripe (e.g. 9+8+9=26px instead of 8+9+8=25px).
+        var bounds = new RectangleF(
+            (float)Math.Round(item.Bounds.X),
+            (float)Math.Round(item.Bounds.Y),
+            (float)Math.Round(item.Bounds.Right) - (float)Math.Round(item.Bounds.X),
+            (float)Math.Round(item.Bounds.Bottom) - (float)Math.Round(item.Bounds.Y));
         var widths = item.Widths;
         // Use Math.Floor to match browser integer rounding: 25px -> 8px stripes, 9px gap.
         float topLine = (float)Math.Max(1d, Math.Floor(widths.Top / 3d));
