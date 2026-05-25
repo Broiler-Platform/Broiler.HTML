@@ -610,10 +610,17 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             {
                 float firstPos = positions[0];
                 float p = firstPos - period;
+                var prefix = new List<float>();
                 while (p + tileSize > fillStart)
                 {
-                    positions.Insert(0, p);
+                    prefix.Add(p);
                     p -= period;
+                }
+                if (prefix.Count > 0)
+                {
+                    prefix.Reverse();
+                    prefix.AddRange(positions);
+                    positions = prefix;
                 }
 
                 float lastPos = positions[positions.Count - 1];
