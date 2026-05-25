@@ -37,4 +37,6 @@ internal interface ICanvasCompat
     void SaveOpacityLayer(object canvas, float opacity);
 
     void SaveBlendLayer(object canvas, string blendMode);
+
+    void SaveTransformLayer(object canvas, float[] matrix, float originX, float originY);
 }

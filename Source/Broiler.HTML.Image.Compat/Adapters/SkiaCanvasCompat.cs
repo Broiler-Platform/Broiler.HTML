@@ -123,4 +123,17 @@ internal sealed class SkiaCanvasCompat : ICanvasCompat
         using var paint = new SKPaint { BlendMode = skBlendMode };
         SkiaCompatObjects.Canvas(canvas).SaveLayer(paint);
     }
+
+    public void SaveTransformLayer(object canvas, float[] matrix, float originX, float originY)
+    {
+        var skCanvas = SkiaCompatObjects.Canvas(canvas);
+        skCanvas.Save();
+        skCanvas.Translate(originX, originY);
+        var skMatrix = new SKMatrix(
+            matrix[0], matrix[2], matrix[4],
+            matrix[1], matrix[3], matrix[5],
+            0, 0, 1);
+        skCanvas.Concat(ref skMatrix);
+        skCanvas.Translate(-originX, -originY);
+    }
 }

@@ -94,6 +94,12 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
                 case RestoreBlendModeItem:
                     g.RestoreBlendLayer();
                     break;
+                case TransformItem transformItem:
+                    g.SaveTransformLayer(transformItem.Matrix, transformItem.OriginX, transformItem.OriginY);
+                    break;
+                case RestoreTransformItem:
+                    g.RestoreTransformLayer();
+                    break;
             }
         }
     }
@@ -155,6 +161,8 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         RestoreOpacityItem => true,
         BlendModeItem blend => IsRasterBlendModeSupported(blend.Mode),
         RestoreBlendModeItem => true,
+        TransformItem => false,
+        RestoreTransformItem => false,
         DrawTextItem => false,
         DrawSvgTextItem => false,
         _ => false,
