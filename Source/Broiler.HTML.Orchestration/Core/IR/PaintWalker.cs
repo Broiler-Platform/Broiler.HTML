@@ -1830,7 +1830,12 @@ internal static class PaintWalker
                 borderBoxRect.Height - bTop - bBottom - pTop - pBottom);
         }
 
-        // For unsupported values (e.g. "text", "border-area"), fall back to border-box.
+        // border-area uses the same bounding rectangle as border-box;
+        // the special rendering is handled downstream in EmitBorderAreaBorder.
+        if (backgroundClip.Equals("border-area", StringComparison.OrdinalIgnoreCase))
+            return borderBoxRect;
+
+        // For unsupported values (e.g. "text"), fall back to border-box.
         return borderBoxRect;
     }
 
@@ -1903,9 +1908,6 @@ internal static class PaintWalker
     private static string GetEffectiveBackgroundClip(Fragment fragment, string backgroundClip)
     {
         if (string.IsNullOrEmpty(backgroundClip))
-            return "border-box";
-
-        if (backgroundClip.Equals("border-area", StringComparison.OrdinalIgnoreCase))
             return "border-box";
 
         return backgroundClip;

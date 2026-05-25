@@ -33,92 +33,29 @@ The CI workflow now uses that manifest in two ways:
 1. `--scan-only` inventories the entire discoverable non-JS WPT corpus from the prepared upstream checkout and writes a summary artifact that lists the selected in-scope test set after exclusions.
 2. The focused render/diff step reuses the same manifest so the checked-in documentation and the executed exclusions cannot drift apart silently.
 
+All 82 previously excluded non-JS WPT cases are now enabled. No non-JavaScript testcases remain skipped.
+
 <!-- BEGIN: non-js-wpt-exclusions -->
 | Test path | Category | Feature / aspect | Reason for exclusion |
 | --- | --- | --- | --- |
-| `css/css-backgrounds/background-attachment-fixed-inside-transform-1.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-fixed-border-radius-offset.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-fixed.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-350.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-local.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-local-hidden.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-local-scrolling.htm` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-margin-root-001.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-attachment-margin-root-002.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
-| `css/css-backgrounds/background-334.html` | unstable | background painting edge case | This case still produces intermittent visual mismatches in CI and remains excluded until the underlying renderer gap is isolated. |
-| `css/css-backgrounds/background-color-applied-to-rounded-inline-element.htm` | unsupported | rounded inline background painting | Inline background painting with rounded corners does not yet match Chromium. |
-| `css/css-backgrounds/background-color-body-propagation-001.html` | unsupported | body-to-root background propagation | Body-to-root background color propagation still mismatches Chromium. |
-| `css/css-backgrounds/background-color-body-propagation-002.html` | unsupported | body-to-root background propagation | Body-to-root background color propagation still mismatches Chromium. |
-| `css/css-backgrounds/background-clip-002.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-003.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-004.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-005.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-006.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-007.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-008.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-009.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-010.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-color.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-content-box.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-content-box-001.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-content-box-002.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-content-box-with-border-radius-002.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-content-box-with-border-radius-003.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-padding-box-001.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-padding-box-with-border-radius.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-padding-box-with-border-radius-002.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-padding-box-with-border-radius-003.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip-root.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip_padding-box.html` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background_color_padding_box.htm` | unsupported | background-clip box geometry | background-clip box geometry and rounded-corner propagation are not fully implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area-border-image.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area-border-shape-background-position.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area-border-shape-overflow.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area-border-shape.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-box_with_position.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-border-box_with_radius.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-border-box_with_size.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-border-box.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-border-shape-table-part-background.html` | unsupported | table-part background clipping | Table-part background clipping with border-shape interaction still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-content-box.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-content-box_with_radius.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-content-box_with_position.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-content-box_with_size.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-padding-box.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-padding-box_with_position.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-padding-box_with_radius.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-padding-box_with_size.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-border-area-box-decoration-break.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area-on-body-not-propagated-to-root.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area-corner-shape.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-border-area-text.html` | unsupported | background-clip:border-area | background-clip:border-area and its related border-shape variations are not implemented yet. |
-| `css/css-backgrounds/background-clip/clip-rounded-corner.html` | unsupported | background-clip box geometry | Complex background-clip box geometry with radius, position, and size variations still mismatches Chromium. |
-| `css/css-backgrounds/background-clip/clip-text-background-table-cell.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-descendants.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-ellipsis.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-flex.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-inline.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-inline-block-child.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-multi-line.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-multiline-linebreak.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-multiline-background-image.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-out-of-flow-child.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-stacking-context-child.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-relative-child.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-text-align.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-text-decorations.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-text-emphasis.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-transform.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-on-body-not-propagated-to-root.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-scaled.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-constrain-geometry.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-fragmentation.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background-clip/clip-text-blend-mode.html` | unsupported | background-clip:text | background-clip:text and its inline, fragmentation, and body-propagation variants are not supported yet. |
-| `css/css-backgrounds/background_properties_greater_than_images.htm` | unsupported | background layer list expansion | Layer list expansion when background properties outnumber background images still mismatches Chromium. |
-| `css/css-backgrounds/background_repeat_space_border_box.htm` | unsupported | background-repeat: space | background-repeat: space is not supported yet. |
-| `css/css-backgrounds/background_repeat_space_content_box.htm` | unsupported | background-repeat: space | background-repeat: space is not supported yet. |
 <!-- END: non-js-wpt-exclusions -->
+
+### Newly enabled features and testcases
+
+The following CSS background features and their corresponding WPT testcases were previously excluded and are now enabled:
+
+| Feature | Test count | Implementation notes |
+| --- | --- | --- |
+| background-attachment fixed/local edge cases | 9 | Fixed and local attachment positioning is implemented in `PaintWalker.EmitBackgroundImageLayer`. |
+| background-clip box geometry (padding-box, content-box, border-box) | 35 | Clip rectangle computation is implemented in `PaintWalker.GetBackgroundClipRect` and rounded-corner clipping in `TryCreateRoundedBackgroundClipItem`. |
+| background-clip: border-area | 9 | Border-area rendering is implemented via `PaintWalker.EmitBorderAreaBorder`. A bug in `GetEffectiveBackgroundClip` that incorrectly mapped `border-area` to `border-box` (making the border-area code path unreachable) was fixed as part of this change. |
+| background-clip: text | 21 | Text clip detection suppresses normal background painting and propagates the background color to descendant text shapes. |
+| background-repeat: space | 2 | Space repeat tiling is implemented in `RGraphicsRasterBackend.DrawSpace` with even gap distribution. |
+| body-to-root background propagation | 2 | Canvas background propagation follows CSS2.1 §14.2 in `PaintWalker.EmitCanvasBackground`. |
+| rounded inline background painting | 1 | Inline elements use per-line-box paint rects with rounded-corner clipping. |
+| table-part background clipping | 1 | Table-part backgrounds are clipped using the standard background-clip pipeline. |
+| background layer list expansion | 1 | Multi-layer background properties use modular indexing when property lists exceed the image count. |
+| background painting edge case | 1 | Previously marked as unstable; now included in the standard test run. |
 
 ## Status publication
 
