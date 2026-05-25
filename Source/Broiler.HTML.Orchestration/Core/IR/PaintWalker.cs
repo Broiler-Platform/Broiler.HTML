@@ -3281,44 +3281,61 @@ internal static class PaintWalker
         var parts = argsStr.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var result = new List<float>(parts.Length);
 
-        foreach (var part in parts)
+        for (int idx = 0; idx < parts.Length; idx++)
         {
-            string p = part.Trim();
-            if (p.EndsWith("deg", StringComparison.OrdinalIgnoreCase))
-            {
-                if (float.TryParse(p.AsSpan(0, p.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float deg))
-                    result.Add(deg * MathF.PI / 180f);
-            }
-            else if (p.EndsWith("rad", StringComparison.OrdinalIgnoreCase))
-            {
-                if (float.TryParse(p.AsSpan(0, p.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float rad))
-                    result.Add(rad);
-            }
-            else if (p.EndsWith("grad", StringComparison.OrdinalIgnoreCase))
-            {
-                if (float.TryParse(p.AsSpan(0, p.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float grad))
-                    result.Add(grad * MathF.PI / 200f);
-            }
-            else if (p.EndsWith("turn", StringComparison.OrdinalIgnoreCase))
-            {
-                if (float.TryParse(p.AsSpan(0, p.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float turn))
-                    result.Add(turn * 2f * MathF.PI);
-            }
-            else if (p.EndsWith('%'))
-            {
-                if (float.TryParse(p.AsSpan(0, p.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
-                    result.Add(pct / 100f * bounds.Width); // approximate: use width for first axis
-            }
-            else
-            {
-                // Strip optional 'px' suffix
-                string numStr = p.EndsWith("px", StringComparison.OrdinalIgnoreCase)
-                    ? p[..^2] : p;
-                if (float.TryParse(numStr, NumberStyles.Float, CultureInfo.InvariantCulture, out float val))
-                    result.Add(val);
-            }
+            string p = parts[idx];
+            if (TryParseAngleOrLength(p, bounds, idx, out float val))
+                result.Add(val);
         }
 
         return result.ToArray();
+    }
+
+    /// <summary>
+    /// Parses a single CSS transform argument value, handling angle units
+    /// (deg, rad, grad, turn), length units (px, %), and plain numbers.
+    /// For percentage values, <paramref name="argIndex"/> determines whether
+    /// to reference <c>bounds.Width</c> (even indices) or <c>bounds.Height</c>
+    /// (odd indices), matching the CSS spec for translate(x,y).
+    /// </summary>
+    private static bool TryParseAngleOrLength(string p, RectangleF bounds, int argIndex, out float result)
+    {
+        result = 0;
+        if (p.EndsWith("deg", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!float.TryParse(p.AsSpan(0, p.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float deg))
+                return false;
+            result = deg * MathF.PI / 180f;
+            return true;
+        }
+        if (p.EndsWith("rad", StringComparison.OrdinalIgnoreCase))
+            return float.TryParse(p.AsSpan(0, p.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out result);
+        if (p.EndsWith("grad", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!float.TryParse(p.AsSpan(0, p.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float grad))
+                return false;
+            result = grad * MathF.PI / 200f;
+            return true;
+        }
+        if (p.EndsWith("turn", StringComparison.OrdinalIgnoreCase))
+        {
+            if (!float.TryParse(p.AsSpan(0, p.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float turn))
+                return false;
+            result = turn * 2f * MathF.PI;
+            return true;
+        }
+        if (p.EndsWith('%'))
+        {
+            if (!float.TryParse(p.AsSpan(0, p.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
+                return false;
+            float refDim = (argIndex % 2 == 0) ? bounds.Width : bounds.Height;
+            result = pct / 100f * refDim;
+            return true;
+        }
+
+        // Strip optional 'px' suffix
+        ReadOnlySpan<char> numSpan = p.EndsWith("px", StringComparison.OrdinalIgnoreCase)
+            ? p.AsSpan(0, p.Length - 2) : p.AsSpan();
+        return float.TryParse(numSpan, NumberStyles.Float, CultureInfo.InvariantCulture, out result);
     }
 }
