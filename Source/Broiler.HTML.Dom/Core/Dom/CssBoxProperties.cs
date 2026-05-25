@@ -1232,10 +1232,11 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         {
             if (double.IsNaN(_actualLineHeight))
             {
-                // CSS2.1 §10.8: "normal" line-height uses a UA-chosen value,
-                // typically about 1.2 × font-size.
+                // CSS2.1 §10.8: "normal" line-height uses a UA-chosen value.
+                // Prefer the font's own line metrics so layout matches browser
+                // line boxes more closely than a fixed 1.2× fallback.
                 if (LineHeight == "normal" || string.IsNullOrEmpty(LineHeight))
-                    _actualLineHeight = GetEmHeight() * 1.2;
+                    _actualLineHeight = GetNormalLineHeight();
                 else
                     _actualLineHeight = ParseLineHeightLength(LineHeight, Size.Height);
             }
@@ -1329,7 +1330,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
 
     private double ParseLineHeightLength(string length, double hundredPercent)
     {
-        var parentLineHeight = GetParent()?.ActualLineHeight ?? GetEmHeight() * 1.2;
+        var parentLineHeight = GetParent()?.ActualLineHeight ?? GetNormalLineHeight();
         return CssValueParser.ParseLength(
             length,
             hundredPercent,
@@ -1352,7 +1353,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
             return _actualLineHeight;
 
         if (LineHeight == "normal" || string.IsNullOrEmpty(LineHeight))
-            return GetEmHeight() * 1.2;
+            return GetNormalLineHeight();
 
         return CssValueParser.ParseLength(
             LineHeight,
@@ -1361,8 +1362,14 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
             null,
             false,
             false,
-            GetEmHeight() * 1.2,
-            GetEmHeight() * 1.2);
+            GetNormalLineHeight(),
+            GetNormalLineHeight());
+    }
+
+    private double GetNormalLineHeight()
+    {
+        double fontHeight = ActualFont.Height * (96.0 / 72.0);
+        return fontHeight > 0 ? fontHeight : GetEmHeight() * 1.2;
     }
 
     private double GetRootEmHeight()
