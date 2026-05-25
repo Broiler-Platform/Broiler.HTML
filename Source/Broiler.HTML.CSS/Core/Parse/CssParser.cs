@@ -47,6 +47,7 @@ internal sealed class CssParser
             ParseStyleBlocks(cssData, StripAtRules(stylesheet));
             ParseMediaStyleBlocks(cssData, stylesheet);
             ParseFontFaceBlocks(cssData, stylesheet);
+            ParseKeyframeBlocks(cssData, stylesheet);
         }
     }
 
@@ -338,6 +339,114 @@ internal sealed class CssParser
             {
                 cssData.FontFaces.Add(new CssFontFace { Family = family, Src = src });
             }
+        }
+    }
+
+    /// <summary>
+    /// Extracts <c>@keyframes</c> rules from the stylesheet and stores them
+    /// in <see cref="CssData.Keyframes"/> for later animation resolution.
+    /// </summary>
+    private void ParseKeyframeBlocks(CssData cssData, string stylesheet)
+    {
+        int startIdx = 0;
+        string atrule;
+
+        while ((atrule = RegexParserUtils.GetCssAtRules(stylesheet, ref startIdx)) != null)
+        {
+            if (!atrule.StartsWith("@keyframes", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            // Extract the animation name from "@keyframes <name> { ... }"
+            int nameStart = "@keyframes".Length;
+            while (nameStart < atrule.Length && char.IsWhiteSpace(atrule[nameStart]))
+                nameStart++;
+
+            int braceOpen = atrule.IndexOf('{');
+            if (braceOpen < 0 || nameStart >= braceOpen)
+                continue;
+
+            string animName = atrule.Substring(nameStart, braceOpen - nameStart).Trim().Trim('"', '\'');
+            if (string.IsNullOrEmpty(animName))
+                continue;
+
+            // Find the outermost body (between first '{' and matching '}')
+            int braceClose = atrule.LastIndexOf('}');
+            if (braceClose <= braceOpen)
+                continue;
+
+            string body = atrule.Substring(braceOpen + 1, braceClose - braceOpen - 1);
+
+            var stops = new List<CssKeyframeStop>();
+            ParseKeyframeStops(body, stops);
+
+            if (stops.Count > 0)
+            {
+                stops.Sort((a, b) => a.Offset.CompareTo(b.Offset));
+                cssData.Keyframes[animName] = new CssKeyframeRule
+                {
+                    Name = animName,
+                    Stops = stops
+                };
+            }
+        }
+    }
+
+    /// <summary>
+    /// Parses individual keyframe stops (e.g. "0% { ... } 100% { ... }")
+    /// from the body of a <c>@keyframes</c> rule.
+    /// </summary>
+    private void ParseKeyframeStops(string body, List<CssKeyframeStop> stops)
+    {
+        int pos = 0;
+        while (pos < body.Length)
+        {
+            // Find the next '{' which starts a keyframe block
+            int openBrace = body.IndexOf('{', pos);
+            if (openBrace < 0)
+                break;
+
+            // The selector part before '{' contains the offset(s)
+            string selector = body.Substring(pos, openBrace - pos).Trim();
+
+            // Find the matching '}'
+            int closeBrace = body.IndexOf('}', openBrace + 1);
+            if (closeBrace < 0)
+                break;
+
+            string blockBody = body.Substring(openBrace + 1, closeBrace - openBrace - 1);
+            var (properties, _) = ParseCssBlockProperties(blockBody);
+
+            // The background shorthand may need expanding
+            if (properties.Count > 0)
+            {
+                // Parse offsets (can be comma-separated, e.g. "0%, 50%")
+                foreach (var part in selector.Split(',', StringSplitOptions.RemoveEmptyEntries))
+                {
+                    string trimmed = part.Trim();
+                    double offset;
+
+                    if (trimmed.Equals("from", StringComparison.OrdinalIgnoreCase))
+                        offset = 0.0;
+                    else if (trimmed.Equals("to", StringComparison.OrdinalIgnoreCase))
+                        offset = 1.0;
+                    else if (trimmed.EndsWith('%') && double.TryParse(
+                        trimmed.AsSpan(0, trimmed.Length - 1),
+                        System.Globalization.NumberStyles.Float,
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        out double pct))
+                        offset = pct / 100.0;
+                    else
+                        continue;
+
+                    stops.Add(new CssKeyframeStop
+                    {
+                        Offset = offset,
+                        Properties = new Dictionary<string, string>(properties, StringComparer.OrdinalIgnoreCase)
+                    });
+                }
+            }
+
+            pos = closeBrace + 1;
         }
     }
 
@@ -1047,6 +1156,19 @@ internal sealed class CssParser
                         properties["column-count"] = "auto";
                 }
                 break;
+            case "animation":
+                ParseAnimationShorthand(propValue, properties);
+                break;
+            case "animation-name":
+            case "animation-duration":
+            case "animation-timing-function":
+            case "animation-delay":
+            case "animation-iteration-count":
+            case "animation-direction":
+            case "animation-fill-mode":
+            case "animation-play-state":
+                properties[propName] = propValue;
+                break;
             default:
                 // CSS2.1 §4.1.8: Ignore declarations with illegal values.
                 // Validate enumerated CSS properties to reject unknown keywords
@@ -1211,7 +1333,7 @@ internal sealed class CssParser
         "font" or "border" or "border-left" or "border-top" or "border-right" or
         "border-bottom" or "border-inline" or "border-block" or
         "margin" or "border-style" or "border-width" or
-        "border-color" or "padding" or "background" or "columns" => true,
+        "border-color" or "padding" or "background" or "columns" or "animation" => true,
         _ => false
     };
 
@@ -1681,6 +1803,153 @@ internal sealed class CssParser
     {
         if (_valueParser.IsColorValid(propValue))
             properties[propName] = propValue;
+    }
+
+    /// <summary>
+    /// Parses the CSS <c>animation</c> shorthand into its longhand components.
+    /// CSS Animations §3: animation: name duration timing-function delay
+    /// iteration-count direction fill-mode play-state
+    /// </summary>
+    private static void ParseAnimationShorthand(string propValue, Dictionary<string, string> properties)
+    {
+        if (string.IsNullOrWhiteSpace(propValue) ||
+            propValue.Equals("none", StringComparison.OrdinalIgnoreCase))
+        {
+            properties["animation-name"] = "none";
+            return;
+        }
+
+        // Tokenize respecting parenthesised groups (e.g. cubic-bezier(...))
+        var tokens = SplitAnimationTokens(propValue);
+
+        string name = null;
+        string duration = null;
+        string timingFunction = null;
+        string delay = null;
+        string iterationCount = null;
+        string direction = null;
+        string fillMode = null;
+        string playState = null;
+
+        foreach (var token in tokens)
+        {
+            var lower = token.ToLowerInvariant();
+
+            // Timing function: cubic-bezier(...), steps(...), or keyword
+            if (lower.StartsWith("cubic-bezier(") || lower.StartsWith("steps("))
+            {
+                timingFunction ??= token;
+            }
+            else if (lower is "ease" or "ease-in" or "ease-out" or "ease-in-out"
+                     or "linear" or "step-start" or "step-end")
+            {
+                timingFunction ??= lower;
+            }
+            // Direction keywords
+            else if (lower is "normal" or "reverse" or "alternate" or "alternate-reverse")
+            {
+                direction ??= lower;
+            }
+            // Fill-mode keywords
+            else if (lower is "forwards" or "backwards" or "both")
+            {
+                fillMode ??= lower;
+            }
+            // Play-state keywords
+            else if (lower is "running" or "paused")
+            {
+                playState ??= lower;
+            }
+            // Iteration count
+            else if (lower == "infinite")
+            {
+                iterationCount ??= lower;
+            }
+            // Duration or delay (time values): first is duration, second is delay
+            else if (IsTimeLiteral(lower))
+            {
+                if (duration == null)
+                    duration = lower;
+                else
+                    delay ??= lower;
+            }
+            // Numeric iteration count
+            else if (double.TryParse(lower, System.Globalization.NumberStyles.Float,
+                         System.Globalization.CultureInfo.InvariantCulture, out _))
+            {
+                iterationCount ??= lower;
+            }
+            // Remaining unrecognised token is the animation name
+            else
+            {
+                name ??= token;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(name))
+            properties["animation-name"] = name;
+        if (!string.IsNullOrEmpty(duration))
+            properties["animation-duration"] = duration;
+        if (!string.IsNullOrEmpty(timingFunction))
+            properties["animation-timing-function"] = timingFunction;
+        if (!string.IsNullOrEmpty(delay))
+            properties["animation-delay"] = delay;
+        if (!string.IsNullOrEmpty(iterationCount))
+            properties["animation-iteration-count"] = iterationCount;
+        if (!string.IsNullOrEmpty(direction))
+            properties["animation-direction"] = direction;
+        if (!string.IsNullOrEmpty(fillMode))
+            properties["animation-fill-mode"] = fillMode;
+        if (!string.IsNullOrEmpty(playState))
+            properties["animation-play-state"] = playState;
+    }
+
+    /// <summary>
+    /// Checks whether a string is a CSS time literal (e.g. "500ms", "1.5s", "-500000s").
+    /// </summary>
+    private static bool IsTimeLiteral(string value)
+    {
+        if (value.EndsWith("ms"))
+            return double.TryParse(value.AsSpan(0, value.Length - 2),
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out _);
+        if (value.EndsWith('s'))
+            return double.TryParse(value.AsSpan(0, value.Length - 1),
+                System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out _);
+        return false;
+    }
+
+    /// <summary>
+    /// Splits an animation shorthand value into whitespace-separated tokens,
+    /// respecting parenthesised groups (e.g. cubic-bezier(0,1,1,0)).
+    /// </summary>
+    private static string[] SplitAnimationTokens(string value)
+    {
+        var parts = new List<string>();
+        var sb = new System.Text.StringBuilder();
+        int depth = 0;
+        foreach (char c in value)
+        {
+            if (c == '(') depth++;
+            else if (c == ')' && depth > 0) depth--;
+
+            if (char.IsWhiteSpace(c) && depth == 0)
+            {
+                if (sb.Length > 0)
+                {
+                    parts.Add(sb.ToString());
+                    sb.Clear();
+                }
+            }
+            else
+            {
+                sb.Append(c);
+            }
+        }
+        if (sb.Length > 0)
+            parts.Add(sb.ToString());
+        return parts.ToArray();
     }
 
     /// <summary>
