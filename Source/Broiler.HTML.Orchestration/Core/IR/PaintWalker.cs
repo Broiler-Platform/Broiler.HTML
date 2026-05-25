@@ -1032,10 +1032,6 @@ internal static class PaintWalker
                 emFactor: DefaultFontSize,
                 defaultUnit: null);
         }
-        else if (style.ActualLineHeight > 0)
-        {
-            fontSize = (float)(style.ActualLineHeight / DefaultLineHeightMultiplier);
-        }
         else
         {
             // ParseFontSize returns values in CSS points (matching CssConstants.FontSize = 12pt).

@@ -88,17 +88,21 @@ internal sealed class FontAdapter : RFont
         if (_height >= 0 && _underlineOffset >= 0)
             return;
 
+        var compatMetrics = _fontCompatFactory.GetMetrics(Font);
+
         if (TryGetBroilerLayoutFont(out var broilerFont))
         {
             var broilerMetrics = broilerFont.FontMetrics;
             var vertical = broilerMetrics.VerticalMetrics;
             float scale = broilerFont.Size / broilerMetrics.UnitsPerEm;
-            _height = vertical.LineHeight * scale;
+            // Keep underline placement tied to the resolved font metadata, but
+            // use the compatibility font metrics for line-height so layout
+            // matches the raster/text-measurement backend used elsewhere.
+            _height = compatMetrics.Height;
             _underlineOffset = (vertical.Ascender - broilerMetrics.UnderlinePosition) * scale;
             return;
         }
 
-        var compatMetrics = _fontCompatFactory.GetMetrics(Font);
         _height = compatMetrics.Height;
         _underlineOffset = compatMetrics.UnderlineOffset;
     }
