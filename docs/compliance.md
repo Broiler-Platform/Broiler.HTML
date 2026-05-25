@@ -36,6 +36,7 @@ The CI workflow now uses that manifest in two ways:
 <!-- BEGIN: non-js-wpt-exclusions -->
 | Test path | Category | Feature / aspect | Reason for exclusion |
 | --- | --- | --- | --- |
+| `css/css-backgrounds/animations/background-color-animation-field-crash.html` | unsupported | CSS animation color interpolation | Static-frame color interpolation for background-color animations still produces a ColorShift mismatch against Chromium. |
 | `css/css-backgrounds/background-attachment-fixed-inside-transform-1.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
 | `css/css-backgrounds/background-attachment-fixed-border-radius-offset.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
 | `css/css-backgrounds/background-attachment-fixed.html` | unsupported | background-attachment fixed/local edge cases | Broiler.HTML still mismatches Chromium on fixed/local attachment positioning and related root-scroller propagation cases. |
