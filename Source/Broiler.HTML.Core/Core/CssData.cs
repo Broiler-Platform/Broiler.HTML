@@ -15,6 +15,9 @@ public sealed class CssData
     /// <summary>Parsed @font-face rules from the stylesheet.</summary>
     public List<CssFontFace> FontFaces { get; } = new();
 
+    /// <summary>Parsed @keyframes rules from the stylesheet, keyed by animation name.</summary>
+    public Dictionary<string, CssKeyframeRule> Keyframes { get; } = new(StringComparer.OrdinalIgnoreCase);
+
     internal IDictionary<string, Dictionary<string, List<CssBlock>>> MediaBlocks => _mediaBlocks;
 
     public bool ContainsCssBlock(string className, string media = "all") => _mediaBlocks.TryGetValue(media, out Dictionary<string, List<CssBlock>> mid) && mid.ContainsKey(className);
@@ -99,6 +102,9 @@ public sealed class CssData
         }
 
         FontFaces.AddRange(other.FontFaces);
+
+        foreach (var kf in other.Keyframes)
+            Keyframes[kf.Key] = kf.Value;
     }
 
     public CssData Clone()
@@ -119,6 +125,8 @@ public sealed class CssData
             clone._mediaBlocks[mid.Key] = cloneMid;
         }
         clone.FontFaces.AddRange(FontFaces);
+        foreach (var kf in Keyframes)
+            clone.Keyframes[kf.Key] = kf.Value;
 
         return clone;
     }

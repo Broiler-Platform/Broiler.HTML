@@ -256,6 +256,12 @@ internal sealed class DomParser
             box.TextDecoration = string.Empty;
         }
 
+        // CSS Animations §3: Resolve animation keyframe values for static
+        // rendering.  After all CSS rules and inline styles are applied,
+        // check if the box has an animation-name that references a known
+        // @keyframes rule and apply the computed animated values.
+        CssAnimationResolver.ResolveAnimations(box, cssData);
+
         foreach (var childBox in box.Boxes)
             CascadeApplyStyles(childBox, cssData, baseUrl);
 

@@ -412,6 +412,16 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     public string BackgroundGradient { get; set; } = "none";
     public string BackgroundGradientAngle { get; set; } = "90";
 
+    // CSS Animations §3: Animation properties for static keyframe resolution.
+    public string AnimationName { get; set; } = "none";
+    public string AnimationDuration { get; set; } = "0s";
+    public string AnimationTimingFunction { get; set; } = "ease";
+    public string AnimationDelay { get; set; } = "0s";
+    public string AnimationIterationCount { get; set; } = "1";
+    public string AnimationDirection { get; set; } = "normal";
+    public string AnimationFillMode { get; set; } = "none";
+    public string AnimationPlayState { get; set; } = "running";
+
     public string Color
     {
         get { return ResolveCssVariables(_color); }

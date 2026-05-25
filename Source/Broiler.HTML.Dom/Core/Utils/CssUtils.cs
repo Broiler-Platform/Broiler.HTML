@@ -520,6 +520,30 @@ internal static class CssUtils
             case "z-index":
                 cssBox.ZIndex = value;
                 break;
+            case "animation-name":
+                cssBox.AnimationName = value;
+                break;
+            case "animation-duration":
+                cssBox.AnimationDuration = value;
+                break;
+            case "animation-timing-function":
+                cssBox.AnimationTimingFunction = value;
+                break;
+            case "animation-delay":
+                cssBox.AnimationDelay = value;
+                break;
+            case "animation-iteration-count":
+                cssBox.AnimationIterationCount = value;
+                break;
+            case "animation-direction":
+                cssBox.AnimationDirection = value;
+                break;
+            case "animation-fill-mode":
+                cssBox.AnimationFillMode = value;
+                break;
+            case "animation-play-state":
+                cssBox.AnimationPlayState = value;
+                break;
         }
     }
 
