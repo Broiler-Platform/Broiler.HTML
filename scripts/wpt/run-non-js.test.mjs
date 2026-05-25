@@ -321,7 +321,7 @@ test('getChromiumScreenshotOptions keeps CSS animation references live', () => {
 test('non-JS WPT exclusion manifest contains unique documented paths', async () => {
   const exclusions = await readNonJsExclusionManifest(path.join(repositoryRoot, 'scripts', 'wpt', 'non-js-exclusions.json'));
 
-  assert.equal(exclusions.length, 5);
+  assert.equal(exclusions.length, 0);
 });
 
 test('non-JS WPT workflow inventories the full non-JS corpus and applies the documented exclusion manifest', async () => {

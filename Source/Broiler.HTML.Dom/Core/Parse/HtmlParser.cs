@@ -198,12 +198,38 @@ internal static class HtmlParser
         var headBox = CssBoxHelper.CreateBox(new HtmlTag("head", false), baseUrl, htmlBox);
         headBox.Display = CssConstants.None;
 
-        var bodyBox = CssBoxHelper.CreateBox(new HtmlTag("body", false), baseUrl, htmlBox);
-        bodyBox.Display = CssConstants.Block;
+        // If one of the original children is already an explicit <body>,
+        // reuse it instead of creating a new wrapper.  This prevents the
+        // double-body nesting (implicit body wrapping explicit body) that
+        // causes margins/padding to be applied twice.
+        CssBox bodyBox = null;
+        foreach (var child in children)
+        {
+            if (child.HtmlTag != null &&
+                child.HtmlTag.Name.Equals("body", StringComparison.OrdinalIgnoreCase))
+            {
+                bodyBox = child;
+                break;
+            }
+        }
+
+        if (bodyBox == null)
+        {
+            bodyBox = CssBoxHelper.CreateBox(new HtmlTag("body", false), baseUrl, htmlBox);
+            bodyBox.Display = CssConstants.Block;
+        }
+        else
+        {
+            bodyBox.ParentBox = htmlBox;
+        }
 
         // Sort original children into head vs body content.
         foreach (var child in children)
         {
+            // Skip the explicit <body> — it is already parented above.
+            if (child == bodyBox)
+                continue;
+
             bool isHeadContent = child.HtmlTag != null &&
                 _headElements.Contains(child.HtmlTag.Name);
 

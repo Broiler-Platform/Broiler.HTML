@@ -33,16 +33,11 @@ The CI workflow now uses that manifest in two ways:
 1. `--scan-only` inventories the entire discoverable non-JS WPT corpus from the prepared upstream checkout and writes a summary artifact that lists the selected in-scope test set after exclusions.
 2. The focused render/diff step reuses the same manifest so the checked-in documentation and the executed exclusions cannot drift apart silently.
 
-The following 5 non-JS WPT cases are currently excluded due to MissingContent mismatches in css/css-backgrounds.
+There are currently no excluded non-JS WPT cases.
 
 <!-- BEGIN: non-js-wpt-exclusions -->
 | Test path | Category | Feature / aspect | Reason for exclusion |
 | --- | --- | --- | --- |
-| `css/css-backgrounds/animations/background-color-animation-with-images.html` | MissingContent | background-color animation with images | Missing content mismatch — background↔content transitions indicate missing or extra elements. |
-| `css/css-backgrounds/background-attachment-fixed.html` | MissingContent | background-attachment: fixed | Missing content mismatch — background↔content transitions indicate missing or extra elements. |
-| `css/css-backgrounds/background_properties_greater_than_images.htm` | MissingContent | background properties exceeding image count | Missing content mismatch — background↔content transitions indicate missing or extra elements. |
-| `css/css-backgrounds/background_repeat_space_border_box.htm` | MissingContent | background-repeat: space (border-box) | Missing content mismatch — background↔content transitions indicate missing or extra elements. |
-| `css/css-backgrounds/background_repeat_space_content_box.htm` | MissingContent | background-repeat: space (content-box) | Missing content mismatch — background↔content transitions indicate missing or extra elements. |
 <!-- END: non-js-wpt-exclusions -->
 
 ### Newly enabled features and testcases
