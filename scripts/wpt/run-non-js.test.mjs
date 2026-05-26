@@ -46,7 +46,7 @@ test('createSummaryMarkdown tolerates failures without diff ratios', () => {
     wptRoot: '/tmp/wpt',
     outputRoot: '/tmp/out',
     viewport: { width: 800, height: 600 },
-    thresholds: { pixelDiffThreshold: 0.001, colorTolerance: 5 },
+    thresholds: { pixelDiffThreshold: 0.01, colorTolerance: 5 },
     timeouts: { perTestMs: 30000 },
     totalCandidates: 1,
     passedCount: 0,
@@ -75,6 +75,10 @@ test('parseArguments reads timeout from the environment and lets CLI arguments o
 
   assert.equal(parseArguments([], env).testTimeoutMs, 45000);
   assert.equal(parseArguments(['--test-timeout-ms', '12000'], env).testTimeoutMs, 12000);
+});
+
+test('parseArguments uses a 1% pixel diff threshold by default', () => {
+  assert.equal(parseArguments([]).pixelDiffThreshold, 0.01);
 });
 
 test('parseArguments collects repeated include and exclude filters', () => {
@@ -188,7 +192,7 @@ test('createSummaryMarkdown labels timed out cases explicitly', () => {
     wptRoot: '/tmp/wpt',
     outputRoot: '/tmp/out',
     viewport: { width: 800, height: 600 },
-    thresholds: { pixelDiffThreshold: 0.001, colorTolerance: 5 },
+    thresholds: { pixelDiffThreshold: 0.01, colorTolerance: 5 },
     timeouts: { perTestMs: 30000 },
     totalCandidates: 1,
     passedCount: 0,
@@ -220,7 +224,7 @@ test('createSummaryMarkdown truncates large JavaScript skip lists in markdown ou
     wptRoot: '/tmp/wpt',
     outputRoot: '/tmp/out',
     viewport: { width: 800, height: 600 },
-    thresholds: { pixelDiffThreshold: 0.001, colorTolerance: 5 },
+    thresholds: { pixelDiffThreshold: 0.01, colorTolerance: 5 },
     timeouts: { perTestMs: 30000 },
     totalCandidates: 1,
     passedCount: 1,
