@@ -398,39 +398,47 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         {
             case Border.Top:
                 g.DrawRectangle(brush, bounds.Left, bounds.Top, bounds.Width, topLine);
+                // Inner stripe spans from the left side's inner border outer edge to the
+                // right side's inner border outer edge, so the corner areas are covered.
                 g.DrawRectangle(
                     brush,
                     bounds.Left + (widths.Left - leftLine),
                     bounds.Top + (widths.Top - topLine),
-                    Math.Max(0, bounds.Width - (widths.Left - leftLine) - leftLine - (widths.Right - rightLine) - rightLine),
+                    Math.Max(0, bounds.Width - (widths.Left - leftLine) - (widths.Right - rightLine)),
                     topLine);
                 break;
             case Border.Right:
                 g.DrawRectangle(brush, bounds.Right - rightLine, bounds.Top, rightLine, bounds.Height);
+                // Inner stripe spans from the top side's inner border outer edge to the
+                // bottom side's inner border outer edge, so the corner areas are covered.
                 g.DrawRectangle(
                     brush,
                     bounds.Right - widths.Right,
                     bounds.Top + (widths.Top - topLine),
                     rightLine,
-                    Math.Max(0, bounds.Height - (widths.Top - topLine) - topLine - (widths.Bottom - bottomLine) - bottomLine));
+                    Math.Max(0, bounds.Height - (widths.Top - topLine) - (widths.Bottom - bottomLine)));
                 break;
             case Border.Bottom:
                 g.DrawRectangle(brush, bounds.Left, bounds.Bottom - bottomLine, bounds.Width, bottomLine);
+                // Inner stripe spans from the left side's inner border outer edge to the
+                // right side's inner border outer edge, so the corner areas are covered.
                 g.DrawRectangle(
                     brush,
                     bounds.Left + (widths.Left - leftLine),
                     bounds.Bottom - widths.Bottom,
-                    Math.Max(0, bounds.Width - (widths.Left - leftLine) - leftLine - (widths.Right - rightLine) - rightLine),
+                    Math.Max(0, bounds.Width - (widths.Left - leftLine) - (widths.Right - rightLine)),
                     bottomLine);
                 break;
             case Border.Left:
                 g.DrawRectangle(brush, bounds.Left, bounds.Top, leftLine, bounds.Height);
+                // Inner stripe spans from the top side's inner border outer edge to the
+                // bottom side's inner border outer edge, so the corner areas are covered.
                 g.DrawRectangle(
                     brush,
                     bounds.Left + (widths.Left - leftLine),
                     bounds.Top + (widths.Top - topLine),
                     leftLine,
-                    Math.Max(0, bounds.Height - (widths.Top - topLine) - topLine - (widths.Bottom - bottomLine) - bottomLine));
+                    Math.Max(0, bounds.Height - (widths.Top - topLine) - (widths.Bottom - bottomLine)));
                 break;
         }
     }
