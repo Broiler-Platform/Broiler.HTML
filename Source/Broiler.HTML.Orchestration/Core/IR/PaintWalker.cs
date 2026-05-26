@@ -1938,7 +1938,15 @@ internal static class PaintWalker
         if (string.IsNullOrEmpty(backgroundClip))
             return "border-box";
 
-        return backgroundClip;
+        var clips = SplitOnTopLevelCommas(backgroundClip);
+        if (clips.Count == 0)
+            return "border-box";
+
+        // CSS backgrounds paint the background color using the clip box of the
+        // bottom-most background layer, which is the last value in the
+        // comma-separated background-clip list.
+        var effectiveClip = clips[^1].Trim();
+        return string.IsNullOrEmpty(effectiveClip) ? "border-box" : effectiveClip;
     }
 
     private static bool TryCreateInsetClipPathItem(Fragment fragment, RectangleF bounds, out ClipItem clipItem)

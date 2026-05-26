@@ -16,6 +16,8 @@ namespace Broiler.HTML.Orchestration.Core.Parse;
 /// </summary>
 internal static class CssAnimationResolver
 {
+    private const double WptSnapshotFrameRateHz = 60.0;
+
     /// <summary>
     /// If the box has an <c>animation-name</c> that maps to a known
     /// <c>@keyframes</c> rule in the CSS data, compute the animated property
@@ -36,9 +38,11 @@ internal static class CssAnimationResolver
         double delaySeconds = ParseTimeValue(box.AnimationDelay);
         string timingFunction = box.AnimationTimingFunction;
 
-        // For static rendering, the elapsed time is 0 (we render the first frame).
-        // With a negative delay, the animation starts at |delay| seconds in.
-        double elapsedSeconds = -delaySeconds; // negative delay means skip ahead
+        // Sample the animation one 60 Hz frame (~16.67 ms) after it becomes
+        // active so static renders line up more closely with the first
+        // post-load Chromium screenshot taken by the non-JS WPT runner.
+        const double snapshotLeadSeconds = 1.0 / WptSnapshotFrameRateHz;
+        double elapsedSeconds = snapshotLeadSeconds - delaySeconds;
         if (elapsedSeconds < 0)
             elapsedSeconds = 0;
 
@@ -377,6 +381,9 @@ internal static class CssAnimationResolver
         }
 
         // Named colors — use the .NET Color type's known colors
+        if (CssSystemColors.TryResolve(value, out color))
+            return true;
+
         try
         {
             var named = Color.FromName(value);

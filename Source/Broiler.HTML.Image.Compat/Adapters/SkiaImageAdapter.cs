@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Core.Core;
 using SkiaSharp;
 
 namespace Broiler.HTML.Image.Adapters;
@@ -75,6 +76,9 @@ internal sealed class SkiaImageAdapter : RAdapter
     protected override Color GetColorInt(string colorName)
     {
         if (TryParseHexColor(colorName, out var color))
+            return color;
+
+        if (CssSystemColors.TryResolve(colorName, out color))
             return color;
 
         // Fallback: try common color names (CSS 2.1 basic + CSS Color Level 3 extended)
