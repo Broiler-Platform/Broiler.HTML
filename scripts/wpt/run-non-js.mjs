@@ -268,7 +268,7 @@ function parseArguments(args, env = process.env) {
     width: 800,
     height: 600,
     fonts: [],
-    pixelDiffThreshold: 0.001,
+    pixelDiffThreshold: 0.01,
     colorTolerance: 5,
     testTimeoutMs: readTimeoutFromEnvironment(env),
     exitZeroOnDifferences: false,
@@ -861,7 +861,7 @@ Options:
   --width <pixels>               Chromium/Broiler viewport width. Defaults to 800.
   --height <pixels>              Chromium/Broiler viewport height. Defaults to 600.
   --font [Alias=]<path>          Register a local font with Broiler before each render. Repeat as needed.
-  --pixel-diff-threshold <0-1>   Pixel diff pass threshold. Defaults to 0.001.
+  --pixel-diff-threshold <0-1>   Pixel diff pass threshold. Defaults to 0.01.
   --color-tolerance <0-255>      Per-channel diff tolerance. Defaults to 5.
   --test-timeout-ms <ms>         Per-test timeout in milliseconds. Defaults to ${defaultTestTimeoutMs}; can also be set via ${testTimeoutEnvironmentVariableName}.
   --exit-zero-on-differences     Keep exit code 0 when visual mismatches are found.

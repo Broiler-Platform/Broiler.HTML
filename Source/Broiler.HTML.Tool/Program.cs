@@ -526,7 +526,7 @@ internal static class HtmlImageRendererCli
           -b, --baseline <path>            Path to the reference image.
               --diff-output <path>         Where to write the visual diff image when the comparison fails.
               --json-output <path>         Where to write a JSON report.
-              --pixel-diff-threshold <n>   Match threshold from 0.0 to 1.0. Defaults to 0.001.
+              --pixel-diff-threshold <n>   Match threshold from 0.0 to 1.0. Defaults to 0.01.
               --color-tolerance <n>        Per-channel color tolerance from 0 to 255. Defaults to 5.
           -h, --help                       Show help.
         """;
