@@ -71,6 +71,8 @@ internal sealed class SkiaPaintCompatFactory : IPaintCompatFactory
         DashStyle.Solid => null,
         DashStyle.Dash => strokeWidth < 2f
             ? SKPathEffect.CreateDash([4f, 4f], 0)
+            // Match Chromium's dashed border cadence more closely for CSS
+            // border rendering and the corresponding WPT references.
             : SKPathEffect.CreateDash([2f * strokeWidth, strokeWidth], 0),
         DashStyle.Dot => SKPathEffect.CreateDash([strokeWidth, strokeWidth], 0),
         DashStyle.DashDot => SKPathEffect.CreateDash([4f * strokeWidth, 2f * strokeWidth, strokeWidth, 2f * strokeWidth], 0),

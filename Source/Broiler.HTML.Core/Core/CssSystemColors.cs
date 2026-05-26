@@ -15,10 +15,10 @@ internal static class CssSystemColors
         switch (colorName.Trim().ToLowerInvariant())
         {
             case "field":
-                color = Color.FromArgb(255, 255, 255, 255);
+                color = Color.White;
                 return true;
             case "fieldtext":
-                color = Color.FromArgb(255, 0, 0, 0);
+                color = Color.Black;
                 return true;
             default:
                 color = Color.Empty;

@@ -16,6 +16,8 @@ namespace Broiler.HTML.Orchestration.Core.Parse;
 /// </summary>
 internal static class CssAnimationResolver
 {
+    private const double WptSnapshotFrameRateHz = 60.0;
+
     /// <summary>
     /// If the box has an <c>animation-name</c> that maps to a known
     /// <c>@keyframes</c> rule in the CSS data, compute the animated property
@@ -36,10 +38,10 @@ internal static class CssAnimationResolver
         double delaySeconds = ParseTimeValue(box.AnimationDelay);
         string timingFunction = box.AnimationTimingFunction;
 
-        // Sample the animation one frame after it becomes active so static
-        // renders line up more closely with the post-load Chromium snapshot
-        // used by the non-JS WPT runner.
-        const double snapshotLeadSeconds = 1.0 / 60.0;
+        // Sample the animation one 60 Hz frame (~16.67 ms) after it becomes
+        // active so static renders line up more closely with the first
+        // post-load Chromium screenshot taken by the non-JS WPT runner.
+        const double snapshotLeadSeconds = 1.0 / WptSnapshotFrameRateHz;
         double elapsedSeconds = snapshotLeadSeconds - delaySeconds;
         if (elapsedSeconds < 0)
             elapsedSeconds = 0;
