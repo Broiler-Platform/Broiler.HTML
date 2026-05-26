@@ -70,7 +70,7 @@ internal static class CssDefaults
         table           { border-spacing: 2px; }
         thead, tbody,
         tfoot, tr       { vertical-align: middle }
-        td, th          { vertical-align: inherit }
+        td, th          { vertical-align: inherit; padding: 1px }
         s, strike, del  { text-decoration: line-through }
         hr              { border: 1px inset; }
         ol, ul, dir,

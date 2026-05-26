@@ -367,8 +367,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     }
 
     private static bool IsCornerFillBorderStyle(string? style) =>
-        string.Equals(style, "solid", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(style, "double", StringComparison.OrdinalIgnoreCase);
+        string.Equals(style, "solid", StringComparison.OrdinalIgnoreCase);
 
     private static void DrawDoubleBorderSide(RGraphics g, DrawBorderItem item, Border side)
     {
