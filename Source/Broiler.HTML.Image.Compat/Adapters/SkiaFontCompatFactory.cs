@@ -9,9 +9,9 @@ internal sealed class SkiaFontCompatFactory : IFontCompatFactory
     public object CreateFont(object typeface, float size) =>
         new SKFont(SkiaCompatObjects.Typeface(typeface), size)
         {
-            Edging = SKFontEdging.Antialias,
-            Hinting = SKFontHinting.Full,
-            Subpixel = true,
+            Edging = SKFontEdging.Alias,
+            Hinting = SKFontHinting.Slight,
+            Subpixel = false,
         };
 
     public FontCompatMetrics GetMetrics(object font)
