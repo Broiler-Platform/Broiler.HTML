@@ -1369,7 +1369,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     private double GetNormalLineHeight()
     {
         double fontHeight = ActualFont.Height * (96.0 / 72.0);
-        return fontHeight > 0 ? fontHeight : GetEmHeight() * 1.2;
+        return fontHeight > 0 ? Math.Ceiling(fontHeight) : GetEmHeight() * 1.2;
     }
 
     private double GetRootEmHeight()
