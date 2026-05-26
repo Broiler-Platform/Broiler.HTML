@@ -450,11 +450,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
 
         if (item.FontHandle is RFont font)
         {
-            // Phase 10.2: Round text origin to integer pixel coordinates.
-            // Sub-pixel text positioning causes glyph rasterisation to differ
-            // from Chromium's pixel-snapped baseline, producing per-glyph
-            // anti-aliasing differences.
-            var origin = new PointF((float)Math.Round(item.Origin.X), (float)Math.Round(item.Origin.Y));
+            var origin = item.Origin;
             var size = new SizeF(item.Bounds.Width, item.Bounds.Height);
 
             // Draw text shadow first (behind the actual text)
