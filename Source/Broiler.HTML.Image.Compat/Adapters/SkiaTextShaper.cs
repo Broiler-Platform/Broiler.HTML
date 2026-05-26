@@ -64,6 +64,8 @@ internal sealed class SkiaTextShaper : ITextShaper
     {
         if (!font.TryGetBroilerRenderFont(out var broilerFont))
             return false;
+        if (!TextCompatConstants.IsDeterministicFixtureFont(broilerFont.Family.Name))
+            return false;
 
         var rendered = RenderTextBitmap(
             broilerFont,
@@ -79,6 +81,8 @@ internal sealed class SkiaTextShaper : ITextShaper
     public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, Color[] colors, float[] positions, float angle)
     {
         if (!font.TryGetBroilerRenderFont(out var broilerFont))
+            return false;
+        if (!TextCompatConstants.IsDeterministicFixtureFont(broilerFont.Family.Name))
             return false;
 
         var measuredSize = MeasureTextSize(broilerFont, text);
