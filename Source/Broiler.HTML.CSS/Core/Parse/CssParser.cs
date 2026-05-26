@@ -1392,12 +1392,29 @@ internal sealed class CssParser
                 or "lighten" or "color-dodge" or "color-burn" or "hard-light" or "soft-light"
                 or "difference" or "exclusion" or "hue" or "saturation" or "color" or "luminosity",
             "isolation" => lower is "auto" or "isolate",
-            "background-origin" => lower is "border-box" or "padding-box" or "content-box",
-            "background-clip" => lower is "border-box" or "padding-box" or "content-box" or "border-area" or "text",
+            "background-origin" => AreAllCommaSeparatedValuesValid(propValue, static value =>
+                value is "border-box" or "padding-box" or "content-box"),
+            "background-clip" => AreAllCommaSeparatedValuesValid(propValue, static value =>
+                value is "border-box" or "padding-box" or "content-box" or "border-area" or "text"),
             "filter" => lower is "none" || lower.Contains('('),
             "transform" => lower is "none" || lower.Contains('('),
             _ => true, // Unknown property — accept any value
         };
+    }
+
+    private static bool AreAllCommaSeparatedValuesValid(string propValue, Func<string, bool> validator)
+    {
+        var values = SplitOnTopLevelCommas(propValue);
+        if (values.Count == 0)
+            return false;
+
+        foreach (var value in values)
+        {
+            if (!validator(value.Trim().ToLowerInvariant()))
+                return false;
+        }
+
+        return true;
     }
 
     private static void ParseLengthProperty(string propName, string propValue, Dictionary<string, string> properties)

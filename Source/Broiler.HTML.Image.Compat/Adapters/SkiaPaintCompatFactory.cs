@@ -71,7 +71,7 @@ internal sealed class SkiaPaintCompatFactory : IPaintCompatFactory
         DashStyle.Solid => null,
         DashStyle.Dash => strokeWidth < 2f
             ? SKPathEffect.CreateDash([4f, 4f], 0)
-            : SKPathEffect.CreateDash([4f * strokeWidth, 2f * strokeWidth], 0),
+            : SKPathEffect.CreateDash([2f * strokeWidth, strokeWidth], 0),
         DashStyle.Dot => SKPathEffect.CreateDash([strokeWidth, strokeWidth], 0),
         DashStyle.DashDot => SKPathEffect.CreateDash([4f * strokeWidth, 2f * strokeWidth, strokeWidth, 2f * strokeWidth], 0),
         DashStyle.DashDotDot => SKPathEffect.CreateDash([4f * strokeWidth, 2f * strokeWidth, strokeWidth, 2f * strokeWidth, strokeWidth, 2f * strokeWidth], 0),

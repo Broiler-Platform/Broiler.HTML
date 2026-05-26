@@ -1938,7 +1938,12 @@ internal static class PaintWalker
         if (string.IsNullOrEmpty(backgroundClip))
             return "border-box";
 
-        return backgroundClip;
+        var clips = SplitOnTopLevelCommas(backgroundClip);
+        if (clips.Count == 0)
+            return "border-box";
+
+        var effectiveClip = clips[^1].Trim();
+        return string.IsNullOrEmpty(effectiveClip) ? "border-box" : effectiveClip;
     }
 
     private static bool TryCreateInsetClipPathItem(Fragment fragment, RectangleF bounds, out ClipItem clipItem)

@@ -36,9 +36,11 @@ internal static class CssAnimationResolver
         double delaySeconds = ParseTimeValue(box.AnimationDelay);
         string timingFunction = box.AnimationTimingFunction;
 
-        // For static rendering, the elapsed time is 0 (we render the first frame).
-        // With a negative delay, the animation starts at |delay| seconds in.
-        double elapsedSeconds = -delaySeconds; // negative delay means skip ahead
+        // Sample the animation one frame after it becomes active so static
+        // renders line up more closely with the post-load Chromium snapshot
+        // used by the non-JS WPT runner.
+        const double snapshotLeadSeconds = 1.0 / 60.0;
+        double elapsedSeconds = snapshotLeadSeconds - delaySeconds;
         if (elapsedSeconds < 0)
             elapsedSeconds = 0;
 
@@ -377,6 +379,9 @@ internal static class CssAnimationResolver
         }
 
         // Named colors — use the .NET Color type's known colors
+        if (CssSystemColors.TryResolve(value, out color))
+            return true;
+
         try
         {
             var named = Color.FromName(value);

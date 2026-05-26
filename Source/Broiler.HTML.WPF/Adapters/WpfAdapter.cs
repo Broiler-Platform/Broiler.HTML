@@ -12,6 +12,7 @@ using Microsoft.Win32;
 using RectangleF = System.Drawing.RectangleF;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Core.Core;
 using Broiler.HTML.Image;
 using Broiler.HTML.WPF.Utilities;
 
@@ -56,6 +57,9 @@ internal sealed class WpfAdapter : RAdapter
 
     protected override Color GetColorInt(string colorName)
     {
+        if (CssSystemColors.TryResolve(colorName, out var color))
+            return color;
+
         // check if color name is valid to avoid ColorConverter throwing an exception
         if (!ValidColorNamesLc.Contains(colorName.ToLower()))
             return Color.Empty;
