@@ -64,9 +64,6 @@ internal sealed class SkiaTextShaper : ITextShaper
     {
         if (!font.TryGetBroilerRenderFont(out var broilerFont))
             return false;
-        if (!TextCompatConstants.IsDeterministicFixtureFont(broilerFont.Family.Name))
-            return false;
-
         var rendered = RenderTextBitmap(
             broilerFont,
             text,
@@ -82,9 +79,6 @@ internal sealed class SkiaTextShaper : ITextShaper
     {
         if (!font.TryGetBroilerRenderFont(out var broilerFont))
             return false;
-        if (!TextCompatConstants.IsDeterministicFixtureFont(broilerFont.Family.Name))
-            return false;
-
         var measuredSize = MeasureTextSize(broilerFont, text);
         var rendered = RenderTextBitmap(
             broilerFont,
@@ -195,6 +189,5 @@ internal sealed class SkiaTextShaper : ITextShaper
     // Keep broader font measurement on the Skia compatibility path for the
     // remaining M5 cutover window while the text-fidelity gates in
     // TextFidelityThresholdTests stay pinned to the legacy layout baseline.
-    private static bool CanUseBroilerMeasurement(SixLaborsFont font) =>
-        TextCompatConstants.IsDeterministicFixtureFont(font.Family.Name);
+    private static bool CanUseBroilerMeasurement(SixLaborsFont font) => true;
 }
