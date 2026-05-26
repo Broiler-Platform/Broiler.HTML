@@ -83,7 +83,6 @@ jobs:
           --limit 20
           --width 800
           --height 600
-          --pixel-diff-threshold 0.01
           --exit-zero-on-differences
 
       - name: Add WPT summary to workflow summary
