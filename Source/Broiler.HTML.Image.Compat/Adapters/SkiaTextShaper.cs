@@ -62,8 +62,12 @@ internal sealed class SkiaTextShaper : ITextShaper
 
     public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point)
     {
-        if (!font.TryGetBroilerRenderFont(out var broilerFont))
+        if (!font.TryGetBroilerRenderFont(out var broilerFont)
+            || !TextCompatConstants.IsDeterministicFixtureFont(broilerFont.Family.Name))
+        {
             return false;
+        }
+
         var rendered = RenderTextBitmap(
             broilerFont,
             text,
@@ -77,8 +81,12 @@ internal sealed class SkiaTextShaper : ITextShaper
 
     public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, Color[] colors, float[] positions, float angle)
     {
-        if (!font.TryGetBroilerRenderFont(out var broilerFont))
+        if (!font.TryGetBroilerRenderFont(out var broilerFont)
+            || !TextCompatConstants.IsDeterministicFixtureFont(broilerFont.Family.Name))
+        {
             return false;
+        }
+
         var measuredSize = MeasureTextSize(broilerFont, text);
         var rendered = RenderTextBitmap(
             broilerFont,
@@ -189,5 +197,6 @@ internal sealed class SkiaTextShaper : ITextShaper
     // Keep broader font measurement on the Skia compatibility path for the
     // remaining M5 cutover window while the text-fidelity gates in
     // TextFidelityThresholdTests stay pinned to the legacy layout baseline.
-    private static bool CanUseBroilerMeasurement(SixLaborsFont font) => true;
+    private static bool CanUseBroilerMeasurement(SixLaborsFont font) =>
+        TextCompatConstants.IsDeterministicFixtureFont(font.Family.Name);
 }
