@@ -1,6 +1,6 @@
 using System;
 using Broiler.HTML.Adapters.Adapters;
-using DrawingFontStyle = System.Drawing.FontStyle;
+using DrawingFontStyle = Broiler.Graphics.FontStyle;
 
 namespace Broiler.HTML.Image.Adapters;
 

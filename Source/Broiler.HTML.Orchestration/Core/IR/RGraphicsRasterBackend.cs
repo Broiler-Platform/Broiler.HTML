@@ -4,7 +4,6 @@ using Broiler.HTML.Core.Core.IR;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 
 namespace Broiler.HTML.Orchestration.Core.IR;
 

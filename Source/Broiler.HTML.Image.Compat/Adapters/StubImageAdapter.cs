@@ -2,14 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.Core.Core;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class GdiImageAdapter : RAdapter
+/// <summary>
+/// Resource factory for the compatibility backend. Retains the OS-free managed
+/// logic (CSS color parsing, SVG intrinsic sizing) and routes pens/brushes/fonts
+/// and image decoding through the stub compat backend; raster output still comes
+/// from the managed Broiler pipeline.
+/// </summary>
+internal sealed class StubImageAdapter : RAdapter
 {
     private const int MinSvgRasterLongestSide = 128;
     private const int MaxSvgRasterScale = 8;
@@ -17,7 +22,7 @@ internal sealed class GdiImageAdapter : RAdapter
     private readonly IFontTypefaceResolver _typefaceResolver;
     private readonly IPaintCompatFactory _paintCompatFactory;
 
-    internal GdiImageAdapter(
+    internal StubImageAdapter(
         IFontTypefaceResolver typefaceResolver = null,
         IReadOnlyCollection<string> systemFonts = null,
         IPaintCompatFactory paintCompatFactory = null)
@@ -40,7 +45,7 @@ internal sealed class GdiImageAdapter : RAdapter
         }
     }
 
-    public static GdiImageAdapter Instance { get; } = new();
+    public static StubImageAdapter Instance { get; } = new();
 
     internal bool HasDeferredLoadedTypefacePath(string family) =>
         _typefaceResolver.HasDeferredLoadedTypefacePath(family);
@@ -337,7 +342,11 @@ internal sealed class GdiImageAdapter : RAdapter
             dispose: true);
     }
 
-    protected override RImage ConvertImageInt(object image) => image != null ? new ImageAdapter(GdiCompatObjects.CreateBitmap((Bitmap)image, ownsBitmap: true)) : null;
+    protected override RImage ConvertImageInt(object image) =>
+        // There is no native bitmap type to convert without an OS graphics backend.
+        // Callers should decode encoded image bytes through ImageFromStream instead.
+        throw new NotSupportedException(
+            "Converting a platform bitmap is not supported without an OS graphics backend; use ImageFromStream with encoded image data.");
 
     protected override RImage ImageFromStreamInt(Stream memoryStream)
     {
@@ -372,17 +381,12 @@ internal sealed class GdiImageAdapter : RAdapter
         }
         catch (ArgumentException)
         {
-            // GDI+ raises ArgumentException ("Parameter is not valid") for
-            // unrecognised or corrupt image data.
-            return null;
-        }
-        catch (ExternalException)
-        {
-            // GDI+ codec failure.
+            // Unrecognised or corrupt image data.
             return null;
         }
         catch (NotSupportedException)
         {
+            // No image codec backend is registered (see Broiler.Graphics.BImageCodec).
             return null;
         }
     }
@@ -769,16 +773,23 @@ internal sealed class GdiImageAdapter : RAdapter
             return false;
 
         var fillValue = fillMatch.Groups[1].Value.Trim();
-        try
+
+        // Managed parse (hex or known CSS/.NET color name); avoids the OS-dependent
+        // System.Drawing.ColorTranslator.
+        if (TryParseHexColor(fillValue, out var hex))
         {
-            var parsed = System.Drawing.ColorTranslator.FromHtml(fillValue);
-            color = new BColor(parsed.R, parsed.G, parsed.B, parsed.A);
+            color = new BColor(hex.R, hex.G, hex.B, hex.A);
             return true;
         }
-        catch
+
+        var named = Color.FromName(fillValue);
+        if (named.IsKnownColor)
         {
-            return false;
+            color = new BColor(named.R, named.G, named.B, named.A);
+            return true;
         }
+
+        return false;
     }
 
     protected override RFont CreateFontInt(string family, double size, FontStyle style)

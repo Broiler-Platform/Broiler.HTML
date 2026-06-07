@@ -1,8 +1,6 @@
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using Broiler.HTML.Image.Adapters;
 
 namespace Broiler.HTML.Image;
@@ -69,19 +67,16 @@ public sealed class BBitmap : IDisposable
 
     public byte[] Encode(BImageFormat format = BImageFormat.Png, int quality = 100)
     {
-        using var image = CreateGdiBitmap();
-        using var stream = new MemoryStream();
-        SaveGdiBitmap(image, stream, format, quality);
-        return stream.ToArray();
+        // The codec only reads the buffer; hand it a copy so the live pixels stay owned by this bitmap.
+        var buffer = new Broiler.Graphics.BPixelBuffer(Width, Height, (byte[])_pixels.Clone());
+        return Broiler.Graphics.BImageCodec.Encode(buffer, ToEncodeFormat(format), quality);
     }
 
     public void Save(string filePath, BImageFormat format = BImageFormat.Png, int quality = 100)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
-        using var image = CreateGdiBitmap();
-        using var stream = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        SaveGdiBitmap(image, stream, format, quality);
+        File.WriteAllBytes(filePath, Encode(format, quality));
     }
 
     public BBitmap Copy() => new(Width, Height, (byte[])_pixels.Clone());
@@ -113,27 +108,45 @@ public sealed class BBitmap : IDisposable
     public static BBitmap Decode(byte[] data)
     {
         ArgumentNullException.ThrowIfNull(data);
-
-        using var stream = new MemoryStream(data, writable: false);
-        using var image = System.Drawing.Image.FromStream(stream);
-        return FromGdiImage(image);
+        return FromPixelBuffer(Broiler.Graphics.BImageCodec.Decode(data));
     }
 
     public static BBitmap Decode(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        using var image = System.Drawing.Image.FromStream(stream);
-        return FromGdiImage(image);
+        byte[] data;
+        if (stream is MemoryStream ms)
+        {
+            data = ms.ToArray();
+        }
+        else
+        {
+            using var copy = new MemoryStream();
+            stream.CopyTo(copy);
+            data = copy.ToArray();
+        }
+
+        return Decode(data);
     }
 
     public static BBitmap Decode(string path)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
-
-        using var image = System.Drawing.Image.FromFile(path);
-        return FromGdiImage(image);
+        return Decode(File.ReadAllBytes(path));
     }
+
+    private static BBitmap FromPixelBuffer(Broiler.Graphics.BPixelBuffer buffer)
+    {
+        ArgumentNullException.ThrowIfNull(buffer);
+        return new BBitmap(buffer.Width, buffer.Height, buffer.Rgba);
+    }
+
+    private static Broiler.Graphics.BImageEncodeFormat ToEncodeFormat(BImageFormat format) => format switch
+    {
+        BImageFormat.Jpeg => Broiler.Graphics.BImageEncodeFormat.Jpeg,
+        _ => Broiler.Graphics.BImageEncodeFormat.Png,
+    };
 
     internal bool HasMaterializedCompatBitmap => _compatSurface.IsMaterialized;
     internal int CompatSyncInvocationCount { get; private set; }
@@ -188,40 +201,7 @@ public sealed class BBitmap : IDisposable
 
     private int GetPixelIndex(int x, int y) => checked(((y * Width) + x) * 4);
 
-    private static void SaveGdiBitmap(Bitmap image, Stream stream, BImageFormat format, int quality)
-    {
-        if (format == BImageFormat.Jpeg)
-        {
-            var encoder = ImageCodecInfo.GetImageEncoders()
-                .FirstOrDefault(static codec => codec.FormatID == ImageFormat.Jpeg.Guid);
-            if (encoder is not null)
-            {
-                using var parameters = new EncoderParameters(1);
-                parameters.Param[0] = new EncoderParameter(Encoder.Quality, Math.Clamp(quality, 1L, 100L));
-                image.Save(stream, encoder, parameters);
-                return;
-            }
-
-            image.Save(stream, ImageFormat.Jpeg);
-            return;
-        }
-
-        image.Save(stream, ImageFormat.Png);
-    }
-
-    private Bitmap CreateGdiBitmap() => GdiPixelBuffer.ToBitmap(Width, Height, _pixels);
-
     private object EnsureCompatBitmap() => _compatSurface.AsBitmap();
-
-    /// <summary>
-    /// Creates a Broiler bitmap from a GDI+ image, copying its pixels into the
-    /// primary RGBA buffer.
-    /// </summary>
-    internal static BBitmap FromGdiImage(System.Drawing.Image image)
-    {
-        var pixels = GdiPixelBuffer.ToRgba(image, out int width, out int height);
-        return new BBitmap(width, height, pixels);
-    }
 
     private void SyncPixelsFromCompatBitmapIfMaterialized()
     {

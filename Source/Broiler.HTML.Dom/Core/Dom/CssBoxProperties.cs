@@ -1185,13 +1185,13 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
             if (string.IsNullOrEmpty(FontSize))
                 FontSize = CssConstants.FontSize.ToString(CultureInfo.InvariantCulture) + "pt";
 
-            FontStyle st = System.Drawing.FontStyle.Regular;
+            FontStyle st = Broiler.Graphics.FontStyle.Regular;
 
             if (this.FontStyle == CssConstants.Italic || this.FontStyle == CssConstants.Oblique)
-                st |= System.Drawing.FontStyle.Italic;
+                st |= Broiler.Graphics.FontStyle.Italic;
 
             if (IsBoldWeight(FontWeight, GetParent()))
-                st |= System.Drawing.FontStyle.Bold;
+                st |= Broiler.Graphics.FontStyle.Bold;
 
             double parentSize = CssConstants.FontSize;
 

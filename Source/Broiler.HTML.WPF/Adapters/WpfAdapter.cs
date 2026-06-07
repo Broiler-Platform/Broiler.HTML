@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Diagnostics;
-using FontStyle = System.Drawing.FontStyle;
+using FontStyle = Broiler.Graphics.FontStyle;
 using Color = System.Drawing.Color;
 using Microsoft.Win32;
 using RectangleF = System.Drawing.RectangleF;

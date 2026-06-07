@@ -1,6 +1,5 @@
 using System.Drawing;
 using System;
-using System.Drawing.Drawing2D;
 using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.Core;
