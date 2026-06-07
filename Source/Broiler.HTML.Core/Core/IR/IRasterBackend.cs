@@ -2,7 +2,7 @@ namespace Broiler.HTML.Core.Core.IR;
 
 /// <summary>
 /// Draws a <see cref="DisplayList"/> to a platform surface.
-/// Implementations: SkiaRasterBackend, WpfRasterBackend.
+/// Implementations: WpfRasterBackend.
 /// </summary>
 public interface IRasterBackend
 {
@@ -10,6 +10,6 @@ public interface IRasterBackend
     /// Replays the display list items onto the given surface.
     /// </summary>
     /// <param name="list">The display list to render.</param>
-    /// <param name="surface">Platform-specific surface (e.g. SKSurface, DrawingContext).</param>
+    /// <param name="surface">Platform-specific surface (e.g. a GDI+ Graphics or WPF DrawingContext).</param>
     void Render(DisplayList list, object surface);
 }

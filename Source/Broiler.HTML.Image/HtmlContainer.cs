@@ -14,7 +14,7 @@ public sealed class HtmlContainer : IDisposable
 {
     public HtmlContainer()
     {
-        HtmlContainerInt = new HtmlContainerInt(SkiaCompatProvider.ImageAdapter, HandlerFactory.Instance);
+        HtmlContainerInt = new HtmlContainerInt(CompatProvider.ImageAdapter, HandlerFactory.Instance);
         HtmlContainerInt.SetMargins(0);
         HtmlContainerInt.PageSize = new SizeF(99999, 99999);
     }
@@ -105,7 +105,7 @@ public sealed class HtmlContainer : IDisposable
     /// <summary>
     /// Performs layout using an internal temporary surface so callers that only
     /// need layout side effects (for example <see cref="LatestFragmentTree"/> or
-    /// <see cref="GetElementRectangle(string)"/>) do not need to construct Skia objects.
+    /// <see cref="GetElementRectangle(string)"/>) do not need to construct backend objects.
     /// </summary>
     public void PerformLayout(RectangleF clip)
     {

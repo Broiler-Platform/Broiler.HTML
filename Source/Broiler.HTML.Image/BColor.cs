@@ -1,7 +1,7 @@
 namespace Broiler.HTML.Image;
 
 /// <summary>
-/// Broiler-owned RGBA color used to reduce direct SkiaSharp exposure in
+/// Broiler-owned RGBA color used to keep the graphics backend out of
 /// rendering-facing APIs.
 /// </summary>
 public readonly record struct BColor(byte R, byte G, byte B, byte A = byte.MaxValue)

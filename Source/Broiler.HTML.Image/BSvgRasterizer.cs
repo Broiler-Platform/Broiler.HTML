@@ -14,7 +14,7 @@ namespace Broiler.HTML.Image;
 
 /// <summary>
 /// Rasterizes SVG image data through the current Broiler image backend.
-/// During the Skia replacement migration this remains the temporary SVG fallback
+/// This remains the temporary SVG fallback
 /// boundary behind the Broiler-owned bitmap abstraction.
 /// </summary>
 public static class BSvgRasterizer
@@ -300,7 +300,7 @@ public static class BSvgRasterizer
             float x = context.TransformX(ParseLength(attrs, "x", context.CoordinateWidth));
             float y = context.TransformY(ParseLength(attrs, "y", context.CoordinateHeight));
             float fontSize = context.ScaleStroke(ParseLength(attrs, "font-size", context.CoordinateHeight, 16));
-            var font = SkiaCompatProvider.ImageAdapter.GetFont(
+            var font = CompatProvider.ImageAdapter.GetFont(
                 attrs.TryGetValue("font-family", out var family) && !string.IsNullOrWhiteSpace(family) ? family : "Arial",
                 Math.Max(fontSize, 1),
                 FontStyle.Regular);

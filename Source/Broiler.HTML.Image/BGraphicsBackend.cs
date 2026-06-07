@@ -5,12 +5,12 @@ namespace Broiler.HTML.Image;
 
 /// <summary>
 /// Identifies the active graphics backend behind the Broiler-owned image
-/// abstractions during the Skia replacement migration.
+/// abstractions.
 /// </summary>
 public static class BGraphicsBackend
 {
     internal const string BroilerRasterId = "broiler";
-    internal const string SkiaFallbackId = "skia";
+    internal const string GdiFallbackId = "gdi";
 
     private static readonly AsyncLocal<string?> BackendOverride = new();
 
@@ -44,8 +44,8 @@ public static class BGraphicsBackend
     }
 
     private static BackendDefinition Resolve(string? configuredBackend) =>
-        string.Equals(configuredBackend, SkiaFallbackId, StringComparison.OrdinalIgnoreCase)
-            ? new BackendDefinition(SkiaFallbackId, "SkiaSharp fallback")
+        string.Equals(configuredBackend, GdiFallbackId, StringComparison.OrdinalIgnoreCase)
+            ? new BackendDefinition(GdiFallbackId, "GDI+ compatibility fallback")
             : new BackendDefinition(BroilerRasterId, "Broiler raster");
 
     private readonly record struct BackendDefinition(string Id, string DisplayName);

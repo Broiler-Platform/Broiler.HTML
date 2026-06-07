@@ -1,9 +1,6 @@
 using System;
-using System.Drawing;
 using Broiler.HTML.Adapters.Adapters;
-using SixLabors.Fonts;
 using DrawingFontStyle = System.Drawing.FontStyle;
-using SixLaborsFont = SixLabors.Fonts.Font;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -21,8 +18,6 @@ internal sealed class FontAdapter : RFont
     private double _height = -1;
     private double _underlineOffset = -1;
     private double _whitespaceWidth = -1;
-    private SixLaborsFont? _broilerLayoutFont;
-    private SixLaborsFont? _broilerRenderFont;
     private object? _typeface;
     private object? _font;
     private object? _renderFont;
@@ -38,8 +33,12 @@ internal sealed class FontAdapter : RFont
         _size = size;
         _style = style;
         _compatTypefaceFactory = compatTypefaceFactory;
-        _fontCompatFactory = fontCompatFactory ?? SkiaCompatProvider.FontCompatFactory;
+        _fontCompatFactory = fontCompatFactory ?? CompatProvider.FontCompatFactory;
     }
+
+    public string Family => _family;
+
+    public DrawingFontStyle Style => _style;
 
     /// <summary>Layout font (pt-based) – used for metrics and text measurement.</summary>
     public object Font => _font ??= _fontCompatFactory.CreateFont(Typeface, (float)_size);
@@ -51,6 +50,7 @@ internal sealed class FontAdapter : RFont
         ?? throw new InvalidOperationException("Font compatibility typeface factory was not configured.");
 
     public override double Size => _size;
+
     public override double Height
     {
         get
@@ -71,9 +71,9 @@ internal sealed class FontAdapter : RFont
 
     public override double LeftPadding => Height / 6.0;
 
-    internal bool HasMaterializedLayoutFont => _broilerLayoutFont is not null || _font is not null;
+    internal bool HasMaterializedLayoutFont => _font is not null;
 
-    internal bool HasMaterializedRenderFont => _broilerRenderFont is not null || _renderFont is not null;
+    internal bool HasMaterializedRenderFont => _renderFont is not null;
 
     public override double GetWhitespaceWidth(RGraphics graphics)
     {
@@ -89,55 +89,7 @@ internal sealed class FontAdapter : RFont
             return;
 
         var compatMetrics = _fontCompatFactory.GetMetrics(Font);
-
-        if (TryGetBroilerLayoutFont(out var broilerFont))
-        {
-            var broilerMetrics = broilerFont.FontMetrics;
-            var vertical = broilerMetrics.VerticalMetrics;
-            float scale = broilerFont.Size / broilerMetrics.UnitsPerEm;
-            // Keep underline placement tied to the resolved font metadata, but
-            // use the compatibility font metrics for line-height so layout
-            // matches the raster/text-measurement backend used elsewhere.
-            _height = compatMetrics.Height;
-            _underlineOffset = (vertical.Ascender - broilerMetrics.UnderlinePosition) * scale;
-            return;
-        }
-
         _height = compatMetrics.Height;
         _underlineOffset = compatMetrics.UnderlineOffset;
-    }
-
-    internal bool TryGetBroilerLayoutFont(out SixLaborsFont font)
-    {
-        if (_broilerLayoutFont is not null)
-        {
-            font = _broilerLayoutFont;
-            return true;
-        }
-
-        if (BroilerFontRegistry.TryCreateFont(_family, (float)_size, _style, out font))
-        {
-            _broilerLayoutFont = font;
-            return true;
-        }
-
-        return false;
-    }
-
-    internal bool TryGetBroilerRenderFont(out SixLaborsFont font)
-    {
-        if (_broilerRenderFont is not null)
-        {
-            font = _broilerRenderFont;
-            return true;
-        }
-
-        if (BroilerFontRegistry.TryCreateFont(_family, (float)_size, _style, out font))
-        {
-            _broilerRenderFont = font;
-            return true;
-        }
-
-        return false;
     }
 }

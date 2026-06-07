@@ -17,7 +17,7 @@ internal sealed class GraphicsAdapter : RGraphics
     private readonly ITextShaper _textShaper;
     private readonly ICanvasCompat _canvasCompat;
     private object? _canvas;
-    private int _activeSkiaLayerDepth;
+    private int _activeCompatLayerDepth;
     private bool _nextLayerCanUseRaster;
 
     public GraphicsAdapter(
@@ -31,15 +31,15 @@ internal sealed class GraphicsAdapter : RGraphics
         ICanvasCompat? canvasCompat = null,
         Action<object, object?>? initialCanvasOperation = null,
         object? initialCanvasOperationState = null)
-        : base(SkiaCompatProvider.ImageAdapter, initialClip)
+        : base(CompatProvider.ImageAdapter, initialClip)
     {
         _canvasFactory = canvasFactory ?? throw new ArgumentNullException(nameof(canvasFactory));
         _rasterCanvas = rasterCanvas;
         _disposeCanvas = disposeCanvas;
         _restoreOnDispose = restoreOnDispose;
         _onDispose = onDispose;
-        _textShaper = textShaper ?? SkiaCompatProvider.TextShaper;
-        _canvasCompat = canvasCompat ?? SkiaCompatProvider.CanvasCompat;
+        _textShaper = textShaper ?? CompatProvider.TextShaper;
+        _canvasCompat = canvasCompat ?? CompatProvider.CanvasCompat;
         if (initialCanvasOperation is not null)
             _deferredCanvasOperations.Add(canvas => initialCanvasOperation(canvas, initialCanvasOperationState));
     }
@@ -272,7 +272,7 @@ internal sealed class GraphicsAdapter : RGraphics
 
     public override void SaveOpacityLayer(float opacity)
     {
-        bool useRaster = _rasterCanvas is not null && _activeSkiaLayerDepth == 0 && _nextLayerCanUseRaster;
+        bool useRaster = _rasterCanvas is not null && _activeCompatLayerDepth == 0 && _nextLayerCanUseRaster;
         _nextLayerCanUseRaster = false;
         _rasterLayerStack.Push(useRaster);
         if (useRaster)
@@ -281,7 +281,7 @@ internal sealed class GraphicsAdapter : RGraphics
             return;
         }
 
-        _activeSkiaLayerDepth++;
+        _activeCompatLayerDepth++;
         ApplyCanvasOperation(canvas => _canvasCompat.SaveOpacityLayer(canvas, opacity));
     }
 
@@ -295,13 +295,13 @@ internal sealed class GraphicsAdapter : RGraphics
         }
 
         ApplyCanvasOperation(CompatCanvasOperations.Restore);
-        _activeSkiaLayerDepth = Math.Max(0, _activeSkiaLayerDepth - 1);
+        _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
     public override void SaveBlendLayer(string blendMode)
     {
         bool useRaster = _rasterCanvas is not null
-            && _activeSkiaLayerDepth == 0
+            && _activeCompatLayerDepth == 0
             && _nextLayerCanUseRaster;
         _nextLayerCanUseRaster = false;
         _rasterLayerStack.Push(useRaster);
@@ -311,7 +311,7 @@ internal sealed class GraphicsAdapter : RGraphics
             return;
         }
 
-        _activeSkiaLayerDepth++;
+        _activeCompatLayerDepth++;
         ApplyCanvasOperation(canvas => _canvasCompat.SaveBlendLayer(canvas, blendMode));
     }
 
@@ -325,19 +325,19 @@ internal sealed class GraphicsAdapter : RGraphics
         }
 
         ApplyCanvasOperation(CompatCanvasOperations.Restore);
-        _activeSkiaLayerDepth = Math.Max(0, _activeSkiaLayerDepth - 1);
+        _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
     public override void SaveTransformLayer(float[] matrix, float originX, float originY)
     {
-        _activeSkiaLayerDepth++;
+        _activeCompatLayerDepth++;
         ApplyCanvasOperation(canvas => _canvasCompat.SaveTransformLayer(canvas, matrix, originX, originY));
     }
 
     public override void RestoreTransformLayer()
     {
         ApplyCanvasOperation(CompatCanvasOperations.Restore);
-        _activeSkiaLayerDepth = Math.Max(0, _activeSkiaLayerDepth - 1);
+        _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
     public override RImage? CreateLinearGradientTile(int width, int height, Color[] colors, float[] positions, float angle)
@@ -390,7 +390,7 @@ internal sealed class GraphicsAdapter : RGraphics
         _onDispose?.Invoke();
     }
 
-    private bool CanUseRaster => _rasterCanvas is not null && _activeSkiaLayerDepth == 0;
+    private bool CanUseRaster => _rasterCanvas is not null && _activeCompatLayerDepth == 0;
 
     private object EnsureCanvas()
     {
