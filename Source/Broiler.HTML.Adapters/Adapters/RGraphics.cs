@@ -58,7 +58,7 @@ public abstract class RGraphics : IDisposable
 
     /// <summary>
     /// Hints that the next opacity/blend layer contains only backend-neutral raster operations,
-    /// allowing adapters with a custom bitmap backend to keep that compositing group off Skia.
+    /// allowing adapters with a custom bitmap backend to keep that compositing group off the fallback backend.
     /// Default implementation ignores the hint.
     /// </summary>
     public virtual void HintNextLayerCanUseRaster(bool canUseRaster) { }

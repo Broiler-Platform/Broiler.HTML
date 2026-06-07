@@ -223,7 +223,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         // on origin, inner edges, or all edges) and always regressed
         // because it shifted borders by ~0.09 px in viewport space,
         // creating new partial-coverage artifacts.  The existing
-        // rendering with SKPaint.IsAntialias = true produces the
+        // rendering with anti-aliasing enabled produces the
         // correct CSS 2.1 Appendix E paint order.
 
         // Fill corner rectangles to prevent anti-aliased seams along

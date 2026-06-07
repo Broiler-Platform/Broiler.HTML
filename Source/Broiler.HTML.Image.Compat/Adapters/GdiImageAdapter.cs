@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.Core.Core;
-using SkiaSharp;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class SkiaImageAdapter : RAdapter
+internal sealed class GdiImageAdapter : RAdapter
 {
     private const int MinSvgRasterLongestSide = 128;
     private const int MaxSvgRasterScale = 8;
@@ -17,13 +17,13 @@ internal sealed class SkiaImageAdapter : RAdapter
     private readonly IFontTypefaceResolver _typefaceResolver;
     private readonly IPaintCompatFactory _paintCompatFactory;
 
-    internal SkiaImageAdapter(
+    internal GdiImageAdapter(
         IFontTypefaceResolver typefaceResolver = null,
         IReadOnlyCollection<string> systemFonts = null,
         IPaintCompatFactory paintCompatFactory = null)
     {
-        _typefaceResolver = typefaceResolver ?? SkiaCompatProvider.CreateFontTypefaceResolver();
-        _paintCompatFactory = paintCompatFactory ?? SkiaCompatProvider.PaintCompatFactory;
+        _typefaceResolver = typefaceResolver ?? CompatProvider.CreateFontTypefaceResolver();
+        _paintCompatFactory = paintCompatFactory ?? CompatProvider.PaintCompatFactory;
 
         // Register system fonts first so we can probe availability below.
         var distinctSystemFonts = new HashSet<string>(
@@ -40,7 +40,7 @@ internal sealed class SkiaImageAdapter : RAdapter
         }
     }
 
-    public static SkiaImageAdapter Instance { get; } = new();
+    public static GdiImageAdapter Instance { get; } = new();
 
     internal bool HasDeferredLoadedTypefacePath(string family) =>
         _typefaceResolver.HasDeferredLoadedTypefacePath(family);
@@ -337,7 +337,7 @@ internal sealed class SkiaImageAdapter : RAdapter
             dispose: true);
     }
 
-    protected override RImage ConvertImageInt(object image) => image != null ? new ImageAdapter(SkiaCompatObjects.CreateBitmap((SKBitmap)image, ownsBitmap: true)) : null;
+    protected override RImage ConvertImageInt(object image) => image != null ? new ImageAdapter(GdiCompatObjects.CreateBitmap((Bitmap)image, ownsBitmap: true)) : null;
 
     protected override RImage ImageFromStreamInt(Stream memoryStream)
     {
@@ -370,12 +370,15 @@ internal sealed class SkiaImageAdapter : RAdapter
         {
             return new ImageAdapter(BBitmap.Decode(data));
         }
-        catch (SixLabors.ImageSharp.UnknownImageFormatException)
+        catch (ArgumentException)
         {
+            // GDI+ raises ArgumentException ("Parameter is not valid") for
+            // unrecognised or corrupt image data.
             return null;
         }
-        catch (SixLabors.ImageSharp.InvalidImageContentException)
+        catch (ExternalException)
         {
+            // GDI+ codec failure.
             return null;
         }
         catch (NotSupportedException)

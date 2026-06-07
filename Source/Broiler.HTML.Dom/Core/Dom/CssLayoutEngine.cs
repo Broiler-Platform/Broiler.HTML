@@ -37,7 +37,7 @@ internal static class CssLayoutEngine
     /// <summary>
     /// Ratio to convert typographic points to CSS pixels (96 DPI / 72 DPI).
     /// Layout coordinates are in CSS px, but font metrics from the layout
-    /// font are at pt-scale (SkiaSharp creates fonts in canvas units, and
+    /// font are at pt-scale (the layout font is created in canvas units, and
     /// the layout font is created at pt size).  This factor bridges the gap
     /// for line-height calculations where font.Height is the fallback.
     /// </summary>
@@ -497,7 +497,7 @@ internal static class CssLayoutEngine
                     // When line-height is 'normal' (ActualLineHeight == 0),
                     // the minimum comes from the font metrics, scaled to CSS
                     // px (font.Height is at pt-scale because the layout font
-                    // is created at pt size in SkiaSharp canvas units).
+                    // is created at pt size in canvas units).
                     double boxLineHeight = box.ActualLineHeight > 0
                         ? box.ActualLineHeight
                         : box.ActualFont.Height * PtToCssPx;

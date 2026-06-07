@@ -6,7 +6,7 @@ using Broiler.HTML.Image.Adapters;
 
 namespace Broiler.HTML.Image;
 
-internal interface ISkiaCompatProvider
+internal interface ICompatProvider
 {
     RAdapter ImageAdapter { get; }
 
@@ -31,14 +31,14 @@ internal interface ISkiaCompatProvider
         bool ownsBitmap = true);
 }
 
-internal static class SkiaCompatProvider
+internal static class CompatProvider
 {
     private const string CompatAssemblyName = "Broiler.HTML.Image.Compat";
-    private const string CompatBootstrapperTypeName = "Broiler.HTML.Image.Compat.SkiaCompatBootstrapper";
+    private const string CompatBootstrapperTypeName = "Broiler.HTML.Image.Compat.GdiCompatBootstrapper";
     private const string CompatBootstrapperMethodName = "EnsureRegistered";
 
-    private static readonly AsyncLocal<ISkiaCompatProvider?> ProviderOverride = new();
-    private static ISkiaCompatProvider? _defaultProvider;
+    private static readonly AsyncLocal<ICompatProvider?> ProviderOverride = new();
+    private static ICompatProvider? _defaultProvider;
     private static int _defaultLoadAttempted;
 
     internal static RAdapter ImageAdapter => Current.ImageAdapter;
@@ -53,7 +53,7 @@ internal static class SkiaCompatProvider
 
     internal static IPaintCompatFactory PaintCompatFactory => Current.PaintCompatFactory;
 
-    internal static IDisposable OverrideForCurrentThread(ISkiaCompatProvider provider)
+    internal static IDisposable OverrideForCurrentThread(ICompatProvider provider)
     {
         ArgumentNullException.ThrowIfNull(provider);
 
@@ -74,15 +74,15 @@ internal static class SkiaCompatProvider
         bool ownsBitmap = true) =>
         Current.CreateBitmapCompatSurface(width, height, readPrimaryPixel, writePrimaryPixel, initialBitmap, ownsBitmap);
 
-    internal static void InitializeDefault(ISkiaCompatProvider provider)
+    internal static void InitializeDefault(ICompatProvider provider)
     {
         ArgumentNullException.ThrowIfNull(provider);
         _defaultProvider = provider;
     }
 
-    private static ISkiaCompatProvider Current => ProviderOverride.Value ?? EnsureDefaultProvider();
+    private static ICompatProvider Current => ProviderOverride.Value ?? EnsureDefaultProvider();
 
-    private static ISkiaCompatProvider EnsureDefaultProvider()
+    private static ICompatProvider EnsureDefaultProvider()
     {
         if (_defaultProvider is not null)
             return _defaultProvider;
@@ -90,7 +90,7 @@ internal static class SkiaCompatProvider
         TryLoadDefaultProvider();
         return _defaultProvider
             ?? throw new InvalidOperationException(
-                "No Skia compatibility provider is registered. Reference Broiler.HTML.Image.Compat so the default provider can be loaded.");
+                "No compatibility provider is registered. Reference Broiler.HTML.Image.Compat so the default provider can be loaded.");
     }
 
     private static void TryLoadDefaultProvider()
@@ -108,7 +108,7 @@ internal static class SkiaCompatProvider
         method.Invoke(null, null);
     }
 
-    private sealed class ProviderOverrideScope(ISkiaCompatProvider? previous) : IDisposable
+    private sealed class ProviderOverrideScope(ICompatProvider? previous) : IDisposable
     {
         public void Dispose() => ProviderOverride.Value = previous;
     }

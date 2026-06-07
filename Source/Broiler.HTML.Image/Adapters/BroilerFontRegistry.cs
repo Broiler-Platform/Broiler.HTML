@@ -1,26 +1,38 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
-using SixLabors.Fonts;
-using DrawingFontStyle = System.Drawing.FontStyle;
-using SixLaborsFont = SixLabors.Fonts.Font;
-using SixLaborsFontFamily = SixLabors.Fonts.FontFamily;
 
 namespace Broiler.HTML.Image.Adapters;
 
+/// <summary>
+/// Tracks the font families available to the image backend: installed system
+/// fonts plus any font files registered at runtime.
+/// </summary>
 internal static class BroilerFontRegistry
 {
     private static readonly object Sync = new();
-    private static readonly FontCollection LoadedFonts = new();
-    private static readonly Dictionary<string, SixLaborsFontFamily> LoadedFamilies = new(StringComparer.OrdinalIgnoreCase);
-    private static readonly Lazy<IReadOnlyCollection<string>> SystemFamilies = new(
-        static () => new HashSet<string>(
-            SixLabors.Fonts.SystemFonts.Families.Select(static family => family.Name),
-            StringComparer.OrdinalIgnoreCase));
+    private static readonly PrivateFontCollection LoadedFonts = new();
+    private static readonly HashSet<string> LoadedFamilies = new(StringComparer.OrdinalIgnoreCase);
 
-    public static IReadOnlyCollection<string> GetSystemFontFamilies() => SystemFamilies.Value;
+    public static IReadOnlyCollection<string> GetSystemFontFamilies()
+    {
+        var families = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        using (var installed = new InstalledFontCollection())
+        {
+            foreach (var family in installed.Families)
+                families.Add(family.Name);
+        }
+
+        lock (Sync)
+        {
+            foreach (var name in LoadedFamilies)
+                families.Add(name);
+        }
+
+        return families;
+    }
 
     public static void RegisterFontFile(string path, string? alias)
     {
@@ -29,44 +41,17 @@ internal static class BroilerFontRegistry
 
         lock (Sync)
         {
-            var family = LoadedFonts.Add(path);
-            LoadedFamilies[family.Name] = family;
+            int before = LoadedFonts.Families.Length;
+            LoadedFonts.AddFontFile(path);
+            var added = LoadedFonts.Families.Length > before
+                ? LoadedFonts.Families.Last()
+                : null;
+
+            if (added is not null)
+                LoadedFamilies.Add(added.Name);
+
             if (!string.IsNullOrWhiteSpace(alias))
-                LoadedFamilies[alias] = family;
+                LoadedFamilies.Add(alias);
         }
     }
-
-    public static bool TryCreateFont(string familyName, float size, DrawingFontStyle style, out SixLaborsFont font)
-    {
-        font = default;
-        if (string.IsNullOrWhiteSpace(familyName) || size <= 0)
-            return false;
-
-        if (TryGetFamily(familyName, out var family))
-        {
-            font = family.CreateFont(size, ConvertStyle(style));
-            return true;
-        }
-
-        return false;
-    }
-
-    private static bool TryGetFamily(string familyName, out SixLaborsFontFamily family)
-    {
-        lock (Sync)
-        {
-            if (LoadedFamilies.TryGetValue(familyName, out family))
-                return true;
-        }
-
-        return SixLabors.Fonts.SystemFonts.TryGet(familyName, out family);
-    }
-
-    private static SixLabors.Fonts.FontStyle ConvertStyle(DrawingFontStyle style) => style switch
-    {
-        _ when (style & DrawingFontStyle.Bold) != 0 && (style & DrawingFontStyle.Italic) != 0 => SixLabors.Fonts.FontStyle.BoldItalic,
-        _ when (style & DrawingFontStyle.Bold) != 0 => SixLabors.Fonts.FontStyle.Bold,
-        _ when (style & DrawingFontStyle.Italic) != 0 => SixLabors.Fonts.FontStyle.Italic,
-        _ => SixLabors.Fonts.FontStyle.Regular,
-    };
 }

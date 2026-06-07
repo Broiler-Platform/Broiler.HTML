@@ -1,11 +1,9 @@
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using Broiler.HTML.Image.Adapters;
-using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Formats.Png;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace Broiler.HTML.Image;
 
@@ -71,9 +69,9 @@ public sealed class BBitmap : IDisposable
 
     public byte[] Encode(BImageFormat format = BImageFormat.Png, int quality = 100)
     {
-        using var image = CreateImageSharpImage();
+        using var image = CreateGdiBitmap();
         using var stream = new MemoryStream();
-        image.Save(stream, CreateEncoder(format, quality));
+        SaveGdiBitmap(image, stream, format, quality);
         return stream.ToArray();
     }
 
@@ -81,9 +79,9 @@ public sealed class BBitmap : IDisposable
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
-        using var image = CreateImageSharpImage();
+        using var image = CreateGdiBitmap();
         using var stream = File.Open(filePath, FileMode.Create, FileAccess.Write, FileShare.None);
-        image.Save(stream, CreateEncoder(format, quality));
+        SaveGdiBitmap(image, stream, format, quality);
     }
 
     public BBitmap Copy() => new(Width, Height, (byte[])_pixels.Clone());
@@ -116,24 +114,25 @@ public sealed class BBitmap : IDisposable
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        using var image = SixLabors.ImageSharp.Image.Load<Rgba32>(data);
-        return CreateFromImageSharpImage(image);
+        using var stream = new MemoryStream(data, writable: false);
+        using var image = System.Drawing.Image.FromStream(stream);
+        return FromGdiImage(image);
     }
 
     public static BBitmap Decode(Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        using var image = SixLabors.ImageSharp.Image.Load<Rgba32>(stream);
-        return CreateFromImageSharpImage(image);
+        using var image = System.Drawing.Image.FromStream(stream);
+        return FromGdiImage(image);
     }
 
     public static BBitmap Decode(string path)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
 
-        using var image = SixLabors.ImageSharp.Image.Load<Rgba32>(path);
-        return CreateFromImageSharpImage(image);
+        using var image = System.Drawing.Image.FromFile(path);
+        return FromGdiImage(image);
     }
 
     internal bool HasMaterializedCompatBitmap => _compatSurface.IsMaterialized;
@@ -189,49 +188,39 @@ public sealed class BBitmap : IDisposable
 
     private int GetPixelIndex(int x, int y) => checked(((y * Width) + x) * 4);
 
-    private IImageEncoder CreateEncoder(BImageFormat format, int quality) => format switch
+    private static void SaveGdiBitmap(Bitmap image, Stream stream, BImageFormat format, int quality)
     {
-        BImageFormat.Jpeg => new JpegEncoder
+        if (format == BImageFormat.Jpeg)
         {
-            Quality = Math.Clamp(quality, 1, 100),
-        },
-        _ => new PngEncoder(),
-    };
-
-    private SixLabors.ImageSharp.Image<Rgba32> CreateImageSharpImage()
-    {
-        var image = new SixLabors.ImageSharp.Image<Rgba32>(Width, Height);
-        for (int y = 0; y < Height; y++)
-        {
-            for (int x = 0; x < Width; x++)
+            var encoder = ImageCodecInfo.GetImageEncoders()
+                .FirstOrDefault(static codec => codec.FormatID == ImageFormat.Jpeg.Guid);
+            if (encoder is not null)
             {
-                int index = GetPixelIndex(x, y);
-                image[x, y] = new Rgba32(_pixels[index], _pixels[index + 1], _pixels[index + 2], _pixels[index + 3]);
+                using var parameters = new EncoderParameters(1);
+                parameters.Param[0] = new EncoderParameter(Encoder.Quality, Math.Clamp(quality, 1L, 100L));
+                image.Save(stream, encoder, parameters);
+                return;
             }
+
+            image.Save(stream, ImageFormat.Jpeg);
+            return;
         }
 
-        return image;
+        image.Save(stream, ImageFormat.Png);
     }
+
+    private Bitmap CreateGdiBitmap() => GdiPixelBuffer.ToBitmap(Width, Height, _pixels);
 
     private object EnsureCompatBitmap() => _compatSurface.AsBitmap();
 
-    internal static BBitmap CreateFromImageSharpImage(SixLabors.ImageSharp.Image<Rgba32> image)
+    /// <summary>
+    /// Creates a Broiler bitmap from a GDI+ image, copying its pixels into the
+    /// primary RGBA buffer.
+    /// </summary>
+    internal static BBitmap FromGdiImage(System.Drawing.Image image)
     {
-        var pixels = new byte[checked(image.Width * image.Height * 4)];
-        for (int y = 0; y < image.Height; y++)
-        {
-            for (int x = 0; x < image.Width; x++)
-            {
-                var color = image[x, y];
-                int index = ((y * image.Width) + x) * 4;
-                pixels[index] = color.R;
-                pixels[index + 1] = color.G;
-                pixels[index + 2] = color.B;
-                pixels[index + 3] = color.A;
-            }
-        }
-
-        return new BBitmap(image.Width, image.Height, pixels);
+        var pixels = GdiPixelBuffer.ToRgba(image, out int width, out int height);
+        return new BBitmap(width, height, pixels);
     }
 
     private void SyncPixelsFromCompatBitmapIfMaterialized()
@@ -257,7 +246,7 @@ public sealed class BBitmap : IDisposable
     }
 
     private IBitmapCompatSurface CreateDefaultCompatSurface(object? initialBitmap = null, bool ownsBitmap = true)
-        => SkiaCompatProvider.CreateBitmapCompatSurface(Width, Height, ReadPrimaryPixel, WritePrimaryPixel, initialBitmap, ownsBitmap);
+        => CompatProvider.CreateBitmapCompatSurface(Width, Height, ReadPrimaryPixel, WritePrimaryPixel, initialBitmap, ownsBitmap);
 
     private BColor ReadPrimaryPixel(int x, int y)
     {
