@@ -10,7 +10,7 @@ namespace Broiler.HTML.Image;
 public static class BGraphicsBackend
 {
     internal const string BroilerRasterId = "broiler";
-    internal const string GdiFallbackId = "gdi";
+    internal const string StubFallbackId = "stub";
 
     private static readonly AsyncLocal<string?> BackendOverride = new();
 
@@ -44,8 +44,8 @@ public static class BGraphicsBackend
     }
 
     private static BackendDefinition Resolve(string? configuredBackend) =>
-        string.Equals(configuredBackend, GdiFallbackId, StringComparison.OrdinalIgnoreCase)
-            ? new BackendDefinition(GdiFallbackId, "GDI+ compatibility fallback")
+        string.Equals(configuredBackend, StubFallbackId, StringComparison.OrdinalIgnoreCase)
+            ? new BackendDefinition(StubFallbackId, "Stub compatibility fallback (no OS backend)")
             : new BackendDefinition(BroilerRasterId, "Broiler raster");
 
     private readonly record struct BackendDefinition(string Id, string DisplayName);

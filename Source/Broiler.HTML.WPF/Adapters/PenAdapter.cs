@@ -1,4 +1,4 @@
-﻿using DashStyle = System.Drawing.Drawing2D.DashStyle;
+﻿using DashStyle = Broiler.Graphics.DashStyle;
 using System.Windows.Media;
 using Broiler.HTML.Adapters.Adapters;
 

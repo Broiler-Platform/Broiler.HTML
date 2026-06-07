@@ -1,5 +1,3 @@
-using System.Drawing.Drawing2D;
-
 namespace Broiler.HTML.Adapters.Adapters;
 
 public abstract class RPen

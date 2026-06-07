@@ -4,10 +4,6 @@
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
-    <!-- System.Drawing.Common is a Windows-only Microsoft package; this project
-         is part of a Windows-centric solution (WPF + Direct2D). Suppress the
-         cross-platform reachability analyzer warning. -->
-    <NoWarn>$(NoWarn);CA1416</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
@@ -16,8 +12,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Broiler.HTML.Image\Broiler.HTML.Image.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="10.0.0" />
   </ItemGroup>
 </Project>

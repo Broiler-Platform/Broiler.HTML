@@ -34,7 +34,7 @@ internal interface ICompatProvider
 internal static class CompatProvider
 {
     private const string CompatAssemblyName = "Broiler.HTML.Image.Compat";
-    private const string CompatBootstrapperTypeName = "Broiler.HTML.Image.Compat.GdiCompatBootstrapper";
+    private const string CompatBootstrapperTypeName = "Broiler.HTML.Image.Compat.StubCompatBootstrapper";
     private const string CompatBootstrapperMethodName = "EnsureRegistered";
 
     private static readonly AsyncLocal<ICompatProvider?> ProviderOverride = new();
