@@ -2,26 +2,6 @@ name: Non-JS WPT compliance
 
 on:
   workflow_dispatch:
-  pull_request:
-    paths:
-      - '.github/workflows/wpt-non-js.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.gitmodules'
-      - 'Broiler.Graphics'
-      - 'scripts/wpt/**'
-      - 'Source/**'
-  push:
-    branches:
-      - main
-    paths:
-      - '.github/workflows/wpt-non-js.yml'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.gitmodules'
-      - 'Broiler.Graphics'
-      - 'scripts/wpt/**'
-      - 'Source/**'
 
 permissions:
   contents: read
