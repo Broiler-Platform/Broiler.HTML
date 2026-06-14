@@ -138,7 +138,7 @@ test('parseArguments reads summary and repository from the environment', () => {
     ISSUE_TOKEN: 'token'
   });
 
-  assert.equal(options.summaryPath, '/tmp/wpt/summary.json');
+  assert.equal(options.summaryPath, path.resolve('/tmp/wpt/summary.json'));
   assert.equal(options.repository, 'MaiRat/Broiler.HTML');
   assert.equal(options.issueToken, 'token');
 });

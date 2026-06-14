@@ -8,7 +8,7 @@ Broiler.HTML already includes deterministic image rendering, font-loading hooks 
 
 | Suite | Link | Scope | Current status | Explicit reason / next step |
 | --- | --- | --- | --- | --- |
-| Web Platform Tests (WPT) | https://github.com/web-platform-tests/wpt | Broad HTML/CSS/web-platform interoperability | Partially automated in-repo | `scripts/wpt/prepare-wpt.mjs` prepares a checkout and `scripts/wpt/run-non-js.mjs` can now inventory the full non-JS corpus, apply a documented exclusion manifest, and run a focused render/diff batch. `.github/workflows/wpt-non-js.yml` publishes both the full non-JS inventory summary and the focused visual-comparison artifacts. |
+| Web Platform Tests (WPT) | https://github.com/web-platform-tests/wpt | Broad HTML/CSS/web-platform interoperability | Partially automated in-repo | `scripts/wpt/prepare-wpt.mjs` prepares a checkout and `scripts/wpt/run-non-js.mjs` can now inventory the full non-JS corpus, apply a documented exclusion manifest, and run bounded per-include render/diff batches across renderer-focused WPT areas. `.github/workflows/wpt-non-js.yml` publishes both the full non-JS inventory summary and the focused visual-comparison artifacts. |
 | WPT live results | https://wpt.fyi/ | Published interoperability results | Referenced only | Useful as an external comparison target once Broiler.HTML starts publishing suite results. |
 | CSS 2.1 test suite | https://test.csswg.org/suites/css2.1/20110323/html4/ | CSS 2.1 rendering conformance | Skipped in current repo snapshot | No checked-in harness or baseline-image corpus exists yet. |
 | Acid3 | http://acid3.acidtests.org/ | Historical HTML/CSS/DOM renderer milestone test | Tracked manually | Source comments reference Acid3-related work, but the repository does not currently contain the corresponding test assets or automated checks. |
@@ -31,7 +31,7 @@ The checked-in exclusion manifest at `scripts/wpt/non-js-exclusions.json` is the
 The CI workflow now uses that manifest in two ways:
 
 1. `--scan-only` inventories the entire discoverable non-JS WPT corpus from the prepared upstream checkout and writes a summary artifact that lists the selected in-scope test set after exclusions.
-2. The focused render/diff step reuses the same manifest so the checked-in documentation and the executed exclusions cannot drift apart silently.
+2. The focused render/diff step reuses the same manifest and samples multiple include filters with `--limit-per-include`, currently covering CSS2, CSS backgrounds, box, color, display, fonts, images, lists, positioning, sizing, tables, text, plus HTML rendering and semantics directories.
 
 There are currently no excluded non-JS WPT cases.
 

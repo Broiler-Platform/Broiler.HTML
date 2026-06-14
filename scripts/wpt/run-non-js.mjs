@@ -83,10 +83,10 @@ async function main(argv = process.argv.slice(2)) {
     }
 
     const combinedExcludes = [...options.excludes, ...documentedExcludePaths];
-    const scanResult = combinedExcludes.length === 0 && options.limit === 0
+    const scanResult = combinedExcludes.length === 0 && options.limit === 0 && options.limitPerInclude === 0
       ? discoveredResult
-      : await collectCandidates(options.wptRoot, options.includes, combinedExcludes, options.limit);
-    console.log(`Discovered ${discoveredResult.tests.length} non-JS candidate(s); selected ${scanResult.tests.length} after applying ${documentedExclusions.length} documented exclusion(s) and ${options.excludes.length} ad-hoc exclude filter(s).`);
+      : await collectCandidates(options.wptRoot, options.includes, combinedExcludes, options.limit, options.limitPerInclude);
+    console.log(`Discovered ${discoveredResult.tests.length} non-JS candidate(s); selected ${scanResult.tests.length} after applying ${documentedExclusions.length} documented exclusion(s), ${options.excludes.length} ad-hoc exclude filter(s), and the configured limit(s).`);
     console.log(`Skipped ${discoveredResult.skippedForJavaScript.length} JS-dependent file(s).`);
 
     if (scanResult.tests.length === 0) {
@@ -102,6 +102,12 @@ async function main(argv = process.argv.slice(2)) {
       thresholds: {
         pixelDiffThreshold: options.pixelDiffThreshold,
         colorTolerance: options.colorTolerance
+      },
+      selection: {
+        includes: options.includes,
+        excludes: options.excludes,
+        limit: options.limit,
+        limitPerInclude: options.limitPerInclude
       },
       timeouts: {
         perTestMs: options.testTimeoutMs
@@ -271,6 +277,7 @@ function parseArguments(args, env = process.env) {
     pixelDiffThreshold: 0.01,
     colorTolerance: 5,
     testTimeoutMs: readTimeoutFromEnvironment(env),
+    limitPerInclude: 0,
     exitZeroOnDifferences: false,
     scanOnly: false
   };
@@ -299,6 +306,9 @@ function parseArguments(args, env = process.env) {
         break;
       case '--limit':
         options.limit = readInteger(args, ++index, argument, 0);
+        break;
+      case '--limit-per-include':
+        options.limitPerInclude = readInteger(args, ++index, argument, 1);
         break;
       case '--width':
         options.width = readInteger(args, ++index, argument, 1);
@@ -375,13 +385,14 @@ function readNumber(args, index, argumentName, min, max) {
   return value;
 }
 
-async function collectCandidates(root, includes, excludes, limit) {
+async function collectCandidates(root, includes, excludes, limit, limitPerInclude = 0) {
   const tests = [];
   const skippedForJavaScript = [];
+  const shouldStopAtGlobalLimit = limit > 0 && limitPerInclude === 0;
   await walk('');
 
   return {
-    tests: limit > 0 ? tests.slice(0, limit) : tests,
+    tests: applyCandidateLimits(tests, includes, limit, limitPerInclude),
     skippedForJavaScript
   };
 
@@ -401,7 +412,7 @@ async function collectCandidates(root, includes, excludes, limit) {
         }
 
         await walk(relativePath);
-        if (limit > 0 && tests.length >= limit) {
+        if (shouldStopAtGlobalLimit && tests.length >= limit) {
           return;
         }
         continue;
@@ -419,11 +430,41 @@ async function collectCandidates(root, includes, excludes, limit) {
       }
 
       tests.push({ relativePath, fullPath, usesCssAnimations: hasInlineCssAnimations(markup) });
-      if (limit > 0 && tests.length >= limit) {
+      if (shouldStopAtGlobalLimit && tests.length >= limit) {
         return;
       }
     }
   }
+}
+
+function applyCandidateLimits(tests, includes, limit, limitPerInclude) {
+  if (limitPerInclude > 0 && includes.length > 0) {
+    const selected = [];
+    const selectedPaths = new Set();
+
+    for (const include of includes) {
+      const lowerInclude = include.toLowerCase();
+      let selectedForInclude = 0;
+
+      for (const testCase of tests) {
+        if (selectedForInclude >= limitPerInclude) {
+          break;
+        }
+
+        if (!testCase.relativePath.toLowerCase().includes(lowerInclude) || selectedPaths.has(testCase.relativePath)) {
+          continue;
+        }
+
+        selected.push(testCase);
+        selectedPaths.add(testCase.relativePath);
+        selectedForInclude += 1;
+      }
+    }
+
+    return limit > 0 ? selected.slice(0, limit) : selected;
+  }
+
+  return limit > 0 ? tests.slice(0, limit) : tests;
 }
 
 function shouldSkipDirectory(name) {
@@ -765,6 +806,10 @@ function createSummaryMarkdown(summary) {
     `- Pixel diff threshold: ${summary.thresholds.pixelDiffThreshold}`,
     `- Color tolerance: ${summary.thresholds.colorTolerance}`,
     `- Per-test timeout: ${summary.timeouts?.perTestMs ?? defaultTestTimeoutMs} ms`,
+    `- Include filters: ${formatSummaryList(summary.selection?.includes)}`,
+    `- Exclude filters: ${formatSummaryList(summary.selection?.excludes)}`,
+    `- Global limit: ${summary.selection?.limit ?? 0}`,
+    `- Limit per include: ${summary.selection?.limitPerInclude ?? 0}`,
     `- Discovered non-JS candidates before exclusions: ${summary.discoveredCandidateCount ?? summary.totalCandidates}`,
     `- Total candidates: ${summary.totalCandidates}`,
     `- Documented exclusions: ${summary.documentedExclusionCount ?? 0}`,
@@ -800,6 +845,12 @@ function createSummaryMarkdown(summary) {
   }
 
   return `${lines.join('\n')}\n`;
+}
+
+function formatSummaryList(values) {
+  return values?.length > 0
+    ? values.map((value) => `\`${value}\``).join(', ')
+    : 'none';
 }
 
 function describeFailure(failure) {
@@ -858,6 +909,7 @@ Options:
   --exclude <substring>          Skip relative paths containing the substring. Repeat as needed.
   --exclude-manifest <path>      Load exact-path exclusions plus reasons from a checked-in JSON manifest.
   --limit <count>                Stop after selecting this many candidate files.
+  --limit-per-include <count>    With repeated --include filters, select up to this many files per include.
   --width <pixels>               Chromium/Broiler viewport width. Defaults to 800.
   --height <pixels>              Chromium/Broiler viewport height. Defaults to 600.
   --font [Alias=]<path>          Register a local font with Broiler before each render. Repeat as needed.

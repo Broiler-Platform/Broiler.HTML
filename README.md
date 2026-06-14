@@ -140,7 +140,7 @@ Run a focused batch against the prepared WPT tree:
 
 ```bash
 dotnet build Source/Broiler.HTML.slnx
-npm run wpt:run -- --wpt-root ./artifacts/wpt-source --include css/css-backgrounds --limit 20 --width 800 --height 600
+npm run wpt:run -- --wpt-root ./artifacts/wpt-source --include css/CSS2 --include css/css-backgrounds --include css/css-text --include html/rendering --limit-per-include 2 --width 800 --height 600
 ```
 
 Inventory the full discoverable non-JS corpus, apply the documented exclusions, and write a machine-readable summary without rendering every case:
@@ -172,7 +172,9 @@ If your selected WPT cases use fixture fonts such as Ahem, pass them through to 
 npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/path/to/wpt/fonts/Ahem.ttf
 ```
 
-The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a focused render/diff batch for the current stable `css/css-backgrounds` slice. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
+Use repeated `--include` filters with `--limit-per-include` when you want a bounded smoke batch that still covers several renderer areas instead of consuming the whole limit in the first matching WPT directory.
+
+The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It checks out the `Broiler.Graphics` submodule, prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a bounded render/diff sample across CSS2, modern CSS modules, and HTML rendering/semantics directories. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
 
 When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configured, the CI job also opens a new GitHub issue for the most common failure signature in that run. The automation uses `ISSUE_TOKEN` only for GitHub Issues API calls that create the issue and expects a fine-grained PAT or GitHub App token with **Issues: Write** access to this repository.
 

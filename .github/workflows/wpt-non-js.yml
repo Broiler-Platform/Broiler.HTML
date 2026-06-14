@@ -7,6 +7,8 @@ on:
       - '.github/workflows/wpt-non-js.yml'
       - 'package.json'
       - 'package-lock.json'
+      - '.gitmodules'
+      - 'Broiler.Graphics'
       - 'scripts/wpt/**'
       - 'Source/**'
   push:
@@ -16,6 +18,8 @@ on:
       - '.github/workflows/wpt-non-js.yml'
       - 'package.json'
       - 'package-lock.json'
+      - '.gitmodules'
+      - 'Broiler.Graphics'
       - 'scripts/wpt/**'
       - 'Source/**'
 
@@ -33,6 +37,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         timeout-minutes: 5
+        with:
+          submodules: recursive
+
+      - name: Verify Broiler.Graphics submodule
+        timeout-minutes: 2
+        run: |
+          git submodule status --recursive
+          test -f Broiler.Graphics/Broiler.Graphics/Broiler.Graphics.csproj
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -78,9 +90,22 @@ jobs:
         run: >
           npm run wpt:run -- --wpt-root "${RUNNER_TEMP}/wpt"
           --output "${RUNNER_TEMP}/wpt-artifacts"
+          --include css/CSS2
           --include css/css-backgrounds
+          --include css/css-box
+          --include css/css-color
+          --include css/css-display
+          --include css/css-fonts
+          --include css/css-images
+          --include css/css-lists
+          --include css/css-position
+          --include css/css-sizing
+          --include css/css-tables
+          --include css/css-text
+          --include html/rendering
+          --include html/semantics
           --exclude-manifest ./scripts/wpt/non-js-exclusions.json
-          --limit 20
+          --limit-per-include 2
           --width 800
           --height 600
           --exit-zero-on-differences

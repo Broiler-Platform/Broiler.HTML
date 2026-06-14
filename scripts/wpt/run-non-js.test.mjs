@@ -88,12 +88,14 @@ test('parseArguments collects repeated include and exclude filters', () => {
     '--exclude', 'background-attachment-fixed',
     '--exclude', 'background_repeat_space',
     '--exclude-manifest', './scripts/wpt/non-js-exclusions.json',
+    '--limit-per-include', '2',
     '--scan-only'
   ]);
 
   assert.deepEqual(options.includes, ['css/css-backgrounds', 'css/css-text']);
   assert.deepEqual(options.excludes, ['background-attachment-fixed', 'background_repeat_space']);
   assert.equal(options.excludeManifest, './scripts/wpt/non-js-exclusions.json');
+  assert.equal(options.limitPerInclude, 2);
   assert.equal(options.scanOnly, true);
 });
 
@@ -109,6 +111,10 @@ test('parseArguments rejects invalid timeout and threshold values', () => {
   assert.throws(
     () => parseArguments(['--color-tolerance', '256']),
     /Invalid integer value for --color-tolerance: 256/
+  );
+  assert.throws(
+    () => parseArguments(['--limit-per-include', '0']),
+    /Invalid integer value for --limit-per-include: 0/
   );
 });
 
@@ -251,6 +257,36 @@ test('collectCandidates respects exclude filters after include matching', async 
   assert.deepEqual(result.tests.map((testCase) => testCase.relativePath), ['css/css-backgrounds/keep.html']);
 });
 
+test('collectCandidates can limit each include filter independently', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'broiler-wpt-candidates-'));
+  await mkdir(path.join(root, 'css', 'css-backgrounds'), { recursive: true });
+  await mkdir(path.join(root, 'css', 'css-text'), { recursive: true });
+  await mkdir(path.join(root, 'html', 'rendering'), { recursive: true });
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'a.html'), '<!doctype html><p>a</p>');
+  await writeFile(path.join(root, 'css', 'css-backgrounds', 'b.html'), '<!doctype html><p>b</p>');
+  await writeFile(path.join(root, 'css', 'css-text', 'a.html'), '<!doctype html><p>a</p>');
+  await writeFile(path.join(root, 'css', 'css-text', 'b.html'), '<!doctype html><p>b</p>');
+  await writeFile(path.join(root, 'html', 'rendering', 'a.html'), '<!doctype html><p>a</p>');
+  await writeFile(path.join(root, 'html', 'rendering', 'b.html'), '<!doctype html><p>b</p>');
+
+  const result = await collectCandidates(
+    root,
+    ['css/css-backgrounds', 'css/css-text', 'html/rendering'],
+    [],
+    0,
+    1
+  );
+
+  assert.deepEqual(
+    result.tests.map((testCase) => testCase.relativePath),
+    [
+      'css/css-backgrounds/a.html',
+      'css/css-text/a.html',
+      'html/rendering/a.html'
+    ]
+  );
+});
+
 test('collectCandidates skips support files, reference variants, and JS-dependent documents', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'broiler-wpt-candidates-'));
   await mkdir(path.join(root, 'css', 'css-backgrounds', 'support'), { recursive: true });
@@ -337,11 +373,44 @@ test('non-JS WPT workflow inventories the full non-JS corpus and applies the doc
   assert.match(workflow, /Run focused non-JS WPT render\/diff batch/);
 });
 
+test('non-JS WPT workflow checks out the Broiler.Graphics submodule', async () => {
+  const workflow = await readFile(path.join(repositoryRoot, '.github', 'workflows', 'wpt-non-js.yml'), 'utf8');
+
+  assert.match(workflow, /submodules:\s*recursive/);
+  assert.match(workflow, /Broiler\.Graphics\/Broiler\.Graphics\/Broiler\.Graphics\.csproj/);
+});
+
+test('non-JS WPT workflow samples multiple renderer-focused WPT areas', async () => {
+  const workflow = await readFile(path.join(repositoryRoot, '.github', 'workflows', 'wpt-non-js.yml'), 'utf8');
+
+  for (const include of [
+    'css/CSS2',
+    'css/css-backgrounds',
+    'css/css-box',
+    'css/css-color',
+    'css/css-display',
+    'css/css-fonts',
+    'css/css-images',
+    'css/css-lists',
+    'css/css-position',
+    'css/css-sizing',
+    'css/css-tables',
+    'css/css-text',
+    'html/rendering',
+    'html/semantics'
+  ]) {
+    assert.match(workflow, new RegExp(`--include ${include.replaceAll('/', '\\/')}`));
+  }
+
+  assert.match(workflow, /--limit-per-include 2/);
+});
+
 test('documentation contains the rendered non-JS WPT exclusion table', async () => {
   const exclusions = await readNonJsExclusionManifest(path.join(repositoryRoot, 'scripts', 'wpt', 'non-js-exclusions.json'));
   const compliance = await readFile(path.join(repositoryRoot, 'docs', 'compliance.md'), 'utf8');
   const expectedTable = createNonJsExclusionTableMarkdown(exclusions);
+  const normalizedCompliance = compliance.replaceAll('\r\n', '\n');
 
-  assert.match(compliance, /<!-- BEGIN: non-js-wpt-exclusions -->[\s\S]*<!-- END: non-js-wpt-exclusions -->/);
-  assert.ok(compliance.includes(expectedTable));
+  assert.match(normalizedCompliance, /<!-- BEGIN: non-js-wpt-exclusions -->[\s\S]*<!-- END: non-js-wpt-exclusions -->/);
+  assert.ok(normalizedCompliance.includes(expectedTable));
 });
