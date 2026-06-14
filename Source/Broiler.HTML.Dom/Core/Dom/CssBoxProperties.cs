@@ -671,6 +671,28 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
                 return;
             }
 
+            // CSS2.1 §15.7: a percentage font-size resolves against the PARENT's
+            // computed font-size.  Resolve it to an absolute length immediately so
+            // that descendants which inherit this computed value (InheritStyle copies
+            // the string verbatim) do not re-apply the percentage and compound it —
+            // e.g. body/div/span all set to 800% must each be 8× the root, not 8×8×8×.
+            var trimmedValue = value?.Trim();
+            if (trimmedValue != null
+                && trimmedValue.EndsWith('%')
+                && GetParent() != null
+                && double.TryParse(trimmedValue[..^1], NumberStyles.Float, CultureInfo.InvariantCulture, out _))
+            {
+                double resolvedPoints = CssValueParser.ParseNumber(trimmedValue, GetParent().ActualFont.Size);
+                _fontSize = resolvedPoints.ToString("0.0###", CultureInfo.InvariantCulture) + "pt";
+                InvalidateFontDependentValues();
+                if (this is CssBox percentBox)
+                {
+                    foreach (var child in percentBox.Boxes)
+                        child.InvalidateFontDependentSubtree();
+                }
+                return;
+            }
+
             string length = RegexParserUtils.Search(RegexParserUtils.CssLengthRegex(), value);
 
             if (length != null)
