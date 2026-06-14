@@ -12,6 +12,9 @@ internal sealed class FontsHandler
     private readonly Dictionary<string, string> _fontsMapping = new(StringComparer.InvariantCultureIgnoreCase);
     private readonly Dictionary<string, RFontFamily> _existingFontFamilies = new(StringComparer.InvariantCultureIgnoreCase);
     private readonly Dictionary<string, Dictionary<double, Dictionary<FontStyle, RFont>>> _fontsCache = new(StringComparer.InvariantCultureIgnoreCase);
+    // Fonts carrying CSS font-feature-settings are cached separately, keyed by
+    // family/size/style/features, so the common (no-feature) path is unchanged.
+    private readonly Dictionary<string, RFont> _featuredFontsCache = new(StringComparer.InvariantCultureIgnoreCase);
 
     public FontsHandler(IFontCreator fontCreator)
     {
@@ -40,9 +43,23 @@ internal sealed class FontsHandler
         _fontsMapping[fromFamily] = toFamily;
     }
 
-    public RFont GetCachedFont(string family, double size, FontStyle style)
+    public RFont GetCachedFont(string family, double size, FontStyle style, string fontFeatures = null)
     {
         var resolvedFamily = ResolveFontFamily(family);
+
+        if (!string.IsNullOrEmpty(fontFeatures))
+        {
+            string key = resolvedFamily + "|" + size.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                + "|" + (int)style + "|" + fontFeatures;
+            if (_featuredFontsCache.TryGetValue(key, out var featured))
+                return featured;
+
+            featured = CreateFont(resolvedFamily, size, style);
+            featured.FontFeatures = fontFeatures;
+            _featuredFontsCache[key] = featured;
+            return featured;
+        }
+
         var font = TryGetFont(resolvedFamily, size, style);
 
         if (font != null)

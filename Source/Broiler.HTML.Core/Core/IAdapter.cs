@@ -16,7 +16,7 @@ internal interface IAdapter : IColorResolver
     /// <summary>
     /// Gets a cached font for the specified family, size, and style.
     /// </summary>
-    RFont GetFont(string family, double size, FontStyle style);
+    RFont GetFont(string family, double size, FontStyle style, string fontFeatures = null);
 
     /// <summary>
     /// Converts a platform-specific image object to an <see cref="RImage"/>.

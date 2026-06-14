@@ -13,4 +13,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Broiler.HTML.Image\Broiler.HTML.Image.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Bundled OFL fallback font (Vazirmatn): provides glyphs for
+         unregistered/default CSS families, including Latin and the
+         Arabic/Persian script with GSUB shaping data.  See Fonts/Vazirmatn-OFL.txt. -->
+    <EmbeddedResource Include="Fonts\Vazirmatn-Regular.ttf">
+      <LogicalName>Broiler.HTML.Image.Compat.Fonts.Vazirmatn-Regular.ttf</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

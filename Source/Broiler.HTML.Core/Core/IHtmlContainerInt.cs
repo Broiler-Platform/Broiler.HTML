@@ -86,7 +86,7 @@ internal interface IHtmlContainerInt
     /// Gets a cached font for the specified family, size, and style.
     /// Wraps the adapter's font creation/caching.
     /// </summary>
-    RFont GetFont(string family, double size, FontStyle style);
+    RFont GetFont(string family, double size, FontStyle style, string fontFeatures = null);
 
     /// <summary>
     /// Parses a colour string and returns the corresponding <see cref="Color"/>.

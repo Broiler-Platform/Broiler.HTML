@@ -19,6 +19,11 @@ internal sealed class CssParser
     private static readonly char[] _cssClassTrimChars = ['\r', '\n', '\t', ' ', '-', '!', '<', '>'];
     private int _sourceOrder;
 
+    // Family names declared via @font-face in the document being parsed.  These
+    // are treated as valid font-family values even though no platform font is
+    // registered for them yet (they are loaded at layout time).
+    private readonly HashSet<string> _fontFaceFamilies = new(StringComparer.OrdinalIgnoreCase);
+
     public CssParser(IColorResolver colorResolver)
     {
         ArgumentNullException.ThrowIfNull(colorResolver);
@@ -44,9 +49,12 @@ internal sealed class CssParser
             _sourceOrder = 0;
             stylesheet = RemoveStylesheetComments(stylesheet);
 
+            // Parse @font-face first so that font-family declarations in the
+            // style blocks can recognise custom (web-font) family names.
+            ParseFontFaceBlocks(cssData, stylesheet);
+            ParseFontFeatureValuesBlocks(cssData, stylesheet);
             ParseStyleBlocks(cssData, StripAtRules(stylesheet));
             ParseMediaStyleBlocks(cssData, stylesheet);
-            ParseFontFaceBlocks(cssData, stylesheet);
             ParseKeyframeBlocks(cssData, stylesheet);
         }
     }
@@ -287,7 +295,7 @@ internal sealed class CssParser
     /// Extracts @font-face rules from the stylesheet and adds them to
     /// <see cref="CssData.FontFaces"/>.
     /// </summary>
-    private static void ParseFontFaceBlocks(CssData cssData, string stylesheet)
+    private void ParseFontFaceBlocks(CssData cssData, string stylesheet)
     {
         int startIdx = 0;
         string atrule;
@@ -306,6 +314,7 @@ internal sealed class CssParser
 
             string family = null;
             string src = null;
+            string featureSettings = null;
 
             foreach (string decl in body.Split(';', StringSplitOptions.RemoveEmptyEntries))
             {
@@ -333,13 +342,156 @@ internal sealed class CssParser
                         }
                     }
                 }
+                else if (name == "font-feature-settings")
+                {
+                    featureSettings = value;
+                }
             }
 
             if (!string.IsNullOrEmpty(family) && !string.IsNullOrEmpty(src))
             {
-                cssData.FontFaces.Add(new CssFontFace { Family = family, Src = src });
+                cssData.FontFaces.Add(new CssFontFace { Family = family, Src = src, FeatureSettings = featureSettings ?? string.Empty });
+                _fontFaceFamilies.Add(family);
             }
         }
+    }
+
+    /// <summary>
+    /// Extracts <c>@font-feature-values</c> rules into
+    /// <see cref="CssData.FontFeatureValues"/>.  Each rule names one or more
+    /// font families and contains nested feature-type blocks (<c>@styleset</c>,
+    /// <c>@stylistic</c>, <c>@character-variant</c>, …).  Family names are
+    /// case-insensitive; value names are case-sensitive per CSS Fonts.  Repeated
+    /// rules/values for the same family accumulate (later wins).
+    /// </summary>
+    private void ParseFontFeatureValuesBlocks(CssData cssData, string stylesheet)
+    {
+        const string keyword = "@font-feature-values";
+        int startIdx = 0;
+        string atrule;
+
+        while ((atrule = RegexParserUtils.GetCssAtRules(stylesheet, ref startIdx)) != null)
+        {
+            if (!atrule.StartsWith(keyword, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            int braceOpen = atrule.IndexOf('{');
+            int braceClose = atrule.LastIndexOf('}');
+            if (braceOpen < 0 || braceClose <= braceOpen)
+                continue;
+
+            string header = atrule.Substring(keyword.Length, braceOpen - keyword.Length).Trim();
+            string body = atrule.Substring(braceOpen + 1, braceClose - braceOpen - 1);
+
+            foreach (var rawFamily in header.Split(','))
+            {
+                string family = UnescapeIdentifier(rawFamily.Trim().Trim('"', '\''));
+                if (family.Length == 0)
+                    continue;
+
+                if (!cssData.FontFeatureValues.TryGetValue(family, out var typeMap))
+                    cssData.FontFeatureValues[family] = typeMap =
+                        new Dictionary<string, Dictionary<string, int[]>>(StringComparer.OrdinalIgnoreCase);
+
+                int i = 0;
+                while (i < body.Length)
+                {
+                    int at = body.IndexOf('@', i);
+                    if (at < 0)
+                        break;
+                    int open = body.IndexOf('{', at);
+                    if (open < 0)
+                        break;
+                    int close = FindMatchingBrace(body, open);
+                    if (close < 0)
+                        break;
+
+                    string type = body.Substring(at + 1, open - at - 1).Trim().ToLowerInvariant();
+                    string inner = body.Substring(open + 1, close - open - 1);
+
+                    if (!typeMap.TryGetValue(type, out var nameMap))
+                        typeMap[type] = nameMap = new Dictionary<string, int[]>(StringComparer.Ordinal);
+
+                    foreach (var decl in inner.Split(';', StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        int colon = decl.IndexOf(':');
+                        if (colon < 0)
+                            continue;
+                        string name = UnescapeIdentifier(decl.Substring(0, colon).Trim());
+                        var parts = decl.Substring(colon + 1).Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+                        var values = new List<int>(parts.Length);
+                        foreach (var part in parts)
+                            if (int.TryParse(part, out int v))
+                                values.Add(v);
+                        if (name.Length > 0 && values.Count > 0)
+                            nameMap[name] = values.ToArray();
+                    }
+
+                    i = close + 1;
+                }
+            }
+        }
+    }
+
+    private static int FindMatchingBrace(string s, int openIndex)
+    {
+        int depth = 0;
+        for (int i = openIndex; i < s.Length; i++)
+        {
+            if (s[i] == '{') depth++;
+            else if (s[i] == '}' && --depth == 0) return i;
+        }
+        return -1;
+    }
+
+    /// <summary>
+    /// Unescapes a CSS identifier: hex escapes (<c>\41</c>, optional trailing
+    /// space) and literal backslash escapes (<c>\.</c>).  Used for font family
+    /// and feature-value names (e.g. <c>font\62</c> → <c>fontb</c>).
+    /// </summary>
+    public static string UnescapeIdentifier(string s)
+    {
+        if (string.IsNullOrEmpty(s) || s.IndexOf('\\') < 0)
+            return s ?? string.Empty;
+
+        var sb = new System.Text.StringBuilder(s.Length);
+        int i = 0;
+        while (i < s.Length)
+        {
+            char c = s[i];
+            if (c != '\\')
+            {
+                sb.Append(c);
+                i++;
+                continue;
+            }
+
+            i++; // consume backslash
+            if (i >= s.Length)
+                break;
+
+            int start = i, n = 0;
+            while (i < s.Length && n < 6 && Uri.IsHexDigit(s[i]))
+            {
+                i++;
+                n++;
+            }
+            if (n > 0)
+            {
+                int code = Convert.ToInt32(s.Substring(start, n), 16);
+                if (code > 0)
+                    sb.Append(char.ConvertFromUtf32(code));
+                // A single trailing whitespace after a hex escape is consumed.
+                if (i < s.Length && (s[i] == ' ' || s[i] == '\t' || s[i] == '\n' || s[i] == '\r' || s[i] == '\f'))
+                    i++;
+            }
+            else
+            {
+                sb.Append(s[i]);
+                i++;
+            }
+        }
+        return sb.ToString();
     }
 
     /// <summary>
@@ -1025,8 +1177,11 @@ internal sealed class CssParser
 
                     // CSS property values are case-insensitive for keywords,
                     // but URLs (including data: URIs with base64) are case-
-                    // sensitive.  Only lowercase when the value contains no URL.
-                    if (!propValue.StartsWith("url", StringComparison.InvariantCultureIgnoreCase)
+                    // sensitive, as are @font-feature-values names referenced by
+                    // font-variant-alternates and OpenType tags in
+                    // font-feature-settings.  Only lowercase otherwise.
+                    if (propName is not ("font-variant-alternates" or "font-feature-settings")
+                        && !propValue.StartsWith("url", StringComparison.InvariantCultureIgnoreCase)
                         && propValue.IndexOf("url(", StringComparison.InvariantCultureIgnoreCase) < 0)
                         propValue = propValue.ToLower();
 
@@ -2574,6 +2729,7 @@ internal sealed class CssParser
     private string ParseFontFamilyProperty(string propValue)
     {
         int start = 0;
+        string firstFamily = null;
 
         while (start < propValue.Length)
         {
@@ -2588,15 +2744,21 @@ internal sealed class CssParser
             while (char.IsWhiteSpace(propValue[adjEnd]) || propValue[adjEnd] == '\'' || propValue[adjEnd] == '"')
                 adjEnd--;
 
-            var font = propValue.Substring(start, adjEnd - start + 1);
+            var font = UnescapeIdentifier(propValue.Substring(start, adjEnd - start + 1));
+            firstFamily ??= font;
 
-            if (_colorResolver.IsFontExists(font))
+            // Use the first family that is either a registered platform font or
+            // a custom family declared via @font-face in this document.
+            if (_colorResolver.IsFontExists(font) || _fontFaceFamilies.Contains(font))
                 return font;
 
             start = end;
         }
 
-        return CssConstants.Inherit;
+        // No listed family is currently registered.  Keep the author's first
+        // choice so it can be resolved (and fallback-shaped) at layout time,
+        // rather than discarding the declaration and inheriting.
+        return firstFamily ?? CssConstants.Inherit;
     }
 
     private void ParseBorderProperty(string propValue, string direction, Dictionary<string, string> properties)
