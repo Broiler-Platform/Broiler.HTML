@@ -550,11 +550,27 @@ internal class CssBox : CssBoxProperties, IDisposable
         double logicalBlockExtent = ActualBottom - Location.Y;
         bool mirror = WritingMode is "vertical-rl" or "sideways-rl";
 
-        TransformVerticalSubtree(this, rootX, rootY, logicalBlockExtent, mirror, isRoot: true);
+        // vertical-rl / sideways-rl block flow runs right→left, so the root box
+        // is block-start (right) aligned within its containing block.  The
+        // logical horizontal layout frame left-aligned it at rootX; shift the
+        // whole rotated subtree right so the root's block-start edge sits at the
+        // containing block's content-right minus the block-start (right) margin.
+        // (vertical-lr keeps blockOffset 0: left-aligned is already correct.)
+        double blockOffset = 0;
+        if (mirror && ContainingBlock is { } cb)
+        {
+            double cbContentRight = cb.Location.X + cb.Size.Width
+                - cb.ActualPaddingRight - cb.ActualBorderRightWidth;
+            double desiredRootRight = cbContentRight - ActualMarginRight;
+            double currentRootRight = rootX + logicalBlockExtent;
+            blockOffset = desiredRootRight - currentRootRight;
+        }
+
+        TransformVerticalSubtree(this, rootX, rootY, logicalBlockExtent, mirror, blockOffset, isRoot: true);
     }
 
     private static void TransformVerticalSubtree(
-        CssBox box, float rootX, float rootY, double blockExtent, bool mirror, bool isRoot)
+        CssBox box, float rootX, float rootY, double blockExtent, bool mirror, double blockOffset, bool isRoot)
     {
         // --- Box border-box: Location + Size ---
         // logical (x,y) measured from root origin → physical (y,x): the inline
@@ -565,14 +581,18 @@ internal class CssBox : CssBoxProperties, IDisposable
         double logicalHeight = box.ActualBottom - box.Location.Y;
 
         // The root keeps its own physical origin (the parent placed it in the
-        // horizontal frame); only its size is rotated.  Descendants rotate
-        // their position relative to the root.
+        // horizontal frame), apart from the right-alignment shift; only its size
+        // is rotated.  Descendants rotate their position relative to the root.
         if (!isRoot)
         {
             double physLeft = mirror
                 ? blockExtent - logicalTop - logicalHeight
                 : logicalTop;
-            box.Location = new PointF(rootX + (float)physLeft, rootY + (float)logicalLeft);
+            box.Location = new PointF(rootX + (float)(blockOffset + physLeft), rootY + (float)logicalLeft);
+        }
+        else if (blockOffset != 0)
+        {
+            box.Location = new PointF(rootX + (float)blockOffset, rootY);
         }
 
         box.Size = new SizeF((float)logicalHeight, (float)logicalWidth);
@@ -581,7 +601,7 @@ internal class CssBox : CssBoxProperties, IDisposable
         // Per-line rectangles cached on the box itself (inline backgrounds).
         var boxRectKeys = new List<CssLineBox>(box.Rectangles.Keys);
         foreach (var k in boxRectKeys)
-            box.Rectangles[k] = RotateRect(box.Rectangles[k], rootX, rootY, blockExtent, mirror);
+            box.Rectangles[k] = RotateRect(box.Rectangles[k], rootX, rootY, blockExtent, mirror, blockOffset);
 
         // --- Line boxes owned by this box: words + per-box rectangles ---
         foreach (var line in box.LineBoxes)
@@ -594,7 +614,7 @@ internal class CssBox : CssBoxProperties, IDisposable
                 // the word's inline offset (the inline axis runs top→bottom).
                 double wLeft = word.Left - rootX;
                 double wTop = word.Top - rootY;
-                double colX = rootX + (mirror ? blockExtent - wTop - word.Height : wTop);
+                double colX = rootX + blockOffset + (mirror ? blockExtent - wTop - word.Height : wTop);
                 double colTop = rootY + wLeft;
 
                 // Stage 3: decompose a multi-glyph run into per-glyph cells
@@ -632,24 +652,24 @@ internal class CssBox : CssBoxProperties, IDisposable
 
             var keys = new List<CssBox>(line.Rectangles.Keys);
             foreach (var k in keys)
-                line.Rectangles[k] = RotateRect(line.Rectangles[k], rootX, rootY, blockExtent, mirror);
+                line.Rectangles[k] = RotateRect(line.Rectangles[k], rootX, rootY, blockExtent, mirror, blockOffset);
         }
 
         foreach (var child in box.Boxes)
         {
             if (child.Display == CssConstants.None)
                 continue;
-            TransformVerticalSubtree(child, rootX, rootY, blockExtent, mirror, isRoot: false);
+            TransformVerticalSubtree(child, rootX, rootY, blockExtent, mirror, blockOffset, isRoot: false);
         }
     }
 
-    private static RectangleF RotateRect(RectangleF r, float rootX, float rootY, double blockExtent, bool mirror)
+    private static RectangleF RotateRect(RectangleF r, float rootX, float rootY, double blockExtent, bool mirror, double blockOffset)
     {
         double logicalLeft = r.X - rootX;
         double logicalTop = r.Y - rootY;
         double physLeft = mirror ? blockExtent - logicalTop - r.Height : logicalTop;
         return new RectangleF(
-            rootX + (float)physLeft,
+            rootX + (float)(blockOffset + physLeft),
             rootY + (float)logicalLeft,
             r.Height,
             r.Width);
@@ -2195,18 +2215,9 @@ internal class CssBox : CssBoxProperties, IDisposable
         // Verified against Chromium for css-position/multicol/static-position/
         // vlr-in-multicol-ref.html: an 80×600 logical run fragmented across
         // 100px-tall columns rotates to a 100px-wide × 480px-tall vertical strip
-        // (diff 17.3% → ~1.9% vs the legacy single-block run).
-        //
-        // Scoped to left→right block flow (vertical-lr / sideways-lr). Right→left
-        // modes (vertical-rl / sideways-rl) still take the single-run path: their
-        // whole block is currently placed at the inline-start (left) edge instead
-        // of being block-start (right) aligned to the viewport — a separate,
-        // pre-existing positioning gap — so fragmenting their shape correctly
-        // would only relocate the still-mislocated strip, not fix it.
-        bool mirroredBlockFlow = WritingMode is "vertical-rl" or "sideways-rl";
-        if (VerticalFlowPrototype.Enabled && IsVerticalWritingMode(WritingMode) && mirroredBlockFlow)
-            return;
-
+        // (diff 17.3% → ~1.9% vs the legacy single-block run). Right→left modes
+        // (vertical-rl / sideways-rl) fragment identically here and are then
+        // block-start (right) aligned by ApplyVerticalWritingModeFlow.
         double columnGap = ResolveColumnGap();
         double contentWidth = Size.Width - ActualPaddingLeft - ActualPaddingRight
             - ActualBorderLeftWidth - ActualBorderRightWidth;
