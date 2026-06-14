@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Net.Http;
 
 namespace Broiler.HTML.Orchestration.Core;
 
@@ -178,14 +179,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // Load @font-face fonts before layout so custom families are available.
         LoadFontFacesFromCssData(baseUrl);
 
+        // Resolve font-variant-alternates + @font-feature-values + @font-face
+        // feature defaults into each box's effective font-feature-settings.
+        ResolveFontFeatureValues(Root);
+
         _selectionHandler = _handlerFactory.CreateSelectionHandler(Root);
         _imageDownloader = new ImageDownloader();
     }
 
     /// <summary>
     /// Iterates parsed <c>@font-face</c> rules from <see cref="_cssData"/> and
-    /// loads each font file via the platform adapter.  Relative <c>src</c> URLs
-    /// are resolved against <paramref name="baseUrl"/>.
+    /// loads each font (TrueType/OpenType or WOFF) via the platform adapter.
+    /// <c>src</c> URLs are resolved against <paramref name="baseUrl"/> and may be
+    /// local files or HTTP(S) resources (e.g. the WPT server serves fonts over
+    /// http); remote sources are fetched with a short timeout.
     /// </summary>
     private void LoadFontFacesFromCssData(string baseUrl)
     {
@@ -199,14 +206,66 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
             var src = face.Src.Trim('\'', '"');
 
-            // Skip remote URLs — only local file paths are supported.
-            if (src.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                src.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            string resolvedFile = ResolveLocalFontPath(src, baseUrl);
+            if (!string.IsNullOrEmpty(resolvedFile) && File.Exists(resolvedFile))
+            {
+                Adapter.LoadFontFromFile(resolvedFile, face.Family);
                 continue;
+            }
 
-            string resolved = ResolveLocalFontPath(src, baseUrl);
-            if (!string.IsNullOrEmpty(resolved) && File.Exists(resolved))
-                Adapter.LoadFontFromFile(resolved, face.Family);
+            // Remote source: resolve to an absolute HTTP(S) URL and fetch it.
+            if (TryResolveHttpFontUrl(src, baseUrl, out Uri fontUri))
+                TryLoadRemoteFont(fontUri, face.Family);
+        }
+    }
+
+    private static bool TryResolveHttpFontUrl(string src, string baseUrl, out Uri fontUri)
+    {
+        fontUri = null;
+        if (Uri.TryCreate(src, UriKind.Absolute, out var abs) && IsHttp(abs))
+        {
+            fontUri = abs;
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(baseUrl)
+            && Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri) && IsHttp(baseUri)
+            && Uri.TryCreate(baseUri, src, out var combined) && IsHttp(combined))
+        {
+            fontUri = combined;
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool IsHttp(Uri uri) =>
+        uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
+
+    private void TryLoadRemoteFont(Uri fontUri, string family)
+    {
+        string tempPath = null;
+        try
+        {
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            byte[] bytes = client.GetByteArrayAsync(fontUri).GetAwaiter().GetResult();
+            if (bytes == null || bytes.Length == 0)
+                return;
+
+            // The adapter parses fonts from a file path; stage the downloaded
+            // bytes in a temp file (TrueTypeFont/WOFF decoding handles the rest).
+            tempPath = Path.Combine(Path.GetTempPath(), "broiler-font-" + Guid.NewGuid().ToString("N") + ".bin");
+            File.WriteAllBytes(tempPath, bytes);
+            Adapter.LoadFontFromFile(tempPath, family);
+        }
+        catch
+        {
+            // Network/parse failure → leave the family unresolved (falls back).
+        }
+        finally
+        {
+            try { if (tempPath != null) File.Delete(tempPath); }
+            catch { /* best-effort cleanup */ }
         }
     }
 
@@ -247,6 +306,155 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Walks the box tree resolving CSS <c>font-variant-alternates</c> and
+    /// <c>@font-face</c> feature defaults into each box's effective
+    /// <c>font-feature-settings</c> (normalised to the enabled feature tags),
+    /// using <c>@font-feature-values</c> for named feature values.
+    /// </summary>
+    private void ResolveFontFeatureValues(Broiler.HTML.Dom.Core.Dom.CssBox box)
+    {
+        if (box == null)
+            return;
+
+        ResolveBoxFontFeatures(box);
+        foreach (var child in box.Boxes)
+            ResolveFontFeatureValues(child);
+    }
+
+    private void ResolveBoxFontFeatures(Broiler.HTML.Dom.Core.Dom.CssBox box)
+    {
+        string fva = box.FontVariantAlternates;
+        bool hasAlternates = !string.IsNullOrWhiteSpace(fva) && fva.Trim() != "normal";
+
+        // The first (specified) family the element uses, unescaped for matching.
+        string family = box.FontFamily ?? string.Empty;
+        int comma = family.IndexOf(',');
+        if (comma >= 0)
+            family = family.Substring(0, comma);
+        family = CssParser.UnescapeIdentifier(family.Trim().Trim('"', '\''));
+
+        // @font-face feature defaults declared for this family.
+        string faceFeatures = null;
+        if (_cssData?.FontFaces != null)
+            foreach (var face in _cssData.FontFaces)
+                if (!string.IsNullOrEmpty(face.FeatureSettings)
+                    && string.Equals(face.Family, family, StringComparison.OrdinalIgnoreCase))
+                    faceFeatures = face.FeatureSettings;
+
+        if (faceFeatures == null && !hasAlternates)
+            return; // nothing to merge — keep the element's own font-feature-settings
+
+        var enabled = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        ApplyFeatureSettings(enabled, faceFeatures);
+        ApplyFeatureSettings(enabled, box.FontFeatureSettings);
+        if (hasAlternates)
+            ApplyFontVariantAlternates(enabled, fva, family);
+
+        var sb = new System.Text.StringBuilder();
+        foreach (var kv in enabled)
+        {
+            if (!kv.Value)
+                continue;
+            if (sb.Length > 0)
+                sb.Append(", ");
+            sb.Append('"').Append(kv.Key).Append('"');
+        }
+        box.FontFeatureSettings = sb.Length > 0 ? sb.ToString() : null;
+    }
+
+    private static void ApplyFeatureSettings(Dictionary<string, bool> enabled, string settings)
+    {
+        if (string.IsNullOrWhiteSpace(settings) || settings.Trim() == "normal")
+            return;
+
+        foreach (var part in settings.Split(','))
+        {
+            var item = part.Trim();
+            if (item.Length == 0)
+                continue;
+
+            string tag, flag;
+            int q = item.IndexOf('"');
+            int qa = item.IndexOf('\'');
+            char quote = q >= 0 ? '"' : (qa >= 0 ? '\'' : '\0');
+            if (quote != '\0')
+            {
+                int st = item.IndexOf(quote);
+                int en = item.IndexOf(quote, st + 1);
+                if (en <= st)
+                    continue;
+                tag = item.Substring(st + 1, en - st - 1).Trim();
+                flag = item.Substring(en + 1).Trim();
+            }
+            else
+            {
+                var sp = item.Split([' ', '\t'], 2, StringSplitOptions.RemoveEmptyEntries);
+                tag = sp[0];
+                flag = sp.Length > 1 ? sp[1].Trim() : string.Empty;
+            }
+
+            if (tag.Length != 4)
+                continue;
+            bool on = flag.Length == 0
+                || flag.Equals("on", StringComparison.OrdinalIgnoreCase)
+                || flag == "1"
+                || (int.TryParse(flag, out int v) && v != 0);
+            enabled[tag] = on; // later declarations win (incl. turning off)
+        }
+    }
+
+    private void ApplyFontVariantAlternates(Dictionary<string, bool> enabled, string value, string family)
+    {
+        if (_cssData?.FontFeatureValues == null
+            || !_cssData.FontFeatureValues.TryGetValue(family, out var typeMap))
+            return;
+
+        int i = 0;
+        while (i < value.Length)
+        {
+            int open = value.IndexOf('(', i);
+            if (open < 0)
+                break;
+            int close = value.IndexOf(')', open);
+            if (close < 0)
+                break;
+
+            int s = open - 1;
+            while (s >= 0 && (char.IsLetterOrDigit(value[s]) || value[s] == '-'))
+                s--;
+            string func = value.Substring(s + 1, open - s - 1).Trim().ToLowerInvariant();
+            string args = value.Substring(open + 1, close - open - 1);
+            i = close + 1;
+
+            // Map the functional notation to its @font-feature-values type and
+            // the OpenType feature-tag prefix (ssNN for styleset, cvNN for
+            // character-variant).  Other notations are not yet applied.
+            string typeKey;
+            string prefix;
+            switch (func)
+            {
+                case "styleset": typeKey = "styleset"; prefix = "ss"; break;
+                case "character-variant": typeKey = "character-variant"; prefix = "cv"; break;
+                default: continue;
+            }
+
+            if (!typeMap.TryGetValue(typeKey, out var nameMap))
+                continue;
+
+            foreach (var rawName in args.Split(','))
+            {
+                string name = CssParser.UnescapeIdentifier(rawName.Trim());
+                if (name.Length == 0)
+                    continue;
+                // Value names are case-sensitive (nameMap uses ordinal comparison).
+                if (nameMap.TryGetValue(name, out var values))
+                    foreach (int v in values)
+                        enabled[prefix + v.ToString("00")] = true;
+            }
+        }
     }
 
     public void Clear()
@@ -707,7 +915,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     PointF IHtmlContainerInt.RootLocation => Root?.Location ?? PointF.Empty;
 
-    RFont IHtmlContainerInt.GetFont(string family, double size, FontStyle style) => Adapter.GetFont(family, size, style);
+    RFont IHtmlContainerInt.GetFont(string family, double size, FontStyle style, string fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
 
     Color IHtmlContainerInt.ParseColor(string colorStr) => CssParser.ParseColor(colorStr);
 

@@ -25,11 +25,21 @@ internal sealed class TrueTypeFont
     private readonly int _numHMetrics;
     private readonly uint _hmtxOffset;
     private CmapLookup? _cmap;
+    private GsubTable? _gsub;
+    private bool _gsubParsed;
+    private GposTable? _gpos;
+    private bool _gposParsed;
+    private ClassDefTable? _gdefClasses;
+    private bool _gdefParsed;
+    private CffFont? _cff;
+    private bool _cffParsed;
 
     public int UnitsPerEm { get; }
     public int Ascender { get; }
     public int Descender { get; }       // typically negative
-    public bool HasOutlines => _glyfOffset != 0 && _loca.Length > 1;
+
+    /// <summary>True when the font has rasterisable outlines (glyf or CFF).</summary>
+    public bool HasOutlines => (_glyfOffset != 0 && _loca.Length > 1) || GetCff() != null;
 
     private TrueTypeFont(byte[] data, Dictionary<string, uint> tables)
     {
@@ -61,6 +71,14 @@ internal sealed class TrueTypeFont
     {
         if (data == null || data.Length < 12)
             return null;
+
+        // WOFF 1.0 container: decode to a raw sfnt first (e.g. @font-face .woff).
+        if (WoffDecoder.IsWoff(data))
+        {
+            data = WoffDecoder.Decode(data);
+            if (data == null || data.Length < 12)
+                return null;
+        }
 
         uint version = ReadU32(data, 0);
         // 0x00010000 = TrueType, 'true'/'typ1' = legacy Mac, 'OTTO' = CFF-based OpenType.
@@ -115,9 +133,35 @@ internal sealed class TrueTypeFont
     /// </summary>
     public List<PointF[]> GetGlyphContours(int glyphIndex)
     {
-        var result = new List<PointF[]>();
-        AppendGlyphContours(glyphIndex, result, 0f, 0f, 1f, 0f, 0f, 1f, 0);
-        return result;
+        // glyf outlines take precedence; otherwise use CFF (PostScript) outlines.
+        if (_glyfOffset != 0 && _loca.Length > 1)
+        {
+            var result = new List<PointF[]>();
+            AppendGlyphContours(glyphIndex, result, 0f, 0f, 1f, 0f, 0f, 1f, 0);
+            return result;
+        }
+
+        var cff = GetCff();
+        return cff != null ? cff.GetGlyphOutline(glyphIndex) : new List<PointF[]>();
+    }
+
+    private CffFont? GetCff()
+    {
+        if (_cffParsed)
+            return _cff;
+        _cffParsed = true;
+        uint cffOffset = _tables.GetValueOrDefault("CFF ");
+        if (cffOffset != 0)
+        {
+            try
+            {
+                var font = new CffFont(_data, (int)cffOffset, UnitsPerEm);
+                if (font.Ok)
+                    _cff = font;
+            }
+            catch { _cff = null; }
+        }
+        return _cff;
     }
 
     // ── Glyph outline parsing ─────────────────────────────────────────────
@@ -545,6 +589,630 @@ internal sealed class TrueTypeFont
         catch (IOException)
         {
             return null;
+        }
+    }
+
+    // ── GSUB (glyph substitution) ─────────────────────────────────────────
+
+    /// <summary>Whether the font carries a parsable GSUB table (used for shaping).</summary>
+    public bool HasGsub => GetGsub() != null;
+
+    /// <summary>
+    /// Apply a single-substitution GSUB feature (e.g. <c>"init"</c>, <c>"medi"</c>,
+    /// <c>"fina"</c>, <c>"isol"</c>, <c>"liga"</c>) to one glyph, returning the
+    /// substituted glyph or the input glyph when the feature does not apply.
+    /// </summary>
+    public int ApplySingleSubstitution(string featureTag, int glyph)
+    {
+        var g = GetGsub();
+        return g != null ? g.ApplySingle(featureTag, glyph) : glyph;
+    }
+
+    /// <summary>
+    /// Try to substitute a ligature (GSUB type 4) for the glyph sequence starting
+    /// at <paramref name="pos"/> under the given feature (e.g. <c>"rlig"</c>,
+    /// <c>"liga"</c>).  On success returns the ligature glyph and the number of
+    /// input glyphs it consumes.
+    /// </summary>
+    public bool TryApplyLigature(string featureTag, IReadOnlyList<int> glyphs, int pos, out int ligature, out int componentCount)
+    {
+        var g = GetGsub();
+        if (g != null)
+            return g.TryLigate(featureTag, glyphs, pos, out ligature, out componentCount);
+        ligature = 0;
+        componentCount = 0;
+        return false;
+    }
+
+    private GsubTable? GetGsub()
+    {
+        if (_gsubParsed)
+            return _gsub;
+        _gsubParsed = true;
+        try { _gsub = ParseGsub(); }
+        catch { _gsub = null; }
+        return _gsub;
+    }
+
+    private GsubTable? ParseGsub()
+    {
+        uint gsub = _tables.GetValueOrDefault("GSUB");
+        if (gsub == 0)
+            return null;
+
+        uint scriptListOff = gsub + (uint)ReadUInt16(gsub + 4);
+        uint featureListOff = gsub + (uint)ReadUInt16(gsub + 6);
+        uint lookupListOff = gsub + (uint)ReadUInt16(gsub + 8);
+
+        // Collect the feature indices referenced by every script/langsys; we
+        // only ever query features by tag, so gathering all is harmless and
+        // robust across fonts that place Arabic features under 'arab', 'DFLT',
+        // or a default langsys.
+        var featureIndices = new HashSet<int>();
+        CollectAllScriptFeatures(scriptListOff, featureIndices);
+
+        var table = new GsubTable();
+        int featureCount = ReadUInt16(featureListOff);
+        foreach (int fi in featureIndices)
+        {
+            if (fi < 0 || fi >= featureCount)
+                continue;
+            uint frec = featureListOff + 2 + (uint)(fi * 6);
+            string tag = ReadTag(frec);
+            uint featOff = featureListOff + (uint)ReadUInt16(frec + 4);
+            int lookupCount = ReadUInt16(featOff + 2);
+            if (!table.FeatureLookups.TryGetValue(tag, out var list))
+                table.FeatureLookups[tag] = list = new List<int>();
+            for (int k = 0; k < lookupCount; k++)
+                list.Add(ReadUInt16(featOff + 4 + (uint)(k * 2)));
+        }
+
+        int lookupCountTotal = ReadUInt16(lookupListOff);
+        table.Lookups = new List<object?>(new object?[lookupCountTotal]);
+        var needed = new HashSet<int>();
+        foreach (var kv in table.FeatureLookups)
+            foreach (int li in kv.Value)
+                needed.Add(li);
+        foreach (int li in needed)
+        {
+            if (li < 0 || li >= lookupCountTotal)
+                continue;
+            uint lookupOff = lookupListOff + (uint)ReadUInt16(lookupListOff + 2 + (uint)(li * 2));
+            table.Lookups[li] = ParseLookup(lookupOff);
+        }
+
+        return table.FeatureLookups.Count > 0 ? table : null;
+    }
+
+    private void CollectAllScriptFeatures(uint scriptListOff, HashSet<int> featureIndices)
+    {
+        int scriptCount = ReadUInt16(scriptListOff);
+        for (int s = 0; s < scriptCount; s++)
+        {
+            uint srec = scriptListOff + 2 + (uint)(s * 6);
+            uint scriptOff = scriptListOff + (uint)ReadUInt16(srec + 4);
+
+            uint defaultLangSys = (uint)ReadUInt16(scriptOff);
+            if (defaultLangSys != 0)
+                CollectLangSysFeatures(scriptOff + defaultLangSys, featureIndices);
+
+            int langSysCount = ReadUInt16(scriptOff + 2);
+            for (int l = 0; l < langSysCount; l++)
+            {
+                uint lrec = scriptOff + 4 + (uint)(l * 6);
+                uint langSysOff = scriptOff + (uint)ReadUInt16(lrec + 4);
+                CollectLangSysFeatures(langSysOff, featureIndices);
+            }
+        }
+    }
+
+    private void CollectLangSysFeatures(uint langSysOff, HashSet<int> featureIndices)
+    {
+        int required = ReadUInt16(langSysOff + 2);
+        if (required != 0xFFFF)
+            featureIndices.Add(required);
+        int count = ReadUInt16(langSysOff + 4);
+        for (int i = 0; i < count; i++)
+            featureIndices.Add(ReadUInt16(langSysOff + 6 + (uint)(i * 2)));
+    }
+
+    private object? ParseLookup(uint lookupOff)
+    {
+        int type = ReadUInt16(lookupOff);
+        int subCount = ReadUInt16(lookupOff + 4);
+
+        if (type == 1)
+        {
+            var map = new Dictionary<int, int>();
+            for (int s = 0; s < subCount; s++)
+                ParseSingleSubst(lookupOff + (uint)ReadUInt16(lookupOff + 6 + (uint)(s * 2)), map);
+            return new SingleSubst(map);
+        }
+        if (type == 4)
+        {
+            var sets = new Dictionary<int, List<(int[] rest, int lig)>>();
+            for (int s = 0; s < subCount; s++)
+                ParseLigatureSubst(lookupOff + (uint)ReadUInt16(lookupOff + 6 + (uint)(s * 2)), sets);
+            return new LigatureSubst(sets);
+        }
+        if (type == 7)
+        {
+            // Extension substitution: each subtable indirects to a real subtable
+            // (with 32-bit offset) whose own type is given inline.  Unwrap to the
+            // supported single/ligature forms.
+            Dictionary<int, int>? singleMap = null;
+            Dictionary<int, List<(int[] rest, int lig)>>? ligSets = null;
+            for (int s = 0; s < subCount; s++)
+            {
+                uint sub = lookupOff + (uint)ReadUInt16(lookupOff + 6 + (uint)(s * 2));
+                int extType = ReadUInt16(sub + 2);
+                uint extOff = sub + ReadU32(_data, (int)sub + 4);
+                if (extType == 1)
+                    ParseSingleSubst(extOff, singleMap ??= new Dictionary<int, int>());
+                else if (extType == 4)
+                    ParseLigatureSubst(extOff, ligSets ??= new Dictionary<int, List<(int[], int)>>());
+            }
+            if (singleMap != null)
+                return new SingleSubst(singleMap);
+            if (ligSets != null)
+                return new LigatureSubst(ligSets);
+        }
+
+        // Types 2,3,5,6,8 (multiple/alternate/contextual/chaining/reverse) are
+        // not needed for the supported Arabic-joining + ligature shaping.
+        return null;
+    }
+
+    private void ParseSingleSubst(uint subOff, Dictionary<int, int> map)
+    {
+        int format = ReadUInt16(subOff);
+        var coverage = ParseCoverage(subOff + (uint)ReadUInt16(subOff + 2));
+        if (format == 1)
+        {
+            int delta = ReadInt16(subOff + 4);
+            foreach (int g in coverage)
+                map[g] = (g + delta) & 0xFFFF;
+        }
+        else if (format == 2)
+        {
+            int glyphCount = ReadUInt16(subOff + 4);
+            for (int i = 0; i < coverage.Count && i < glyphCount; i++)
+                map[coverage[i]] = ReadUInt16(subOff + 6 + (uint)(i * 2));
+        }
+    }
+
+    private void ParseLigatureSubst(uint subOff, Dictionary<int, List<(int[] rest, int lig)>> sets)
+    {
+        if (ReadUInt16(subOff) != 1)
+            return; // only LigatureSubstFormat1
+        var coverage = ParseCoverage(subOff + (uint)ReadUInt16(subOff + 2));
+        int ligSetCount = ReadUInt16(subOff + 4);
+        for (int i = 0; i < ligSetCount && i < coverage.Count; i++)
+        {
+            uint ligSetOff = subOff + (uint)ReadUInt16(subOff + 6 + (uint)(i * 2));
+            int ligCount = ReadUInt16(ligSetOff);
+            int firstGlyph = coverage[i];
+            if (!sets.TryGetValue(firstGlyph, out var lst))
+                sets[firstGlyph] = lst = new List<(int[], int)>();
+            for (int j = 0; j < ligCount; j++)
+            {
+                uint ligOff = ligSetOff + (uint)ReadUInt16(ligSetOff + 2 + (uint)(j * 2));
+                int ligGlyph = ReadUInt16(ligOff);
+                int compCount = ReadUInt16(ligOff + 2);
+                var rest = new int[Math.Max(0, compCount - 1)];
+                for (int k = 0; k < rest.Length; k++)
+                    rest[k] = ReadUInt16(ligOff + 4 + (uint)(k * 2));
+                lst.Add((rest, ligGlyph));
+            }
+        }
+    }
+
+    private List<int> ParseCoverage(uint covOff)
+    {
+        var list = new List<int>();
+        int fmt = ReadUInt16(covOff);
+        if (fmt == 1)
+        {
+            int count = ReadUInt16(covOff + 2);
+            for (int i = 0; i < count; i++)
+                list.Add(ReadUInt16(covOff + 4 + (uint)(i * 2)));
+        }
+        else if (fmt == 2)
+        {
+            int rangeCount = ReadUInt16(covOff + 2);
+            for (int r = 0; r < rangeCount; r++)
+            {
+                uint rec = covOff + 4 + (uint)(r * 6);
+                int start = ReadUInt16(rec);
+                int end = ReadUInt16(rec + 2);
+                for (int g = start; g <= end && g >= 0; g++)
+                    list.Add(g);
+            }
+        }
+        return list;
+    }
+
+    private string ReadTag(uint offset)
+    {
+        if (offset + 4 > _data.Length)
+            return string.Empty;
+        return System.Text.Encoding.ASCII.GetString(_data, (int)offset, 4);
+    }
+
+    // ── GDEF / GPOS (glyph classes + mark positioning) ───────────────────────
+
+    /// <summary>Whether <paramref name="glyph"/> is a mark per the GDEF glyph-class table.</summary>
+    public bool IsMarkGlyph(int glyph)
+    {
+        if (!_gdefParsed)
+        {
+            _gdefParsed = true;
+            try { _gdefClasses = ParseGdefClasses(); }
+            catch { _gdefClasses = null; }
+        }
+        return _gdefClasses != null && _gdefClasses.GetClass(glyph) == 3; // 3 = Mark
+    }
+
+    /// <summary>
+    /// GPOS mark-to-base (type 4): the offset (font units) to add to a mark glyph
+    /// so its attachment anchor coincides with the base glyph's anchor.
+    /// </summary>
+    public bool TryGetMarkToBaseAnchor(int baseGlyph, int markGlyph, out int dx, out int dy)
+    {
+        var g = GetGpos();
+        if (g != null)
+            return g.TryMarkBase(baseGlyph, markGlyph, out dx, out dy);
+        dx = dy = 0;
+        return false;
+    }
+
+    /// <summary>
+    /// GPOS mark-to-mark (type 6): the offset (font units) to attach
+    /// <paramref name="attachingMark"/> onto an already-placed <paramref name="baseMark"/>.
+    /// </summary>
+    public bool TryGetMarkToMarkAnchor(int baseMark, int attachingMark, out int dx, out int dy)
+    {
+        var g = GetGpos();
+        if (g != null)
+            return g.TryMarkMark(baseMark, attachingMark, out dx, out dy);
+        dx = dy = 0;
+        return false;
+    }
+
+    private GposTable? GetGpos()
+    {
+        if (_gposParsed)
+            return _gpos;
+        _gposParsed = true;
+        try { _gpos = ParseGpos(); }
+        catch { _gpos = null; }
+        return _gpos;
+    }
+
+    private GposTable? ParseGpos()
+    {
+        uint gpos = _tables.GetValueOrDefault("GPOS");
+        if (gpos == 0)
+            return null;
+
+        uint scriptListOff = gpos + (uint)ReadUInt16(gpos + 4);
+        uint featureListOff = gpos + (uint)ReadUInt16(gpos + 6);
+        uint lookupListOff = gpos + (uint)ReadUInt16(gpos + 8);
+
+        var featureIndices = new HashSet<int>();
+        CollectAllScriptFeatures(scriptListOff, featureIndices);
+
+        var markLookups = new List<int>();
+        var mkmkLookups = new List<int>();
+        int featureCount = ReadUInt16(featureListOff);
+        foreach (int fi in featureIndices)
+        {
+            if (fi < 0 || fi >= featureCount)
+                continue;
+            uint frec = featureListOff + 2 + (uint)(fi * 6);
+            string tag = ReadTag(frec);
+            if (tag != "mark" && tag != "mkmk")
+                continue;
+            uint featOff = featureListOff + (uint)ReadUInt16(frec + 4);
+            int lookupCount = ReadUInt16(featOff + 2);
+            var dst = tag == "mark" ? markLookups : mkmkLookups;
+            for (int k = 0; k < lookupCount; k++)
+                dst.Add(ReadUInt16(featOff + 4 + (uint)(k * 2)));
+        }
+
+        var table = new GposTable();
+        int lookupCountTotal = ReadUInt16(lookupListOff);
+        foreach (int li in markLookups)
+            ParseGposLookup(lookupListOff, lookupCountTotal, li, expectMarkBase: true, table);
+        foreach (int li in mkmkLookups)
+            ParseGposLookup(lookupListOff, lookupCountTotal, li, expectMarkBase: false, table);
+
+        return table.MarkBase.Count > 0 || table.MarkMark.Count > 0 ? table : null;
+    }
+
+    private void ParseGposLookup(uint lookupListOff, int lookupCountTotal, int li, bool expectMarkBase, GposTable table)
+    {
+        if (li < 0 || li >= lookupCountTotal)
+            return;
+        uint lookupOff = lookupListOff + (uint)ReadUInt16(lookupListOff + 2 + (uint)(li * 2));
+        int type = ReadUInt16(lookupOff);
+        int subCount = ReadUInt16(lookupOff + 4);
+
+        for (int s = 0; s < subCount; s++)
+        {
+            uint sub = lookupOff + (uint)ReadUInt16(lookupOff + 6 + (uint)(s * 2));
+            int effectiveType = type;
+            uint effectiveSub = sub;
+            if (type == 9) // Extension positioning: unwrap.
+            {
+                effectiveType = ReadUInt16(sub + 2);
+                effectiveSub = sub + ReadU32(_data, (int)sub + 4);
+            }
+
+            if (effectiveType == 4)
+                table.MarkBase.Add(ParseMarkBasePos(effectiveSub));
+            else if (effectiveType == 6)
+                table.MarkMark.Add(ParseMarkMarkPos(effectiveSub));
+        }
+    }
+
+    private MarkArrayData ParseMarkArray(uint markArrayOff, List<int> coverage)
+    {
+        var map = new Dictionary<int, (int cls, int x, int y)>();
+        int markCount = ReadUInt16(markArrayOff);
+        for (int i = 0; i < markCount && i < coverage.Count; i++)
+        {
+            uint rec = markArrayOff + 2 + (uint)(i * 4);
+            int cls = ReadUInt16(rec);
+            int anchorRel = ReadUInt16(rec + 2);
+            (int x, int y) = anchorRel != 0 ? ReadAnchor(markArrayOff + (uint)anchorRel) : (0, 0);
+            map[coverage[i]] = (cls, x, y);
+        }
+        return new MarkArrayData(map);
+    }
+
+    private Dictionary<int, (int x, int y)[]> ParseBaseArray(uint baseArrayOff, List<int> coverage, int markClassCount)
+    {
+        var map = new Dictionary<int, (int x, int y)[]>();
+        int baseCount = ReadUInt16(baseArrayOff);
+        for (int i = 0; i < baseCount && i < coverage.Count; i++)
+        {
+            uint recBase = baseArrayOff + 2 + (uint)(i * markClassCount * 2);
+            var anchors = new (int x, int y)[markClassCount];
+            for (int c = 0; c < markClassCount; c++)
+            {
+                int anchorRel = ReadUInt16(recBase + (uint)(c * 2));
+                anchors[c] = anchorRel != 0 ? ReadAnchor(baseArrayOff + (uint)anchorRel) : (0, 0);
+            }
+            map[coverage[i]] = anchors;
+        }
+        return map;
+    }
+
+    private MarkBasePos ParseMarkBasePos(uint subOff)
+    {
+        var markCov = ParseCoverage(subOff + (uint)ReadUInt16(subOff + 2));
+        var baseCov = ParseCoverage(subOff + (uint)ReadUInt16(subOff + 4));
+        int markClassCount = ReadUInt16(subOff + 6);
+        var marks = ParseMarkArray(subOff + (uint)ReadUInt16(subOff + 8), markCov);
+        var bases = ParseBaseArray(subOff + (uint)ReadUInt16(subOff + 10), baseCov, markClassCount);
+        return new MarkBasePos(marks, bases);
+    }
+
+    private MarkMarkPos ParseMarkMarkPos(uint subOff)
+    {
+        var mark1Cov = ParseCoverage(subOff + (uint)ReadUInt16(subOff + 2));
+        var mark2Cov = ParseCoverage(subOff + (uint)ReadUInt16(subOff + 4));
+        int markClassCount = ReadUInt16(subOff + 6);
+        var mark1 = ParseMarkArray(subOff + (uint)ReadUInt16(subOff + 8), mark1Cov);
+        var mark2 = ParseBaseArray(subOff + (uint)ReadUInt16(subOff + 10), mark2Cov, markClassCount);
+        return new MarkMarkPos(mark1, mark2);
+    }
+
+    private (int x, int y) ReadAnchor(uint anchorOff)
+    {
+        // Formats 1/2/3 all begin with format(2) + xCoordinate(2) + yCoordinate(2);
+        // anchor-point (fmt 2) and device tables (fmt 3) are ignored.
+        return (ReadInt16(anchorOff + 2), ReadInt16(anchorOff + 4));
+    }
+
+    private ClassDefTable? ParseGdefClasses()
+    {
+        uint gdef = _tables.GetValueOrDefault("GDEF");
+        if (gdef == 0)
+            return null;
+        int classDefRel = ReadUInt16(gdef + 4);
+        if (classDefRel == 0)
+            return null;
+        return ParseClassDef(gdef + (uint)classDefRel);
+    }
+
+    private ClassDefTable ParseClassDef(uint off)
+    {
+        var map = new Dictionary<int, int>();
+        int format = ReadUInt16(off);
+        if (format == 1)
+        {
+            int startGlyph = ReadUInt16(off + 2);
+            int count = ReadUInt16(off + 4);
+            for (int i = 0; i < count; i++)
+                map[startGlyph + i] = ReadUInt16(off + 6 + (uint)(i * 2));
+        }
+        else if (format == 2)
+        {
+            int rangeCount = ReadUInt16(off + 2);
+            for (int r = 0; r < rangeCount; r++)
+            {
+                uint rec = off + 4 + (uint)(r * 6);
+                int start = ReadUInt16(rec);
+                int end = ReadUInt16(rec + 2);
+                int cls = ReadUInt16(rec + 4);
+                for (int g = start; g <= end && g >= 0; g++)
+                    map[g] = cls;
+            }
+        }
+        return new ClassDefTable(map);
+    }
+
+    private sealed class GposTable
+    {
+        public List<MarkBasePos> MarkBase { get; } = new();
+        public List<MarkMarkPos> MarkMark { get; } = new();
+
+        public bool TryMarkBase(int baseGlyph, int markGlyph, out int dx, out int dy)
+        {
+            foreach (var mb in MarkBase)
+                if (mb.Try(baseGlyph, markGlyph, out dx, out dy))
+                    return true;
+            dx = dy = 0;
+            return false;
+        }
+
+        public bool TryMarkMark(int baseMark, int attachingMark, out int dx, out int dy)
+        {
+            foreach (var mm in MarkMark)
+                if (mm.Try(baseMark, attachingMark, out dx, out dy))
+                    return true;
+            dx = dy = 0;
+            return false;
+        }
+    }
+
+    private sealed class MarkArrayData
+    {
+        private readonly Dictionary<int, (int cls, int x, int y)> _marks;
+        public MarkArrayData(Dictionary<int, (int cls, int x, int y)> marks) => _marks = marks;
+        public bool TryGet(int glyph, out int cls, out int x, out int y)
+        {
+            if (_marks.TryGetValue(glyph, out var m))
+            {
+                (cls, x, y) = m;
+                return true;
+            }
+            cls = x = y = 0;
+            return false;
+        }
+    }
+
+    private sealed class MarkBasePos
+    {
+        private readonly MarkArrayData _marks;
+        private readonly Dictionary<int, (int x, int y)[]> _bases;
+        public MarkBasePos(MarkArrayData marks, Dictionary<int, (int x, int y)[]> bases)
+        {
+            _marks = marks;
+            _bases = bases;
+        }
+
+        public bool Try(int baseGlyph, int markGlyph, out int dx, out int dy)
+        {
+            dx = dy = 0;
+            if (!_marks.TryGet(markGlyph, out int cls, out int mx, out int my))
+                return false;
+            if (!_bases.TryGetValue(baseGlyph, out var anchors) || cls >= anchors.Length)
+                return false;
+            dx = anchors[cls].x - mx;
+            dy = anchors[cls].y - my;
+            return true;
+        }
+    }
+
+    private sealed class MarkMarkPos
+    {
+        private readonly MarkArrayData _mark1;                   // attaching marks
+        private readonly Dictionary<int, (int x, int y)[]> _mark2; // base marks
+        public MarkMarkPos(MarkArrayData mark1, Dictionary<int, (int x, int y)[]> mark2)
+        {
+            _mark1 = mark1;
+            _mark2 = mark2;
+        }
+
+        public bool Try(int baseMark, int attachingMark, out int dx, out int dy)
+        {
+            dx = dy = 0;
+            if (!_mark1.TryGet(attachingMark, out int cls, out int mx, out int my))
+                return false;
+            if (!_mark2.TryGetValue(baseMark, out var anchors) || cls >= anchors.Length)
+                return false;
+            dx = anchors[cls].x - mx;
+            dy = anchors[cls].y - my;
+            return true;
+        }
+    }
+
+    private sealed class ClassDefTable
+    {
+        private readonly Dictionary<int, int> _classes;
+        public ClassDefTable(Dictionary<int, int> classes) => _classes = classes;
+        public int GetClass(int glyph) => _classes.TryGetValue(glyph, out int c) ? c : 0;
+    }
+
+    /// <summary>Parsed subset of GSUB used for Arabic-joining + ligature shaping.</summary>
+    private sealed class GsubTable
+    {
+        public Dictionary<string, List<int>> FeatureLookups { get; } = new(StringComparer.Ordinal);
+        public List<object?> Lookups { get; set; } = new();
+
+        public int ApplySingle(string tag, int glyph)
+        {
+            if (!FeatureLookups.TryGetValue(tag, out var indices))
+                return glyph;
+            foreach (int i in indices)
+                if (i >= 0 && i < Lookups.Count && Lookups[i] is SingleSubst ss && ss.TryMap(glyph, out int s))
+                    return s;
+            return glyph;
+        }
+
+        public bool TryLigate(string tag, IReadOnlyList<int> glyphs, int pos, out int lig, out int count)
+        {
+            if (FeatureLookups.TryGetValue(tag, out var indices))
+                foreach (int i in indices)
+                    if (i >= 0 && i < Lookups.Count && Lookups[i] is LigatureSubst ls
+                        && ls.TryLigate(glyphs, pos, out lig, out count))
+                        return true;
+            lig = 0;
+            count = 0;
+            return false;
+        }
+    }
+
+    private sealed class SingleSubst
+    {
+        private readonly Dictionary<int, int> _map;
+        public SingleSubst(Dictionary<int, int> map) => _map = map;
+        public bool TryMap(int glyph, out int substitute) => _map.TryGetValue(glyph, out substitute);
+    }
+
+    private sealed class LigatureSubst
+    {
+        private readonly Dictionary<int, List<(int[] rest, int lig)>> _sets;
+        public LigatureSubst(Dictionary<int, List<(int[] rest, int lig)>> sets) => _sets = sets;
+
+        public bool TryLigate(IReadOnlyList<int> glyphs, int pos, out int lig, out int count)
+        {
+            lig = 0;
+            count = 0;
+            if (!_sets.TryGetValue(glyphs[pos], out var ligs))
+                return false;
+            foreach (var (rest, l) in ligs)
+            {
+                bool ok = true;
+                for (int k = 0; k < rest.Length; k++)
+                {
+                    if (pos + 1 + k >= glyphs.Count || glyphs[pos + 1 + k] != rest[k])
+                    {
+                        ok = false;
+                        break;
+                    }
+                }
+                if (ok)
+                {
+                    lig = l;
+                    count = rest.Length + 1;
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

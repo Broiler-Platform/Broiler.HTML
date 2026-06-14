@@ -48,6 +48,7 @@ internal static class CssUtils
             "text-shadow" => cssBox.TextShadow,
             "flex-direction" => cssBox.FlexDirection,
             "justify-content" => cssBox.JustifyContent,
+            "justify-items" => cssBox.JustifyItems,
             "align-items" => cssBox.AlignItems,
             "corner-nw-radius" => cssBox.CornerNwRadius,
             "corner-ne-radius" => cssBox.CornerNeRadius,
@@ -103,6 +104,8 @@ internal static class CssUtils
             "visibility" => cssBox.Visibility,
             "word-spacing" => cssBox.WordSpacing,
             "font-family" => cssBox.FontFamily,
+            "font-feature-settings" => cssBox.FontFeatureSettings,
+            "font-variant-alternates" => cssBox.FontVariantAlternates,
             "font-size" => cssBox.FontSize,
             "font-style" => cssBox.FontStyle,
             "font-variant" => cssBox.FontVariant,
@@ -118,6 +121,7 @@ internal static class CssUtils
             "align-content" => cssBox.AlignContent,
             "justify-self" => cssBox.JustifySelf,
             "align-self" => cssBox.AlignSelf,
+            "unicode-bidi" => cssBox.UnicodeBidi,
             "writing-mode" => cssBox.WritingMode,
             "column-count" => cssBox.ColumnCount,
             "column-width" => cssBox.ColumnWidth,
@@ -233,6 +237,9 @@ internal static class CssUtils
             case "justify-content":
                 cssBox.JustifyContent = value;
                 break;
+            case "justify-items":
+                cssBox.JustifyItems = value;
+                break;
             case "align-items":
                 cssBox.AlignItems = value;
                 break;
@@ -244,6 +251,9 @@ internal static class CssUtils
                 break;
             case "align-self":
                 cssBox.AlignSelf = value;
+                break;
+            case "unicode-bidi":
+                cssBox.UnicodeBidi = value;
                 break;
             case "writing-mode":
                 cssBox.WritingMode = value;
@@ -493,6 +503,12 @@ internal static class CssUtils
                 break;
             case "font-family":
                 cssBox.FontFamily = value;
+                break;
+            case "font-feature-settings":
+                cssBox.FontFeatureSettings = value;
+                break;
+            case "font-variant-alternates":
+                cssBox.FontVariantAlternates = value;
                 break;
             case "font-size":
                 cssBox.FontSize = value;

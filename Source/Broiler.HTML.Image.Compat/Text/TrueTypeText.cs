@@ -16,8 +16,47 @@ namespace Broiler.HTML.Image.Adapters.Text;
 /// </summary>
 internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
 {
+    private const string FallbackResourceName =
+        "Broiler.HTML.Image.Compat.Fonts.Vazirmatn-Regular.ttf";
+
     private readonly object _sync = new();
     private readonly Dictionary<string, TrueTypeFont> _byFamily = new(StringComparer.OrdinalIgnoreCase);
+
+    private TrueTypeFont _fallback;
+    private bool _fallbackLoaded;
+
+    /// <summary>
+    /// Bundled OFL fallback font (Vazirmatn) used for unregistered/default CSS
+    /// families.  Loaded lazily from the embedded resource; <c>null</c> if the
+    /// resource is missing or fails to parse.
+    /// </summary>
+    private TrueTypeFont GetFallbackFont()
+    {
+        lock (_sync)
+        {
+            if (_fallbackLoaded)
+                return _fallback;
+            _fallbackLoaded = true;
+
+            try
+            {
+                var asm = typeof(TrueTypeTypefaceResolver).Assembly;
+                using var stream = asm.GetManifestResourceStream(FallbackResourceName);
+                if (stream != null)
+                {
+                    using var ms = new MemoryStream();
+                    stream.CopyTo(ms);
+                    _fallback = TrueTypeFont.Load(ms.ToArray());
+                }
+            }
+            catch
+            {
+                _fallback = null;
+            }
+
+            return _fallback;
+        }
+    }
 
     public string RegisterFontFile(string path, string alias = null)
     {
@@ -26,6 +65,12 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
 
         var font = TrueTypeFont.LoadFromFile(path);
         if (font == null)
+            return null;
+
+        // Reject fonts we cannot rasterise (e.g. CFF/PostScript-outline OpenType,
+        // which has no glyf table) so the family falls back to the bundled font
+        // and still renders glyphs instead of nothing.
+        if (!font.HasOutlines)
             return null;
 
         string family = !string.IsNullOrWhiteSpace(alias)
@@ -66,7 +111,10 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
             }
         }
 
-        return MissingTypeface.Instance;
+        // Unregistered/default family: fall back to the bundled font so that
+        // text still renders glyphs (instead of nothing).  Returns
+        // MissingTypeface only if the bundled font is unavailable.
+        return (object)GetFallbackFont() ?? MissingTypeface.Instance;
     }
 }
 
@@ -135,7 +183,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
             return new SizeF(0f, height);
 
         if (TryGetFont(font, out var ttf, out float scale))
-            return new SizeF(MeasureAdvances(ttf, text, scale), height);
+            return new SizeF(MeasureAdvances(ttf, text, scale, font.FontFeatures), height);
 
         return new SizeF(text.Length * StubGlyphWidth(font), height);
     }
@@ -188,7 +236,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
     public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point)
     {
         if (!string.IsNullOrEmpty(text) && TryGetFont(font, out var ttf, out float scale))
-            DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point);
+            DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures);
 
         // Returning true reports the text as handled (glyphs drawn, or
         // intentionally skipped for an unregistered font) so the raster path
@@ -212,10 +260,28 @@ internal sealed class TrueTypeTextShaper : ITextShaper
     {
     }
 
-    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point)
+    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string features = null)
     {
         float penX = point.X;
         float baselineY = point.Y + ttf.Ascender * scale;
+
+        // Complex scripts (Arabic/Persian), right-to-left text, or requested
+        // OpenType features (font-feature-settings) need GSUB shaping before
+        // they can be drawn glyph-by-glyph.
+        if (ComplexTextShaper.RequiresShaping(text, features))
+        {
+            foreach (var shaped in ComplexTextShaper.Shape(ttf, text, features))
+            {
+                // GPOS offsets shift the glyph relative to the pen without
+                // changing the advance (font units are y-up, canvas is y-down).
+                DrawGlyphOutline(canvas, ttf, shaped.Glyph, scale,
+                    penX + shaped.XOffset * scale,
+                    baselineY - shaped.YOffset * scale,
+                    color);
+                penX += shaped.Advance * scale;
+            }
+            return;
+        }
 
         for (int i = 0; i < text.Length; i++)
         {
@@ -224,33 +290,45 @@ internal sealed class TrueTypeTextShaper : ITextShaper
                 i++;
 
             int glyph = ttf.GetGlyphIndex(cp);
-            var fontContours = ttf.GetGlyphContours(glyph);
-            if (fontContours.Count > 0)
-            {
-                var userContours = new List<PointF[]>(fontContours.Count);
-                foreach (var contour in fontContours)
-                {
-                    var transformed = new PointF[contour.Length];
-                    for (int j = 0; j < contour.Length; j++)
-                    {
-                        // Font units are y-up; flip to the canvas's y-down space.
-                        transformed[j] = new PointF(
-                            penX + contour[j].X * scale,
-                            baselineY - contour[j].Y * scale);
-                    }
-                    userContours.Add(transformed);
-                }
-
-                canvas.FillGlyphContours(userContours, color);
-            }
-
+            DrawGlyphOutline(canvas, ttf, glyph, scale, penX, baselineY, color);
             penX += ttf.GetAdvanceWidth(glyph) * scale;
         }
     }
 
-    private static float MeasureAdvances(TrueTypeFont ttf, string text, float scale)
+    private static void DrawGlyphOutline(BCanvas canvas, TrueTypeFont ttf, int glyph, float scale, float penX, float baselineY, BColor color)
+    {
+        var fontContours = ttf.GetGlyphContours(glyph);
+        if (fontContours.Count == 0)
+            return;
+
+        var userContours = new List<PointF[]>(fontContours.Count);
+        foreach (var contour in fontContours)
+        {
+            var transformed = new PointF[contour.Length];
+            for (int j = 0; j < contour.Length; j++)
+            {
+                // Font units are y-up; flip to the canvas's y-down space.
+                transformed[j] = new PointF(
+                    penX + contour[j].X * scale,
+                    baselineY - contour[j].Y * scale);
+            }
+            userContours.Add(transformed);
+        }
+
+        canvas.FillGlyphContours(userContours, color);
+    }
+
+    private static float MeasureAdvances(TrueTypeFont ttf, string text, float scale, string features = null)
     {
         float width = 0f;
+
+        if (ComplexTextShaper.RequiresShaping(text, features))
+        {
+            foreach (var shaped in ComplexTextShaper.Shape(ttf, text, features))
+                width += shaped.Advance * scale;
+            return width;
+        }
+
         for (int i = 0; i < text.Length; i++)
         {
             int cp = char.ConvertToUtf32(text, i);

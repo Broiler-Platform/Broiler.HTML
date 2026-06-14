@@ -562,10 +562,12 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     public string Transform { get; set; } = "none";
     public string FlexDirection { get; set; } = "row";
     public string JustifyContent { get; set; } = "flex-start";
+    public string JustifyItems { get; set; } = "normal";
     public string AlignItems { get; set; } = "stretch";
     public string AlignContent { get; set; } = "normal";
     public string JustifySelf { get; set; } = "auto";
     public string AlignSelf { get; set; } = "auto";
+    public string UnicodeBidi { get; set; } = "normal";
     public string WritingMode
     {
         get => _writingMode;
@@ -583,6 +585,78 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     public string GridRow { get; set; } = "auto";
     public string GridColumn { get; set; } = "auto";
     public string FontFamily { get; set; }
+
+    /// <summary>
+    /// Raw CSS <c>font-feature-settings</c> value (e.g. <c>"ss05" on, "liga" off</c>),
+    /// inherited.  Resolved to enabled OpenType feature tags by
+    /// <see cref="GetEnabledFontFeatureTags"/>.
+    /// </summary>
+    public string FontFeatureSettings { get; set; }
+
+    /// <summary>
+    /// Raw CSS <c>font-variant-alternates</c> value (e.g.
+    /// <c>styleset(crossed-doubleu)</c>), inherited.  Resolved against
+    /// <c>@font-feature-values</c> into concrete feature tags after the cascade.
+    /// </summary>
+    public string FontVariantAlternates { get; set; }
+
+    /// <summary>
+    /// Parses <see cref="FontFeatureSettings"/> into a space-separated list of
+    /// the OpenType feature tags that are switched on, or <c>null</c> when none.
+    /// </summary>
+    protected string GetEnabledFontFeatureTags()
+    {
+        string value = FontFeatureSettings;
+        if (string.IsNullOrWhiteSpace(value) || value == "normal")
+            return null;
+
+        var tags = new System.Text.StringBuilder();
+        foreach (var part in value.Split(','))
+        {
+            var item = part.Trim();
+            if (item.Length == 0)
+                continue;
+
+            // "<tag>" [ <integer> | on | off ]; a 4-char quoted tag, optionally
+            // followed by an on/off/value flag (default = on).
+            int firstQuote = item.IndexOf('"');
+            int altQuote = item.IndexOf('\'');
+            char quote = firstQuote >= 0 ? '"' : (altQuote >= 0 ? '\'' : '\0');
+            string tag;
+            string flag;
+            if (quote != '\0')
+            {
+                int start = item.IndexOf(quote);
+                int endq = item.IndexOf(quote, start + 1);
+                if (endq <= start)
+                    continue;
+                tag = item.Substring(start + 1, endq - start - 1).Trim();
+                flag = item.Substring(endq + 1).Trim();
+            }
+            else
+            {
+                var sp = item.Split([' ', '\t'], 2, StringSplitOptions.RemoveEmptyEntries);
+                tag = sp[0];
+                flag = sp.Length > 1 ? sp[1].Trim() : string.Empty;
+            }
+
+            if (tag.Length != 4)
+                continue;
+
+            bool enabled = flag.Length == 0
+                || flag.Equals("on", StringComparison.OrdinalIgnoreCase)
+                || flag == "1"
+                || (int.TryParse(flag, out int v) && v != 0);
+            if (enabled)
+            {
+                if (tags.Length > 0)
+                    tags.Append(' ');
+                tags.Append(tag);
+            }
+        }
+
+        return tags.Length > 0 ? tags.ToString() : null;
+    }
 
     public string FontSize
     {
@@ -1226,13 +1300,13 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
             if (fsize <= 0)
                 fsize = 0.001;
 
-            _actualFont = GetCachedFont(FontFamily, fsize, st);
+            _actualFont = GetCachedFont(FontFamily, fsize, st, GetEnabledFontFeatureTags());
 
             return _actualFont;
         }
     }
 
-    protected abstract RFont GetCachedFont(string fontFamily, double fsize, FontStyle st);
+    protected abstract RFont GetCachedFont(string fontFamily, double fsize, FontStyle st, string fontFeatures);
 
     public double ActualLineHeight
     {
@@ -1538,6 +1612,8 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         _textIndent = p._textIndent;
         TextAlign = p.TextAlign;
         FontFamily = p.FontFamily;
+        FontFeatureSettings = p.FontFeatureSettings;
+        FontVariantAlternates = p.FontVariantAlternates;
         _fontSize = p._fontSize;
         FontStyle = p.FontStyle;
         FontVariant = p.FontVariant;
@@ -1623,6 +1699,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         ClipPath = p.ClipPath;
         FlexDirection = p.FlexDirection;
         JustifyContent = p.JustifyContent;
+        JustifyItems = p.JustifyItems;
         AlignItems = p.AlignItems;
     }
 

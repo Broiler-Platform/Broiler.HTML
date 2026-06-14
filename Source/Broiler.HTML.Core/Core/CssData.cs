@@ -18,6 +18,14 @@ public sealed class CssData
     /// <summary>Parsed @keyframes rules from the stylesheet, keyed by animation name.</summary>
     public Dictionary<string, CssKeyframeRule> Keyframes { get; } = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Parsed <c>@font-feature-values</c> rules: family name (case-insensitive)
+    /// → feature type (<c>styleset</c>, <c>stylistic</c>, <c>character-variant</c>, …)
+    /// → value name (CASE-SENSITIVE per CSS Fonts) → the integer value(s).
+    /// </summary>
+    public Dictionary<string, Dictionary<string, Dictionary<string, int[]>>> FontFeatureValues { get; }
+        = new(StringComparer.InvariantCultureIgnoreCase);
+
     internal IDictionary<string, Dictionary<string, List<CssBlock>>> MediaBlocks => _mediaBlocks;
 
     public bool ContainsCssBlock(string className, string media = "all") => _mediaBlocks.TryGetValue(media, out Dictionary<string, List<CssBlock>> mid) && mid.ContainsKey(className);
@@ -105,6 +113,9 @@ public sealed class CssData
 
         foreach (var kf in other.Keyframes)
             Keyframes[kf.Key] = kf.Value;
+
+        foreach (var ffv in other.FontFeatureValues)
+            FontFeatureValues[ffv.Key] = ffv.Value;
     }
 
     public CssData Clone()
@@ -127,6 +138,8 @@ public sealed class CssData
         clone.FontFaces.AddRange(FontFaces);
         foreach (var kf in Keyframes)
             clone.Keyframes[kf.Key] = kf.Value;
+        foreach (var ffv in FontFeatureValues)
+            clone.FontFeatureValues[ffv.Key] = ffv.Value;
 
         return clone;
     }

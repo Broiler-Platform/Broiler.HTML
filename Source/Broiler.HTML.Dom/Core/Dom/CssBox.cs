@@ -1391,6 +1391,10 @@ internal class CssBox : CssBoxProperties, IDisposable
                         if (!ApplyGridStacking())
                             ApplyGridAutoPlacement();
                     }
+
+                    // CSS Box Alignment §6.2: distribute flex/grid items along
+                    // the block (cross) axis per align-items / align-self.
+                    ApplyFlexGridCrossAxisAlignment();
                 }
                 else if (Boxes.Count > 0)
                 {
@@ -3284,8 +3288,17 @@ internal class CssBox : CssBoxProperties, IDisposable
             bool isAutoWidth = child.Width == CssConstants.Auto
                 || string.IsNullOrEmpty(child.Width);
             string js = child.JustifySelf?.Trim().ToLowerInvariant();
-            bool isStretch = js == null || js == "auto" || js == "normal"
-                || js == "stretch";
+            // CSS Box Alignment §6.2: 'justify-self: auto' resolves to the
+            // grid container's 'justify-items' (the intermediate display:
+            // contents ancestor, having no box, does not contribute).
+            if (string.IsNullOrEmpty(js) || js == "auto")
+            {
+                string ji = JustifyItems?.Trim().ToLowerInvariant();
+                js = string.IsNullOrEmpty(ji) || ji == "auto" || ji == "legacy"
+                    ? "normal"
+                    : ji;
+            }
+            bool isStretch = js == "normal" || js == "stretch";
 
             if (isStretch && isAutoWidth)
             {
@@ -3347,6 +3360,108 @@ internal class CssBox : CssBoxProperties, IDisposable
             currentY = child.ActualBottom + child.ActualMarginBottom;
         }
         ActualBottom = currentY + ActualPaddingBottom + ActualBorderBottomWidth;
+    }
+
+    /// <summary>
+    /// CSS Box Alignment Level 3 §6.2 / CSS Flexbox §8.3: position flex/grid
+    /// items along the block (cross) axis according to <c>align-items</c>
+    /// (overridable per item by <c>align-self</c>).  Broiler approximates
+    /// flex/grid with an inline formatting context (FlowInlineBlock), which
+    /// leaves every item at the content-box block-start; this pass shifts
+    /// items to center/end when the container has a definite block size with
+    /// free space.  Only the common horizontal-writing-mode case is handled
+    /// (grid and row/row-reverse flex); column flex (cross axis = inline)
+    /// and overflowing content fall back to start alignment.
+    /// </summary>
+    private void ApplyFlexGridCrossAxisAlignment()
+    {
+        if (Display is not ("flex" or "inline-flex" or "grid" or "inline-grid"))
+            return;
+
+        // The cross axis must be the block (vertical) axis: true for grid and
+        // for row-direction flex.  Column flex aligns items on the inline
+        // axis, which this approximation does not handle.
+        if (Display is "flex" or "inline-flex"
+            && FlexDirection is "column" or "column-reverse")
+            return;
+
+        // A definite block size is required to have free space to distribute.
+        // (Size.Height is content-derived at this point — the specified height
+        // is only pre-resolved into Size for percentage values — so resolve
+        // the definite block size directly from the 'height' declaration.)
+        if (string.IsNullOrEmpty(Height) || Height == CssConstants.Auto
+            || HeightPercentageResolvesToAuto())
+            return;
+
+        double cbHeight;
+        if (Position == CssConstants.Fixed && ContainerInt != null)
+            cbHeight = ContainerInt.ViewportSize.Height;
+        else if (ContainingBlock?.ParentBox == null && ContainerInt != null)
+            cbHeight = ContainerInt.ViewportSize.Height;
+        else
+            cbHeight = ContainingBlock?.Size.Height ?? 0;
+
+        double contentTop = ClientTop;
+        double contentHeight = ResolveSpecifiedHeightToBorderBox(
+                CssValueParser.ParseLength(Height, cbHeight, GetEmHeight()))
+            - ActualPaddingTop - ActualPaddingBottom
+            - ActualBorderTopWidth - ActualBorderBottomWidth;
+        if (contentHeight <= 0)
+            return;
+
+        string containerAlign = NormalizeBoxAlignment(AlignItems);
+
+        foreach (CssBox item in Boxes)
+        {
+            if (item.Display == CssConstants.None)
+                continue;
+            // CSS2.1 §9.6.1 / §9.5: out-of-flow items are positioned separately.
+            if (item.Position is CssConstants.Absolute or CssConstants.Fixed)
+                continue;
+            if (item.Float != CssConstants.None)
+                continue;
+
+            // 'align-self: auto' (and 'normal') resolve to the container's
+            // 'align-items' (CSS Box Alignment §6.2).
+            string self = NormalizeBoxAlignment(item.AlignSelf);
+            string align = self is "" or "auto" or "normal" ? containerAlign : self;
+
+            bool toCenter = align == "center";
+            bool toEnd = align is "end" or "flex-end" or "self-end";
+            if (!toCenter && !toEnd)
+                continue; // start/flex-start/baseline/stretch → block-start
+
+            double marginBoxHeight = (item.ActualBottom - item.Location.Y)
+                + item.ActualMarginTop + item.ActualMarginBottom;
+            double free = contentHeight - marginBoxHeight;
+            if (free <= 0.5)
+                continue; // safe alignment: no room → keep at start
+
+            double marginBoxOffset = toCenter ? free / 2 : free;
+            double targetTop = contentTop + marginBoxOffset + item.ActualMarginTop;
+            double dy = targetTop - item.Location.Y;
+            if (Math.Abs(dy) > 0.5)
+            {
+                item.OffsetTop(dy);
+                item.ActualBottom += dy;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Normalises a CSS Box Alignment keyword: trims, strips a leading
+    /// <c>safe</c>/<c>unsafe</c> overflow-alignment qualifier, and lower-cases.
+    /// </summary>
+    private static string NormalizeBoxAlignment(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return "";
+        string v = value.Trim();
+        if (v.StartsWith("safe ", StringComparison.OrdinalIgnoreCase))
+            v = v.Substring(5).Trim();
+        else if (v.StartsWith("unsafe ", StringComparison.OrdinalIgnoreCase))
+            v = v.Substring(7).Trim();
+        return v.ToLowerInvariant();
     }
 
     internal void OffsetTop(double amount)
@@ -3416,7 +3531,7 @@ internal class CssBox : CssBoxProperties, IDisposable
             ContainerInt.RequestRefresh(false);
     }
 
-    protected override RFont GetCachedFont(string fontFamily, double fsize, FontStyle st) => ContainerInt.GetFont(fontFamily, fsize, st);
+    protected override RFont GetCachedFont(string fontFamily, double fsize, FontStyle st, string fontFeatures) => ContainerInt.GetFont(fontFamily, fsize, st, fontFeatures);
 
     protected override Color GetActualColor(string colorStr) => ContainerInt.ParseColor(colorStr);
 

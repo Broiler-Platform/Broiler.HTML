@@ -954,7 +954,26 @@ internal static class CssLayoutEngine
 
     private static void ApplyHorizontalAlignment(RGraphics g, CssLineBox lineBox)
     {
-        switch (lineBox.OwnerBox.TextAlign)
+        var box = lineBox.OwnerBox;
+
+        // CSS Text §bidi-linebox: with unicode-bidi:plaintext, each line's base
+        // direction is taken from its first strong character.  'text-align:start'
+        // therefore aligns right-to-left lines to the right edge (and 'end' to
+        // the left), independent of the box's own direction.
+        if (string.Equals(box.UnicodeBidi, "plaintext", StringComparison.OrdinalIgnoreCase)
+            && box.TextAlign is "start" or "end" or "" or null or CssConstants.Left)
+        {
+            string align = string.IsNullOrEmpty(box.TextAlign) ? "start" : box.TextAlign;
+            bool rtlLine = LineFirstStrongIsRtl(lineBox);
+            bool toRight = rtlLine
+                ? align is "start" or CssConstants.Left
+                : align == "end";
+            if (toRight)
+                ApplyRightAlignment(g, lineBox);
+            return;
+        }
+
+        switch (box.TextAlign)
         {
             case CssConstants.Right:
                 ApplyRightAlignment(g, lineBox);
@@ -969,6 +988,43 @@ internal static class CssLayoutEngine
                 break;
         }
     }
+
+    /// <summary>
+    /// Returns whether the line's base direction is right-to-left, determined by
+    /// its first strong (Hebrew/Arabic vs. Latin/Greek/Cyrillic) character.
+    /// Used for <c>unicode-bidi: plaintext</c> per-line alignment.
+    /// </summary>
+    private static bool LineFirstStrongIsRtl(CssLineBox line)
+    {
+        foreach (CssRect word in line.Words)
+        {
+            string text = word.Text;
+            if (string.IsNullOrEmpty(text))
+                continue;
+            foreach (char c in text)
+            {
+                if (IsRtlStrongChar(c))
+                    return true;
+                if (IsLtrStrongChar(c))
+                    return false;
+            }
+        }
+        return false; // no strong character → left-to-right base
+    }
+
+    private static bool IsRtlStrongChar(char c) =>
+        (c >= 0x0590 && c <= 0x05FF) ||   // Hebrew
+        (c >= 0x0600 && c <= 0x06FF) ||   // Arabic
+        (c >= 0x0750 && c <= 0x077F) ||   // Arabic Supplement
+        (c >= 0x08A0 && c <= 0x08FF) ||   // Arabic Extended-A
+        (c >= 0xFB1D && c <= 0xFDFF) ||   // Hebrew/Arabic presentation forms-A
+        (c >= 0xFE70 && c <= 0xFEFF);     // Arabic presentation forms-B
+
+    private static bool IsLtrStrongChar(char c) =>
+        (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+        (c >= 0x00C0 && c <= 0x024F) ||   // Latin-1 supplement / extended
+        (c >= 0x0370 && c <= 0x03FF) ||   // Greek
+        (c >= 0x0400 && c <= 0x04FF);     // Cyrillic
 
     private static void ApplyRightToLeft(CssBox blockBox, CssLineBox lineBox)
     {

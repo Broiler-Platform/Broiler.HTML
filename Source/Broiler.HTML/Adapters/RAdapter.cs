@@ -61,7 +61,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public void AddFontFamilyMapping(string fromFamily, string toFamily) => _fontsHandler.AddFontFamilyMapping(fromFamily, toFamily);
 
-    public RFont GetFont(string family, double size, FontStyle style) => _fontsHandler.GetCachedFont(family, size, style);
+    public RFont GetFont(string family, double size, FontStyle style, string fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
 
     public RImage GetLoadingImage()
     {
