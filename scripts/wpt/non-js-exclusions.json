@@ -10,5 +10,17 @@
     "category": "oracle-incompatibility",
     "feature": "margin-trim",
     "note": "Broiler implements CSS Box Model 4 margin-trim (CssBox.ApplyMarginTrim) and renders the correct filled square. The Chromium/Edge oracle does not support margin-trim, so the reference shows gapped boxes; this case can never match the oracle. Excluded to avoid a permanent false-positive triage signal (issues #178, #180)."
+  },
+  {
+    "path": "css/css-box/margin-trim/block-container-block-end-001.html",
+    "category": "oracle-incompatibility",
+    "feature": "margin-trim",
+    "note": "Block-end variant of the margin-trim cases above. Broiler trims the last in-flow block child's block-end margin (CssBox.ApplyMarginTrim, trimBlockEnd) and renders the correct filled square, while the Chromium/Edge oracle does not support margin-trim and shows a gapped box; this case can never match the oracle. Excluded to avoid a permanent false-positive triage signal (issue #182)."
+  },
+  {
+    "path": "css/css-box/margin-trim/block-container-block-end-002.html",
+    "category": "oracle-incompatibility",
+    "feature": "margin-trim",
+    "note": "Block-end variant of the margin-trim cases above. Broiler trims the last in-flow block child's block-end margin (CssBox.ApplyMarginTrim, trimBlockEnd) and renders the correct filled square, while the Chromium/Edge oracle does not support margin-trim and shows a gapped box; this case can never match the oracle. Excluded to avoid a permanent false-positive triage signal (issue #182)."
   }
 ]
