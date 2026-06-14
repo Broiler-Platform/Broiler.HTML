@@ -1478,7 +1478,12 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
 
     private double GetNormalLineHeight()
     {
-        double fontHeight = ActualFont.Height * (96.0 / 72.0);
+        // ActualFont.Height is already expressed in CSS pixels (the font
+        // compat factory bakes the pt→px ratio into the returned metric), so
+        // it must NOT be scaled by 96/72 again here — doing so inflated the
+        // 'normal' line height by ~1.33x (e.g. Arial 32px produced a 50px
+        // line box instead of the ~37px browsers use).
+        double fontHeight = ActualFont.Height;
         return fontHeight > 0 ? Math.Ceiling(fontHeight) : GetEmHeight() * 1.2;
     }
 
