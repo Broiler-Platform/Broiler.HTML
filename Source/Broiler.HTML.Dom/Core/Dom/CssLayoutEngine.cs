@@ -278,7 +278,7 @@ internal static class CssLayoutEngine
                 if (IsInAbsposSubtree(rect.Key, blockBox))
                     continue;
 
-                maxBottom = Math.Max(maxBottom, rect.Value.Bottom);
+                maxBottom = Math.Max(maxBottom, InlineRectLineBoxBottom(rect.Key, rect.Value));
                 minTop = Math.Min(minTop, rect.Value.Top);
             }
             foreach (var word in linebox.Words)
@@ -286,7 +286,7 @@ internal static class CssLayoutEngine
                 if (IsInAbsposSubtree(word.OwnerBox, blockBox))
                     continue;
 
-                maxBottom = Math.Max(maxBottom, word.Bottom);
+                maxBottom = Math.Max(maxBottom, InlineWordLineBoxBottom(word));
                 minTop = Math.Min(minTop, word.Top);
             }
 
@@ -586,7 +586,7 @@ internal static class CssLayoutEngine
                     curx = word.Left + word.FullWidth;
 
                     maxRight = Math.Max(maxRight, word.Right);
-                    maxbottom = Math.Max(maxbottom, word.Bottom);
+                    maxbottom = Math.Max(maxbottom, InlineWordLineBoxBottom(word));
 
                     if (b.Position == CssConstants.Absolute)
                     {
@@ -1184,6 +1184,50 @@ internal static class CssLayoutEngine
 
             lineBox.Words[i].Left = wright - lineBox.Words[i].Width;
         }
+    }
+
+    /// <summary>
+    /// CSS 2.1 §10.8: A text run contributes its inline box's <em>line-height</em>
+    /// to the line box (and hence the block's content height), not its taller
+    /// font content area.  When <c>line-height</c> is smaller than the content
+    /// area the glyphs overflow the line box, but they must not increase it —
+    /// otherwise an explicit small <c>line-height</c> (e.g. <c>line-height:1</c>
+    /// on a font whose natural box is ~1.16em) produces a too-tall block.
+    /// The glyph rectangle itself is left untouched, so glyph positions (and
+    /// calibrated layouts) are unchanged; only the height contribution is
+    /// clamped.  Replaced inline content (images) and runs with no positive
+    /// line-height keep contributing their full box.
+    /// </summary>
+    private static double InlineWordLineBoxBottom(CssRect word)
+    {
+        double ownerLineHeight = word.OwnerBox?.ActualLineHeight ?? 0;
+        if (word.IsImage || ownerLineHeight <= 0)
+            return word.Bottom;
+
+        return Math.Min(word.Bottom, word.Top + ownerLineHeight);
+    }
+
+    /// <summary>
+    /// Same line-height clamp as <see cref="InlineWordLineBoxBottom"/> but for a
+    /// non-atomic inline box's accumulated rectangle.  Inline boxes (incl. the
+    /// anonymous inline box that wraps a block's direct text) contribute their
+    /// line-height to the line box, not their font content area.  Replaced
+    /// inline content (images) and inline-block boxes keep their full margin
+    /// box, which legitimately establishes the line box extent.
+    /// </summary>
+    private static double InlineRectLineBoxBottom(CssBox box, RectangleF rect)
+    {
+        if (box.IsImage
+            || box.Display == CssConstants.InlineBlock
+            || box.Display is "inline-flex" or "inline-grid"
+            || !box.IsInline)
+            return rect.Bottom;
+
+        double lineHeight = box.ActualLineHeight;
+        if (lineHeight <= 0)
+            return rect.Bottom;
+
+        return Math.Min(rect.Bottom, rect.Top + lineHeight);
     }
 
     private static void ApplyVerticalAlignment(RGraphics g, CssLineBox lineBox)
