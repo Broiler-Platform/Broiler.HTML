@@ -2186,6 +2186,11 @@ internal static class PaintWalker
                 Stops = tg.Stops,
                 Angle = tg.Angle,
                 InterpolationSpace = tg.InterpolationSpace,
+                IsRadial = tg.IsRadial,
+                IsConic = tg.IsConic,
+                CenterX = tg.CenterX,
+                CenterY = tg.CenterY,
+                FromAngle = tg.FromAngle,
             },
             ClipItem c => new ClipItem
             {
@@ -2454,8 +2459,10 @@ internal static class PaintWalker
                 Angle = gradInfo.Angle,
                 InterpolationSpace = gradInfo.InterpolationSpace,
                 IsRadial = gradInfo.IsRadial,
+                IsConic = gradInfo.IsConic,
                 CenterX = gradInfo.CenterX,
                 CenterY = gradInfo.CenterY,
+                FromAngle = gradInfo.FromAngle,
             });
         }
     }
@@ -2824,8 +2831,10 @@ internal static class PaintWalker
         public string InterpolationSpace { get; set; } = "srgb";
         public List<GradientStop> Stops { get; set; } = new();
         public bool IsRadial { get; set; }
+        public bool IsConic { get; set; }
         public float CenterX { get; set; } = 0.5f;
         public float CenterY { get; set; } = 0.5f;
+        public float FromAngle { get; set; }
     }
 
     /// <summary>
@@ -2837,7 +2846,8 @@ internal static class PaintWalker
     {
         bool isLinear = gradFunc.StartsWith("linear-gradient(", StringComparison.OrdinalIgnoreCase);
         bool isRadial = !isLinear && gradFunc.StartsWith("radial-gradient(", StringComparison.OrdinalIgnoreCase);
-        if (!isLinear && !isRadial)
+        bool isConic = !isLinear && !isRadial && gradFunc.StartsWith("conic-gradient(", StringComparison.OrdinalIgnoreCase);
+        if (!isLinear && !isRadial && !isConic)
             return null;
 
         int openParen = gradFunc.IndexOf('(');
@@ -2867,6 +2877,54 @@ internal static class PaintWalker
 
         var info = new GradientInfo();
         int colorStartIdx = 0;
+
+        if (isConic)
+        {
+            info.IsConic = true;
+
+            // The first token may be a geometry descriptor:
+            //   [from <angle>] [at <position>]
+            string first = tokens[0].Trim();
+            string firstLower = first.ToLowerInvariant();
+            bool isGeometry = firstLower.StartsWith("from ")
+                || firstLower.StartsWith("at ")
+                || firstLower.Contains(" at ");
+            if (isGeometry)
+            {
+                colorStartIdx = 1;
+
+                int atIdx = firstLower.IndexOf(" at ", StringComparison.Ordinal);
+                string fromPart;
+                string posPart;
+                if (firstLower.StartsWith("at "))
+                {
+                    fromPart = string.Empty;
+                    posPart = first[3..].Trim();
+                }
+                else if (atIdx >= 0)
+                {
+                    fromPart = first[..atIdx].Trim();
+                    posPart = first[(atIdx + 4)..].Trim();
+                }
+                else
+                {
+                    fromPart = first;
+                    posPart = string.Empty;
+                }
+
+                if (fromPart.StartsWith("from ", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (TryParseAngleDegrees(fromPart[5..].Trim(), out float fromDeg))
+                        info.FromAngle = fromDeg;
+                }
+
+                if (!string.IsNullOrEmpty(posPart))
+                    (info.CenterX, info.CenterY) = ParseRadialGradientCenter(posPart);
+            }
+
+            info.Stops = ParseConicGradientStops(tokens, colorStartIdx);
+            return info;
+        }
 
         if (isRadial)
         {
@@ -3078,6 +3136,194 @@ internal static class PaintWalker
             return null;
 
         return new GradientStop { Color = color, Position = Math.Clamp(position, 0f, 1f) };
+    }
+
+    /// <summary>
+    /// Parses a CSS angle token (e.g. <c>-90deg</c>, <c>0.25turn</c>,
+    /// <c>1.5rad</c>, <c>100grad</c>, or a bare <c>0</c>) into degrees.
+    /// </summary>
+    private static bool TryParseAngleDegrees(string token, out float degrees)
+    {
+        degrees = 0f;
+        token = token.Trim();
+        if (string.IsNullOrEmpty(token))
+            return false;
+
+        if (token == "0")
+            return true;
+
+        if (token.EndsWith("deg", StringComparison.OrdinalIgnoreCase))
+            return float.TryParse(token.AsSpan(0, token.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out degrees);
+
+        if (token.EndsWith("grad", StringComparison.OrdinalIgnoreCase))
+        {
+            if (float.TryParse(token.AsSpan(0, token.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float grad))
+            {
+                degrees = grad * 0.9f; // 400grad == 360deg
+                return true;
+            }
+            return false;
+        }
+
+        if (token.EndsWith("turn", StringComparison.OrdinalIgnoreCase))
+        {
+            if (float.TryParse(token.AsSpan(0, token.Length - 4), NumberStyles.Float, CultureInfo.InvariantCulture, out float turn))
+            {
+                degrees = turn * 360f;
+                return true;
+            }
+            return false;
+        }
+
+        if (token.EndsWith("rad", StringComparison.OrdinalIgnoreCase))
+        {
+            if (float.TryParse(token.AsSpan(0, token.Length - 3), NumberStyles.Float, CultureInfo.InvariantCulture, out float rad))
+            {
+                degrees = (float)(rad * 180.0 / Math.PI);
+                return true;
+            }
+            return false;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// CSS Images 4 §3.3: Parses the colour stops of a conic gradient.  Each
+    /// stop position is an <c>&lt;angle&gt;</c> or <c>&lt;percentage&gt;</c>
+    /// expressed as a fraction of a full turn (0.0–1.0).  Double-position
+    /// stops (<c>color a b</c>) expand to two stops.  Stops without explicit
+    /// positions are distributed evenly between their resolved neighbours.
+    /// </summary>
+    private static List<GradientStop> ParseConicGradientStops(List<string> tokens, int startIdx)
+    {
+        var colors = new List<Color>();
+        var rawPositions = new List<float?>();
+
+        for (int i = startIdx; i < tokens.Count; i++)
+        {
+            string stopStr = tokens[i].Trim();
+            if (stopStr.Length == 0)
+                continue;
+
+            var parts = SplitOnTopLevelSpaces(stopStr);
+
+            // Pop trailing position tokens (up to two) off the end.
+            var stopPositions = new List<float>();
+            int end = parts.Count;
+            while (end > 1 && TryParseConicStopPosition(parts[end - 1], out float frac))
+            {
+                stopPositions.Insert(0, frac);
+                end--;
+            }
+
+            string colorStr = string.Join(" ", parts.GetRange(0, end));
+            Color color = ParseCssColor(colorStr);
+            if (color.IsEmpty)
+                continue;
+
+            if (stopPositions.Count == 0)
+            {
+                colors.Add(color);
+                rawPositions.Add(null);
+            }
+            else
+            {
+                foreach (var p in stopPositions)
+                {
+                    colors.Add(color);
+                    rawPositions.Add(p);
+                }
+            }
+        }
+
+        int count = colors.Count;
+        var stops = new List<GradientStop>(count);
+        if (count == 0)
+            return stops;
+
+        // Resolve missing positions: first defaults to 0, last to 1, and any
+        // interior gaps are interpolated between their resolved neighbours.
+        if (rawPositions[0] == null) rawPositions[0] = 0f;
+        if (rawPositions[count - 1] == null) rawPositions[count - 1] = 1f;
+        int idx = 0;
+        while (idx < count)
+        {
+            if (rawPositions[idx] != null) { idx++; continue; }
+            int next = idx;
+            while (next < count && rawPositions[next] == null) next++;
+            float before = rawPositions[idx - 1]!.Value;
+            float after = rawPositions[next]!.Value;
+            int span = next - (idx - 1);
+            for (int k = idx; k < next; k++)
+                rawPositions[k] = before + ((after - before) * (k - (idx - 1)) / span);
+            idx = next;
+        }
+
+        // Clamp to [0,1] and enforce monotonically non-decreasing positions.
+        float prev = 0f;
+        for (int i = 0; i < count; i++)
+        {
+            float v = Math.Max(prev, Math.Clamp(rawPositions[i]!.Value, 0f, 1f));
+            prev = v;
+            stops.Add(new GradientStop { Color = colors[i], Position = v });
+        }
+
+        return stops;
+    }
+
+    /// <summary>
+    /// Parses a conic gradient stop position token (<c>&lt;angle&gt;</c> or
+    /// <c>&lt;percentage&gt;</c>) into a fraction of a full turn (0.0–1.0).
+    /// </summary>
+    private static bool TryParseConicStopPosition(string token, out float fraction)
+    {
+        fraction = 0f;
+        token = token.Trim();
+        if (token.EndsWith("%", StringComparison.Ordinal))
+        {
+            if (float.TryParse(token.AsSpan(0, token.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
+            {
+                fraction = pct / 100f;
+                return true;
+            }
+            return false;
+        }
+
+        if (TryParseAngleDegrees(token, out float deg))
+        {
+            fraction = deg / 360f;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Splits a string on spaces that lie outside any parentheses, so that
+    /// colour functions like <c>rgb(0 0 0 / 50%)</c> stay intact.
+    /// </summary>
+    private static List<string> SplitOnTopLevelSpaces(string value)
+    {
+        var parts = new List<string>();
+        var sb = new System.Text.StringBuilder();
+        int depth = 0;
+        foreach (char c in value)
+        {
+            if (c == '(') depth++;
+            else if (c == ')' && depth > 0) depth--;
+
+            if (char.IsWhiteSpace(c) && depth == 0)
+            {
+                if (sb.Length > 0) { parts.Add(sb.ToString()); sb.Clear(); }
+            }
+            else
+            {
+                sb.Append(c);
+            }
+        }
+        if (sb.Length > 0) parts.Add(sb.ToString());
+        return parts;
     }
 
     private static string ParseGradientInterpolationSpace(string interpolation)

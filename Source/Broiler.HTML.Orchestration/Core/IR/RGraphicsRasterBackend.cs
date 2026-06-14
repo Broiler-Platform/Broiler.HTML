@@ -698,9 +698,11 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
 
         var (colors, positions) = ExpandGradientStops(item.Stops, item.InterpolationSpace);
 
-        using var tileImage = item.IsRadial
-            ? g.CreateRadialGradientTile(tileW, tileH, colors, positions, item.CenterX, item.CenterY)
-            : g.CreateLinearGradientTile(tileW, tileH, colors, positions, item.Angle);
+        using var tileImage = item.IsConic
+            ? g.CreateConicGradientTile(tileW, tileH, colors, positions, item.CenterX, item.CenterY, item.FromAngle)
+            : item.IsRadial
+                ? g.CreateRadialGradientTile(tileW, tileH, colors, positions, item.CenterX, item.CenterY)
+                : g.CreateLinearGradientTile(tileW, tileH, colors, positions, item.Angle);
         if (tileImage == null)
             return;
 

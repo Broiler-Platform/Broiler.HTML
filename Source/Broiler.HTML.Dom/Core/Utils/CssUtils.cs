@@ -57,6 +57,7 @@ internal static class CssUtils
             "margin-left" => cssBox.MarginLeft,
             "margin-right" => cssBox.MarginRight,
             "margin-top" => cssBox.MarginTop,
+            "margin-trim" => cssBox.MarginTrim,
             "padding-bottom" => cssBox.PaddingBottom,
             "padding-left" => cssBox.PaddingLeft,
             "padding-right" => cssBox.PaddingRight,
@@ -348,6 +349,9 @@ internal static class CssUtils
                 break;
             case "margin-top":
                 cssBox.MarginTop = value;
+                break;
+            case "margin-trim":
+                cssBox.MarginTrim = value;
                 break;
             case "padding-bottom":
                 cssBox.PaddingBottom = value;

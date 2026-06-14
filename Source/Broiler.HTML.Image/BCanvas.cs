@@ -159,6 +159,139 @@ internal sealed class BCanvas : IDisposable
         }
     }
 
+    /// <summary>
+    /// Fills glyph contours (closed polygons given in user-space pixels) using
+    /// the non-zero winding rule with anti-aliasing (vertical supersampling plus
+    /// horizontal fractional coverage).  Used by the text backend to rasterise
+    /// scaled glyph outlines.  The <paramref name="color"/>'s alpha is modulated
+    /// by per-pixel coverage.
+    /// </summary>
+    public void FillGlyphContours(IReadOnlyList<PointF[]> contours, BColor color)
+    {
+        if (contours == null || contours.Count == 0 || color.A == 0)
+            return;
+
+        // Transform contours to device space and compute the pixel bounds.
+        float minXf = float.PositiveInfinity, minYf = float.PositiveInfinity;
+        float maxXf = float.NegativeInfinity, maxYf = float.NegativeInfinity;
+        var devContours = new PointF[contours.Count][];
+        for (int ci = 0; ci < contours.Count; ci++)
+        {
+            var src = contours[ci];
+            var dst = new PointF[src.Length];
+            for (int i = 0; i < src.Length; i++)
+            {
+                var p = Translate(src[i]);
+                dst[i] = p;
+                if (p.X < minXf) minXf = p.X;
+                if (p.Y < minYf) minYf = p.Y;
+                if (p.X > maxXf) maxXf = p.X;
+                if (p.Y > maxYf) maxYf = p.Y;
+            }
+            devContours[ci] = dst;
+        }
+
+        if (float.IsInfinity(minXf))
+            return;
+
+        int minX = Math.Max(0, (int)Math.Floor(minXf));
+        int minY = Math.Max(0, (int)Math.Floor(minYf));
+        int maxX = Math.Min(CurrentTarget.Width - 1, (int)Math.Ceiling(maxXf));
+        int maxY = Math.Min(CurrentTarget.Height - 1, (int)Math.Ceiling(maxYf));
+        if (maxX < minX || maxY < minY)
+            return;
+
+        const int subSamples = 4;
+        int width = maxX - minX + 1;
+        var coverage = new float[width];
+        var crossings = new List<(float x, int dir)>(16);
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            Array.Clear(coverage, 0, width);
+
+            for (int s = 0; s < subSamples; s++)
+            {
+                float sampleY = y + (s + 0.5f) / subSamples;
+                crossings.Clear();
+
+                foreach (var poly in devContours)
+                {
+                    int n = poly.Length;
+                    for (int i = 0; i < n; i++)
+                    {
+                        PointF p0 = poly[i];
+                        PointF p1 = poly[(i + 1) % n];
+                        if (p0.Y == p1.Y)
+                            continue;
+
+                        float lo = Math.Min(p0.Y, p1.Y);
+                        float hi = Math.Max(p0.Y, p1.Y);
+                        if (sampleY < lo || sampleY >= hi)
+                            continue;
+
+                        float t = (sampleY - p0.Y) / (p1.Y - p0.Y);
+                        float xCross = p0.X + t * (p1.X - p0.X);
+                        crossings.Add((xCross, p1.Y > p0.Y ? 1 : -1));
+                    }
+                }
+
+                if (crossings.Count < 2)
+                    continue;
+
+                crossings.Sort(static (l, r) => l.x.CompareTo(r.x));
+
+                int winding = 0;
+                for (int i = 0; i < crossings.Count - 1; i++)
+                {
+                    winding += crossings[i].dir;
+                    if (winding != 0)
+                        AccumulateGlyphSpan(coverage, minX, crossings[i].x, crossings[i + 1].x, 1f / subSamples);
+                }
+            }
+
+            for (int i = 0; i < width; i++)
+            {
+                float cov = coverage[i];
+                if (cov <= 0f)
+                    continue;
+                if (cov > 1f)
+                    cov = 1f;
+
+                int x = minX + i;
+                if (!IsVisible(x, y))
+                    continue;
+
+                byte a = (byte)Math.Clamp((int)Math.Round(color.A * cov), 0, 255);
+                if (a == 0)
+                    continue;
+
+                BlendPixel(CurrentTarget, x, y, new BColor(color.R, color.G, color.B, a), blendMode: "normal");
+            }
+        }
+    }
+
+    private static void AccumulateGlyphSpan(float[] coverage, int minX, float spanStart, float spanEnd, float weight)
+    {
+        if (spanEnd <= spanStart)
+            return;
+
+        int width = coverage.Length;
+        int ixStart = Math.Max(0, (int)Math.Floor(spanStart) - minX);
+        int ixEnd = Math.Min(width, (int)Math.Ceiling(spanEnd) - minX);
+
+        for (int ix = ixStart; ix < ixEnd; ix++)
+        {
+            float pixelLeft = minX + ix;
+            float pixelRight = pixelLeft + 1f;
+            float covLeft = Math.Max(spanStart, pixelLeft);
+            float covRight = Math.Min(spanEnd, pixelRight);
+            float frac = covRight - covLeft;
+            if (frac > 0f)
+                coverage[ix] += frac * weight;
+        }
+    }
+
     public void DrawBitmap(BBitmap source, RectangleF destRect, RectangleF srcRect)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -329,6 +462,56 @@ internal sealed class BCanvas : IDisposable
                 float dx = (x + 0.5f - cx) / rx;
                 float dy = (y + 0.5f - cy) / ry;
                 float t = Math.Clamp((float)Math.Sqrt((dx * dx) + (dy * dy)), 0f, 1f);
+                var color = SampleGradientColor(colors, normalizedPositions, t);
+                BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Fills a rectangle with a conic (angular) gradient.  The gradient sweeps
+    /// colours around the centre (given as normalised fractions of the
+    /// rectangle).  <paramref name="fromAngleDeg"/> is the starting angle in
+    /// degrees, measured clockwise from 12 o'clock per the CSS
+    /// <c>conic-gradient()</c> convention.  Stop <paramref name="positions"/>
+    /// are fractions of a full turn (0.0 = 0deg, 1.0 = 360deg).
+    /// </summary>
+    public void FillConicGradientRect(RectangleF rect, IReadOnlyList<BColor> colors, IReadOnlyList<float>? positions, float centerX, float centerY, float fromAngleDeg)
+    {
+        if (colors == null || colors.Count == 0 || rect.Width <= 0 || rect.Height <= 0)
+            return;
+
+        if (colors.Count == 1)
+        {
+            FillRect(rect, colors[0]);
+            return;
+        }
+
+        var translatedRect = Translate(rect);
+        int minX = Math.Max(0, (int)Math.Floor(translatedRect.Left));
+        int minY = Math.Max(0, (int)Math.Floor(translatedRect.Top));
+        int maxX = Math.Min(CurrentTarget.Width - 1, (int)Math.Ceiling(translatedRect.Right) - 1);
+        int maxY = Math.Min(CurrentTarget.Height - 1, (int)Math.Ceiling(translatedRect.Bottom) - 1);
+
+        var normalizedPositions = NormalizeGradientPositions(colors.Count, positions);
+
+        float cx = translatedRect.Left + (centerX * translatedRect.Width);
+        float cy = translatedRect.Top + (centerY * translatedRect.Height);
+
+        for (int y = minY; y <= maxY; y++)
+        {
+            for (int x = minX; x <= maxX; x++)
+            {
+                if (!IsVisible(x, y))
+                    continue;
+
+                float dx = x + 0.5f - cx;
+                float dy = y + 0.5f - cy;
+
+                // atan2(dx, -dy) yields 0 at 12 o'clock and increases clockwise.
+                float angleDeg = (float)(Math.Atan2(dx, -dy) * 180.0 / Math.PI);
+                float t = PositiveModulo(angleDeg - fromAngleDeg, 360f) / 360f;
+
                 var color = SampleGradientColor(colors, normalizedPositions, t);
                 BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
             }
