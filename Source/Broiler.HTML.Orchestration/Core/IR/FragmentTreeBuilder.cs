@@ -130,10 +130,30 @@ internal static class FragmentTreeBuilder
     {
         var inlines = new List<InlineFragment>();
 
+        // CSS2.1 Appendix E: within a stacking context, in-flow inline content
+        // (step 5) paints beneath positioned descendants (steps 6–7).  An
+        // out-of-flow positioned element nested in inline content has its words
+        // reported to this ancestor block's line box (its static position is
+        // resolved during inline layout), so they would otherwise paint in
+        // document order — i.e. potentially *under* later in-flow siblings.
+        // Defer such words to the end of the line so they paint above the
+        // in-flow text, matching the positioned-paint phase.
+        List<InlineFragment>? positionedInlines = null;
+
         foreach (var word in lineBox.Words)
         {
             var ownerStyle = ComputedStyleBuilder.FromBox(word.OwnerBox);
-            inlines.Add(new InlineFragment
+
+            // PROTOTYPE Stage 2 (BROILER_VERTICAL_FLOW): in a vertical writing
+            // mode, text-orientation:mixed rotates the run 90° clockwise.  The
+            // layout transform already stacked glyphs down the column; rotating
+            // each glyph completes the sideways orientation.
+            float glyphRotation = VerticalFlowPrototype.Enabled
+                && CssBoxProperties.IsVerticalWritingMode(word.OwnerBox.WritingMode)
+                ? 90f
+                : 0f;
+
+            var inlineFragment = new InlineFragment
             {
                 X = (float)word.Left,
                 Y = (float)word.Top,
@@ -145,12 +165,26 @@ internal static class FragmentTreeBuilder
                         : " ")
                     : word.Text,
                 Style = ownerStyle,
+                GlyphRotationDeg = glyphRotation,
                 FontHandle = word.OwnerBox.ActualFont,
                 Selected = word.Selected,
                 SelectedStartOffset = word.SelectedStartOffset,
                 SelectedEndOffset = word.SelectedEndOffset,
-            });
+            };
+
+            if (IsOutOfFlowPositioned(word.OwnerBox, lineBox.OwnerBox))
+            {
+                positionedInlines ??= new List<InlineFragment>();
+                positionedInlines.Add(inlineFragment);
+            }
+            else
+            {
+                inlines.Add(inlineFragment);
+            }
         }
+
+        if (positionedInlines != null)
+            inlines.AddRange(positionedInlines);
 
         // Compute line bounds from all rectangles in this line box
         float minX = float.MaxValue, minY = float.MaxValue;
@@ -176,6 +210,24 @@ internal static class FragmentTreeBuilder
             Baseline = 0,
             Inlines = inlines,
         };
+    }
+
+    /// <summary>
+    /// Returns <see langword="true"/> when <paramref name="ownerBox"/> lies
+    /// inside an absolutely- or fixed-positioned element somewhere between it
+    /// and <paramref name="lineOwner"/> (the block that owns the line box).
+    /// Such words are out of flow: their static position is resolved on this
+    /// line, but for painting they belong to the positioned phase, not the
+    /// in-flow inline phase (CSS2.1 Appendix E).
+    /// </summary>
+    private static bool IsOutOfFlowPositioned(CssBox ownerBox, CssBox lineOwner)
+    {
+        for (var b = ownerBox; b != null && b != lineOwner; b = b.ParentBox)
+        {
+            if (b.Position == CssConstants.Absolute || b.Position == CssConstants.Fixed)
+                return true;
+        }
+        return false;
     }
 
     private static bool IsStackingContext(CssBox box)

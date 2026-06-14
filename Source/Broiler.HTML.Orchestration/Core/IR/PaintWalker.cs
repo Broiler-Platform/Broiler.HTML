@@ -1264,6 +1264,7 @@ internal static class PaintWalker
                     Origin = new PointF(inline.X, inline.Y),
                     FontHandle = inline.FontHandle,
                     IsRtl = isRtl,
+                    GlyphRotationDeg = inline.GlyphRotationDeg,
                     TextShadowOffsetX = shadowX,
                     TextShadowOffsetY = shadowY,
                     TextShadowColor = shadowColor,

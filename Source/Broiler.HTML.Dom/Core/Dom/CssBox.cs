@@ -512,11 +512,147 @@ internal class CssBox : CssBoxProperties, IDisposable
         try
         {
             PerformLayoutImp(g);
+
+            // PROTOTYPE (BROILER_VERTICAL_FLOW): once a vertical-writing-mode
+            // root and its whole subtree have been laid out in the logical
+            // (horizontal) frame, rotate the result into physical space.
+            if (VerticalFlowPrototype.Enabled
+                && IsVerticalWritingMode(WritingMode)
+                && (ParentBox == null || !IsVerticalWritingMode(ParentBox.WritingMode)))
+            {
+                ApplyVerticalWritingModeFlow();
+            }
         }
         catch (Exception ex)
         {
             ContainerInt.ReportError(HtmlRenderErrorType.Layout, "Exception in box layout", ex);
         }
+    }
+
+    /// <summary>
+    /// PROTOTYPE (BROILER_VERTICAL_FLOW), Stage 1: rotate this vertical
+    /// writing-mode root's subtree from the logical horizontal layout frame
+    /// into physical space.  The inline axis (laid out left→right) becomes
+    /// top→bottom; the block axis (laid out top→bottom) becomes left→right
+    /// for <c>vertical-lr</c> or right→left for <c>vertical-rl</c>.
+    ///
+    /// Positions and box/line rectangle extents are swapped; glyph runs keep
+    /// their horizontal size (no glyph rotation yet — Stage 2), so this is
+    /// positionally correct for square fonts and an approximation otherwise.
+    /// </summary>
+    private void ApplyVerticalWritingModeFlow()
+    {
+        // Capture the root's logical origin and block extent (its logical
+        // height) before any coordinate is rewritten.  For vertical-rl the
+        // block extent is mirrored so the first line sits at the right edge.
+        float rootX = Location.X;
+        float rootY = Location.Y;
+        double logicalBlockExtent = ActualBottom - Location.Y;
+        bool mirror = WritingMode is "vertical-rl" or "sideways-rl";
+
+        TransformVerticalSubtree(this, rootX, rootY, logicalBlockExtent, mirror, isRoot: true);
+    }
+
+    private static void TransformVerticalSubtree(
+        CssBox box, float rootX, float rootY, double blockExtent, bool mirror, bool isRoot)
+    {
+        // --- Box border-box: Location + Size ---
+        // logical (x,y) measured from root origin → physical (y,x): the inline
+        // offset becomes vertical, the block offset becomes horizontal.
+        double logicalLeft = box.Location.X - rootX;
+        double logicalTop = box.Location.Y - rootY;
+        double logicalWidth = box.Size.Width;
+        double logicalHeight = box.ActualBottom - box.Location.Y;
+
+        // The root keeps its own physical origin (the parent placed it in the
+        // horizontal frame); only its size is rotated.  Descendants rotate
+        // their position relative to the root.
+        if (!isRoot)
+        {
+            double physLeft = mirror
+                ? blockExtent - logicalTop - logicalHeight
+                : logicalTop;
+            box.Location = new PointF(rootX + (float)physLeft, rootY + (float)logicalLeft);
+        }
+
+        box.Size = new SizeF((float)logicalHeight, (float)logicalWidth);
+        box.ActualBottom = box.Location.Y + logicalWidth;
+
+        // Per-line rectangles cached on the box itself (inline backgrounds).
+        var boxRectKeys = new List<CssLineBox>(box.Rectangles.Keys);
+        foreach (var k in boxRectKeys)
+            box.Rectangles[k] = RotateRect(box.Rectangles[k], rootX, rootY, blockExtent, mirror);
+
+        // --- Line boxes owned by this box: words + per-box rectangles ---
+        foreach (var line in box.LineBoxes)
+        {
+            var rotatedWords = new List<CssRect>(line.Words.Count);
+            foreach (var word in line.Words)
+            {
+                // Column X = the line's block offset (lines advance left→right
+                // for vertical-lr, right→left for vertical-rl).  Column Y top =
+                // the word's inline offset (the inline axis runs top→bottom).
+                double wLeft = word.Left - rootX;
+                double wTop = word.Top - rootY;
+                double colX = rootX + (mirror ? blockExtent - wTop - word.Height : wTop);
+                double colTop = rootY + wLeft;
+
+                // Stage 3: decompose a multi-glyph run into per-glyph cells
+                // stacked along the inline (vertical) axis.  Each glyph advances
+                // by its inline advance (≈ run width / glyph count — exact for
+                // monospace/square fonts, approximate otherwise).  This is what
+                // the position-only transform alone could not do: without it a
+                // run paints horizontally and overlaps the next column.
+                string text = word.Text;
+                if (text != null && text.Length > 1 && !word.IsLineBreak)
+                {
+                    double advance = word.Width / text.Length;
+                    for (int i = 0; i < text.Length; i++)
+                    {
+                        var glyph = new CssRectWord(word.OwnerBox, text[i].ToString(), false, false)
+                        {
+                            Left = colX,
+                            Top = colTop + i * advance,
+                            Width = advance,
+                            Height = word.Height,
+                        };
+                        rotatedWords.Add(glyph);
+                    }
+                }
+                else
+                {
+                    word.Left = colX;
+                    word.Top = colTop;
+                    rotatedWords.Add(word);
+                }
+            }
+
+            line.Words.Clear();
+            line.Words.AddRange(rotatedWords);
+
+            var keys = new List<CssBox>(line.Rectangles.Keys);
+            foreach (var k in keys)
+                line.Rectangles[k] = RotateRect(line.Rectangles[k], rootX, rootY, blockExtent, mirror);
+        }
+
+        foreach (var child in box.Boxes)
+        {
+            if (child.Display == CssConstants.None)
+                continue;
+            TransformVerticalSubtree(child, rootX, rootY, blockExtent, mirror, isRoot: false);
+        }
+    }
+
+    private static RectangleF RotateRect(RectangleF r, float rootX, float rootY, double blockExtent, bool mirror)
+    {
+        double logicalLeft = r.X - rootX;
+        double logicalTop = r.Y - rootY;
+        double physLeft = mirror ? blockExtent - logicalTop - r.Height : logicalTop;
+        return new RectangleF(
+            rootX + (float)physLeft,
+            rootY + (float)logicalLeft,
+            r.Height,
+            r.Width);
     }
 
     public void SetBeforeBox(CssBox before)

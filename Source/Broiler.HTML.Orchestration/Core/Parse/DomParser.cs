@@ -1475,6 +1475,18 @@ internal sealed class DomParser
 
         foreach (var childBox in box.Boxes)
         {
+            // CSS2.1 §9.6: Out-of-flow positioned elements do not participate
+            // in the in-flow block/inline sequence that governs <br> heights.
+            // Process their subtrees with an isolated state so a block-level
+            // absolutely-positioned element does not make a following <br>
+            // generate a spurious empty line.
+            if (childBox.Position is CssConstants.Absolute or CssConstants.Fixed)
+            {
+                bool isolated = false;
+                CorrectLineBreaksBlocks(childBox, ref isolated);
+                continue;
+            }
+
             CorrectLineBreaksBlocks(childBox, ref followingBlock);
             followingBlock = childBox.Words.Count == 0 && (followingBlock || childBox.IsBlock);
         }
@@ -1491,6 +1503,10 @@ internal sealed class DomParser
                 {
                     brBox = box.Boxes[i];
                     lastBr = i;
+                }
+                else if (box.Boxes[i].Position is CssConstants.Absolute or CssConstants.Fixed)
+                {
+                    // Out-of-flow: transparent to the in-flow block/inline run.
                 }
                 else if (box.Boxes[i].Words.Count > 0)
                 {
@@ -1793,6 +1809,15 @@ internal sealed class DomParser
             // whether a box contains only inline content.
             if (childBox.Float != CssConstants.None)
                 continue;
+
+            // CSS2.1 §9.6: Absolutely and fixed positioned elements are also
+            // out of flow — they are blockified (§9.7) but, like floats, do
+            // not break the surrounding inline formatting context.  Their
+            // static position is resolved during inline layout, so they must
+            // not trigger the block-inside-inline correction either.
+            if (childBox.Position is CssConstants.Absolute or CssConstants.Fixed)
+                continue;
+
             if (!childBox.IsInline)
                 return false;
 
