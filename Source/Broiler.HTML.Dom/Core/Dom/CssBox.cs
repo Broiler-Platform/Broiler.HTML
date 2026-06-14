@@ -669,6 +669,11 @@ internal class CssBox : CssBoxProperties, IDisposable
             MeasureWordsSize(g);
         }
 
+        // CSS Box Model 4 §6.2: margin-trim zeroes the block-axis margins of
+        // this container's first/last in-flow block-level children before they
+        // are laid out, so the trimmed margins collapse to nothing.
+        ApplyMarginTrim();
+
         if (IsBlock || Display == CssConstants.ListItem || Display == CssConstants.Table || Display == CssConstants.InlineTable || Display == CssConstants.TableCell)
         {
             // Because their width and height are set by CssTable
@@ -697,7 +702,16 @@ internal class CssBox : CssBoxProperties, IDisposable
                             - ContainingBlock.ActualBorderLeftWidth - ContainingBlock.ActualBorderRightWidth;
                 }
 
-                if (Width != CssConstants.Auto && !string.IsNullOrEmpty(Width))
+                if (IsIntrinsicWidthKeyword(Width)
+                    && Float == CssConstants.None
+                    && Position != CssConstants.Absolute && Position != CssConstants.Fixed)
+                {
+                    // CSS Sizing 3 §5: width resolves to an intrinsic size
+                    // (min-content / max-content / fit-content).
+                    width = ResolveIntrinsicWidth(g, Width, width);
+                }
+                else if (Width != CssConstants.Auto && !string.IsNullOrEmpty(Width)
+                    && !IsIntrinsicWidthKeyword(Width))
                 {
                     double containingWidth = width;
                     width = string.Equals(Width, "inherit", StringComparison.OrdinalIgnoreCase) && GetParent() != null
@@ -2657,6 +2671,143 @@ internal class CssBox : CssBoxProperties, IDisposable
         }
 
         return maxLineWidth;
+    }
+
+    /// <summary>
+    /// CSS Sizing 3 §5.1: <c>true</c> when <paramref name="width"/> is one of
+    /// the intrinsic sizing keywords (<c>min-content</c>, <c>max-content</c>,
+    /// <c>fit-content</c>).
+    /// </summary>
+    private static bool IsIntrinsicWidthKeyword(string width) =>
+        string.Equals(width, "min-content", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(width, "max-content", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(width, "fit-content", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// CSS Sizing 3 §5: Resolves an intrinsic-keyword width to a used
+    /// border-box width.  <c>min-content</c> uses the largest child
+    /// min-content contribution, <c>max-content</c> the largest max-content
+    /// contribution, and <c>fit-content</c> clamps the max-content size into
+    /// the available space (but never below min-content).
+    /// </summary>
+    private double ResolveIntrinsicWidth(RGraphics g, string keyword, double availableContentWidth)
+    {
+        EnsureDescendantWordsMeasured(g);
+
+        double available = availableContentWidth - ActualMarginLeft - ActualMarginRight;
+        double content;
+        if (string.Equals(keyword, "min-content", StringComparison.OrdinalIgnoreCase))
+        {
+            content = ComputeIntrinsicInlineSize(useMin: true);
+        }
+        else if (string.Equals(keyword, "max-content", StringComparison.OrdinalIgnoreCase))
+        {
+            content = ComputeIntrinsicInlineSize(useMin: false);
+        }
+        else // fit-content
+        {
+            double max = ComputeIntrinsicInlineSize(useMin: false);
+            double min = ComputeIntrinsicInlineSize(useMin: true);
+            content = Math.Min(Math.Max(min, available), max);
+        }
+
+        if (double.IsNaN(content) || content < 0)
+            content = 0;
+
+        return ResolveSpecifiedWidthToBorderBox(content);
+    }
+
+    /// <summary>
+    /// Computes the intrinsic inline size (content width) as the widest direct
+    /// child contribution.  Each block/float child forms its own line, so the
+    /// container's intrinsic size is the maximum child width rather than the
+    /// sum.  When <paramref name="useMin"/> is set, auto-width children
+    /// contribute their min-content width; otherwise their max-content width.
+    /// </summary>
+    private double ComputeIntrinsicInlineSize(bool useMin)
+    {
+        double maxLineWidth = 0;
+
+        foreach (var child in Boxes)
+        {
+            double childWidth;
+
+            if (child.Width != CssConstants.Auto && !string.IsNullOrEmpty(child.Width)
+                && !IsIntrinsicWidthKeyword(child.Width))
+            {
+                double containingBlockWidth = Size.Width > 0 && !double.IsNaN(Size.Width) ? Size.Width : 0;
+                childWidth = child.ParseLengthWithLineHeight(child.Width, containingBlockWidth)
+                           + child.ActualBorderLeftWidth + child.ActualBorderRightWidth
+                           + child.ActualPaddingLeft + child.ActualPaddingRight;
+            }
+            else
+            {
+                child.GetMinMaxWidth(out double childMin, out double childMax);
+                double intrinsic = useMin ? childMin : childMax;
+                childWidth = double.IsNaN(intrinsic) ? 0 : intrinsic;
+            }
+
+            childWidth += child.ActualMarginLeft + child.ActualMarginRight;
+            if (!double.IsNaN(childWidth))
+                maxLineWidth = Math.Max(maxLineWidth, childWidth);
+        }
+
+        return maxLineWidth;
+    }
+
+    /// <summary>
+    /// CSS Box Model 4 §6.2: Applies <c>margin-trim</c> to this box by zeroing
+    /// the block-start margin of its first in-flow block-level child and/or the
+    /// block-end margin of its last in-flow block-level child, as requested by
+    /// the property value (<c>block</c>, <c>block-start</c>, <c>block-end</c>).
+    /// Inline-axis trimming is not yet supported.
+    /// </summary>
+    private void ApplyMarginTrim()
+    {
+        if (string.IsNullOrEmpty(MarginTrim) || MarginTrim == CssConstants.None)
+            return;
+
+        bool trimBlockStart = false;
+        bool trimBlockEnd = false;
+        foreach (var token in MarginTrim.Split((char[])null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            switch (token.ToLowerInvariant())
+            {
+                case "block":
+                    trimBlockStart = true;
+                    trimBlockEnd = true;
+                    break;
+                case "block-start":
+                    trimBlockStart = true;
+                    break;
+                case "block-end":
+                    trimBlockEnd = true;
+                    break;
+            }
+        }
+
+        if (!trimBlockStart && !trimBlockEnd)
+            return;
+
+        CssBox first = null;
+        CssBox last = null;
+        foreach (var child in Boxes)
+        {
+            if (child.Display == CssConstants.None
+                || child.Position == CssConstants.Absolute
+                || child.Position == CssConstants.Fixed
+                || child.Float != CssConstants.None
+                || child.IsInline)
+                continue;
+
+            first ??= child;
+            last = child;
+        }
+
+        if (trimBlockStart && first != null)
+            first.MarginTop = "0";
+        if (trimBlockEnd && last != null)
+            last.MarginBottom = "0";
     }
 
     internal new void InheritStyle(CssBox box = null, bool everything = false) => base.InheritStyle(box ?? ParentBox, everything);

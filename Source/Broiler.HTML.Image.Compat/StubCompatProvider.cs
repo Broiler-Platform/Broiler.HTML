@@ -1,6 +1,7 @@
 using System;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
+using Broiler.HTML.Image.Adapters.Text;
 
 namespace Broiler.HTML.Image;
 
@@ -14,17 +15,19 @@ internal sealed class StubCompatProvider : ICompatProvider
 {
     public RAdapter ImageAdapter => StubImageAdapter.Instance;
 
-    public ITextShaper TextShaper => StubTextShaper.Instance;
+    // Real glyph rasterisation for registered fonts; falls back to the stub
+    // estimate (no glyphs) for unregistered/default families.
+    public ITextShaper TextShaper => TrueTypeTextShaper.Instance;
 
     public ICanvasCompat CanvasCompat => StubCanvasCompat.Instance;
 
     public IPathCompat PathCompat => StubPathCompat.Instance;
 
-    public IFontCompatFactory FontCompatFactory => StubFontCompatFactory.Instance;
+    public IFontCompatFactory FontCompatFactory => TrueTypeFontCompatFactory.Instance;
 
     public IPaintCompatFactory PaintCompatFactory => StubPaintCompatFactory.Instance;
 
-    public IFontTypefaceResolver CreateFontTypefaceResolver() => new StubFontTypefaceResolver();
+    public IFontTypefaceResolver CreateFontTypefaceResolver() => new TrueTypeTypefaceResolver();
 
     public IBitmapCompatSurface CreateBitmapCompatSurface(
         int width,

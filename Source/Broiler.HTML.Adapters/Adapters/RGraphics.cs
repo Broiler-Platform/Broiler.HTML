@@ -122,5 +122,15 @@ public abstract class RGraphics : IDisposable
     /// </summary>
     public virtual RImage? CreateRadialGradientTile(int width, int height, Color[] colors, float[] positions, float centerX, float centerY) => null;
 
+    /// <summary>
+    /// Creates an off-screen bitmap tile filled with a conic (angular) gradient.
+    /// <paramref name="centerX"/> and <paramref name="centerY"/> are normalised
+    /// fractions (0.0–1.0) of the tile dimensions; <paramref name="fromAngle"/>
+    /// is the starting angle in degrees (clockwise from 12 o'clock) and
+    /// <paramref name="positions"/> are fractions of a full turn (0.0–1.0).
+    /// Default implementation returns <c>null</c> (platform may not support off-screen rendering).
+    /// </summary>
+    public virtual RImage? CreateConicGradientTile(int width, int height, Color[] colors, float[] positions, float centerX, float centerY, float fromAngle) => null;
+
     public abstract void Dispose();
 }

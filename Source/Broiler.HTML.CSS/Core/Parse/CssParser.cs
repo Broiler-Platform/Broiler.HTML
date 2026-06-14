@@ -1424,9 +1424,22 @@ internal sealed class CssParser
             propValue.Equals(CssConstants.Inherit, StringComparison.OrdinalIgnoreCase) ||
             propValue.Equals("initial", StringComparison.OrdinalIgnoreCase) ||
             propValue.Equals("unset", StringComparison.OrdinalIgnoreCase) ||
+            // CSS Sizing 3: intrinsic keywords are only resolved for width in
+            // the layout engine; accept them there and let other length
+            // properties (e.g. height) continue to fall back to auto.
+            (propName.Equals("width", StringComparison.OrdinalIgnoreCase) && IsIntrinsicSizeKeyword(propValue)) ||
             IsValidAttrLengthExpression(propValue))
         properties[propName] = propValue;
     }
+
+    /// <summary>
+    /// CSS Sizing 3 §5: the intrinsic sizing keywords
+    /// (<c>min-content</c>, <c>max-content</c>, <c>fit-content</c>).
+    /// </summary>
+    private static bool IsIntrinsicSizeKeyword(string propValue) =>
+        propValue.Equals("min-content", StringComparison.OrdinalIgnoreCase) ||
+        propValue.Equals("max-content", StringComparison.OrdinalIgnoreCase) ||
+        propValue.Equals("fit-content", StringComparison.OrdinalIgnoreCase);
 
     private static readonly Regex LengthAttrFunctionPattern = new(
         @"attr\(\s*(?<name>[A-Za-z_][A-Za-z0-9_-]*)\s+type\(\s*<length>\s*\)\s*(?:,\s*(?<fallback>[^)]+?))?\s*\)",

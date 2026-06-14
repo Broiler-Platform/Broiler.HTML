@@ -270,6 +270,14 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     public string MarginRight { get; set; } = "0";
     public string MarginTop { get; set; } = "0";
 
+    /// <summary>
+    /// CSS Box Model 4 §6.2 <c>margin-trim</c>: controls trimming of a box's
+    /// own margins adjacent to its content edges (e.g. the block-start margin
+    /// of the first child and the block-end margin of the last child).
+    /// Not inherited.  Default <c>none</c>.
+    /// </summary>
+    public string MarginTrim { get; set; } = "none";
+
     public string PaddingBottom
     {
         get { return _paddingBottom; }
@@ -1583,6 +1591,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         MarginLeft = p.MarginLeft;
         MarginRight = p.MarginRight;
         MarginTop = p.MarginTop;
+        MarginTrim = p.MarginTrim;
         _left = p._left;
         _lineHeight = p._lineHeight;
         Overflow = p.Overflow;
