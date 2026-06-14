@@ -1549,7 +1549,7 @@ internal class CssBox : CssBoxProperties, IDisposable
                         // Auto column-count from column-width: compute the
                         // number of columns so we can pre-constrain width.
                         double cwVal = CssValueParser.ParseLength(ColumnWidth, Size.Width, GetEmHeight());
-                        double gap = GetEmHeight();
+                        double gap = ResolveColumnGap();
                         double available = Size.Width - ActualPaddingLeft - ActualPaddingRight
                             - ActualBorderLeftWidth - ActualBorderRightWidth;
                         if (cwVal > 0 && available > 0)
@@ -1559,7 +1559,7 @@ internal class CssBox : CssBoxProperties, IDisposable
 
                     if (isMultiColumn && preColCount > 1)
                     {
-                        double columnGap = GetEmHeight();
+                        double columnGap = ResolveColumnGap();
                         double cw = Size.Width - ActualPaddingLeft - ActualPaddingRight
                             - ActualBorderLeftWidth - ActualBorderRightWidth;
                         double colWidth = (cw - (preColCount - 1) * columnGap) / preColCount;
@@ -2166,6 +2166,17 @@ internal class CssBox : CssBoxProperties, IDisposable
     }
 
     /// <summary>
+    /// CSS Multi-column §6.2: resolves <c>column-gap</c>.  The initial value
+    /// 'normal' is ≈ 1em; an explicit length (including 0) overrides it.
+    /// </summary>
+    private double ResolveColumnGap()
+    {
+        if (!string.IsNullOrEmpty(ColumnGap) && ColumnGap != "normal")
+            return CssValueParser.ParseLength(ColumnGap, Size.Width, GetEmHeight());
+        return GetEmHeight();
+    }
+
+    /// <summary>
     /// CSS Multi-column Layout: Redistributes in-flow child boxes into
     /// multiple columns after single-column layout.  Walks down through
     /// single-child containers (e.g. html to body) to find the actual
@@ -2173,7 +2184,7 @@ internal class CssBox : CssBoxProperties, IDisposable
     /// </summary>
     private void ApplyMultiColumnLayout(int colCount)
     {
-        double columnGap = GetEmHeight();
+        double columnGap = ResolveColumnGap();
         double contentWidth = Size.Width - ActualPaddingLeft - ActualPaddingRight
             - ActualBorderLeftWidth - ActualBorderRightWidth;
         double columnWidth = (contentWidth - (colCount - 1) * columnGap) / colCount;
@@ -2339,7 +2350,15 @@ internal class CssBox : CssBoxProperties, IDisposable
             double fragHeight = GetVisualBottom(frag) - frag.Location.Y;
 
             bool wouldOverflow = (currentY - containerTop) + fragHeight > columnHeight;
-            if (wouldOverflow && currentCol < colCount - 1 && currentY > containerTop + 0.5)
+            // CSS Multi-column §3.3: column-count sets the column *width* but is
+            // not a hard cap on the number of columns.  When content does not fit
+            // in the determined number of columns (e.g. column-fill: auto with a
+            // constrained block-size), additional "overflow columns" are created
+            // in the inline direction rather than piling the remainder into the
+            // last column.  Balance mode keeps content within colCount via the
+            // height search above, so this only takes effect when genuinely
+            // overflowing.
+            if (wouldOverflow && currentY > containerTop + 0.5)
             {
                 currentCol++;
                 currentY = containerTop;
@@ -2386,7 +2405,11 @@ internal class CssBox : CssBoxProperties, IDisposable
                 fragmentParent.ActualBottom = fpBottom;
         }
 
-        double rightEdge = columnLeft + colCount * columnWidth + (colCount - 1) * columnGap
+        // Overflow columns extend the inline (right) edge beyond the declared
+        // column-count, so size the scrollable/overflow extent to the columns
+        // actually used rather than the specified count.
+        int usedCols = Math.Max(colCount, currentCol + 1);
+        double rightEdge = columnLeft + usedCols * columnWidth + (usedCols - 1) * columnGap
             + ActualPaddingRight + ActualBorderRightWidth;
         if (rightEdge > ActualRight)
             ActualRight = rightEdge;

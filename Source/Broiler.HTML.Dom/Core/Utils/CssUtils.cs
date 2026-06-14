@@ -126,6 +126,7 @@ internal static class CssUtils
             "column-count" => cssBox.ColumnCount,
             "column-width" => cssBox.ColumnWidth,
             "column-fill" => cssBox.ColumnFill,
+            "column-gap" => cssBox.ColumnGap,
             "break-inside" => cssBox.BreakInside,
             "grid-row" => cssBox.GridRow,
             "grid-column" => cssBox.GridColumn,
@@ -266,6 +267,9 @@ internal static class CssUtils
                 break;
             case "column-fill":
                 cssBox.ColumnFill = value;
+                break;
+            case "column-gap":
+                cssBox.ColumnGap = value;
                 break;
             case "break-inside":
                 cssBox.BreakInside = value;
