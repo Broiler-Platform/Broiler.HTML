@@ -2184,6 +2184,22 @@ internal class CssBox : CssBoxProperties, IDisposable
     /// </summary>
     private void ApplyMultiColumnLayout(int colCount)
     {
+        // PROTOTYPE (BROILER_VERTICAL_FLOW), Stage 4b: in a vertical writing
+        // mode the whole subtree is laid out in a logical horizontal frame and
+        // rotated into physical space after layout (ApplyVerticalWritingModeFlow).
+        // Column fragmentation in that logical frame advances columns along the
+        // logical inline axis, which the post-layout rotation maps back onto the
+        // physical block axis — transposing the result (content that should run
+        // in the block direction ends up stacked across the inline direction).
+        // The official reference (css-position/multicol/static-position/
+        // vlr-in-multicol-ref.html) models the expected rendering as a single
+        // contiguous block-direction run, so keep the content as one logical
+        // block run here and let the rotation place it correctly. Scoped to the
+        // gated prototype + vertical writing mode: the default and all horizontal
+        // multi-column paths are completely unaffected.
+        if (VerticalFlowPrototype.Enabled && IsVerticalWritingMode(WritingMode))
+            return;
+
         double columnGap = ResolveColumnGap();
         double contentWidth = Size.Width - ActualPaddingLeft - ActualPaddingRight
             - ActualBorderLeftWidth - ActualBorderRightWidth;
