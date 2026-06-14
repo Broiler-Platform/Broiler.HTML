@@ -2184,20 +2184,27 @@ internal class CssBox : CssBoxProperties, IDisposable
     /// </summary>
     private void ApplyMultiColumnLayout(int colCount)
     {
-        // PROTOTYPE (BROILER_VERTICAL_FLOW), Stage 4b: in a vertical writing
+        // PROTOTYPE (BROILER_VERTICAL_FLOW), Stage 4: in a vertical writing
         // mode the whole subtree is laid out in a logical horizontal frame and
         // rotated into physical space after layout (ApplyVerticalWritingModeFlow).
-        // Column fragmentation in that logical frame advances columns along the
-        // logical inline axis, which the post-layout rotation maps back onto the
-        // physical block axis — transposing the result (content that should run
-        // in the block direction ends up stacked across the inline direction).
-        // The official reference (css-position/multicol/static-position/
-        // vlr-in-multicol-ref.html) models the expected rendering as a single
-        // contiguous block-direction run, so keep the content as one logical
-        // block run here and let the rotation place it correctly. Scoped to the
-        // gated prototype + vertical writing mode: the default and all horizontal
-        // multi-column paths are completely unaffected.
-        if (VerticalFlowPrototype.Enabled && IsVerticalWritingMode(WritingMode))
+        // Multi-column fragmentation runs here, in that logical frame, exactly as
+        // it does for horizontal-tb: columns advance along the logical inline
+        // axis (X). The post-layout rotation then maps the logical inline axis
+        // onto the physical inline axis, so the columns stack along the writing
+        // mode's inline direction — logical left→right becomes physical top→bottom.
+        // Verified against Chromium for css-position/multicol/static-position/
+        // vlr-in-multicol-ref.html: an 80×600 logical run fragmented across
+        // 100px-tall columns rotates to a 100px-wide × 480px-tall vertical strip
+        // (diff 17.3% → ~1.9% vs the legacy single-block run).
+        //
+        // Scoped to left→right block flow (vertical-lr / sideways-lr). Right→left
+        // modes (vertical-rl / sideways-rl) still take the single-run path: their
+        // whole block is currently placed at the inline-start (left) edge instead
+        // of being block-start (right) aligned to the viewport — a separate,
+        // pre-existing positioning gap — so fragmenting their shape correctly
+        // would only relocate the still-mislocated strip, not fix it.
+        bool mirroredBlockFlow = WritingMode is "vertical-rl" or "sideways-rl";
+        if (VerticalFlowPrototype.Enabled && IsVerticalWritingMode(WritingMode) && mirroredBlockFlow)
             return;
 
         double columnGap = ResolveColumnGap();
