@@ -46,6 +46,16 @@ internal static class CssBoxHelper
         var newBox = new CssBox(parent, tag, baseUrl);
         newBox.InheritStyle();
 
+        // Anonymous boxes (tag == null) are fragments of their parent's inline
+        // formatting context — e.g. the wrappers created when content is split
+        // around a <br> or a block-level child.  'unicode-bidi' is not inherited,
+        // so InheritStyle() does not carry it; without this an anonymous block
+        // wrapping a 'unicode-bidi: plaintext' element's content would fall back
+        // to 'normal' and mis-resolve per-line bidi direction.  Explicit CSS on
+        // pseudo-elements is applied later and still overrides this default.
+        if (tag == null)
+            newBox.UnicodeBidi = parent.UnicodeBidi;
+
         if (before != null)
             newBox.SetBeforeBox(before);
 

@@ -225,10 +225,28 @@ internal static class CssLayoutEngine
         }
 
         //Gets the rectangles for each line-box
+        bool plaintext = string.Equals(blockBox.UnicodeBidi, "plaintext", StringComparison.OrdinalIgnoreCase);
+        // CSS Text §bidi-linebox: under unicode-bidi:plaintext each line is its own
+        // bidi paragraph.  Its base direction is the first strong character's; a line
+        // with no strong character inherits the previous paragraph's base direction,
+        // or the containing block's direction when there is none.  Otherwise every
+        // line shares the block's own direction.  Because a <br> splits content into
+        // sibling anonymous blocks, the "previous paragraph" may live in an earlier
+        // sibling — seed the running base direction from the most recent strong
+        // character preceding this block in document order.
+        bool baseRtl = plaintext
+            ? SeedPlaintextBaseRtl(blockBox)
+            : blockBox.Direction == CssConstants.Rtl;
         foreach (var linebox in blockBox.LineBoxes)
         {
-            ApplyHorizontalAlignment(g, linebox);
-            ApplyRightToLeft(blockBox, linebox);
+            bool lineRtl = baseRtl;
+            if (plaintext)
+            {
+                lineRtl = LineFirstStrongRtl(linebox) ?? baseRtl;
+                baseRtl = lineRtl;
+            }
+            ApplyHorizontalAlignment(g, linebox, lineRtl);
+            ApplyRightToLeft(linebox, lineRtl);
             BubbleRectangles(blockBox, linebox);
             ApplyVerticalAlignment(g, linebox);
             linebox.AssignRectanglesToBoxes();
@@ -952,28 +970,26 @@ internal static class CssLayoutEngine
         }
     }
 
-    private static void ApplyHorizontalAlignment(RGraphics g, CssLineBox lineBox)
+    private static void ApplyHorizontalAlignment(RGraphics g, CssLineBox lineBox, bool lineRtl)
     {
         var box = lineBox.OwnerBox;
 
-        // CSS Text §bidi-linebox: with unicode-bidi:plaintext, each line's base
-        // direction is taken from its first strong character.  'text-align:start'
-        // therefore aligns right-to-left lines to the right edge (and 'end' to
-        // the left), independent of the box's own direction.
-        if (string.Equals(box.UnicodeBidi, "plaintext", StringComparison.OrdinalIgnoreCase)
-            && box.TextAlign is "start" or "end" or "" or null or CssConstants.Left)
+        // Resolve the logical 'start'/'end' keywords (and the initial value, which
+        // is 'start') against the line's base direction.  In a left-to-right base,
+        // start=left and end=right; in a right-to-left base they swap.  Physical
+        // 'left'/'right'/'center'/'justify' values pass through unchanged.  Under
+        // unicode-bidi:plaintext the base is the per-line resolved direction; this
+        // is what keeps right-to-left lines aligned to the right edge and, without
+        // it, an RTL box left its 'start'-aligned text on the left (CSS Text
+        // §text-align).
+        string resolvedAlign = box.TextAlign switch
         {
-            string align = string.IsNullOrEmpty(box.TextAlign) ? "start" : box.TextAlign;
-            bool rtlLine = LineFirstStrongIsRtl(lineBox);
-            bool toRight = rtlLine
-                ? align is "start" or CssConstants.Left
-                : align == "end";
-            if (toRight)
-                ApplyRightAlignment(g, lineBox);
-            return;
-        }
+            null or "" or "start" => lineRtl ? CssConstants.Right : CssConstants.Left,
+            "end" => lineRtl ? CssConstants.Left : CssConstants.Right,
+            _ => box.TextAlign
+        };
 
-        switch (box.TextAlign)
+        switch (resolvedAlign)
         {
             case CssConstants.Right:
                 ApplyRightAlignment(g, lineBox);
@@ -990,11 +1006,13 @@ internal static class CssLayoutEngine
     }
 
     /// <summary>
-    /// Returns whether the line's base direction is right-to-left, determined by
-    /// its first strong (Hebrew/Arabic vs. Latin/Greek/Cyrillic) character.
-    /// Used for <c>unicode-bidi: plaintext</c> per-line alignment.
+    /// Returns the line's base direction as resolved from its first strong
+    /// (Hebrew/Arabic vs. Latin/Greek/Cyrillic) character: <c>true</c> for
+    /// right-to-left, <c>false</c> for left-to-right, or <c>null</c> when the line
+    /// has no strong character (so the caller inherits the previous paragraph's or
+    /// the containing block's direction).  Used for <c>unicode-bidi: plaintext</c>.
     /// </summary>
-    private static bool LineFirstStrongIsRtl(CssLineBox line)
+    private static bool? LineFirstStrongRtl(CssLineBox line)
     {
         foreach (CssRect word in line.Words)
         {
@@ -1009,7 +1027,63 @@ internal static class CssLayoutEngine
                     return false;
             }
         }
-        return false; // no strong character → left-to-right base
+        return null; // no strong character → inherit base direction
+    }
+
+    /// <summary>
+    /// Seeds the running base direction for a <c>unicode-bidi: plaintext</c> block
+    /// whose first paragraph has no strong character of its own.  Such a paragraph
+    /// inherits the previous paragraph's direction; because neutral paragraphs
+    /// propagate that direction forward, the result equals the direction of the most
+    /// recent strong character that appears before this block in document order.
+    /// Falls back to the block's own direction when no preceding strong character
+    /// exists (i.e. the containing block's direction).
+    /// </summary>
+    private static bool SeedPlaintextBaseRtl(CssBox blockBox)
+    {
+        var parent = blockBox.ParentBox;
+        if (parent != null)
+        {
+            int index = parent.Boxes.IndexOf(blockBox);
+            for (int i = index - 1; i >= 0; i--)
+            {
+                bool? strong = LastStrongRtl(parent.Boxes[i]);
+                if (strong.HasValue)
+                    return strong.Value;
+            }
+        }
+        return blockBox.Direction == CssConstants.Rtl;
+    }
+
+    /// <summary>
+    /// Returns the direction of the last strong character within <paramref name="box"/>'s
+    /// subtree in document order (<c>true</c> RTL, <c>false</c> LTR), or <c>null</c>
+    /// when the subtree has no strong character.
+    /// </summary>
+    private static bool? LastStrongRtl(CssBox box)
+    {
+        for (int i = box.Boxes.Count - 1; i >= 0; i--)
+        {
+            bool? strong = LastStrongRtl(box.Boxes[i]);
+            if (strong.HasValue)
+                return strong;
+        }
+
+        for (int i = box.Words.Count - 1; i >= 0; i--)
+        {
+            string text = box.Words[i].Text;
+            if (string.IsNullOrEmpty(text))
+                continue;
+            for (int c = text.Length - 1; c >= 0; c--)
+            {
+                if (IsRtlStrongChar(text[c]))
+                    return true;
+                if (IsLtrStrongChar(text[c]))
+                    return false;
+            }
+        }
+
+        return null;
     }
 
     private static bool IsRtlStrongChar(char c) =>
@@ -1026,9 +1100,14 @@ internal static class CssLayoutEngine
         (c >= 0x0370 && c <= 0x03FF) ||   // Greek
         (c >= 0x0400 && c <= 0x04FF);     // Cyrillic
 
-    private static void ApplyRightToLeft(CssBox blockBox, CssLineBox lineBox)
+    private static void ApplyRightToLeft(CssLineBox lineBox, bool lineRtl)
     {
-        if (blockBox.Direction == CssConstants.Rtl)
+        // When the line's base direction is right-to-left the whole line is
+        // mirrored; otherwise only the individual inline boxes that opt into RTL
+        // are reversed.  Under unicode-bidi:plaintext 'lineRtl' is the per-line
+        // resolved direction, so left-to-right lines inside an RTL block stay on
+        // the left instead of being mirrored to the right edge.
+        if (lineRtl)
         {
             ApplyRightToLeftOnLine(lineBox);
         }
