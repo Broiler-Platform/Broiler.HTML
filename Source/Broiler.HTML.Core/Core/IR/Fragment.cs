@@ -93,6 +93,13 @@ public sealed class InlineFragment
     public string? Text { get; init; }
     public ComputedStyle Style { get; init; } = new();
 
+    /// <summary>
+    /// PROTOTYPE (vertical writing-mode flow): clockwise rotation in degrees
+    /// applied to this run's glyphs (Stage 2 — <c>text-orientation: mixed</c>
+    /// rotates Latin sideways).  0 for normal upright text.
+    /// </summary>
+    public float GlyphRotationDeg { get; init; }
+
     /// <summary>Platform-specific font handle resolved during layout (Phase 3).</summary>
     public object? FontHandle { get; init; }
 

@@ -1128,7 +1128,12 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         if (HasExplicitSize(explicitPhysicalValue))
             return explicitPhysicalValue;
 
-        bool vertical = IsVerticalWritingMode(WritingMode);
+        // PROTOTYPE (BROILER_VERTICAL_FLOW): when the experimental vertical
+        // flow path is enabled, vertical-writing-mode boxes are laid out in a
+        // logical (horizontal) coordinate frame — inline-size maps to width,
+        // block-size to height — and a post-layout transform rotates the
+        // result into physical space.  So the dimension swap is suppressed.
+        bool vertical = IsVerticalWritingMode(WritingMode) && !VerticalFlowPrototype.Enabled;
         var logicalValue = isWidth
             ? (vertical ? BlockSize : InlineSize)
             : (vertical ? InlineSize : BlockSize);

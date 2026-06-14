@@ -481,8 +481,10 @@ internal static class CssLayoutEngine
             bool isAbsposChild = b.Position == CssConstants.Absolute
                 || b.Position == CssConstants.Fixed;
             double childSaveCurx = curx;
+            double childSaveCury = cury;
             double childSaveMaxRight = maxRight;
             double childSaveMaxBottom = maxbottom;
+            CssLineBox childSaveLine = line;
 
             double leftspacing = !isAbsposChild ? b.ActualMarginLeft + b.ActualBorderLeftWidth + b.ActualPaddingLeft : 0;
             double rightspacing = !isAbsposChild ? b.ActualMarginRight + b.ActualBorderRightWidth + b.ActualPaddingRight : 0;
@@ -633,7 +635,16 @@ internal static class CssLayoutEngine
                     // before and after the block (CSS2.1 §9.2.1.1 anonymous
                     // block boxes).  This ensures elements like <p> inside an
                     // inline <form> start on their own line.
-                    if (b.IsBlock)
+                    //
+                    // CSS2.1 §10.3.7/§10.6.4: An out-of-flow positioned child
+                    // is laid out here only to establish its *static position*
+                    // — the place a hypothetical inline box would occupy had
+                    // the element been in flow.  It must therefore be placed at
+                    // the current inline cursor, NOT forced onto its own line.
+                    // (The surrounding flow state is restored after the child,
+                    // so this break would be discarded anyway, but skipping it
+                    // keeps the static position on the current line.)
+                    if (b.IsBlock && !isAbsposChild)
                     {
                         if (curx > startx || maxbottom > cury)
                         {
@@ -645,7 +656,7 @@ internal static class CssLayoutEngine
 
                     FlowBox(g, blockbox, b, limitRight, linespacing, startx, ref line, ref curx, ref cury, ref maxRight, ref maxbottom);
 
-                    if (b.IsBlock)
+                    if (b.IsBlock && !isAbsposChild)
                     {
                         cury = maxbottom;
                         curx = startx;
@@ -658,12 +669,18 @@ internal static class CssLayoutEngine
 
             // CSS2.1 §9.6.1: Restore flow state after an absolutely/fixed
             // positioned child so it does not affect siblings or parent
-            // content height.
+            // content height.  This includes the current line (`line`) and
+            // block-axis cursor (`cury`): a block-level out-of-flow child
+            // triggers the block line-break logic above to establish its
+            // static position, but that break must not push subsequent
+            // in-flow inline siblings onto a new line.
             if (isAbsposChild)
             {
                 curx = childSaveCurx;
+                cury = childSaveCury;
                 maxRight = childSaveMaxRight;
                 maxbottom = childSaveMaxBottom;
+                line = childSaveLine;
             }
         }
 

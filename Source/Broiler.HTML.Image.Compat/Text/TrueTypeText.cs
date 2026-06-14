@@ -233,10 +233,10 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         charFitWidth = stubFit * glyphWidth;
     }
 
-    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point)
+    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point, float glyphRotationDeg = 0f)
     {
         if (!string.IsNullOrEmpty(text) && TryGetFont(font, out var ttf, out float scale))
-            DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures);
+            DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures, glyphRotationDeg);
 
         // Returning true reports the text as handled (glyphs drawn, or
         // intentionally skipped for an unregistered font) so the raster path
@@ -260,10 +260,19 @@ internal sealed class TrueTypeTextShaper : ITextShaper
     {
     }
 
-    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string features = null)
+    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string features = null, float glyphRotationDeg = 0f)
     {
         float penX = point.X;
         float baselineY = point.Y + ttf.Ascender * scale;
+
+        // PROTOTYPE Stage 2: text-orientation:mixed rotates each glyph 90°
+        // clockwise about the centre of its em box.  The layout transform has
+        // already stacked the per-glyph cells down the column, so rotating each
+        // glyph in place yields sideways vertical text.
+        bool rotate = glyphRotationDeg != 0f;
+        float emHalf = (ttf.Ascender - ttf.Descender) * scale * 0.5f;
+        float pivotX = point.X + emHalf;
+        float pivotY = point.Y + emHalf;
 
         // Complex scripts (Arabic/Persian), right-to-left text, or requested
         // OpenType features (font-feature-settings) need GSUB shaping before
@@ -277,7 +286,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
                 DrawGlyphOutline(canvas, ttf, shaped.Glyph, scale,
                     penX + shaped.XOffset * scale,
                     baselineY - shaped.YOffset * scale,
-                    color);
+                    color, glyphRotationDeg, pivotX, pivotY);
                 penX += shaped.Advance * scale;
             }
             return;
@@ -290,16 +299,27 @@ internal sealed class TrueTypeTextShaper : ITextShaper
                 i++;
 
             int glyph = ttf.GetGlyphIndex(cp);
-            DrawGlyphOutline(canvas, ttf, glyph, scale, penX, baselineY, color);
+            DrawGlyphOutline(canvas, ttf, glyph, scale, penX, baselineY, color,
+                rotate ? glyphRotationDeg : 0f, pivotX, pivotY);
             penX += ttf.GetAdvanceWidth(glyph) * scale;
         }
     }
 
-    private static void DrawGlyphOutline(BCanvas canvas, TrueTypeFont ttf, int glyph, float scale, float penX, float baselineY, BColor color)
+    private static void DrawGlyphOutline(BCanvas canvas, TrueTypeFont ttf, int glyph, float scale, float penX, float baselineY, BColor color, float glyphRotationDeg = 0f, float pivotX = 0f, float pivotY = 0f)
     {
         var fontContours = ttf.GetGlyphContours(glyph);
         if (fontContours.Count == 0)
             return;
+
+        // Clockwise rotation in the canvas's y-down space: [[cos,-sin],[sin,cos]].
+        bool rotate = glyphRotationDeg != 0f;
+        float cos = 0f, sin = 0f;
+        if (rotate)
+        {
+            double rad = glyphRotationDeg * System.Math.PI / 180.0;
+            cos = (float)System.Math.Cos(rad);
+            sin = (float)System.Math.Sin(rad);
+        }
 
         var userContours = new List<PointF[]>(fontContours.Count);
         foreach (var contour in fontContours)
@@ -308,9 +328,18 @@ internal sealed class TrueTypeTextShaper : ITextShaper
             for (int j = 0; j < contour.Length; j++)
             {
                 // Font units are y-up; flip to the canvas's y-down space.
-                transformed[j] = new PointF(
-                    penX + contour[j].X * scale,
-                    baselineY - contour[j].Y * scale);
+                float x = penX + contour[j].X * scale;
+                float y = baselineY - contour[j].Y * scale;
+
+                if (rotate)
+                {
+                    float dx = x - pivotX;
+                    float dy = y - pivotY;
+                    x = pivotX + (cos * dx - sin * dy);
+                    y = pivotY + (sin * dx + cos * dy);
+                }
+
+                transformed[j] = new PointF(x, y);
             }
             userContours.Add(transformed);
         }

@@ -116,7 +116,8 @@ internal sealed class GraphicsAdapter : RGraphics
 
     public override void DrawString(string str, RFont font, Color color, PointF point, SizeF size, bool rtl)
     {
-        if (CanUseRaster && _textShaper.TryDrawString(_rasterCanvas!, (FontAdapter)font, str, color, point))
+        float glyphRotation = Broiler.HTML.Adapters.Adapters.VerticalGlyphContext.RotationDeg;
+        if (CanUseRaster && _textShaper.TryDrawString(_rasterCanvas!, (FontAdapter)font, str, color, point, glyphRotation))
             return;
 
         var canvas = EnsureCanvas();

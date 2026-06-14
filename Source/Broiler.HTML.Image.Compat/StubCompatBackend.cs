@@ -50,7 +50,7 @@ internal sealed class StubTextShaper : ITextShaper
 
     // Returning true tells the raster path the text was handled, so it is skipped
     // cleanly instead of falling back to the (removed) GDI canvas.
-    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point) => true;
+    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point, float glyphRotationDeg = 0f) => true;
 
     public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, Color[] colors, float[] positions, float angle) => true;
 

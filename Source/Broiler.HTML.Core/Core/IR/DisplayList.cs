@@ -93,6 +93,12 @@ public sealed class DrawTextItem : DisplayItem
     /// <summary>Whether text is right-to-left (Phase 3).</summary>
     public bool IsRtl { get; init; }
 
+    /// <summary>
+    /// PROTOTYPE (vertical writing-mode flow): clockwise glyph rotation in
+    /// degrees (Stage 2).  0 = upright.
+    /// </summary>
+    public float GlyphRotationDeg { get; init; }
+
     /// <summary>Text shadow horizontal offset in pixels (0 = no shadow).</summary>
     public float TextShadowOffsetX { get; init; }
 
