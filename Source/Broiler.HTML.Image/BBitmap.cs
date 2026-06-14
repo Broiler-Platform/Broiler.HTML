@@ -67,6 +67,7 @@ public sealed class BBitmap : IDisposable
 
     public byte[] Encode(BImageFormat format = BImageFormat.Png, int quality = 100)
     {
+        EnsureImageCodec();
         // The codec only reads the buffer; hand it a copy so the live pixels stay owned by this bitmap.
         var buffer = new Broiler.Graphics.BPixelBuffer(Width, Height, (byte[])_pixels.Clone());
         return Broiler.Graphics.BImageCodec.Encode(buffer, ToEncodeFormat(format), quality);
@@ -108,6 +109,7 @@ public sealed class BBitmap : IDisposable
     public static BBitmap Decode(byte[] data)
     {
         ArgumentNullException.ThrowIfNull(data);
+        EnsureImageCodec();
         return FromPixelBuffer(Broiler.Graphics.BImageCodec.Decode(data));
     }
 
@@ -147,6 +149,9 @@ public sealed class BBitmap : IDisposable
         BImageFormat.Jpeg => Broiler.Graphics.BImageEncodeFormat.Jpeg,
         _ => Broiler.Graphics.BImageEncodeFormat.Png,
     };
+
+    private static void EnsureImageCodec()
+        => Broiler.Graphics.BImageCodec.UseManagedIfUnset();
 
     internal bool HasMaterializedCompatBitmap => _compatSurface.IsMaterialized;
     internal int CompatSyncInvocationCount { get; private set; }
