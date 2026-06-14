@@ -33,11 +33,15 @@ The CI workflow now uses that manifest in two ways:
 1. `--scan-only` inventories the entire discoverable non-JS WPT corpus from the prepared upstream checkout and writes a summary artifact that lists the selected in-scope test set after exclusions.
 2. The focused render/diff step reuses the same manifest and samples multiple include filters with `--limit-per-include`, currently covering CSS2, CSS backgrounds, box, color, display, fonts, images, lists, positioning, sizing, tables, text, plus HTML rendering and semantics directories.
 
-There are currently no excluded non-JS WPT cases.
+The non-JS WPT suite currently excludes the CSS Box Model 4 `margin-trim` cases below. Broiler implements `margin-trim` (`CssBox.ApplyMarginTrim`) and renders the trimmed result, but the Chromium/Edge oracle does not support the property, so these cases can never match the reference and would otherwise produce a permanent false-positive triage signal (issues #178, #180, #182).
 
 <!-- BEGIN: non-js-wpt-exclusions -->
 | Test path | Category | Feature / aspect | Reason for exclusion |
 | --- | --- | --- | --- |
+| `css/css-box/margin-trim/block-container-block-001.html` | oracle-incompatibility | margin-trim | Broiler implements CSS Box Model 4 margin-trim (CssBox.ApplyMarginTrim) and renders the correct filled square. The Chromium/Edge oracle does not support margin-trim, so the reference shows gapped boxes; this case can never match the oracle. Excluded to avoid a permanent false-positive triage signal (issues #178, #180). |
+| `css/css-box/margin-trim/block-container-block-002.html` | oracle-incompatibility | margin-trim | Broiler implements CSS Box Model 4 margin-trim (CssBox.ApplyMarginTrim) and renders the correct filled square. The Chromium/Edge oracle does not support margin-trim, so the reference shows gapped boxes; this case can never match the oracle. Excluded to avoid a permanent false-positive triage signal (issues #178, #180). |
+| `css/css-box/margin-trim/block-container-block-end-001.html` | oracle-incompatibility | margin-trim | Block-end variant of the margin-trim cases above. Broiler trims the last in-flow block child's block-end margin (CssBox.ApplyMarginTrim, trimBlockEnd) and renders the correct filled square, while the Chromium/Edge oracle does not support margin-trim and shows a gapped box; this case can never match the oracle. Excluded to avoid a permanent false-positive triage signal (issue #182). |
+| `css/css-box/margin-trim/block-container-block-end-002.html` | oracle-incompatibility | margin-trim | Block-end variant of the margin-trim cases above. Broiler trims the last in-flow block child's block-end margin (CssBox.ApplyMarginTrim, trimBlockEnd) and renders the correct filled square, while the Chromium/Edge oracle does not support margin-trim and shows a gapped box; this case can never match the oracle. Excluded to avoid a permanent false-positive triage signal (issue #182). |
 <!-- END: non-js-wpt-exclusions -->
 
 ### Newly enabled features and testcases
