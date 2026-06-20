@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <Nullable>enable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Broiler.Graphics\Broiler.Graphics\Broiler.Graphics.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Image.Compat\Broiler.HTML.Image.Compat.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Image\Broiler.HTML.Image.csproj" />
+  </ItemGroup>
+</Project>

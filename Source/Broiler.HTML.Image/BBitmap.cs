@@ -82,6 +82,9 @@ public sealed class BBitmap : IDisposable
 
     public BBitmap Copy() => new(Width, Height, (byte[])_pixels.Clone());
 
+    public Broiler.Graphics.BPixelBuffer ToPixelBuffer() =>
+        new(Width, Height, (byte[])_pixels.Clone());
+
     internal BBitmap ResizeNearest(int width, int height)
     {
         if (width <= 0)

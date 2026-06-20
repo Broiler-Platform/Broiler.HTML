@@ -21,6 +21,8 @@ The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized in
 - `Broiler.HTML.Dom` - DOM/layout processing
 - `Broiler.HTML.Orchestration` - HTML parsing and renderer orchestration
 - `Broiler.HTML.Rendering` - paint-time handlers and rendering logic
+- `Broiler.HTML.Graphics` - Broiler.Graphics bitmap and render-list frontend
+- `Broiler.HTML.Graphics.Win32.Demo` - simple Win32 URL rendering demo using `Broiler.Graphics.Direct2D`
 - `Broiler.HTML.Image` / `Broiler.HTML.Image.Compat` - image rendering, deterministic comparison, and Skia compatibility
 - `Broiler.HTML.WPF` - WPF rendering surface and controls
 - `Broiler.HTML` - shared public surface used by platform adapters
@@ -28,6 +30,7 @@ The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized in
 ## Public API highlights
 
 - `Broiler.HTML.Image.HtmlRender` renders HTML to in-memory bitmaps, PNG bytes, and files.
+- `Broiler.HTML.Graphics.HtmlRender` renders HTML to `Broiler.Graphics.BBitmap` instances, encoded bytes, files, and renderer command lists without WPF.
 - `Broiler.HTML.Tool` exposes a cross-platform command-line renderer plus image-diff reporting for HTML compliance workflows.
 - `Broiler.HTML.Image.PixelDiffRunner` compares rendered output to a baseline image.
 - `Broiler.HTML.Image.MismatchClassifier` classifies visual mismatches for compliance triage.
@@ -173,6 +176,14 @@ npm run wpt:run -- --wpt-root /path/to/wpt --include css/css-text --font Ahem=/p
 ```
 
 Use repeated `--include` filters with `--limit-per-include` when you want a bounded smoke batch that still covers several renderer areas instead of consuming the whole limit in the first matching WPT directory.
+
+## Win32 graphics demo
+
+The repository includes a no-WPF/no-WinForms demo that renders a URL with `Broiler.HTML.Graphics` directly into a `Broiler.Graphics.Direct2D` HWND surface:
+
+```bash
+dotnet run --project Source/Broiler.HTML.Graphics.Win32.Demo -- https://example.com/
+```
 
 The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It checks out the `Broiler.Graphics` submodule, prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a bounded render/diff sample across CSS2, modern CSS modules, and HTML rendering/semantics directories. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
 

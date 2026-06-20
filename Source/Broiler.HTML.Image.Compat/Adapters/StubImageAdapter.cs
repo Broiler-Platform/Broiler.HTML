@@ -798,4 +798,48 @@ internal sealed class StubImageAdapter : RAdapter
     }
 
     protected override RFont CreateFontInt(RFontFamily family, double size, FontStyle style) => CreateFontInt(family.Name, size, style);
+
+    protected override object GetClipboardDataObjectInt(string html, string plainText) =>
+        new ClipboardPayload(html, plainText);
+
+    protected override void SetToClipboardInt(string text) =>
+        LastClipboardPayload = new ClipboardPayload(null, text);
+
+    protected override void SetToClipboardInt(string html, string plainText) =>
+        LastClipboardPayload = new ClipboardPayload(html, plainText);
+
+    protected override void SetToClipboardInt(RImage image) =>
+        LastClipboardPayload = image;
+
+    protected override RContextMenu CreateContextMenuInt() => new StubContextMenuAdapter();
+
+    internal static object LastClipboardPayload { get; private set; }
+
+    private sealed record ClipboardPayload(string Html, string PlainText);
+
+    private sealed class StubContextMenuAdapter : RContextMenu
+    {
+        private int _itemsCount;
+
+        public override int ItemsCount => _itemsCount;
+
+        public override void AddDivider() => _itemsCount++;
+
+        public override void AddItem(string text, bool enabled, EventHandler onClick) => _itemsCount++;
+
+        public override void RemoveLastDivider()
+        {
+            if (_itemsCount > 0)
+                _itemsCount--;
+        }
+
+        public override void Show(RControl parent, PointF location)
+        {
+            // Platform-neutral frontend: host applications can implement their own menu.
+        }
+
+        public override void Dispose()
+        {
+        }
+    }
 }

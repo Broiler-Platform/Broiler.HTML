@@ -2,3 +2,5 @@
 **/obj/
 /node_modules/
 /artifacts/
+.vs
+Broiler.HTML.Graphics.Win32.Demo

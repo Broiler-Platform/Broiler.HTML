@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core;
+using Broiler.HTML.CSS.Core;
 using Broiler.HTML.Orchestration.Core;
 using Broiler.HTML.Image.Adapters;
 
@@ -9,6 +10,71 @@ namespace Broiler.HTML.Image;
 
 public static class HtmlRender
 {
+    public static void AddFontFamily(string fontFamily)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fontFamily);
+
+        CompatProvider.ImageAdapter.AddFontFamily(new FontFamilyAdapter(fontFamily));
+    }
+
+    public static void AddFontFamilyMapping(string fromFamily, string toFamily)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(fromFamily);
+        ArgumentException.ThrowIfNullOrWhiteSpace(toFamily);
+
+        CompatProvider.ImageAdapter.AddFontFamilyMapping(fromFamily, toFamily);
+    }
+
+    public static CssData ParseStyleSheet(string stylesheet, bool combineWithDefault = true) =>
+        CssDataParser.Parse(
+            CompatProvider.ImageAdapter,
+            stylesheet,
+            combineWithDefault ? CompatProvider.ImageAdapter.DefaultCssData : null);
+
+    public static SizeF Measure(string html, float maxWidth = 0, CssData cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
+        string baseUrl = null)
+    {
+        if (string.IsNullOrEmpty(html))
+            return SizeF.Empty;
+
+        using var container = new HtmlContainer();
+        container.MaxSize = new SizeF(maxWidth, 0);
+        container.AvoidAsyncImagesLoading = true;
+        container.AvoidImagesLateLoading = true;
+
+        if (stylesheetLoad != null)
+            container.StylesheetLoad += stylesheetLoad;
+        if (imageLoad != null)
+            container.ImageLoad += imageLoad;
+
+        container.SetHtml(html, cssData, baseUrl);
+        container.PerformLayout();
+        return container.ActualSize;
+    }
+
+    public static SizeF Render(BBitmap bitmap, string html, float left = 0, float top = 0, float maxWidth = 0,
+        CssData cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
+        string baseUrl = null)
+    {
+        ArgumentNullException.ThrowIfNull(bitmap);
+        return Render(bitmap, html, new PointF(left, top), new SizeF(maxWidth, 0), cssData, stylesheetLoad, imageLoad, baseUrl);
+    }
+
+    public static SizeF Render(BBitmap bitmap, string html, PointF location, SizeF maxSize,
+        CssData cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
+        string baseUrl = null)
+    {
+        ArgumentNullException.ThrowIfNull(bitmap);
+
+        return RenderHtml(bitmap, html, location, maxSize, cssData, stylesheetLoad, imageLoad, baseUrl);
+    }
+
     public static BBitmap RenderToImage(string html, int width, int height,
         BColor backgroundColor = default,
         CssData cssData = null,
@@ -129,6 +195,18 @@ public static class HtmlRender
     public static string LoadFontFromFile(string path, string cssName = null)
         => CompatProvider.ImageAdapter.LoadFontFromFile(path, cssName);
 
+    public static bool TryCreatePixelBuffer(object imageHandle, out Broiler.Graphics.BPixelBuffer pixelBuffer)
+    {
+        if (imageHandle is ImageAdapter imageAdapter)
+        {
+            pixelBuffer = imageAdapter.Bitmap.ToPixelBuffer();
+            return true;
+        }
+
+        pixelBuffer = null;
+        return false;
+    }
+
     private static BBitmap RenderToImageCore(string html, int width, int height,
         BColor? backgroundColor,
         CssData cssData,
@@ -169,6 +247,37 @@ public static class HtmlRender
         }
 
         return bitmap;
+    }
+
+    private static SizeF RenderHtml(BBitmap bitmap, string html, PointF location, SizeF maxSize,
+        CssData cssData,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad,
+        string baseUrl)
+    {
+        if (string.IsNullOrEmpty(html))
+            return SizeF.Empty;
+
+        using var container = new HtmlContainer();
+        container.Location = location;
+        container.MaxSize = maxSize;
+        container.AvoidAsyncImagesLoading = true;
+        container.AvoidImagesLateLoading = true;
+
+        if (stylesheetLoad != null)
+            container.StylesheetLoad += stylesheetLoad;
+        if (imageLoad != null)
+            container.ImageLoad += imageLoad;
+
+        container.SetHtml(html, cssData, baseUrl);
+        container.PerformLayout(bitmap, new RectangleF(0, 0, bitmap.Width, bitmap.Height));
+
+        RectangleF clip = maxSize.Height > 0
+            ? new RectangleF(location, maxSize)
+            : new RectangleF(0, 0, bitmap.Width, bitmap.Height);
+        container.PerformPaint(bitmap, clip);
+
+        return container.ActualSize;
     }
 
     private static BBitmap RenderToImageAutoSizedCore(string html, int maxWidth, int maxHeight,

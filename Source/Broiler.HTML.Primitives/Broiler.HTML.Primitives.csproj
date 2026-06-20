@@ -9,10 +9,4 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <!-- Platform-neutral graphics abstractions (BColor, geometry, FontStyle,
-         DashStyle, image codec). Referenced here so the types flow transitively
-         to every Broiler.HTML project. -->
-    <ProjectReference Include="..\..\Broiler.Graphics\Broiler.Graphics\Broiler.Graphics.csproj" />
-  </ItemGroup>
 </Project>

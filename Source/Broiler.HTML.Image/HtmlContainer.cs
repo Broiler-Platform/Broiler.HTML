@@ -7,6 +7,7 @@ using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core.IR;
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.Image.Adapters;
+using Broiler.HTML.Primitives.Adapters.Entities;
 
 namespace Broiler.HTML.Image;
 
@@ -23,6 +24,24 @@ public sealed class HtmlContainer : IDisposable
     {
         add { HtmlContainerInt.LoadComplete += value; }
         remove { HtmlContainerInt.LoadComplete -= value; }
+    }
+
+    public event EventHandler<HtmlLinkClickedEventArgs> LinkClicked
+    {
+        add { HtmlContainerInt.LinkClicked += value; }
+        remove { HtmlContainerInt.LinkClicked -= value; }
+    }
+
+    public event EventHandler<HtmlRefreshEventArgs> Refresh
+    {
+        add { HtmlContainerInt.Refresh += value; }
+        remove { HtmlContainerInt.Refresh -= value; }
+    }
+
+    public event EventHandler<HtmlScrollEventArgs> ScrollChange
+    {
+        add { HtmlContainerInt.ScrollChange += value; }
+        remove { HtmlContainerInt.ScrollChange -= value; }
     }
 
     public event EventHandler<HtmlRenderErrorEventArgs> RenderError
@@ -45,6 +64,8 @@ public sealed class HtmlContainer : IDisposable
 
     internal HtmlContainerInt HtmlContainerInt { get; }
 
+    public CssData CssData => HtmlContainerInt.CssData;
+
     /// <summary>
     /// The most recent <see cref="Fragment"/> tree built after layout.
     /// Available after <see cref="PerformLayout"/> has been called.
@@ -63,6 +84,24 @@ public sealed class HtmlContainer : IDisposable
         set => HtmlContainerInt.AvoidImagesLateLoading = value;
     }
 
+    public bool IsSelectionEnabled
+    {
+        get => HtmlContainerInt.IsSelectionEnabled;
+        set => HtmlContainerInt.IsSelectionEnabled = value;
+    }
+
+    public bool IsContextMenuEnabled
+    {
+        get => HtmlContainerInt.IsContextMenuEnabled;
+        set => HtmlContainerInt.IsContextMenuEnabled = value;
+    }
+
+    public PointF ScrollOffset
+    {
+        get => HtmlContainerInt.ScrollOffset;
+        set => HtmlContainerInt.ScrollOffset = value;
+    }
+
     public SizeF MaxSize
     {
         get => HtmlContainerInt.MaxSize;
@@ -74,6 +113,12 @@ public sealed class HtmlContainer : IDisposable
         get => HtmlContainerInt.ActualSize;
         internal set => HtmlContainerInt.ActualSize = value;
     }
+
+    public string SelectedText => HtmlContainerInt.SelectedText;
+
+    public string SelectedHtml => HtmlContainerInt.SelectedHtml;
+
+    public void ClearSelection() => HtmlContainerInt.ClearSelection();
 
     public PointF Location
     {
@@ -93,6 +138,20 @@ public sealed class HtmlContainer : IDisposable
     }
 
     public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null) => HtmlContainerInt.SetHtml(htmlSource, baseCssData, baseUrl);
+
+    public void Clear() => HtmlContainerInt.Clear();
+
+    public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => HtmlContainerInt.GetHtml(styleGen);
+
+    public string GetAttributeAt(PointF location, string attribute) => HtmlContainerInt.GetAttributeAt(location, attribute);
+
+    public string GetLinkAt(PointF location) => HtmlContainerInt.GetLinkAt(location);
+
+    public void PerformLayout()
+    {
+        using var bitmap = new BBitmap(1, 1);
+        PerformLayout(bitmap, new RectangleF(0, 0, 99999, 99999));
+    }
 
     public void PerformLayout(BBitmap bitmap, RectangleF clip)
     {
@@ -132,6 +191,8 @@ public sealed class HtmlContainer : IDisposable
         HtmlContainerInt.PerformPaint(g);
     }
 
+    public DisplayList CreateDisplayList() => HtmlContainerInt.CreateDisplayList();
+
     /// <summary>
     /// Returns the bounding rectangle of the element with the specified <paramref name="elementId"/>,
     /// or <c>null</c> if no such element exists.  Useful for scrolling to an anchor target
@@ -140,12 +201,63 @@ public sealed class HtmlContainer : IDisposable
     /// </summary>
     public RectangleF? GetElementRectangle(string elementId) => HtmlContainerInt.GetElementRectangle(elementId);
 
+    public void ScrollToElement(string elementId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(elementId);
+
+        var rect = GetElementRectangle(elementId);
+        if (!rect.HasValue)
+            return;
+
+        ScrollToPoint(rect.Value.Location);
+    }
+
+    public void ScrollToPoint(PointF location) => ScrollToPoint(location.X, location.Y);
+
+    public void ScrollToPoint(float x, float y) => ScrollOffset = new PointF(-x, -y);
+
     /// <summary>
     /// Returns all links found in the parsed HTML document.
     /// Requires <see cref="SetHtml"/> to have been called first.
     /// Each link includes its <c>id</c>, <c>href</c>, and bounding rectangle.
     /// </summary>
     public List<LinkElementData<RectangleF>> GetLinks() => HtmlContainerInt.GetLinks();
+
+    public void HandleMouseDown(PointF location, bool leftButton = true, bool rightButton = false)
+    {
+        var control = CreateControl(location, leftButton, rightButton);
+        HtmlContainerInt.HandleMouseDown(control, location);
+    }
+
+    public void HandleMouseUp(PointF location, bool leftButton = true, bool rightButton = false)
+    {
+        var control = CreateControl(location, leftButton, rightButton);
+        HtmlContainerInt.HandleMouseUp(control, location, new RMouseEvent(leftButton));
+    }
+
+    public void HandleMouseDoubleClick(PointF location, bool leftButton = true, bool rightButton = false)
+    {
+        var control = CreateControl(location, leftButton, rightButton);
+        HtmlContainerInt.HandleMouseDoubleClick(control, location);
+    }
+
+    public void HandleMouseMove(PointF mousePos, bool leftButton = false, bool rightButton = false)
+    {
+        var control = CreateControl(mousePos, leftButton, rightButton);
+        HtmlContainerInt.HandleMouseMove(control, mousePos);
+    }
+
+    public void HandleMouseLeave()
+    {
+        var control = CreateControl(PointF.Empty, false, false);
+        HtmlContainerInt.HandleMouseLeave(control);
+    }
+
+    public void HandleKeyDown(bool controlKey, bool aKeyCode, bool cKeyCode)
+    {
+        var control = CreateControl(PointF.Empty, false, false);
+        HtmlContainerInt.HandleKeyDown(control, new RKeyEvent(controlKey, aKeyCode, cKeyCode));
+    }
 
     /// <summary>
     /// Returns the computed background color of the root CSS box, or
@@ -286,4 +398,7 @@ public sealed class HtmlContainer : IDisposable
     }
 
     public void Dispose() => HtmlContainerInt.Dispose();
+
+    private static ControlAdapter CreateControl(PointF mouseLocation, bool leftButton, bool rightButton) =>
+        new(mouseLocation, leftButton, rightButton);
 }
