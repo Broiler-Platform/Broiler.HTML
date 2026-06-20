@@ -5,7 +5,7 @@ using System.Text;
 namespace Broiler.HTML.Dom.Core.Parse;
 
 /// <summary>Identifies the kind of <see cref="HtmlToken"/>.</summary>
-internal enum TokenType
+public enum TokenType
 {
     /// <summary>A DOCTYPE token.</summary>
     Doctype,
@@ -23,7 +23,7 @@ internal enum TokenType
 
 /// <summary>A single token emitted by <see cref="HtmlTokenizer"/>.</summary>
 /// <remarks>Creates a new <see cref="HtmlToken"/>.</remarks>
-internal sealed class HtmlToken(TokenType type, string name = null, string data = null,
+public sealed class HtmlToken(TokenType type, string name = null, string data = null,
     bool selfClosing = false, Dictionary<string, string> attributes = null)
 {
     /// <summary>The kind of token.</summary>
@@ -44,7 +44,7 @@ internal sealed class HtmlToken(TokenType type, string name = null, string data 
 /// Shared between Broiler.HTML rendering pipeline and the DomBridge
 /// JavaScript execution bridge.
 /// </summary>
-internal sealed class HtmlTokenizer
+public sealed class HtmlTokenizer
 {
     private enum State
     {

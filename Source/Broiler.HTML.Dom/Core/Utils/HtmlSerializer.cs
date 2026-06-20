@@ -8,14 +8,14 @@ namespace Broiler.HTML.Dom.Core.Utils;
 /// Shared HTML serialization helpers used by both the Broiler.HTML rendering
 /// pipeline and the DomBridge JavaScript execution bridge.
 /// </summary>
-internal static class HtmlSerializer
+public static class HtmlSerializer
 {
     /// <summary>
     /// HTML-encodes a string value for safe inclusion in attributes or text
     /// content by replacing <c>&amp;</c>, <c>&lt;</c>, <c>&gt;</c>, and
     /// <c>&quot;</c> with their entity equivalents.
     /// </summary>
-    internal static string HtmlEncode(string value)
+    public static string HtmlEncode(string value)
     {
         return value
             .Replace("&", "&amp;")
@@ -29,7 +29,7 @@ internal static class HtmlSerializer
     /// that, if emitted after its longhands, would reset those longhands to
     /// initial values (e.g. <c>margin</c> resets <c>margin-left</c>).
     /// </summary>
-    internal static bool IsShorthandProperty(string property)
+    public static bool IsShorthandProperty(string property)
     {
         return property switch
         {
@@ -42,7 +42,7 @@ internal static class HtmlSerializer
     /// <summary>
     /// Well-known void elements that have no closing tag per the HTML specification.
     /// </summary>
-    internal static readonly HashSet<string> VoidTags = new(System.StringComparer.OrdinalIgnoreCase)
+    public static readonly HashSet<string> VoidTags = new(System.StringComparer.OrdinalIgnoreCase)
     {
         "area", "base", "br", "col", "embed", "hr", "img", "input",
         "link", "meta", "param", "source", "track", "wbr"
