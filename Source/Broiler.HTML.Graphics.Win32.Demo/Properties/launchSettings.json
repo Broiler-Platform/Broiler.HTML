@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Broiler.HTML.Graphics.Win32.Demo": {
+      "commandName": "Project",
+      "commandLineArgs": "http://www.google.de"
+    }
+  }
+}
