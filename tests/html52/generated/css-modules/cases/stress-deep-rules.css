@@ -1,0 +1,266 @@
+:root {
+  --phase5-chain-0: var(--phase5-chain-1);
+  --phase5-chain-1: var(--phase5-chain-2);
+  --phase5-chain-2: var(--phase5-chain-3);
+  --phase5-chain-3: var(--phase5-chain-4);
+  --phase5-chain-4: var(--phase5-chain-5);
+  --phase5-chain-5: var(--phase5-chain-6);
+  --phase5-chain-6: var(--phase5-chain-7);
+  --phase5-chain-7: var(--phase5-chain-8);
+  --phase5-chain-8: var(--phase5-chain-9);
+  --phase5-chain-9: var(--phase5-chain-10);
+  --phase5-chain-10: var(--phase5-chain-11);
+  --phase5-chain-11: var(--phase5-chain-12);
+  --phase5-chain-12: var(--phase5-chain-13);
+  --phase5-chain-13: var(--phase5-chain-14);
+  --phase5-chain-14: var(--phase5-chain-15);
+  --phase5-chain-15: var(--phase5-chain-16);
+  --phase5-chain-16: var(--phase5-chain-17);
+  --phase5-chain-17: var(--phase5-chain-18);
+  --phase5-chain-18: var(--phase5-chain-19);
+  --phase5-chain-19: var(--phase5-chain-20);
+  --phase5-chain-20: var(--phase5-chain-21);
+  --phase5-chain-21: var(--phase5-chain-22);
+  --phase5-chain-22: var(--phase5-chain-23);
+  --phase5-chain-23: var(--phase5-chain-24);
+  --phase5-chain-24: var(--phase5-chain-25);
+  --phase5-chain-25: var(--phase5-chain-26);
+  --phase5-chain-26: var(--phase5-chain-27);
+  --phase5-chain-27: var(--phase5-chain-28);
+  --phase5-chain-28: var(--phase5-chain-29);
+  --phase5-chain-29: var(--phase5-chain-30);
+  --phase5-chain-30: var(--phase5-chain-31);
+  --phase5-chain-31: var(--phase5-chain-32);
+  --phase5-chain-32: var(--phase5-chain-33);
+  --phase5-chain-33: var(--phase5-chain-34);
+  --phase5-chain-34: var(--phase5-chain-35);
+  --phase5-chain-35: var(--phase5-chain-36);
+  --phase5-chain-36: var(--phase5-chain-37);
+  --phase5-chain-37: var(--phase5-chain-38);
+  --phase5-chain-38: var(--phase5-chain-39);
+  --phase5-chain-39: var(--phase5-chain-40);
+  --phase5-chain-40: var(--phase5-chain-41);
+  --phase5-chain-41: var(--phase5-chain-42);
+  --phase5-chain-42: var(--phase5-chain-43);
+  --phase5-chain-43: var(--phase5-chain-44);
+  --phase5-chain-44: var(--phase5-chain-45);
+  --phase5-chain-45: var(--phase5-chain-46);
+  --phase5-chain-46: var(--phase5-chain-47);
+  --phase5-chain-47: var(--phase5-chain-48);
+  --phase5-chain-48: var(--phase5-chain-49);
+  --phase5-chain-49: var(--phase5-chain-50);
+  --phase5-chain-50: var(--phase5-chain-51);
+  --phase5-chain-51: var(--phase5-chain-52);
+  --phase5-chain-52: var(--phase5-chain-53);
+  --phase5-chain-53: var(--phase5-chain-54);
+  --phase5-chain-54: var(--phase5-chain-55);
+  --phase5-chain-55: var(--phase5-chain-56);
+  --phase5-chain-56: var(--phase5-chain-57);
+  --phase5-chain-57: var(--phase5-chain-58);
+  --phase5-chain-58: var(--phase5-chain-59);
+  --phase5-chain-59: var(--phase5-chain-60);
+  --phase5-chain-60: var(--phase5-chain-61);
+  --phase5-chain-61: var(--phase5-chain-62);
+  --phase5-chain-62: var(--phase5-chain-63);
+  --phase5-chain-63: #2468ac;
+}
+
+.phase5-deep-00 .phase5-deep-01 .phase5-deep-02 .phase5-deep-03 .phase5-deep-04 .phase5-deep-05 .phase5-deep-06 .phase5-deep-07 .phase5-deep-08 .phase5-deep-09 .phase5-deep-10 .phase5-deep-11 .phase5-deep-12 .phase5-deep-13 .phase5-deep-14 .phase5-deep-15 .phase5-deep-16 .phase5-deep-17 .phase5-deep-18 .phase5-deep-19 .phase5-deep-20 .phase5-deep-21 .phase5-deep-22 .phase5-deep-23 .phase5-deep-24 .phase5-deep-25 .phase5-deep-26 .phase5-deep-27 .phase5-deep-28 .phase5-deep-29 .phase5-deep-30 .phase5-deep-31 .phase5-deep-32 .phase5-deep-33 .phase5-deep-34 .phase5-deep-35 {
+  color: var(--phase5-chain-0);
+  background-color: #eef5ff;
+  outline: 1px solid currentColor;
+}
+
+.phase5-wide-00,
+.phase5-wide-01,
+.phase5-wide-02,
+.phase5-wide-03,
+.phase5-wide-04,
+.phase5-wide-05,
+.phase5-wide-06,
+.phase5-wide-07,
+.phase5-wide-08,
+.phase5-wide-09,
+.phase5-wide-10,
+.phase5-wide-11,
+.phase5-wide-12,
+.phase5-wide-13,
+.phase5-wide-14,
+.phase5-wide-15,
+.phase5-wide-16,
+.phase5-wide-17,
+.phase5-wide-18,
+.phase5-wide-19,
+.phase5-wide-20,
+.phase5-wide-21,
+.phase5-wide-22,
+.phase5-wide-23,
+.phase5-wide-24,
+.phase5-wide-25,
+.phase5-wide-26,
+.phase5-wide-27,
+.phase5-wide-28,
+.phase5-wide-29,
+.phase5-wide-30,
+.phase5-wide-31,
+.phase5-wide-32,
+.phase5-wide-33,
+.phase5-wide-34,
+.phase5-wide-35,
+.phase5-wide-36,
+.phase5-wide-37,
+.phase5-wide-38,
+.phase5-wide-39,
+.phase5-wide-40,
+.phase5-wide-41,
+.phase5-wide-42,
+.phase5-wide-43,
+.phase5-wide-44,
+.phase5-wide-45,
+.phase5-wide-46,
+.phase5-wide-47,
+.phase5-wide-48,
+.phase5-wide-49,
+.phase5-wide-50,
+.phase5-wide-51,
+.phase5-wide-52,
+.phase5-wide-53,
+.phase5-wide-54,
+.phase5-wide-55,
+.phase5-wide-56,
+.phase5-wide-57,
+.phase5-wide-58,
+.phase5-wide-59,
+.phase5-wide-60,
+.phase5-wide-61,
+.phase5-wide-62,
+.phase5-wide-63,
+.phase5-wide-64,
+.phase5-wide-65,
+.phase5-wide-66,
+.phase5-wide-67,
+.phase5-wide-68,
+.phase5-wide-69,
+.phase5-wide-70,
+.phase5-wide-71,
+.phase5-wide-72,
+.phase5-wide-73,
+.phase5-wide-74,
+.phase5-wide-75,
+.phase5-wide-76,
+.phase5-wide-77,
+.phase5-wide-78,
+.phase5-wide-79,
+.phase5-wide-80,
+.phase5-wide-81,
+.phase5-wide-82,
+.phase5-wide-83,
+.phase5-wide-84,
+.phase5-wide-85,
+.phase5-wide-86,
+.phase5-wide-87,
+.phase5-wide-88,
+.phase5-wide-89,
+.phase5-wide-90,
+.phase5-wide-91,
+.phase5-wide-92,
+.phase5-wide-93,
+.phase5-wide-94,
+.phase5-wide-95 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+@media screen and (min-width: 320px) {
+  .phase5-nested-00 {
+    padding: 1px;
+    color: rgb(20 40 80);
+  }
+}
+
+@media screen and (min-width: 360px) {
+  .phase5-nested-01 {
+    padding: 2px;
+    color: rgb(30 45 83);
+  }
+}
+
+@media screen and (min-width: 400px) {
+  .phase5-nested-02 {
+    padding: 3px;
+    color: rgb(40 50 86);
+  }
+}
+
+@media screen and (min-width: 440px) {
+  .phase5-nested-03 {
+    padding: 4px;
+    color: rgb(50 55 89);
+  }
+}
+
+@media screen and (min-width: 480px) {
+  .phase5-nested-04 {
+    padding: 5px;
+    color: rgb(60 60 92);
+  }
+}
+
+@media screen and (min-width: 520px) {
+  .phase5-nested-05 {
+    padding: 6px;
+    color: rgb(70 65 95);
+  }
+}
+
+@media screen and (min-width: 560px) {
+  .phase5-nested-06 {
+    padding: 7px;
+    color: rgb(80 70 98);
+  }
+}
+
+@media screen and (min-width: 600px) {
+  .phase5-nested-07 {
+    padding: 8px;
+    color: rgb(90 75 101);
+  }
+}
+
+@media screen and (min-width: 640px) {
+  .phase5-nested-08 {
+    padding: 9px;
+    color: rgb(100 80 104);
+  }
+}
+
+@media screen and (min-width: 680px) {
+  .phase5-nested-09 {
+    padding: 10px;
+    color: rgb(110 85 107);
+  }
+}
+
+@media screen and (min-width: 720px) {
+  .phase5-nested-10 {
+    padding: 11px;
+    color: rgb(120 90 110);
+  }
+}
+
+@media screen and (min-width: 760px) {
+  .phase5-nested-11 {
+    padding: 12px;
+    color: rgb(130 95 113);
+  }
+}
+
+.phase5-extreme-layout {
+  min-width: 0;
+  max-width: 999999px;
+  min-height: 0;
+  max-height: 999999px;
+  overflow: auto;
+  contain: layout paint style;
+}

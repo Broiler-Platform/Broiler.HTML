@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "aural-and-speech",
+  "itemCount": 1,
+  "items": [
+    {
+      "moduleId": "speech",
+      "moduleTitle": "CSS Speech Level 1",
+      "featureId": "css-module-speech",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "aural-renderer",
+      "blockedBy": [
+        "aural-renderer"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-aural-renderer-is-added",
+      "tests": [],
+      "reason": "Requires an aural/speech rendering backend rather than Broiler.HTML static visual rendering."
+    }
+  ]
+}

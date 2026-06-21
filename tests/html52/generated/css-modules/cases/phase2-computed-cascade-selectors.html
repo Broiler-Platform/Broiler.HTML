@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Phase 2 computed cascade and selectors</title>
+<style>
+@layer phase2-base, phase2-theme;
+@layer phase2-base {
+  .phase2-target { color: #c92a2a; background-color: #fff5f5; border: 1px solid #c92a2a; }
+}
+@layer phase2-theme {
+  #phase2-scope > .phase2-target:is([data-state="active"], .phase2-alt) { color: #2b8a3e; background-color: #ebfbee; border-color: #2b8a3e; }
+}
+.phase2-target { color: #c92a2a; background-color: #fff5f5; border: 1px solid #c92a2a; }
+#phase2-cascade { color: #2b8a3e; background-color: #ebfbee; border-color: #2b8a3e; margin-left: 3px; }
+#phase2-scope > .phase2-target[data-state="active"] { color: #2b8a3e; background-color: #ebfbee; border-color: #2b8a3e; margin-left: 3px; }
+#phase2-scope > .phase2-target:is([data-state="active"], .phase2-alt) { padding-left: 7px; }
+@media all {
+  #phase2-scope .phase2-target { text-align: left; }
+  #phase2-scope > .phase2-target:lang(en) { font-weight: bold; }
+}
+#phase2-scope :where(.phase2-target) { margin-left: 3px; }
+.phase2-scoped-child { color: #5c940d; }
+@scope (#phase2-scope) {
+  .phase2-scoped-child { color: #5c940d; }
+}
+.phase2-nesting {
+  color: #c2255c;
+  & > .phase2-nesting-child { color: #862e9c; }
+}
+.phase2-nesting > .phase2-nesting-child { color: #862e9c; }
+</style>
+</head>
+<body><div id="phase2-scope"><div id="phase2-cascade" class="phase2-target" data-state="active" lang="en"></div><div id="phase2-scoped" class="phase2-scoped-child"></div><div class="phase2-nesting"><div id="phase2-nested" class="phase2-nesting-child"></div></div></div></body>
+</html>

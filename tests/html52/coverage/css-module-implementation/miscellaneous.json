@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "miscellaneous",
+  "itemCount": 5,
+  "items": [
+    {
+      "moduleId": "css-gaps-1",
+      "moduleTitle": "CSS Gap Decorations Level 1",
+      "featureId": "css-module-css-gaps-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-paint-api-1",
+      "moduleTitle": "CSS Painting API Level 1",
+      "featureId": "css-module-css-paint-api-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires CSS Painting API worklet execution; static CSS parsing remains a negative/no-crash concern."
+    },
+    {
+      "moduleId": "css-shadow-parts-1",
+      "moduleTitle": "CSS Shadow Parts",
+      "featureId": "css-module-css-shadow-parts-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "css-will-change-1",
+      "moduleTitle": "CSS Will Change Level 1",
+      "featureId": "css-module-css-will-change-1",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "pseudo-4",
+      "moduleTitle": "CSS Pseudo-Elements Level 4",
+      "featureId": "css-module-pseudo-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    }
+  ]
+}

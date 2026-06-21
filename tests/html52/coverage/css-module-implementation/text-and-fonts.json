@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "text-and-fonts",
+  "itemCount": 12,
+  "items": [
+    {
+      "moduleId": "css-font-loading-3",
+      "moduleTitle": "CSS Font Loading Level 3",
+      "featureId": "css-module-css-font-loading-3",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-font-loading-api-is-added",
+      "tests": [],
+      "reason": "Requires the CSS Font Loading API; static @font-face resource behavior is covered by font/layout tests."
+    },
+    {
+      "moduleId": "css-fonts-4",
+      "moduleTitle": "CSS Fonts Level 4",
+      "featureId": "css-module-css-fonts-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "css-fonts-5",
+      "moduleTitle": "CSS Fonts Level 5",
+      "featureId": "css-module-css-fonts-5",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-text-4",
+      "moduleTitle": "CSS Text Level 4",
+      "featureId": "css-module-css-text-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "css-text-decor-4",
+      "moduleTitle": "CSS Text Decoration Level 4",
+      "featureId": "css-module-css-text-decor-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase3-cross-module-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "fonts",
+      "moduleTitle": "CSS Fonts Level 3",
+      "featureId": "css-module-fonts",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "inline",
+      "moduleTitle": "CSS Inline Layout Level 3",
+      "featureId": "css-module-inline",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "ruby",
+      "moduleTitle": "CSS Ruby Annotation Layout Level 1",
+      "featureId": "css-module-ruby",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "text",
+      "moduleTitle": "CSS Text Level 3",
+      "featureId": "css-module-text",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "text-decor",
+      "moduleTitle": "CSS Text Decoration Level 3",
+      "featureId": "css-module-text-decor",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "writing-modes",
+      "moduleTitle": "CSS Writing Modes Level 3",
+      "featureId": "css-module-writing-modes",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "writing-modes-4",
+      "moduleTitle": "CSS Writing Modes Level 4",
+      "featureId": "css-module-writing-modes-4",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    }
+  ]
+}

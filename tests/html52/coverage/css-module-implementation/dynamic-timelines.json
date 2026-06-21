@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "dynamic-timelines",
+  "itemCount": 11,
+  "items": [
+    {
+      "moduleId": "animations",
+      "moduleTitle": "CSS Animations Level 1",
+      "featureId": "css-module-animations",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires animation timelines and time sampling beyond static document rendering."
+    },
+    {
+      "moduleId": "css-animation-worklet-1",
+      "moduleTitle": "CSS Animation Worklet API",
+      "featureId": "css-module-css-animation-worklet-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires animation worklet execution."
+    },
+    {
+      "moduleId": "css-animations-2",
+      "moduleTitle": "CSS Animations Level 2",
+      "featureId": "css-module-css-animations-2",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires animation timelines and event behavior beyond static rendering."
+    },
+    {
+      "moduleId": "css-transitions-2",
+      "moduleTitle": "CSS Transitions Level 2",
+      "featureId": "css-module-css-transitions-2",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires style-change timelines beyond a static initial render."
+    },
+    {
+      "moduleId": "css-view-transitions-1",
+      "moduleTitle": "CSS View Transitions Level 1",
+      "featureId": "css-module-css-view-transitions-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires a live document transition timeline and DOM state changes."
+    },
+    {
+      "moduleId": "css-view-transitions-2",
+      "moduleTitle": "CSS View Transitions Level 2",
+      "featureId": "css-module-css-view-transitions-2",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires a live document transition timeline and DOM state changes."
+    },
+    {
+      "moduleId": "motion-1",
+      "moduleTitle": "Motion Path Level 1",
+      "featureId": "css-module-motion-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires animation path sampling for moving boxes rather than static layout alone."
+    },
+    {
+      "moduleId": "scroll-animations-1",
+      "moduleTitle": "Scroll-driven Animations",
+      "featureId": "css-module-scroll-animations-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires scroll-linked animation timelines."
+    },
+    {
+      "moduleId": "transitions",
+      "moduleTitle": "CSS Transitions",
+      "featureId": "css-module-transitions",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires style-change timelines beyond a static initial render."
+    },
+    {
+      "moduleId": "web-animations",
+      "moduleTitle": "Web Animations",
+      "featureId": "css-module-web-animations",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires the Web Animations runtime API and timelines."
+    },
+    {
+      "moduleId": "web-animations-2",
+      "moduleTitle": "Web Animations Level 2",
+      "featureId": "css-module-web-animations-2",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [],
+      "reason": "Requires the Web Animations runtime API and timelines."
+    }
+  ]
+}

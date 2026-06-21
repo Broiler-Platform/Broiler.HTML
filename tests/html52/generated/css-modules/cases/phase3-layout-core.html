@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 3 core CSS layout</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body { font: 16px/20px serif; background: #ffffff; }
+#phase3-root { width: 640px; margin: 8px; padding: 6px; border: 2px solid #212529; contain: layout paint; }
+#phase3-block { width: 180px; height: 38px; margin: 10px 18px 12px 14px; padding: 6px 8px; border: 4px solid #1c7ed6; background: #d0ebff; box-sizing: content-box; }
+#phase3-inline-row { width: 320px; padding: 4px; border: 2px solid #495057; background: #f1f3f5; }
+.phase3-inline { display: inline-block; width: 56px; height: 22px; margin-right: 6px; background: #ffd43b; vertical-align: top; }
+#phase3-relative { position: relative; left: 12px; top: 5px; width: 90px; height: 24px; margin: 8px 0; background: #b2f2bb; }
+#phase3-positioning { position: relative; width: 220px; height: 72px; margin-top: 14px; border: 3px solid #6741d9; background: #f3f0ff; }
+#phase3-absolute { position: absolute; left: 32px; top: 18px; width: 74px; height: 26px; background: #d0bfff; }
+#phase3-sizing { width: 50%; min-width: 120px; max-width: 160px; height: 28px; margin-top: 10px; background: #ffe8cc; }
+#phase3-logical { margin-left: 14px; padding-top: 5px; border-left: 4px solid #e8590c; inline-size: 124px; block-size: 28px; background: #fff4e6; }
+#phase3-anchor { anchor-name: --phase3-anchor; width: 64px; height: 18px; margin-top: 8px; background: #c3fae8; }
+#phase3-anchor-target { position-anchor: --phase3-anchor; position-area: bottom; width: 76px; height: 18px; margin-top: 4px; background: #96f2d7; }
+#phase3-rhythm { block-step-size: 20px; line-height-step: 20px; width: 110px; height: 20px; margin-top: 6px; background: #e7f5ff; }
+#phase3-round { shape-inside: display; border-boundary: display; width: 90px; height: 20px; margin-top: 6px; background: #f8f9fa; }
+</style>
+</head>
+<body>
+<div id="phase3-root">
+<div id="phase3-block"></div>
+<div id="phase3-inline-row"><span class="phase3-inline"></span><span class="phase3-inline"></span><span class="phase3-inline"></span></div>
+<div id="phase3-relative"></div>
+<div id="phase3-positioning"><div id="phase3-absolute"></div></div>
+<div id="phase3-sizing"></div>
+<div id="phase3-logical"></div>
+<div id="phase3-anchor"></div>
+<div id="phase3-anchor-target"></div>
+<div id="phase3-rhythm"></div>
+<div id="phase3-round"></div>
+</div>
+</body>
+</html>

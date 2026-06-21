@@ -53,7 +53,13 @@ async function main(argv = process.argv.slice(2)) {
     await writeCoverageSummary(options.output, summary);
 
     printCoverageSummary(summary);
-    return options.failOnUncovered && summary.uncoveredPlannedCount > 0 ? 1 : 0;
+    if (options.failOnUncovered && summary.uncoveredPlannedCount > 0) {
+      return 1;
+    }
+    if (options.failOnImplementationGaps && summary.cssModuleCoverage.implementationGapCount > 0) {
+      return 1;
+    }
+    return 0;
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
     return 1;
@@ -66,6 +72,7 @@ function parseArguments(argv) {
     coverageRoot: defaultCoverageRoot,
     output: defaultOutputRoot,
     failOnUncovered: false,
+    failOnImplementationGaps: false,
     help: false
   };
 
@@ -99,6 +106,9 @@ function parseArguments(argv) {
       }
       case '--fail-on-uncovered':
         options.failOnUncovered = true;
+        break;
+      case '--fail-on-implementation-gaps':
+        options.failOnImplementationGaps = true;
         break;
       case '-h':
       case '--help':
@@ -154,6 +164,14 @@ function normalizeCoverageItem(item, source, index) {
     moduleTitle: item.moduleTitle ?? null,
     moduleFamily: item.moduleFamily ?? null,
     w3cStatus: item.w3cStatus ?? null,
+    implementationStatus: item.implementationStatus ?? null,
+    oracleDepth: item.oracleDepth ?? null,
+    targetOracleDepth: item.targetOracleDepth ?? null,
+    nextOracle: item.nextOracle ?? null,
+    owner: item.owner ?? null,
+    blockedBy: Array.isArray(item.blockedBy) ? item.blockedBy : [],
+    scopeDecision: item.scopeDecision ?? null,
+    outOfScopeDecision: item.outOfScopeDecision ?? null,
     raw: item
   };
 }
@@ -192,7 +210,15 @@ function createCoverageSummary(manifest, coverageItems, options) {
       moduleId: item.moduleId,
       moduleTitle: item.moduleTitle,
       moduleFamily: item.moduleFamily,
-      w3cStatus: item.w3cStatus
+      w3cStatus: item.w3cStatus,
+      implementationStatus: item.implementationStatus,
+      oracleDepth: item.oracleDepth,
+      targetOracleDepth: item.targetOracleDepth,
+      nextOracle: item.nextOracle,
+      owner: item.owner,
+      blockedBy: item.blockedBy,
+      scopeDecision: item.scopeDecision,
+      outOfScopeDecision: item.outOfScopeDecision
     };
   });
 
@@ -225,6 +251,14 @@ function createCoverageSummary(manifest, coverageItems, options) {
       byW3cStatus: countBy(cssModules, (item) => item.w3cStatus ?? 'unknown'),
       bySupportLevel: countBy(cssModules, (item) => item.supportLevel),
       byFamily: countBy(cssModules, (item) => item.moduleFamily ?? 'unclassified'),
+      byImplementationStatus: countBy(cssModules, (item) => item.implementationStatus ?? 'untracked'),
+      byOracleDepth: countBy(cssModules, (item) => item.oracleDepth ?? 'untracked'),
+      byTargetOracleDepth: countBy(cssModules, (item) => item.targetOracleDepth ?? 'untracked'),
+      byNextOracle: countBy(cssModules, (item) => item.nextOracle ?? 'untracked'),
+      byOwner: countBy(cssModules, (item) => item.owner ?? 'unassigned'),
+      byScopeDecision: countBy(cssModules, (item) => item.scopeDecision ?? 'untracked'),
+      implementationGapCount: cssModules.filter(hasImplementationGap).length,
+      implementationGaps: cssModules.filter(hasImplementationGap),
       uncovered: uncoveredCssModules
     },
     uncoveredPlanned,
@@ -252,6 +286,7 @@ function printCoverageSummary(summary) {
   console.log(`Support levels: ${formatObjectCounts(summary.supportLevelCounts)}`);
   console.log(`CSS module rows: ${summary.cssModuleCoverage.itemCount}`);
   console.log(`Uncovered CSS module rows: ${summary.cssModuleCoverage.uncoveredCount}`);
+  console.log(`CSS module implementation gaps: ${summary.cssModuleCoverage.implementationGapCount}`);
   console.log();
 
   if (summary.uncoveredPlanned.length > 0) {
@@ -279,6 +314,7 @@ function createCoverageMarkdown(summary) {
     `- Support levels: ${formatObjectCounts(summary.supportLevelCounts)}`,
     `- CSS module rows: ${summary.cssModuleCoverage.itemCount}`,
     `- Uncovered required/recommended CSS module rows: ${summary.cssModuleCoverage.uncoveredCount}`,
+    `- CSS module implementation gaps: ${summary.cssModuleCoverage.implementationGapCount}`,
     ''
   ];
 
@@ -305,6 +341,11 @@ function createCoverageMarkdown(summary) {
       `- W3C statuses: ${formatObjectCounts(summary.cssModuleCoverage.byW3cStatus)}`,
       `- Support levels: ${formatObjectCounts(summary.cssModuleCoverage.bySupportLevel)}`,
       `- Families: ${formatObjectCounts(summary.cssModuleCoverage.byFamily)}`,
+      `- Implementation statuses: ${formatObjectCounts(summary.cssModuleCoverage.byImplementationStatus)}`,
+      `- Current oracle depths: ${formatObjectCounts(summary.cssModuleCoverage.byOracleDepth)}`,
+      `- Target oracle depths: ${formatObjectCounts(summary.cssModuleCoverage.byTargetOracleDepth)}`,
+      `- Next oracles: ${formatObjectCounts(summary.cssModuleCoverage.byNextOracle)}`,
+      `- Owners: ${formatObjectCounts(summary.cssModuleCoverage.byOwner)}`,
       ''
     );
 
@@ -315,9 +356,30 @@ function createCoverageMarkdown(summary) {
       }
       lines.push('');
     }
+
+    if (summary.cssModuleCoverage.implementationGaps.length > 0) {
+      lines.push('### CSS Module Implementation Gaps', '', '| Feature | Current | Target | Next | Owner |', '| --- | --- | --- | --- | --- |');
+      for (const item of summary.cssModuleCoverage.implementationGaps) {
+        lines.push(`| \`${item.featureId}\` | ${item.oracleDepth ?? 'n/a'} | ${item.targetOracleDepth ?? 'n/a'} | ${item.nextOracle ?? 'n/a'} | ${item.owner ?? 'n/a'} |`);
+      }
+      lines.push('');
+    }
   }
 
   return `${lines.join('\n')}\n`;
+}
+
+function hasImplementationGap(item) {
+  if (item.source !== 'css-modules') {
+    return false;
+  }
+  if (item.scopeDecision !== 'static-renderer-in-scope') {
+    return false;
+  }
+  if (!item.targetOracleDepth || item.targetOracleDepth === 'out-of-scope') {
+    return false;
+  }
+  return item.oracleDepth !== item.targetOracleDepth;
 }
 
 function formatObjectCounts(counts) {
@@ -336,6 +398,8 @@ Options:
   --coverage-root <dir>   Coverage map directory. Defaults to tests/html52/coverage.
   --output <dir>          Summary output directory. Defaults to artifacts/html52.
   --fail-on-uncovered     Exit non-zero when planned coverage items have no tests.
+  --fail-on-implementation-gaps
+                          Exit non-zero while in-scope CSS modules have not reached target oracle depth.
   -h, --help              Show this help text.`;
 }
 

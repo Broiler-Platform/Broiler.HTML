@@ -1,0 +1,4686 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "(min-width:": {
+      ".phase5-nested-00": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(20 40 80)",
+            "padding-bottom": "1px",
+            "padding-left": "1px",
+            "padding-right": "1px",
+            "padding-top": "1px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-00",
+          "selectors": null,
+          "sourceOrder": 101,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-01": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 45 83)",
+            "padding-bottom": "2px",
+            "padding-left": "2px",
+            "padding-right": "2px",
+            "padding-top": "2px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-01",
+          "selectors": null,
+          "sourceOrder": 105,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-02": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(40 50 86)",
+            "padding-bottom": "3px",
+            "padding-left": "3px",
+            "padding-right": "3px",
+            "padding-top": "3px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-02",
+          "selectors": null,
+          "sourceOrder": 109,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-03": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(50 55 89)",
+            "padding-bottom": "4px",
+            "padding-left": "4px",
+            "padding-right": "4px",
+            "padding-top": "4px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-03",
+          "selectors": null,
+          "sourceOrder": 113,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-04": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(60 60 92)",
+            "padding-bottom": "5px",
+            "padding-left": "5px",
+            "padding-right": "5px",
+            "padding-top": "5px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-04",
+          "selectors": null,
+          "sourceOrder": 117,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-05": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(70 65 95)",
+            "padding-bottom": "6px",
+            "padding-left": "6px",
+            "padding-right": "6px",
+            "padding-top": "6px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-05",
+          "selectors": null,
+          "sourceOrder": 121,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-06": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(80 70 98)",
+            "padding-bottom": "7px",
+            "padding-left": "7px",
+            "padding-right": "7px",
+            "padding-top": "7px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-06",
+          "selectors": null,
+          "sourceOrder": 125,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-07": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 75 101)",
+            "padding-bottom": "8px",
+            "padding-left": "8px",
+            "padding-right": "8px",
+            "padding-top": "8px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-07",
+          "selectors": null,
+          "sourceOrder": 129,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-08": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(100 80 104)",
+            "padding-bottom": "9px",
+            "padding-left": "9px",
+            "padding-right": "9px",
+            "padding-top": "9px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-08",
+          "selectors": null,
+          "sourceOrder": 133,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-09": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 85 107)",
+            "padding-bottom": "10px",
+            "padding-left": "10px",
+            "padding-right": "10px",
+            "padding-top": "10px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-09",
+          "selectors": null,
+          "sourceOrder": 137,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-10": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(120 90 110)",
+            "padding-bottom": "11px",
+            "padding-left": "11px",
+            "padding-right": "11px",
+            "padding-top": "11px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-10",
+          "selectors": null,
+          "sourceOrder": 141,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-11": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(130 95 113)",
+            "padding-bottom": "12px",
+            "padding-left": "12px",
+            "padding-right": "12px",
+            "padding-top": "12px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-11",
+          "selectors": null,
+          "sourceOrder": 145,
+          "specificity": 1000
+        }
+      ]
+    },
+    "320px)": {
+      ".phase5-nested-00": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(20 40 80)",
+            "padding-bottom": "1px",
+            "padding-left": "1px",
+            "padding-right": "1px",
+            "padding-top": "1px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-00",
+          "selectors": null,
+          "sourceOrder": 102,
+          "specificity": 1000
+        }
+      ]
+    },
+    "360px)": {
+      ".phase5-nested-01": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 45 83)",
+            "padding-bottom": "2px",
+            "padding-left": "2px",
+            "padding-right": "2px",
+            "padding-top": "2px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-01",
+          "selectors": null,
+          "sourceOrder": 106,
+          "specificity": 1000
+        }
+      ]
+    },
+    "400px)": {
+      ".phase5-nested-02": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(40 50 86)",
+            "padding-bottom": "3px",
+            "padding-left": "3px",
+            "padding-right": "3px",
+            "padding-top": "3px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-02",
+          "selectors": null,
+          "sourceOrder": 110,
+          "specificity": 1000
+        }
+      ]
+    },
+    "440px)": {
+      ".phase5-nested-03": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(50 55 89)",
+            "padding-bottom": "4px",
+            "padding-left": "4px",
+            "padding-right": "4px",
+            "padding-top": "4px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-03",
+          "selectors": null,
+          "sourceOrder": 114,
+          "specificity": 1000
+        }
+      ]
+    },
+    "480px)": {
+      ".phase5-nested-04": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(60 60 92)",
+            "padding-bottom": "5px",
+            "padding-left": "5px",
+            "padding-right": "5px",
+            "padding-top": "5px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-04",
+          "selectors": null,
+          "sourceOrder": 118,
+          "specificity": 1000
+        }
+      ]
+    },
+    "520px)": {
+      ".phase5-nested-05": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(70 65 95)",
+            "padding-bottom": "6px",
+            "padding-left": "6px",
+            "padding-right": "6px",
+            "padding-top": "6px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-05",
+          "selectors": null,
+          "sourceOrder": 122,
+          "specificity": 1000
+        }
+      ]
+    },
+    "560px)": {
+      ".phase5-nested-06": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(80 70 98)",
+            "padding-bottom": "7px",
+            "padding-left": "7px",
+            "padding-right": "7px",
+            "padding-top": "7px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-06",
+          "selectors": null,
+          "sourceOrder": 126,
+          "specificity": 1000
+        }
+      ]
+    },
+    "600px)": {
+      ".phase5-nested-07": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 75 101)",
+            "padding-bottom": "8px",
+            "padding-left": "8px",
+            "padding-right": "8px",
+            "padding-top": "8px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-07",
+          "selectors": null,
+          "sourceOrder": 130,
+          "specificity": 1000
+        }
+      ]
+    },
+    "640px)": {
+      ".phase5-nested-08": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(100 80 104)",
+            "padding-bottom": "9px",
+            "padding-left": "9px",
+            "padding-right": "9px",
+            "padding-top": "9px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-08",
+          "selectors": null,
+          "sourceOrder": 134,
+          "specificity": 1000
+        }
+      ]
+    },
+    "680px)": {
+      ".phase5-nested-09": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 85 107)",
+            "padding-bottom": "10px",
+            "padding-left": "10px",
+            "padding-right": "10px",
+            "padding-top": "10px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-09",
+          "selectors": null,
+          "sourceOrder": 138,
+          "specificity": 1000
+        }
+      ]
+    },
+    "720px)": {
+      ".phase5-nested-10": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(120 90 110)",
+            "padding-bottom": "11px",
+            "padding-left": "11px",
+            "padding-right": "11px",
+            "padding-top": "11px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-10",
+          "selectors": null,
+          "sourceOrder": 142,
+          "specificity": 1000
+        }
+      ]
+    },
+    "760px)": {
+      ".phase5-nested-11": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(130 95 113)",
+            "padding-bottom": "12px",
+            "padding-left": "12px",
+            "padding-right": "12px",
+            "padding-top": "12px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-11",
+          "selectors": null,
+          "sourceOrder": 146,
+          "specificity": 1000
+        }
+      ]
+    },
+    "all": {
+      ".phase5-deep-35": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#eef5ff",
+            "color": "var(--phase5-chain-0)",
+            "outline": "1px solid currentcolor"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-deep-35",
+          "selectors": [
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-34"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-33"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-32"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-31"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-30"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-29"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-28"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-27"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-26"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-25"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-24"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-23"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-22"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-21"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-20"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-19"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-18"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-17"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-16"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-15"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-14"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-13"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-12"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-11"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-10"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-09"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-08"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-07"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-06"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-05"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-04"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-03"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-02"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-01"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".phase5-deep-00"
+            }
+          ],
+          "sourceOrder": 1,
+          "specificity": 36000
+        }
+      ],
+      ".phase5-extreme-layout": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "contain": "layout paint style",
+            "max-height": "999999px",
+            "max-width": "999999px",
+            "min-height": "0",
+            "min-width": "0",
+            "overflow": "auto"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-extreme-layout",
+          "selectors": null,
+          "sourceOrder": 98,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-00": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(20 40 80)",
+            "padding-bottom": "1px",
+            "padding-left": "1px",
+            "padding-right": "1px",
+            "padding-top": "1px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-00",
+          "selectors": null,
+          "sourceOrder": 99,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-01": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 45 83)",
+            "padding-bottom": "2px",
+            "padding-left": "2px",
+            "padding-right": "2px",
+            "padding-top": "2px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-01",
+          "selectors": null,
+          "sourceOrder": 103,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-02": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(40 50 86)",
+            "padding-bottom": "3px",
+            "padding-left": "3px",
+            "padding-right": "3px",
+            "padding-top": "3px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-02",
+          "selectors": null,
+          "sourceOrder": 107,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-03": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(50 55 89)",
+            "padding-bottom": "4px",
+            "padding-left": "4px",
+            "padding-right": "4px",
+            "padding-top": "4px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-03",
+          "selectors": null,
+          "sourceOrder": 111,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-04": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(60 60 92)",
+            "padding-bottom": "5px",
+            "padding-left": "5px",
+            "padding-right": "5px",
+            "padding-top": "5px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-04",
+          "selectors": null,
+          "sourceOrder": 115,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-05": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(70 65 95)",
+            "padding-bottom": "6px",
+            "padding-left": "6px",
+            "padding-right": "6px",
+            "padding-top": "6px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-05",
+          "selectors": null,
+          "sourceOrder": 119,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-06": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(80 70 98)",
+            "padding-bottom": "7px",
+            "padding-left": "7px",
+            "padding-right": "7px",
+            "padding-top": "7px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-06",
+          "selectors": null,
+          "sourceOrder": 123,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-07": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 75 101)",
+            "padding-bottom": "8px",
+            "padding-left": "8px",
+            "padding-right": "8px",
+            "padding-top": "8px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-07",
+          "selectors": null,
+          "sourceOrder": 127,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-08": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(100 80 104)",
+            "padding-bottom": "9px",
+            "padding-left": "9px",
+            "padding-right": "9px",
+            "padding-top": "9px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-08",
+          "selectors": null,
+          "sourceOrder": 131,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-09": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 85 107)",
+            "padding-bottom": "10px",
+            "padding-left": "10px",
+            "padding-right": "10px",
+            "padding-top": "10px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-09",
+          "selectors": null,
+          "sourceOrder": 135,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-10": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(120 90 110)",
+            "padding-bottom": "11px",
+            "padding-left": "11px",
+            "padding-right": "11px",
+            "padding-top": "11px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-10",
+          "selectors": null,
+          "sourceOrder": 139,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-11": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(130 95 113)",
+            "padding-bottom": "12px",
+            "padding-left": "12px",
+            "padding-right": "12px",
+            "padding-top": "12px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-11",
+          "selectors": null,
+          "sourceOrder": 143,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-00": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-00",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-01": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-01",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-02": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-02",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-03": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-03",
+          "selectors": null,
+          "sourceOrder": 5,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-04": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-04",
+          "selectors": null,
+          "sourceOrder": 6,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-05": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-05",
+          "selectors": null,
+          "sourceOrder": 7,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-06": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-06",
+          "selectors": null,
+          "sourceOrder": 8,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-07": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-07",
+          "selectors": null,
+          "sourceOrder": 9,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-08": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-08",
+          "selectors": null,
+          "sourceOrder": 10,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-09": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-09",
+          "selectors": null,
+          "sourceOrder": 11,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-10": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-10",
+          "selectors": null,
+          "sourceOrder": 12,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-11": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-11",
+          "selectors": null,
+          "sourceOrder": 13,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-12": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-12",
+          "selectors": null,
+          "sourceOrder": 14,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-13": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-13",
+          "selectors": null,
+          "sourceOrder": 15,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-14": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-14",
+          "selectors": null,
+          "sourceOrder": 16,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-15": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-15",
+          "selectors": null,
+          "sourceOrder": 17,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-16": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-16",
+          "selectors": null,
+          "sourceOrder": 18,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-17": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-17",
+          "selectors": null,
+          "sourceOrder": 19,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-18": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-18",
+          "selectors": null,
+          "sourceOrder": 20,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-19": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-19",
+          "selectors": null,
+          "sourceOrder": 21,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-20": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-20",
+          "selectors": null,
+          "sourceOrder": 22,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-21": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-21",
+          "selectors": null,
+          "sourceOrder": 23,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-22": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-22",
+          "selectors": null,
+          "sourceOrder": 24,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-23": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-23",
+          "selectors": null,
+          "sourceOrder": 25,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-24": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-24",
+          "selectors": null,
+          "sourceOrder": 26,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-25": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-25",
+          "selectors": null,
+          "sourceOrder": 27,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-26": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-26",
+          "selectors": null,
+          "sourceOrder": 28,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-27": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-27",
+          "selectors": null,
+          "sourceOrder": 29,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-28": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-28",
+          "selectors": null,
+          "sourceOrder": 30,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-29": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-29",
+          "selectors": null,
+          "sourceOrder": 31,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-30": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-30",
+          "selectors": null,
+          "sourceOrder": 32,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-31": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-31",
+          "selectors": null,
+          "sourceOrder": 33,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-32": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-32",
+          "selectors": null,
+          "sourceOrder": 34,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-33": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-33",
+          "selectors": null,
+          "sourceOrder": 35,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-34": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-34",
+          "selectors": null,
+          "sourceOrder": 36,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-35": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-35",
+          "selectors": null,
+          "sourceOrder": 37,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-36": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-36",
+          "selectors": null,
+          "sourceOrder": 38,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-37": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-37",
+          "selectors": null,
+          "sourceOrder": 39,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-38": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-38",
+          "selectors": null,
+          "sourceOrder": 40,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-39": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-39",
+          "selectors": null,
+          "sourceOrder": 41,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-40": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-40",
+          "selectors": null,
+          "sourceOrder": 42,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-41": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-41",
+          "selectors": null,
+          "sourceOrder": 43,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-42": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-42",
+          "selectors": null,
+          "sourceOrder": 44,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-43": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-43",
+          "selectors": null,
+          "sourceOrder": 45,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-44": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-44",
+          "selectors": null,
+          "sourceOrder": 46,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-45": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-45",
+          "selectors": null,
+          "sourceOrder": 47,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-46": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-46",
+          "selectors": null,
+          "sourceOrder": 48,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-47": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-47",
+          "selectors": null,
+          "sourceOrder": 49,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-48": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-48",
+          "selectors": null,
+          "sourceOrder": 50,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-49": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-49",
+          "selectors": null,
+          "sourceOrder": 51,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-50": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-50",
+          "selectors": null,
+          "sourceOrder": 52,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-51": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-51",
+          "selectors": null,
+          "sourceOrder": 53,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-52": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-52",
+          "selectors": null,
+          "sourceOrder": 54,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-53": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-53",
+          "selectors": null,
+          "sourceOrder": 55,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-54": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-54",
+          "selectors": null,
+          "sourceOrder": 56,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-55": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-55",
+          "selectors": null,
+          "sourceOrder": 57,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-56": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-56",
+          "selectors": null,
+          "sourceOrder": 58,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-57": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-57",
+          "selectors": null,
+          "sourceOrder": 59,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-58": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-58",
+          "selectors": null,
+          "sourceOrder": 60,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-59": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-59",
+          "selectors": null,
+          "sourceOrder": 61,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-60": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-60",
+          "selectors": null,
+          "sourceOrder": 62,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-61": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-61",
+          "selectors": null,
+          "sourceOrder": 63,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-62": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-62",
+          "selectors": null,
+          "sourceOrder": 64,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-63": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-63",
+          "selectors": null,
+          "sourceOrder": 65,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-64": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-64",
+          "selectors": null,
+          "sourceOrder": 66,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-65": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-65",
+          "selectors": null,
+          "sourceOrder": 67,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-66": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-66",
+          "selectors": null,
+          "sourceOrder": 68,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-67": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-67",
+          "selectors": null,
+          "sourceOrder": 69,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-68": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-68",
+          "selectors": null,
+          "sourceOrder": 70,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-69": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-69",
+          "selectors": null,
+          "sourceOrder": 71,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-70": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-70",
+          "selectors": null,
+          "sourceOrder": 72,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-71": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-71",
+          "selectors": null,
+          "sourceOrder": 73,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-72": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-72",
+          "selectors": null,
+          "sourceOrder": 74,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-73": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-73",
+          "selectors": null,
+          "sourceOrder": 75,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-74": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-74",
+          "selectors": null,
+          "sourceOrder": 76,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-75": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-75",
+          "selectors": null,
+          "sourceOrder": 77,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-76": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-76",
+          "selectors": null,
+          "sourceOrder": 78,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-77": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-77",
+          "selectors": null,
+          "sourceOrder": 79,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-78": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-78",
+          "selectors": null,
+          "sourceOrder": 80,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-79": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-79",
+          "selectors": null,
+          "sourceOrder": 81,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-80": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-80",
+          "selectors": null,
+          "sourceOrder": 82,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-81": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-81",
+          "selectors": null,
+          "sourceOrder": 83,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-82": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-82",
+          "selectors": null,
+          "sourceOrder": 84,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-83": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-83",
+          "selectors": null,
+          "sourceOrder": 85,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-84": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-84",
+          "selectors": null,
+          "sourceOrder": 86,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-85": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-85",
+          "selectors": null,
+          "sourceOrder": 87,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-86": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-86",
+          "selectors": null,
+          "sourceOrder": 88,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-87": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-87",
+          "selectors": null,
+          "sourceOrder": 89,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-88": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-88",
+          "selectors": null,
+          "sourceOrder": 90,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-89": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-89",
+          "selectors": null,
+          "sourceOrder": 91,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-90": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-90",
+          "selectors": null,
+          "sourceOrder": 92,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-91": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-91",
+          "selectors": null,
+          "sourceOrder": 93,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-92": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-92",
+          "selectors": null,
+          "sourceOrder": 94,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-93": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-93",
+          "selectors": null,
+          "sourceOrder": 95,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-94": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-94",
+          "selectors": null,
+          "sourceOrder": 96,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-wide-95": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "none",
+            "border-bottom-width": "0",
+            "border-left-color": "black",
+            "border-left-style": "none",
+            "border-left-width": "0",
+            "border-right-color": "black",
+            "border-right-style": "none",
+            "border-right-width": "0",
+            "border-top-color": "black",
+            "border-top-style": "none",
+            "border-top-width": "0",
+            "margin-bottom": "0",
+            "margin-left": "0",
+            "margin-right": "0",
+            "margin-top": "0",
+            "padding-bottom": "0",
+            "padding-left": "0",
+            "padding-right": "0",
+            "padding-top": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-wide-95",
+          "selectors": null,
+          "sourceOrder": 97,
+          "specificity": 1000
+        }
+      ],
+      "html": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "--phase5-chain-0": "var(--phase5-chain-1)",
+            "--phase5-chain-1": "var(--phase5-chain-2)",
+            "--phase5-chain-10": "var(--phase5-chain-11)",
+            "--phase5-chain-11": "var(--phase5-chain-12)",
+            "--phase5-chain-12": "var(--phase5-chain-13)",
+            "--phase5-chain-13": "var(--phase5-chain-14)",
+            "--phase5-chain-14": "var(--phase5-chain-15)",
+            "--phase5-chain-15": "var(--phase5-chain-16)",
+            "--phase5-chain-16": "var(--phase5-chain-17)",
+            "--phase5-chain-17": "var(--phase5-chain-18)",
+            "--phase5-chain-18": "var(--phase5-chain-19)",
+            "--phase5-chain-19": "var(--phase5-chain-20)",
+            "--phase5-chain-2": "var(--phase5-chain-3)",
+            "--phase5-chain-20": "var(--phase5-chain-21)",
+            "--phase5-chain-21": "var(--phase5-chain-22)",
+            "--phase5-chain-22": "var(--phase5-chain-23)",
+            "--phase5-chain-23": "var(--phase5-chain-24)",
+            "--phase5-chain-24": "var(--phase5-chain-25)",
+            "--phase5-chain-25": "var(--phase5-chain-26)",
+            "--phase5-chain-26": "var(--phase5-chain-27)",
+            "--phase5-chain-27": "var(--phase5-chain-28)",
+            "--phase5-chain-28": "var(--phase5-chain-29)",
+            "--phase5-chain-29": "var(--phase5-chain-30)",
+            "--phase5-chain-3": "var(--phase5-chain-4)",
+            "--phase5-chain-30": "var(--phase5-chain-31)",
+            "--phase5-chain-31": "var(--phase5-chain-32)",
+            "--phase5-chain-32": "var(--phase5-chain-33)",
+            "--phase5-chain-33": "var(--phase5-chain-34)",
+            "--phase5-chain-34": "var(--phase5-chain-35)",
+            "--phase5-chain-35": "var(--phase5-chain-36)",
+            "--phase5-chain-36": "var(--phase5-chain-37)",
+            "--phase5-chain-37": "var(--phase5-chain-38)",
+            "--phase5-chain-38": "var(--phase5-chain-39)",
+            "--phase5-chain-39": "var(--phase5-chain-40)",
+            "--phase5-chain-4": "var(--phase5-chain-5)",
+            "--phase5-chain-40": "var(--phase5-chain-41)",
+            "--phase5-chain-41": "var(--phase5-chain-42)",
+            "--phase5-chain-42": "var(--phase5-chain-43)",
+            "--phase5-chain-43": "var(--phase5-chain-44)",
+            "--phase5-chain-44": "var(--phase5-chain-45)",
+            "--phase5-chain-45": "var(--phase5-chain-46)",
+            "--phase5-chain-46": "var(--phase5-chain-47)",
+            "--phase5-chain-47": "var(--phase5-chain-48)",
+            "--phase5-chain-48": "var(--phase5-chain-49)",
+            "--phase5-chain-49": "var(--phase5-chain-50)",
+            "--phase5-chain-5": "var(--phase5-chain-6)",
+            "--phase5-chain-50": "var(--phase5-chain-51)",
+            "--phase5-chain-51": "var(--phase5-chain-52)",
+            "--phase5-chain-52": "var(--phase5-chain-53)",
+            "--phase5-chain-53": "var(--phase5-chain-54)",
+            "--phase5-chain-54": "var(--phase5-chain-55)",
+            "--phase5-chain-55": "var(--phase5-chain-56)",
+            "--phase5-chain-56": "var(--phase5-chain-57)",
+            "--phase5-chain-57": "var(--phase5-chain-58)",
+            "--phase5-chain-58": "var(--phase5-chain-59)",
+            "--phase5-chain-59": "var(--phase5-chain-60)",
+            "--phase5-chain-6": "var(--phase5-chain-7)",
+            "--phase5-chain-60": "var(--phase5-chain-61)",
+            "--phase5-chain-61": "var(--phase5-chain-62)",
+            "--phase5-chain-62": "var(--phase5-chain-63)",
+            "--phase5-chain-63": "#2468ac",
+            "--phase5-chain-7": "var(--phase5-chain-8)",
+            "--phase5-chain-8": "var(--phase5-chain-9)",
+            "--phase5-chain-9": "var(--phase5-chain-10)"
+          },
+          "pseudoClass": "root",
+          "selector": "html",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    },
+    "and": {
+      ".phase5-nested-00": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(20 40 80)",
+            "padding-bottom": "1px",
+            "padding-left": "1px",
+            "padding-right": "1px",
+            "padding-top": "1px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-00",
+          "selectors": null,
+          "sourceOrder": 100,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-01": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 45 83)",
+            "padding-bottom": "2px",
+            "padding-left": "2px",
+            "padding-right": "2px",
+            "padding-top": "2px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-01",
+          "selectors": null,
+          "sourceOrder": 104,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-02": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(40 50 86)",
+            "padding-bottom": "3px",
+            "padding-left": "3px",
+            "padding-right": "3px",
+            "padding-top": "3px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-02",
+          "selectors": null,
+          "sourceOrder": 108,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-03": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(50 55 89)",
+            "padding-bottom": "4px",
+            "padding-left": "4px",
+            "padding-right": "4px",
+            "padding-top": "4px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-03",
+          "selectors": null,
+          "sourceOrder": 112,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-04": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(60 60 92)",
+            "padding-bottom": "5px",
+            "padding-left": "5px",
+            "padding-right": "5px",
+            "padding-top": "5px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-04",
+          "selectors": null,
+          "sourceOrder": 116,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-05": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(70 65 95)",
+            "padding-bottom": "6px",
+            "padding-left": "6px",
+            "padding-right": "6px",
+            "padding-top": "6px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-05",
+          "selectors": null,
+          "sourceOrder": 120,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-06": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(80 70 98)",
+            "padding-bottom": "7px",
+            "padding-left": "7px",
+            "padding-right": "7px",
+            "padding-top": "7px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-06",
+          "selectors": null,
+          "sourceOrder": 124,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-07": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 75 101)",
+            "padding-bottom": "8px",
+            "padding-left": "8px",
+            "padding-right": "8px",
+            "padding-top": "8px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-07",
+          "selectors": null,
+          "sourceOrder": 128,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-08": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(100 80 104)",
+            "padding-bottom": "9px",
+            "padding-left": "9px",
+            "padding-right": "9px",
+            "padding-top": "9px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-08",
+          "selectors": null,
+          "sourceOrder": 132,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-09": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 85 107)",
+            "padding-bottom": "10px",
+            "padding-left": "10px",
+            "padding-right": "10px",
+            "padding-top": "10px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-09",
+          "selectors": null,
+          "sourceOrder": 136,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-10": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(120 90 110)",
+            "padding-bottom": "11px",
+            "padding-left": "11px",
+            "padding-right": "11px",
+            "padding-top": "11px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-10",
+          "selectors": null,
+          "sourceOrder": 140,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-nested-11": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(130 95 113)",
+            "padding-bottom": "12px",
+            "padding-left": "12px",
+            "padding-right": "12px",
+            "padding-top": "12px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-nested-11",
+          "selectors": null,
+          "sourceOrder": 144,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

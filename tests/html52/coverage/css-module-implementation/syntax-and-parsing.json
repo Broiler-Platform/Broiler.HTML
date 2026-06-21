@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "syntax-and-parsing",
+  "itemCount": 4,
+  "items": [
+    {
+      "moduleId": "css-mixins-1",
+      "moduleTitle": "CSS Functions and Mixins",
+      "featureId": "css-module-css-mixins-1",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-nesting-1",
+      "moduleTitle": "CSS Nesting",
+      "featureId": "css-module-css-nesting-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-computed-cascade-selectors-001",
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "moduleId": "style-attr",
+      "moduleTitle": "CSS Style Attributes",
+      "featureId": "css-module-style-attr",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "html52-css-style-attribute-inheritance-001",
+        "css-module-phase2-computed-custom-properties-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "moduleId": "syntax",
+      "moduleTitle": "CSS Syntax Level 3",
+      "featureId": "css-module-syntax",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    }
+  ]
+}

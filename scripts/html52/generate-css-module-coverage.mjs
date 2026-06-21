@@ -1,10 +1,12 @@
 #!/usr/bin/env node
+import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
   defaultCoverageRoot,
   defaultSuiteRoot,
+  fileExists,
   normalizePathForDisplay,
   parseRepeatedOption,
   readJson,
@@ -13,6 +15,7 @@ import {
 
 const defaultRegistryPath = path.join(defaultSuiteRoot, 'generated', 'css-modules', 'registry.json');
 const defaultOutputPath = path.join(defaultCoverageRoot, 'css-modules.json');
+const defaultImplementationOutputRoot = path.join(defaultCoverageRoot, 'css-module-implementation');
 
 const phase2StableCoreTests = new Map([
   ['background', ['css-module-phase2-paint-effects-001']],
@@ -60,6 +63,29 @@ const phase2StableCoreTests = new Map([
   ['cascade-4', ['css-module-phase2-syntax-cascade-001']]
 ]);
 
+const phase2ComputedStyleTests = new Map([
+  ['namespace', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['selectors', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['style-attr', ['css-module-phase2-computed-custom-properties-001']],
+  ['cascade', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['conditional', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['values', ['css-module-phase2-computed-values-shorthands-001']],
+  ['variables', ['css-module-phase2-computed-custom-properties-001']],
+  ['syntax', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['geometry-1', ['css-module-phase2-computed-values-shorthands-001']],
+  ['cascade-4', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['css-timing-1', ['css-module-phase2-computed-values-shorthands-001']],
+  ['css-conditional-4', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['css-cascade-5', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['selectors4', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['css-values-4', ['css-module-phase2-computed-values-shorthands-001']],
+  ['css-properties-values-api-1', ['css-module-phase2-computed-registered-properties-001']],
+  ['css-nesting-1', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['css-cascade-6', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['css-conditional-5', ['css-module-phase2-computed-cascade-selectors-001']],
+  ['css-values-5', ['css-module-phase2-computed-values-shorthands-001']]
+]);
+
 const phase3RendererBreadthTests = new Map([
   ['align', ['css-module-phase3-layout-breadth-001', 'css-module-phase3-cross-module-001']],
   ['selectors4', ['css-module-phase3-text-generated-001', 'css-module-phase3-cross-module-001']],
@@ -99,6 +125,33 @@ const phase3RendererBreadthTests = new Map([
   ['content', ['css-module-phase3-text-generated-001']],
   ['css-grid-3', ['css-module-phase3-cross-module-001']],
   ['css-borders-4', ['css-module-phase3-paint-effects-001']]
+]);
+
+const phase3LayoutRenderTests = new Map([
+  ['box', ['css-module-phase3-layout-core-001']],
+  ['css-anchor-position-1', ['css-module-phase3-layout-core-001']],
+  ['css-box-4', ['css-module-phase3-layout-core-001']],
+  ['css-contain-1', ['css-module-phase3-layout-core-001']],
+  ['css-contain-2', ['css-module-phase3-layout-core-001']],
+  ['css-contain-3', ['css-module-phase3-layout-core-001']],
+  ['css-display-3', ['css-module-phase3-layout-core-001']],
+  ['css-display-4', ['css-module-phase3-layout-core-001']],
+  ['css-logical-1', ['css-module-phase3-layout-core-001']],
+  ['css-position-4', ['css-module-phase3-layout-core-001']],
+  ['css-rhythm-1', ['css-module-phase3-layout-core-001']],
+  ['css-round-display-1', ['css-module-phase3-layout-core-001']],
+  ['css-sizing-4', ['css-module-phase3-layout-core-001']],
+  ['css21', ['css-module-phase3-layout-core-001']],
+  ['positioning', ['css-module-phase3-layout-core-001']],
+  ['sizing', ['css-module-phase3-layout-core-001']],
+  ['css-overflow-3', ['css-module-phase3-layout-overflow-scroll-001']],
+  ['css-overflow-4', ['css-module-phase3-layout-overflow-scroll-001']],
+  ['css-scroll-anchoring-1', ['css-module-phase3-layout-overflow-scroll-001']],
+  ['css-scrollbars-1', ['css-module-phase3-layout-overflow-scroll-001']],
+  ['css-snappoints-1', ['css-module-phase3-layout-overflow-scroll-001']],
+  ['css-ui-4', ['css-module-phase3-layout-ui-forms-001']],
+  ['device-adapt', ['css-module-phase3-layout-ui-forms-001']],
+  ['ui', ['css-module-phase3-layout-ui-forms-001']]
 ]);
 
 const phase4DraftEarlyTests = new Map([
@@ -183,21 +236,29 @@ async function main(argv = process.argv.slice(2)) {
 
     const registry = await readJson(options.registryPath);
     const coverage = createCoverageMap(registry);
+    const implementationDocuments = createImplementationDocuments(coverage);
 
     if (options.check) {
-      const existing = await readJson(options.outputPath);
-      const current = JSON.stringify(existing, null, 2);
-      const expected = JSON.stringify(coverage, null, 2);
-      if (current !== expected) {
-        console.error(`${normalizePathForDisplay(options.outputPath)} is out of date. Run npm run html52:css-coverage.`);
+      const coverageCheck = await checkJsonFile(options.outputPath, coverage);
+      const implementationCheck = await checkImplementationDocuments(options.implementationOutputRoot, implementationDocuments);
+      if (!coverageCheck.upToDate || !implementationCheck.upToDate) {
+        for (const error of [...coverageCheck.errors, ...implementationCheck.errors]) {
+          console.error(error);
+        }
+        if (coverageCheck.errors.length === 0 && implementationCheck.errors.length === 0) {
+          console.error(`${normalizePathForDisplay(options.outputPath)} is out of date. Run npm run html52:css-coverage.`);
+        }
         return 1;
       }
       console.log(`${normalizePathForDisplay(options.outputPath)} is up to date.`);
+      console.log(`${normalizePathForDisplay(options.implementationOutputRoot)} is up to date.`);
       return 0;
     }
 
     await writeJson(options.outputPath, coverage);
+    await writeImplementationDocuments(options.implementationOutputRoot, implementationDocuments);
     console.log(`Wrote ${coverage.items.length} CSS module coverage rows to ${normalizePathForDisplay(options.outputPath)}.`);
+    console.log(`Wrote ${implementationDocuments.length} CSS module implementation status files to ${normalizePathForDisplay(options.implementationOutputRoot)}.`);
     return 0;
   } catch (error) {
     console.error(error instanceof Error ? error.message : String(error));
@@ -209,6 +270,7 @@ function parseArguments(argv) {
   const options = {
     registryPath: defaultRegistryPath,
     outputPath: defaultOutputPath,
+    implementationOutputRoot: defaultImplementationOutputRoot,
     check: false,
     help: false
   };
@@ -234,6 +296,12 @@ function parseArguments(argv) {
         index = parsed.nextIndex;
         break;
       }
+      case '--implementation-output-root': {
+        const parsed = parseRepeatedOption(argv, name, index);
+        options.implementationOutputRoot = path.resolve(parsed.value);
+        index = parsed.nextIndex;
+        break;
+      }
       case '--check':
         options.check = true;
         break;
@@ -248,6 +316,7 @@ function parseArguments(argv) {
 
   options.registryPath = path.resolve(options.registryPath);
   options.outputPath = path.resolve(options.outputPath);
+  options.implementationOutputRoot = path.resolve(options.implementationOutputRoot);
   return options;
 }
 
@@ -274,9 +343,12 @@ function createCoverageItem(module) {
   const status = runtimeReason ? 'out-of-scope' : 'planned';
   const tests = [
     ...(phase2StableCoreTests.get(module.id) ?? []),
+    ...(phase2ComputedStyleTests.get(module.id) ?? []),
     ...(phase3RendererBreadthTests.get(module.id) ?? []),
+    ...(phase3LayoutRenderTests.get(module.id) ?? []),
     ...(phase4DraftEarlyTests.get(module.id) ?? [])
   ];
+  const implementation = createImplementationMetadata(module, family, supportLevel, tests, runtimeReason);
 
   return {
     featureId: `css-module-${module.id}`,
@@ -292,8 +364,183 @@ function createCoverageItem(module) {
     w3cStatus: module.currentStatus,
     upcomingStatus: module.upcomingStatus,
     editorDraftUrl: module.editorDraftUrl,
+    ...implementation,
     reason: runtimeReason ?? reasonFor(supportLevel, module.currentStatus, tests)
   };
+}
+
+function createImplementationMetadata(module, family, supportLevel, tests, runtimeReason) {
+  const oracleDepth = currentOracleDepthFor(tests, runtimeReason);
+  const targetOracleDepth = targetOracleDepthFor(family, supportLevel, runtimeReason);
+  const owner = ownerFor(family, runtimeReason);
+  const blockedBy = blockedByFor(family, runtimeReason);
+  return {
+    implementationStatus: implementationStatusFor(oracleDepth, targetOracleDepth, tests, runtimeReason),
+    oracleDepth,
+    targetOracleDepth,
+    nextOracle: nextOracleFor(oracleDepth, targetOracleDepth, family, runtimeReason),
+    owner,
+    blockedBy,
+    scopeDecision: runtimeReason ? 'static-renderer-out-of-scope' : 'static-renderer-in-scope',
+    outOfScopeDecision: runtimeReason ? outOfScopeDecisionFor(module, family) : null
+  };
+}
+
+function currentOracleDepthFor(tests, runtimeReason) {
+  if (runtimeReason) {
+    return 'out-of-scope';
+  }
+  if (tests.some(hasPhase3LayoutRenderTest)) {
+    return 'render';
+  }
+  if (tests.some((testId) => testId.includes('phase2-computed'))) {
+    return 'computedStyle';
+  }
+  if (tests.some((testId) => testId.startsWith('html52-') && !testId.includes('resource-log'))) {
+    return 'render';
+  }
+  if (tests.some((testId) => testId.includes('resource-log'))) {
+    return 'resourceLog';
+  }
+  if (tests.length > 0) {
+    return 'parse';
+  }
+  return 'none';
+}
+
+function targetOracleDepthFor(family, supportLevel, runtimeReason) {
+  if (runtimeReason) {
+    return 'out-of-scope';
+  }
+  if (supportLevel === 'experimental') {
+    return 'parse';
+  }
+
+  switch (family) {
+    case 'syntax-and-parsing':
+    case 'cascade-and-selection':
+    case 'values-and-units':
+    case 'cssom-and-houdini-apis':
+      return 'computedStyle';
+    case 'paint-and-visual-effects':
+    case 'miscellaneous':
+      return 'render';
+    case 'box-and-layout-core':
+    case 'layout-systems':
+    case 'overflow-and-scrolling':
+    case 'text-and-fonts':
+    case 'lists-and-generated-content':
+    case 'media-and-paged-output':
+    case 'ui-and-forms':
+      return 'render';
+    default:
+      return 'computedStyle';
+  }
+}
+
+function implementationStatusFor(oracleDepth, targetOracleDepth, tests, runtimeReason) {
+  if (runtimeReason) {
+    return 'out-of-scope-static-renderer';
+  }
+  if (tests.length === 0) {
+    return 'inventory-only';
+  }
+  if (oracleDepth === targetOracleDepth) {
+    return oracleDepth === 'parse' ? 'parser-target-met' : 'target-oracle-smoke';
+  }
+  if (oracleDepth === 'render') {
+    return 'render-smoke';
+  }
+  if (oracleDepth === 'resourceLog') {
+    return 'resource-smoke';
+  }
+  if (oracleDepth === 'parse') {
+    return 'parser-smoke';
+  }
+  return 'needs-first-oracle';
+}
+
+function nextOracleFor(oracleDepth, targetOracleDepth, family, runtimeReason) {
+  if (runtimeReason) {
+    return 'scope-decision';
+  }
+  if (oracleDepth === targetOracleDepth) {
+    return 'section-complete-matrix';
+  }
+  if (oracleDepth === 'parse') {
+    if (family === 'paint-and-visual-effects' || family === 'miscellaneous') {
+      return 'displayList';
+    }
+    if ([
+      'box-and-layout-core',
+      'layout-systems',
+      'overflow-and-scrolling',
+      'text-and-fonts',
+      'lists-and-generated-content',
+      'media-and-paged-output',
+      'ui-and-forms'
+    ].includes(family)) {
+      return 'layout';
+    }
+    return 'computedStyle';
+  }
+  if ((oracleDepth === 'layout' || oracleDepth === 'displayList') && targetOracleDepth === 'render') {
+    return 'render';
+  }
+  return targetOracleDepth;
+}
+
+function ownerFor(family, runtimeReason) {
+  if (runtimeReason) {
+    return family === 'aural-and-speech' ? 'aural-renderer' : 'browser-runtime';
+  }
+
+  switch (family) {
+    case 'syntax-and-parsing':
+    case 'cascade-and-selection':
+    case 'values-and-units':
+    case 'cssom-and-houdini-apis':
+      return 'css-engine';
+    case 'box-and-layout-core':
+    case 'layout-systems':
+    case 'overflow-and-scrolling':
+    case 'text-and-fonts':
+    case 'lists-and-generated-content':
+    case 'media-and-paged-output':
+    case 'ui-and-forms':
+      return 'layout-engine';
+    case 'paint-and-visual-effects':
+    case 'miscellaneous':
+      return 'paint-engine';
+    default:
+      return 'css-engine';
+  }
+}
+
+function blockedByFor(family, runtimeReason) {
+  if (!runtimeReason) {
+    return [];
+  }
+  if (family === 'aural-and-speech') {
+    return ['aural-renderer'];
+  }
+  if (family === 'dynamic-timelines') {
+    return ['browser-runtime', 'animation-timeline'];
+  }
+  if (family === 'cssom-and-houdini-apis') {
+    return ['browser-runtime', 'script-visible-css-api'];
+  }
+  return ['browser-runtime'];
+}
+
+function outOfScopeDecisionFor(module, family) {
+  if (family === 'aural-and-speech') {
+    return 'out-of-scope-unless-aural-renderer-is-added';
+  }
+  if (module.id.includes('font-loading')) {
+    return 'out-of-scope-unless-font-loading-api-is-added';
+  }
+  return 'out-of-scope-unless-browser-runtime-is-added';
 }
 
 function supportLevelFor(status) {
@@ -307,6 +554,12 @@ function supportLevelFor(status) {
 }
 
 function reasonFor(supportLevel, currentStatus, tests) {
+  if (tests.some(hasPhase3LayoutRenderTest)) {
+    return 'Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior.';
+  }
+  if (tests.some((testId) => testId.includes('phase2-computed'))) {
+    return 'Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions.';
+  }
   if (tests.some((testId) => testId.includes('phase4'))) {
     return 'Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature.';
   }
@@ -331,6 +584,109 @@ function classifyFamily(module) {
   return matched ? matched[0] : 'miscellaneous';
 }
 
+function hasPhase3LayoutRenderTest(testId) {
+  return testId === 'css-module-phase3-layout-core-001'
+    || testId === 'css-module-phase3-layout-overflow-scroll-001'
+    || testId === 'css-module-phase3-layout-ui-forms-001';
+}
+
+function createImplementationDocuments(coverage) {
+  const byFamily = new Map();
+  for (const item of coverage.items) {
+    const family = item.moduleFamily ?? 'unclassified';
+    const items = byFamily.get(family) ?? [];
+    items.push(createImplementationEntry(item));
+    byFamily.set(family, items);
+  }
+
+  return [...byFamily.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([family, items]) => ({
+      fileName: `${family}.json`,
+      document: {
+        schemaVersion: 1,
+        generatedFrom: coverage.generatedFrom,
+        moduleFamily: family,
+        itemCount: items.length,
+        items: items.sort((a, b) => a.moduleId.localeCompare(b.moduleId))
+      }
+    }));
+}
+
+function createImplementationEntry(item) {
+  return {
+    moduleId: item.moduleId,
+    moduleTitle: item.moduleTitle,
+    featureId: item.featureId,
+    supportLevel: item.supportLevel,
+    w3cStatus: item.w3cStatus,
+    upcomingStatus: item.upcomingStatus,
+    implementationStatus: item.implementationStatus,
+    oracleDepth: item.oracleDepth,
+    targetOracleDepth: item.targetOracleDepth,
+    nextOracle: item.nextOracle,
+    owner: item.owner,
+    blockedBy: item.blockedBy,
+    scopeDecision: item.scopeDecision,
+    outOfScopeDecision: item.outOfScopeDecision,
+    tests: item.tests,
+    reason: item.reason
+  };
+}
+
+async function writeImplementationDocuments(outputRoot, documents) {
+  await fs.mkdir(outputRoot, { recursive: true });
+  for (const document of documents) {
+    await writeJson(path.join(outputRoot, document.fileName), document.document);
+  }
+}
+
+async function checkJsonFile(filePath, expectedValue) {
+  const expected = JSON.stringify(expectedValue, null, 2);
+  if (!(await fileExists(filePath))) {
+    return {
+      upToDate: false,
+      errors: [`${normalizePathForDisplay(filePath)} does not exist. Run npm run html52:css-coverage.`]
+    };
+  }
+
+  const current = JSON.stringify(await readJson(filePath), null, 2);
+  return {
+    upToDate: current === expected,
+    errors: current === expected
+      ? []
+      : [`${normalizePathForDisplay(filePath)} is out of date. Run npm run html52:css-coverage.`]
+  };
+}
+
+async function checkImplementationDocuments(outputRoot, documents) {
+  const errors = [];
+  const expectedFileNames = new Set(documents.map((document) => document.fileName));
+  if (!(await fileExists(outputRoot))) {
+    return {
+      upToDate: false,
+      errors: [`${normalizePathForDisplay(outputRoot)} does not exist. Run npm run html52:css-coverage.`]
+    };
+  }
+
+  const actualFileNames = (await fs.readdir(outputRoot)).filter((fileName) => fileName.endsWith('.json'));
+  for (const fileName of actualFileNames) {
+    if (!expectedFileNames.has(fileName)) {
+      errors.push(`${normalizePathForDisplay(path.join(outputRoot, fileName))} is stale. Remove it or regenerate CSS coverage.`);
+    }
+  }
+
+  for (const document of documents) {
+    const check = await checkJsonFile(path.join(outputRoot, document.fileName), document.document);
+    errors.push(...check.errors);
+  }
+
+  return {
+    upToDate: errors.length === 0,
+    errors
+  };
+}
+
 function getHelpText() {
   return `Usage:
   npm run html52:css-coverage -- [options]
@@ -338,12 +694,16 @@ function getHelpText() {
 Options:
   --registry <path>       CSS module registry. Defaults to tests/html52/generated/css-modules/registry.json.
   --output <path>         Coverage output. Defaults to tests/html52/coverage/css-modules.json.
+  --implementation-output-root <dir>
+                          Directory for per-family CSS implementation status files.
+                          Defaults to tests/html52/coverage/css-module-implementation.
   --check                 Exit non-zero if the output file is out of date.
   -h, --help              Show this help text.`;
 }
 
 export {
   createCoverageMap,
+  createImplementationDocuments,
   main,
   parseArguments
 };

@@ -1,0 +1,1231 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "(hover:": {
+      ".phase5-media-3": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 86 104)",
+            "grid-template-columns": "repeat(4, minmax(0, 1fr))",
+            "order": "3"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-3",
+          "selectors": null,
+          "sourceOrder": 62,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(min-width:": {
+      ".phase5-media-0": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 50 80)",
+            "grid-template-columns": "repeat(1, minmax(0, 1fr))",
+            "order": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-0",
+          "selectors": null,
+          "sourceOrder": 52,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(prefers-color-scheme:": {
+      ".phase5-media-2": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(70 74 96)",
+            "grid-template-columns": "repeat(3, minmax(0, 1fr))",
+            "order": "2"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-2",
+          "selectors": null,
+          "sourceOrder": 57,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(resolution": {
+      ".phase5-media-4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 98 112)",
+            "grid-template-columns": "repeat(5, minmax(0, 1fr))",
+            "order": "4"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-4",
+          "selectors": null,
+          "sourceOrder": 66,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(update:": {
+      ".phase5-media-3": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 86 104)",
+            "grid-template-columns": "repeat(4, minmax(0, 1fr))",
+            "order": "3"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-3",
+          "selectors": null,
+          "sourceOrder": 59,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(width": {
+      ".phase5-media-1": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(50 62 88)",
+            "grid-template-columns": "repeat(2, minmax(0, 1fr))",
+            "order": "1"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-1",
+          "selectors": null,
+          "sourceOrder": 54,
+          "specificity": 1000
+        }
+      ]
+    },
+    "150dpi)": {
+      ".phase5-media-4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 98 112)",
+            "grid-template-columns": "repeat(5, minmax(0, 1fr))",
+            "order": "4"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-4",
+          "selectors": null,
+          "sourceOrder": 68,
+          "specificity": 1000
+        }
+      ]
+    },
+    "320px)": {
+      ".phase5-media-0": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 50 80)",
+            "grid-template-columns": "repeat(1, minmax(0, 1fr))",
+            "order": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-0",
+          "selectors": null,
+          "sourceOrder": 53,
+          "specificity": 1000
+        }
+      ]
+    },
+    "40rem)": {
+      ".phase5-media-1": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(50 62 88)",
+            "grid-template-columns": "repeat(2, minmax(0, 1fr))",
+            "order": "1"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-1",
+          "selectors": null,
+          "sourceOrder": 56,
+          "specificity": 1000
+        }
+      ]
+    },
+    "\u003E=": {
+      ".phase5-media-1": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(50 62 88)",
+            "grid-template-columns": "repeat(2, minmax(0, 1fr))",
+            "order": "1"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-1",
+          "selectors": null,
+          "sourceOrder": 55,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-media-4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 98 112)",
+            "grid-template-columns": "repeat(5, minmax(0, 1fr))",
+            "order": "4"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-4",
+          "selectors": null,
+          "sourceOrder": 67,
+          "specificity": 1000
+        }
+      ]
+    },
+    "all": {
+      ".phase5-list-00": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-00",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-01": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-01",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-02": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-02",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-03": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-03",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-04": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-04",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-05": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-05",
+          "selectors": null,
+          "sourceOrder": 5,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-06": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-06",
+          "selectors": null,
+          "sourceOrder": 6,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-07": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-07",
+          "selectors": null,
+          "sourceOrder": 7,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-08": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-08",
+          "selectors": null,
+          "sourceOrder": 8,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-09": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-09",
+          "selectors": null,
+          "sourceOrder": 9,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-10": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-10",
+          "selectors": null,
+          "sourceOrder": 10,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-11": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-11",
+          "selectors": null,
+          "sourceOrder": 11,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-12": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-12",
+          "selectors": null,
+          "sourceOrder": 12,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-13": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-13",
+          "selectors": null,
+          "sourceOrder": 13,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-14": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-14",
+          "selectors": null,
+          "sourceOrder": 14,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-15": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-15",
+          "selectors": null,
+          "sourceOrder": 15,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-16": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-16",
+          "selectors": null,
+          "sourceOrder": 16,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-17": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-17",
+          "selectors": null,
+          "sourceOrder": 17,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-18": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-18",
+          "selectors": null,
+          "sourceOrder": 18,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-19": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-19",
+          "selectors": null,
+          "sourceOrder": 19,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-20": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-20",
+          "selectors": null,
+          "sourceOrder": 20,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-21": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-21",
+          "selectors": null,
+          "sourceOrder": 21,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-22": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-22",
+          "selectors": null,
+          "sourceOrder": 22,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-23": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-23",
+          "selectors": null,
+          "sourceOrder": 23,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-24": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-24",
+          "selectors": null,
+          "sourceOrder": 24,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-25": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-25",
+          "selectors": null,
+          "sourceOrder": 25,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-26": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-26",
+          "selectors": null,
+          "sourceOrder": 26,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-27": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-27",
+          "selectors": null,
+          "sourceOrder": 27,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-28": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-28",
+          "selectors": null,
+          "sourceOrder": 28,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-29": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-29",
+          "selectors": null,
+          "sourceOrder": 29,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-30": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-30",
+          "selectors": null,
+          "sourceOrder": 30,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-31": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-31",
+          "selectors": null,
+          "sourceOrder": 31,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-32": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-32",
+          "selectors": null,
+          "sourceOrder": 32,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-33": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-33",
+          "selectors": null,
+          "sourceOrder": 33,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-34": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-34",
+          "selectors": null,
+          "sourceOrder": 34,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-35": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-35",
+          "selectors": null,
+          "sourceOrder": 35,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-36": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-36",
+          "selectors": null,
+          "sourceOrder": 36,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-37": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-37",
+          "selectors": null,
+          "sourceOrder": 37,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-38": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-38",
+          "selectors": null,
+          "sourceOrder": 38,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-39": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-39",
+          "selectors": null,
+          "sourceOrder": 39,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-40": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-40",
+          "selectors": null,
+          "sourceOrder": 40,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-41": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-41",
+          "selectors": null,
+          "sourceOrder": 41,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-42": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-42",
+          "selectors": null,
+          "sourceOrder": 42,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-43": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-43",
+          "selectors": null,
+          "sourceOrder": 43,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-44": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-44",
+          "selectors": null,
+          "sourceOrder": 44,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-45": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-45",
+          "selectors": null,
+          "sourceOrder": 45,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-46": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-46",
+          "selectors": null,
+          "sourceOrder": 46,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-list-47": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "#f6f8fa",
+            "color": "#224466"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-list-47",
+          "selectors": null,
+          "sourceOrder": 47,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-media-0": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 50 80)",
+            "grid-template-columns": "repeat(1, minmax(0, 1fr))",
+            "order": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-0",
+          "selectors": null,
+          "sourceOrder": 50,
+          "specificity": 1000
+        }
+      ],
+      "aside": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-inline-start": "4px solid currentcolor",
+            "padding-inline-start": "1rem"
+          },
+          "pseudoClass": null,
+          "selector": "aside",
+          "selectors": null,
+          "sourceOrder": 48,
+          "specificity": 1
+        }
+      ],
+      "p)": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-inline-start": "4px solid currentcolor",
+            "padding-inline-start": "1rem"
+          },
+          "pseudoClass": null,
+          "selector": "p)",
+          "selectors": null,
+          "sourceOrder": 49,
+          "specificity": 1
+        }
+      ]
+    },
+    "and": {
+      ".phase5-media-0": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(30 50 80)",
+            "grid-template-columns": "repeat(1, minmax(0, 1fr))",
+            "order": "0"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-0",
+          "selectors": null,
+          "sourceOrder": 51,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-media-3": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 86 104)",
+            "grid-template-columns": "repeat(4, minmax(0, 1fr))",
+            "order": "3"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-3",
+          "selectors": null,
+          "sourceOrder": 61,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-media-4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 98 112)",
+            "grid-template-columns": "repeat(5, minmax(0, 1fr))",
+            "order": "4"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-4",
+          "selectors": null,
+          "sourceOrder": 65,
+          "specificity": 1000
+        }
+      ]
+    },
+    "dark)": {
+      ".phase5-media-2": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(70 74 96)",
+            "grid-template-columns": "repeat(3, minmax(0, 1fr))",
+            "order": "2"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-2",
+          "selectors": null,
+          "sourceOrder": 58,
+          "specificity": 1000
+        }
+      ]
+    },
+    "fast)": {
+      ".phase5-media-3": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 86 104)",
+            "grid-template-columns": "repeat(4, minmax(0, 1fr))",
+            "order": "3"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-3",
+          "selectors": null,
+          "sourceOrder": 60,
+          "specificity": 1000
+        }
+      ]
+    },
+    "hover)": {
+      ".phase5-media-3": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(90 86 104)",
+            "grid-template-columns": "repeat(4, minmax(0, 1fr))",
+            "order": "3"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-3",
+          "selectors": null,
+          "sourceOrder": 63,
+          "specificity": 1000
+        }
+      ]
+    },
+    "print": {
+      ".phase5-media-4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "rgb(110 98 112)",
+            "grid-template-columns": "repeat(5, minmax(0, 1fr))",
+            "order": "4"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-media-4",
+          "selectors": null,
+          "sourceOrder": 64,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

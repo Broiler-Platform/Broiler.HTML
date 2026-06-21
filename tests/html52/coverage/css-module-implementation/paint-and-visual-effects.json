@@ -1,0 +1,373 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "paint-and-visual-effects",
+  "itemCount": 18,
+  "items": [
+    {
+      "moduleId": "background",
+      "moduleTitle": "CSS Backgrounds and Borders Level 3",
+      "featureId": "css-module-background",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "color",
+      "moduleTitle": "CSS Color Level 3",
+      "featureId": "css-module-color",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-values-color-timing-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "compositing",
+      "moduleTitle": "Compositing and Blending Level 1",
+      "featureId": "css-module-compositing",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "css-borders-4",
+      "moduleTitle": "CSS Borders and Box Decorations Level 4",
+      "featureId": "css-module-css-borders-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-paint-effects-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "css-color-4",
+      "moduleTitle": "CSS Color Level 4",
+      "featureId": "css-module-css-color-4",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-values-color-timing-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "css-color-5",
+      "moduleTitle": "CSS Color Level 5",
+      "featureId": "css-module-css-color-5",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-paint-effects-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "css-color-adjust-1",
+      "moduleTitle": "CSS Color Adjustment Level 1",
+      "featureId": "css-module-css-color-adjust-1",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "css-color-hdr-1",
+      "moduleTitle": "CSS Color HDR Level 1",
+      "featureId": "css-module-css-color-hdr-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-image-animation-1",
+      "moduleTitle": "CSS Image Animation Level 1",
+      "featureId": "css-module-css-image-animation-1",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-images-4",
+      "moduleTitle": "CSS Image Values and Replaced Content Level 4",
+      "featureId": "css-module-css-images-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-paint-effects-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "css-masking",
+      "moduleTitle": "CSS Masking Level 1",
+      "featureId": "css-module-css-masking",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "css-transforms-2",
+      "moduleTitle": "CSS Transforms Level 2",
+      "featureId": "css-module-css-transforms-2",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-paint-effects-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "css4-background",
+      "moduleTitle": "CSS Backgrounds Level 4",
+      "featureId": "css-module-css4-background",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "fill-stroke-3",
+      "moduleTitle": "CSS Fill and Stroke Level 3",
+      "featureId": "css-module-fill-stroke-3",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "filter",
+      "moduleTitle": "Filter Effects Level 1",
+      "featureId": "css-module-filter",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase3-cross-module-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "images",
+      "moduleTitle": "CSS Images Level 3",
+      "featureId": "css-module-images",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "shapes",
+      "moduleTitle": "CSS Shapes Level 1",
+      "featureId": "css-module-shapes",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "transforms",
+      "moduleTitle": "CSS Transforms Level 1",
+      "featureId": "css-module-transforms",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "displayList",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    }
+  ]
+}

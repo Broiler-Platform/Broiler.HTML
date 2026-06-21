@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 3 UI and form CSS layout</title>
+<style>
+@viewport { width: device-width; zoom: 1; }
+html, body { margin: 0; padding: 0; }
+body { font: 16px/20px serif; background: #ffffff; }
+#phase3-ui-root { width: 520px; margin: 8px; padding: 8px; border: 2px solid #212529; }
+#phase3-viewport-unit { width: 25vw; height: 24px; margin-bottom: 8px; background: #d0ebff; }
+#phase3-form-grid { width: 360px; padding: 8px; border: 2px solid #495057; background: #f8f9fa; }
+#phase3-form-grid input, #phase3-form-grid button, #phase3-form-grid select, #phase3-form-grid textarea { box-sizing: border-box; appearance: auto; outline: 2px solid #339af0; outline-offset: 2px; accent-color: #2f9e44; caret-color: #c92a2a; cursor: pointer; }
+#phase3-text { width: 150px; height: 26px; margin: 4px; }
+#phase3-button { width: 92px; height: 28px; margin: 4px; }
+#phase3-check { width: 18px; height: 18px; margin: 4px; }
+#phase3-select { width: 124px; height: 30px; margin: 4px; }
+#phase3-textarea { width: 190px; height: 48px; margin: 4px; resize: none; }
+#phase3-fieldset { width: 240px; margin-top: 8px; border: 3px solid #862e9c; padding: 8px; }
+#phase3-fieldset legend { padding: 0 4px; }
+</style>
+</head>
+<body>
+<div id="phase3-ui-root">
+<div id="phase3-viewport-unit"></div>
+<form id="phase3-form-grid">
+<input id="phase3-text" value="text">
+<button id="phase3-button" type="button">Button</button>
+<input id="phase3-check" type="checkbox" checked>
+<select id="phase3-select"><option>One</option><option>Two</option></select>
+<textarea id="phase3-textarea">Area</textarea>
+<fieldset id="phase3-fieldset"><legend>Group</legend><input value="inside"></fieldset>
+</form>
+</div>
+</body>
+</html>

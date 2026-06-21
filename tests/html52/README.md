@@ -26,9 +26,12 @@ tests/html52/
 ```
 
 The suite now includes tokenizer, DOM/tree-construction, visual, resource,
-stress, and generated CSS module parser smoke cases. CSS module expansion is
-tracked through the generated registry and coverage map under
-`generated/css-modules/` and `coverage/css-modules.json`.
+stress, and generated CSS module parser smoke cases. The root `manifest.json`
+loads `generated/css-modules/manifest.generated.json` through
+`generatedManifests`, so the CSS module suite is part of the comprehensive
+HTML 5.2 run rather than a separate test tree. CSS module expansion is tracked
+through the generated registry and coverage map under `generated/css-modules/`
+and `coverage/css-modules.json`.
 
 ## Commands
 
@@ -42,6 +45,13 @@ List selected cases without executing them:
 
 ```bash
 npm run html52:run -- --dry-run
+```
+
+Check that the generated CSS module suite is merged into the comprehensive
+HTML 5.2 run:
+
+```bash
+npm run html52:integrated:check
 ```
 
 Run the parser-only suite:
@@ -98,6 +108,13 @@ Run only the Phase 4 draft and early-draft CSS module parser sweeps:
 npm run html52:css-drafts
 ```
 
+Regenerate and run the Phase 5 CSS module stress/fuzz fixtures:
+
+```bash
+npm run html52:css-generate-phase5
+npm run html52:css-stress
+```
+
 Run the Phase 6 XHTML/legacy/stress/security suite:
 
 ```bash
@@ -114,6 +131,12 @@ Run the full suite:
 
 ```bash
 npm run html52:run
+```
+
+Run the comprehensive merged HTML/CSS suite:
+
+```bash
+npm run html52:comprehensive
 ```
 
 Run the full suite twice to check deterministic repeatability:
@@ -135,6 +158,14 @@ npm run html52:css-registry
 npm run html52:css-registry:check
 npm run html52:css-coverage
 npm run html52:css-coverage:check
+```
+
+Check whether in-scope CSS modules have reached their target implementation
+oracle depth. This is an opt-in completion gate and is expected to fail until
+deeper computed-style, layout, display-list, and render coverage lands:
+
+```bash
+npm run html52:css-implementation:check
 ```
 
 Refresh or check the generated compliance dashboard:

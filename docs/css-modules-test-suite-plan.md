@@ -13,6 +13,9 @@ versions and module levels tracked by the CSS Working Group, while staying
 honest about the difference between a static HTML renderer and a full browser
 engine.
 
+The companion implementation roadmap lives in
+`docs/css-implementation-completion-plan.md`.
+
 "All current versions of all CSS modules" means every non-obsolete CSS Working
 Group current-work entry whose current status is REC, CRD, CR, WD, or FPWD.
 As of 2026-06-21, that registry contains 130 active entries: 12 REC, 15 CRD,

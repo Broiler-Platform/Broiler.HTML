@@ -1,0 +1,174 @@
+.phase5-layout-00 {
+  min-width: min(4rem, 50%);
+  max-width: max(12ch, calc(100% - 1rem));
+  width: clamp(2rem, 10vw, 20rem);
+  min-height: calc(1em + 0px);
+  max-height: fit-content(10rem);
+  inset: 0px auto auto 1px;
+  position: relative;
+}
+
+.phase5-layout-01 {
+  min-width: min(5rem, 50%);
+  max-width: max(13ch, calc(100% - 2rem));
+  width: clamp(3rem, 11vw, 21rem);
+  min-height: calc(2em + 2px);
+  max-height: fit-content(11rem);
+  inset: 1px auto auto 2px;
+  position: relative;
+}
+
+.phase5-layout-02 {
+  min-width: min(6rem, 50%);
+  max-width: max(14ch, calc(100% - 3rem));
+  width: clamp(4rem, 12vw, 22rem);
+  min-height: calc(3em + 4px);
+  max-height: fit-content(12rem);
+  inset: 2px auto auto 3px;
+  position: relative;
+}
+
+.phase5-layout-03 {
+  min-width: min(7rem, 50%);
+  max-width: max(15ch, calc(100% - 4rem));
+  width: clamp(5rem, 13vw, 23rem);
+  min-height: calc(4em + 6px);
+  max-height: fit-content(13rem);
+  inset: 3px auto auto 4px;
+  position: relative;
+}
+
+.phase5-layout-04 {
+  min-width: min(8rem, 50%);
+  max-width: max(16ch, calc(100% - 5rem));
+  width: clamp(6rem, 14vw, 24rem);
+  min-height: calc(5em + 8px);
+  max-height: fit-content(14rem);
+  inset: 4px auto auto 5px;
+  position: relative;
+}
+
+.phase5-layout-05 {
+  min-width: min(9rem, 50%);
+  max-width: max(17ch, calc(100% - 6rem));
+  width: clamp(7rem, 15vw, 25rem);
+  min-height: calc(6em + 10px);
+  max-height: fit-content(15rem);
+  inset: 5px auto auto 6px;
+  position: relative;
+}
+
+.phase5-layout-06 {
+  min-width: min(10rem, 50%);
+  max-width: max(18ch, calc(100% - 7rem));
+  width: clamp(8rem, 16vw, 26rem);
+  min-height: calc(7em + 12px);
+  max-height: fit-content(16rem);
+  inset: 6px auto auto 7px;
+  position: relative;
+}
+
+.phase5-layout-07 {
+  min-width: min(11rem, 50%);
+  max-width: max(19ch, calc(100% - 8rem));
+  width: clamp(9rem, 17vw, 27rem);
+  min-height: calc(8em + 14px);
+  max-height: fit-content(17rem);
+  inset: 7px auto auto 8px;
+  position: relative;
+}
+
+.phase5-layout-08 {
+  min-width: min(12rem, 50%);
+  max-width: max(20ch, calc(100% - 9rem));
+  width: clamp(10rem, 18vw, 28rem);
+  min-height: calc(9em + 16px);
+  max-height: fit-content(18rem);
+  inset: 8px auto auto 9px;
+  position: relative;
+}
+
+.phase5-layout-09 {
+  min-width: min(13rem, 50%);
+  max-width: max(21ch, calc(100% - 10rem));
+  width: clamp(11rem, 19vw, 29rem);
+  min-height: calc(10em + 18px);
+  max-height: fit-content(19rem);
+  inset: 9px auto auto 10px;
+  position: relative;
+}
+
+.phase5-layout-10 {
+  min-width: min(14rem, 50%);
+  max-width: max(22ch, calc(100% - 11rem));
+  width: clamp(12rem, 20vw, 30rem);
+  min-height: calc(11em + 20px);
+  max-height: fit-content(20rem);
+  inset: 10px auto auto 11px;
+  position: relative;
+}
+
+.phase5-layout-11 {
+  min-width: min(15rem, 50%);
+  max-width: max(23ch, calc(100% - 12rem));
+  width: clamp(13rem, 21vw, 31rem);
+  min-height: calc(12em + 22px);
+  max-height: fit-content(21rem);
+  inset: 11px auto auto 12px;
+  position: relative;
+}
+
+.phase5-layout-12 {
+  min-width: min(16rem, 50%);
+  max-width: max(24ch, calc(100% - 13rem));
+  width: clamp(14rem, 22vw, 32rem);
+  min-height: calc(13em + 24px);
+  max-height: fit-content(22rem);
+  inset: 12px auto auto 13px;
+  position: relative;
+}
+
+.phase5-layout-13 {
+  min-width: min(17rem, 50%);
+  max-width: max(25ch, calc(100% - 14rem));
+  width: clamp(15rem, 23vw, 33rem);
+  min-height: calc(14em + 26px);
+  max-height: fit-content(23rem);
+  inset: 13px auto auto 14px;
+  position: relative;
+}
+
+.phase5-layout-14 {
+  min-width: min(18rem, 50%);
+  max-width: max(26ch, calc(100% - 15rem));
+  width: clamp(16rem, 24vw, 34rem);
+  min-height: calc(15em + 28px);
+  max-height: fit-content(24rem);
+  inset: 14px auto auto 15px;
+  position: relative;
+}
+
+.phase5-layout-15 {
+  min-width: min(19rem, 50%);
+  max-width: max(27ch, calc(100% - 16rem));
+  width: clamp(17rem, 25vw, 35rem);
+  min-height: calc(16em + 30px);
+  max-height: fit-content(25rem);
+  inset: 15px auto auto 16px;
+  position: relative;
+}
+
+.phase5-paint-order {
+  background-image: linear-gradient(90deg, #102030 0%, #f0f6ff 100%), radial-gradient(circle at 20% 30%, rgba(0, 128, 255, 0.6), transparent 40%), conic-gradient(from 45deg, red, yellow, lime, cyan, blue, magenta, red), repeating-linear-gradient(45deg, #000 0 2px, #fff 2px 4px), repeating-radial-gradient(circle, #345 0 1px, #abc 1px 3px);
+  background-blend-mode: multiply, screen, overlay, normal, normal;
+  box-shadow: 0 0 2px #000, 0 4px 8px rgb(0 0 0 / 0.25), inset 0 0 6px #fff;
+  filter: drop-shadow(0 1px 2px #123456) blur(0.2px);
+  mix-blend-mode: multiply;
+}
+
+.phase5-invalid-calc {
+  width: calc(100% - );
+  min-width: calc((((10px)));
+  transform: translate(calc(10px + ));
+  background-image: linear-gradient(to right, red, );
+}

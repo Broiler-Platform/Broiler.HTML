@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "lists-and-generated-content",
+  "itemCount": 4,
+  "items": [
+    {
+      "moduleId": "content",
+      "moduleTitle": "CSS Generated Content Level 3",
+      "featureId": "css-module-content",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "counter-styles",
+      "moduleTitle": "CSS Counter Styles Level 3",
+      "featureId": "css-module-counter-styles",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-lists-counters-001"
+      ],
+      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+    },
+    {
+      "moduleId": "gcpm",
+      "moduleTitle": "CSS Generated Content for Paged Media",
+      "featureId": "css-module-gcpm",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    },
+    {
+      "moduleId": "lists",
+      "moduleTitle": "CSS Lists and Counters Level 3",
+      "featureId": "css-module-lists",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-smoke",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "render",
+      "nextOracle": "layout",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001"
+      ],
+      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+    }
+  ]
+}

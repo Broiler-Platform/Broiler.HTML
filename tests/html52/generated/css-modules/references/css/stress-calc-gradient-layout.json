@@ -1,0 +1,382 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase5-invalid-calc": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-image": "linear-gradient(to right, red, )",
+            "min-width": "calc((((10px)))",
+            "transform": "translate(calc(10px \u002B ))"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-invalid-calc",
+          "selectors": null,
+          "sourceOrder": 17,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-00": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "0px auto auto 1px",
+            "max-height": "fit-content(10rem)",
+            "max-width": "max(12ch, calc(100% - 1rem))",
+            "min-height": "calc(1em \u002B 0px)",
+            "min-width": "min(4rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-00",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-01": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "1px auto auto 2px",
+            "max-height": "fit-content(11rem)",
+            "max-width": "max(13ch, calc(100% - 2rem))",
+            "min-height": "calc(2em \u002B 2px)",
+            "min-width": "min(5rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-01",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-02": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "2px auto auto 3px",
+            "max-height": "fit-content(12rem)",
+            "max-width": "max(14ch, calc(100% - 3rem))",
+            "min-height": "calc(3em \u002B 4px)",
+            "min-width": "min(6rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-02",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-03": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "3px auto auto 4px",
+            "max-height": "fit-content(13rem)",
+            "max-width": "max(15ch, calc(100% - 4rem))",
+            "min-height": "calc(4em \u002B 6px)",
+            "min-width": "min(7rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-03",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-04": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "4px auto auto 5px",
+            "max-height": "fit-content(14rem)",
+            "max-width": "max(16ch, calc(100% - 5rem))",
+            "min-height": "calc(5em \u002B 8px)",
+            "min-width": "min(8rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-04",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-05": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "5px auto auto 6px",
+            "max-height": "fit-content(15rem)",
+            "max-width": "max(17ch, calc(100% - 6rem))",
+            "min-height": "calc(6em \u002B 10px)",
+            "min-width": "min(9rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-05",
+          "selectors": null,
+          "sourceOrder": 5,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-06": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "6px auto auto 7px",
+            "max-height": "fit-content(16rem)",
+            "max-width": "max(18ch, calc(100% - 7rem))",
+            "min-height": "calc(7em \u002B 12px)",
+            "min-width": "min(10rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-06",
+          "selectors": null,
+          "sourceOrder": 6,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-07": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "7px auto auto 8px",
+            "max-height": "fit-content(17rem)",
+            "max-width": "max(19ch, calc(100% - 8rem))",
+            "min-height": "calc(8em \u002B 14px)",
+            "min-width": "min(11rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-07",
+          "selectors": null,
+          "sourceOrder": 7,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-08": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "8px auto auto 9px",
+            "max-height": "fit-content(18rem)",
+            "max-width": "max(20ch, calc(100% - 9rem))",
+            "min-height": "calc(9em \u002B 16px)",
+            "min-width": "min(12rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-08",
+          "selectors": null,
+          "sourceOrder": 8,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-09": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "9px auto auto 10px",
+            "max-height": "fit-content(19rem)",
+            "max-width": "max(21ch, calc(100% - 10rem))",
+            "min-height": "calc(10em \u002B 18px)",
+            "min-width": "min(13rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-09",
+          "selectors": null,
+          "sourceOrder": 9,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-10": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "10px auto auto 11px",
+            "max-height": "fit-content(20rem)",
+            "max-width": "max(22ch, calc(100% - 11rem))",
+            "min-height": "calc(11em \u002B 20px)",
+            "min-width": "min(14rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-10",
+          "selectors": null,
+          "sourceOrder": 10,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-11": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "11px auto auto 12px",
+            "max-height": "fit-content(21rem)",
+            "max-width": "max(23ch, calc(100% - 12rem))",
+            "min-height": "calc(12em \u002B 22px)",
+            "min-width": "min(15rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-11",
+          "selectors": null,
+          "sourceOrder": 11,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-12": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "12px auto auto 13px",
+            "max-height": "fit-content(22rem)",
+            "max-width": "max(24ch, calc(100% - 13rem))",
+            "min-height": "calc(13em \u002B 24px)",
+            "min-width": "min(16rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-12",
+          "selectors": null,
+          "sourceOrder": 12,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-13": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "13px auto auto 14px",
+            "max-height": "fit-content(23rem)",
+            "max-width": "max(25ch, calc(100% - 14rem))",
+            "min-height": "calc(14em \u002B 26px)",
+            "min-width": "min(17rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-13",
+          "selectors": null,
+          "sourceOrder": 13,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-14": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "14px auto auto 15px",
+            "max-height": "fit-content(24rem)",
+            "max-width": "max(26ch, calc(100% - 15rem))",
+            "min-height": "calc(15em \u002B 28px)",
+            "min-width": "min(18rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-14",
+          "selectors": null,
+          "sourceOrder": 14,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-layout-15": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "15px auto auto 16px",
+            "max-height": "fit-content(25rem)",
+            "max-width": "max(27ch, calc(100% - 16rem))",
+            "min-height": "calc(16em \u002B 30px)",
+            "min-width": "min(19rem, 50%)",
+            "position": "relative"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-layout-15",
+          "selectors": null,
+          "sourceOrder": 15,
+          "specificity": 1000
+        }
+      ],
+      ".phase5-paint-order": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-image": "linear-gradient(90deg, #102030 0%, #f0f6ff 100%), radial-gradient(circle at 20% 30%, rgba(0, 128, 255, 0.6), transparent 40%), conic-gradient(from 45deg, red, yellow, lime, cyan, blue, magenta, red), repeating-linear-gradient(45deg, #000 0 2px, #fff 2px 4px), repeating-radial-gradient(circle, #345 0 1px, #abc 1px 3px)",
+            "box-shadow": "0 0 2px #000, 0 4px 8px rgb(0 0 0 / 0.25), inset 0 0 6px #fff",
+            "filter": "drop-shadow(0 1px 2px #123456) blur(0.2px)",
+            "mix-blend-mode": "multiply"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-paint-order",
+          "selectors": null,
+          "sourceOrder": 16,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

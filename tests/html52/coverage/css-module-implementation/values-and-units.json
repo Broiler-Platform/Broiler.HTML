@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "values-and-units",
+  "itemCount": 7,
+  "items": [
+    {
+      "moduleId": "css-easing-2",
+      "moduleTitle": "CSS Easing Functions Level 2",
+      "featureId": "css-module-css-easing-2",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-env-1",
+      "moduleTitle": "CSS Environment Variables Level 1",
+      "featureId": "css-module-css-env-1",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-timing-1",
+      "moduleTitle": "CSS Easing Functions Level 1",
+      "featureId": "css-module-css-timing-1",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase2-computed-values-shorthands-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "moduleId": "css-values-4",
+      "moduleTitle": "CSS Values and Units Level 4",
+      "featureId": "css-module-css-values-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-computed-values-shorthands-001",
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-paint-effects-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "moduleId": "css-values-5",
+      "moduleTitle": "CSS Values and Units Level 5",
+      "featureId": "css-module-css-values-5",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-computed-values-shorthands-001",
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "moduleId": "geometry-1",
+      "moduleTitle": "Geometry Interfaces Level 1",
+      "featureId": "css-module-geometry-1",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase2-computed-values-shorthands-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "moduleId": "values",
+      "moduleTitle": "CSS Values and Units Level 3",
+      "featureId": "css-module-values",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase2-computed-values-shorthands-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    }
+  ]
+}
