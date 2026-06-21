@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal sealed class HtmlTag
 {

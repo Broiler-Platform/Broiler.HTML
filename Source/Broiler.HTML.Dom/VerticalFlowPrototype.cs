@@ -1,6 +1,6 @@
 using System;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 /// <summary>
 /// Feature gate for vertical writing-mode flow (logical layout + post-layout

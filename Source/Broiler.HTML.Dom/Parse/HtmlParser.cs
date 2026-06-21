@@ -1,10 +1,9 @@
-﻿using Broiler.HTML.Dom.Core.Dom;
-using Broiler.HTML.Dom.Core.Utils;
+﻿using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Utils.Core.Utils;
 using System;
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Dom.Core.Parse;
+namespace Broiler.HTML.Dom.Parse;
 
 /// <summary>
 /// Parses an HTML string into a <see cref="CssBox"/> tree for CSS layout.

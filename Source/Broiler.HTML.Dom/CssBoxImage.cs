@@ -6,7 +6,7 @@ using Broiler.HTML.Utils.Core.Utils;
 using System;
 using System.Drawing;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal sealed class CssBoxImage : CssBox
 {

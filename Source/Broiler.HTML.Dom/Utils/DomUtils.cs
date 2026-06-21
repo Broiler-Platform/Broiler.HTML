@@ -4,10 +4,9 @@ using System.Text;
 using System.Drawing;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Dom.Core.Dom;
 using Broiler.HTML.Utils.Core.Utils;
 
-namespace Broiler.HTML.Dom.Core.Utils;
+namespace Broiler.HTML.Dom.Utils;
 
 internal sealed class DomUtils
 {

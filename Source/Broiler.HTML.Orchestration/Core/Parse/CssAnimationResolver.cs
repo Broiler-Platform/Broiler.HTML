@@ -4,8 +4,8 @@ using System.Drawing;
 using System.Globalization;
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.Core.Core.Entities;
-using Broiler.HTML.Dom.Core.Dom;
-using Broiler.HTML.Dom.Core.Utils;
+using Broiler.HTML.Dom;
+using Broiler.HTML.Dom.Utils;
 
 namespace Broiler.HTML.Orchestration.Core.Parse;
 

@@ -1,5 +1,5 @@
 using Broiler.HTML.Core.Core.IR;
-using Broiler.HTML.Dom.Core.Dom;
+using Broiler.HTML.Dom;
 using Broiler.HTML.Utils.Core.Utils;
 using System;
 using System.Collections.Generic;

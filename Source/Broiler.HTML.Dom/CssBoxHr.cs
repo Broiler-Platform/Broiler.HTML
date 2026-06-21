@@ -2,10 +2,10 @@
 using System.Drawing;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.Dom.Core.Utils;
+using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Utils.Core.Utils;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal sealed class CssBoxHr : CssBox
 {

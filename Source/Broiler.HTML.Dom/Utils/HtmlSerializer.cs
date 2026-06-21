@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Broiler.HTML.Dom.Core.Utils;
+namespace Broiler.HTML.Dom.Utils;
 
 /// <summary>
 /// Shared HTML serialization helpers used by both the Broiler.HTML rendering

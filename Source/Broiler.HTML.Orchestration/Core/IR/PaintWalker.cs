@@ -10,7 +10,7 @@ namespace Broiler.HTML.Orchestration.Core.IR;
 
 /// <summary>
 /// Walks a <see cref="Fragment"/> tree and produces a flat <see cref="DisplayList"/>
-/// of drawing primitives. This decouples paint from the DOM (<see cref="Dom.Core.Dom.CssBox"/>).
+/// of drawing primitives. This decouples paint from the DOM (<see cref="Dom.CssBox"/>).
 /// </summary>
 internal static class PaintWalker
 {

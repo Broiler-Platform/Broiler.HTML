@@ -2,10 +2,9 @@
 using System.Text.RegularExpressions;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.Dom.Core.Dom;
 using Broiler.HTML.Utils.Core.Utils;
 
-namespace Broiler.HTML.Dom.Core.Utils;
+namespace Broiler.HTML.Dom.Utils;
 
 internal static class CssUtils
 {

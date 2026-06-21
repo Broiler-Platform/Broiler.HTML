@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal interface ISelectionHandler
 {

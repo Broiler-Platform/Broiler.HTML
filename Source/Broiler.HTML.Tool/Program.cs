@@ -3,8 +3,8 @@ using System.Drawing;
 using System.Text.Json;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core.IR;
-using Broiler.HTML.Dom.Core.Parse;
 using Broiler.HTML.Image;
+using Broiler.HTML.Dom.Parse;
 
 return HtmlImageRendererCli.Run(args);
 

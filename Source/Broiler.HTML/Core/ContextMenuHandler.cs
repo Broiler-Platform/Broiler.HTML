@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Orchestration.Core;
 using Broiler.HTML.Core.Core.Entities;
-using Broiler.HTML.Dom.Core.Dom;
+using Broiler.HTML.Dom;
 
 namespace Broiler.HTML.Core;
 

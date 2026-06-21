@@ -3,8 +3,8 @@ using Broiler.HTML.Core.Core;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core.IR;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.Dom.Core.Dom;
-using Broiler.HTML.Dom.Core.Utils;
+using Broiler.HTML.Dom;
+using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Orchestration.Core.Handlers;
 using Broiler.HTML.Orchestration.Core.IR;
 using Broiler.HTML.Orchestration.Core.Parse;
@@ -314,7 +314,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// <c>font-feature-settings</c> (normalised to the enabled feature tags),
     /// using <c>@font-feature-values</c> for named feature values.
     /// </summary>
-    private void ResolveFontFeatureValues(Broiler.HTML.Dom.Core.Dom.CssBox box)
+    private void ResolveFontFeatureValues(CssBox box)
     {
         if (box == null)
             return;
@@ -324,7 +324,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             ResolveFontFeatureValues(child);
     }
 
-    private void ResolveBoxFontFeatures(Broiler.HTML.Dom.Core.Dom.CssBox box)
+    private void ResolveBoxFontFeatures(CssBox box)
     {
         string fva = box.FontVariantAlternates;
         bool hasAlternates = !string.IsNullOrWhiteSpace(fva) && fva.Trim() != "normal";

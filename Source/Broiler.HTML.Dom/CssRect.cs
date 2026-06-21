@@ -1,7 +1,7 @@
 using System.Drawing;
 using Broiler.HTML.Adapters;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal abstract class CssRect(CssBox owner)
 {

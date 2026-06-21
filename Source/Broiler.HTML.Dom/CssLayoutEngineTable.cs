@@ -8,7 +8,7 @@ using Broiler.HTML.CSS.Core.Dom;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Utils.Core.Utils;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal sealed class CssLayoutEngineTable
 {

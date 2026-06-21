@@ -2,7 +2,7 @@ using Broiler.HTML.Utils.Core.Utils;
 using System;
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal sealed class CssSpacingBox : CssBox
 {

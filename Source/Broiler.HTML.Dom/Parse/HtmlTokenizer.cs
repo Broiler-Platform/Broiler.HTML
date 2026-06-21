@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Broiler.HTML.Dom.Core.Parse;
+namespace Broiler.HTML.Dom.Parse;
 
 /// <summary>Identifies the kind of <see cref="HtmlToken"/>.</summary>
 public enum TokenType

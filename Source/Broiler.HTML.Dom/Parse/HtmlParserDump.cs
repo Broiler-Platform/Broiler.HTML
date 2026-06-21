@@ -1,4 +1,3 @@
-using Broiler.HTML.Dom.Core.Dom;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 
-namespace Broiler.HTML.Dom.Core.Parse;
+namespace Broiler.HTML.Dom.Parse;
 
 /// <summary>
 /// Deterministic JSON dump helpers for parser compliance tests.

@@ -2,14 +2,14 @@
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.Dom.Core.Utils;
+using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Utils.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal class CssBox : CssBoxProperties, IDisposable
 {

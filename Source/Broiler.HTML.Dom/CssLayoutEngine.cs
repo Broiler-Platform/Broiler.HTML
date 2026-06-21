@@ -5,10 +5,10 @@ using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.CSS.Core.Dom;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.Dom.Core.Utils;
+using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Utils.Core.Utils;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal static class CssLayoutEngine
 {

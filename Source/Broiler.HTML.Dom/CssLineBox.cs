@@ -4,7 +4,7 @@ using System.Drawing;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Utils.Core.Utils;
 
-namespace Broiler.HTML.Dom.Core.Dom;
+namespace Broiler.HTML.Dom;
 
 internal sealed class CssLineBox
 {

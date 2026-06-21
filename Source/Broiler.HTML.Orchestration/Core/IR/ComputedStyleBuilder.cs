@@ -1,5 +1,5 @@
 using Broiler.HTML.Core.Core.IR;
-using Broiler.HTML.Dom.Core.Dom;
+using Broiler.HTML.Dom;
 
 namespace Broiler.HTML.Orchestration.Core.IR;
 
