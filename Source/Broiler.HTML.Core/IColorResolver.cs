@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Interface for resolving color names to color values.

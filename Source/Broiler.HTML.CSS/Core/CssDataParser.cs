@@ -1,4 +1,4 @@
-using Broiler.HTML.Core.Core;
+using Broiler.HTML.Core;
 using Broiler.HTML.CSS.Core.Parse;
 
 namespace Broiler.HTML.CSS.Core;

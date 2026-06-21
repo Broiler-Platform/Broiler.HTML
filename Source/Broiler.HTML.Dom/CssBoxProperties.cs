@@ -1,5 +1,5 @@
 ﻿using Broiler.HTML.Adapters;
-using Broiler.HTML.Core.Core;
+using Broiler.HTML.Core;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.CSS.Core.Dom;

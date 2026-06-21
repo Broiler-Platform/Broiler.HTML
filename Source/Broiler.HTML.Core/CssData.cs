@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 public sealed class CssData
 {

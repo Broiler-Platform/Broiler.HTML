@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Core.Core;
+using Broiler.HTML.Core;
 
 namespace Broiler.HTML.Image.Adapters;
 

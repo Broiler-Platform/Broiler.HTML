@@ -1,4 +1,6 @@
-namespace Broiler.HTML.Core.Core;
+using Broiler.HTML.Core.Core;
+
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Factory interface for creating handler instances in the orchestration layer.

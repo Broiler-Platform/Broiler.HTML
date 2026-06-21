@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Broiler.HTML.Adapters;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Interface for image loading handlers used by CssBox.

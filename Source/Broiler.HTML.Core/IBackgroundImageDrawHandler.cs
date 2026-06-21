@@ -1,7 +1,7 @@
 using System.Drawing;
 using Broiler.HTML.Adapters;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Read-only view of the background-image CSS properties that drawing handlers require.

@@ -2,7 +2,7 @@ using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.Core.Dom;
 using System.Drawing;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Read-only view of the border-related CSS properties that drawing handlers require.

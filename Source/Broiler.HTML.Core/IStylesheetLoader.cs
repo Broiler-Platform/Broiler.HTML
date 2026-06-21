@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Interface for loading external stylesheets during DOM parsing.

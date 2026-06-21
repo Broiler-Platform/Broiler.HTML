@@ -1,10 +1,10 @@
 using System;
 using System.Drawing;
-using Broiler.HTML.Core.Core;
 using Broiler.HTML.CSS.Core;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
+using Broiler.HTML.Core;
 
 namespace Broiler.HTML.Image;
 

@@ -1,7 +1,7 @@
 using Broiler.HTML.Adapters;
 using System.IO;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Interface abstracting the platform adapter for use by the orchestration layer.

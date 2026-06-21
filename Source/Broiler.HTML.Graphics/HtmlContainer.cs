@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.HTML.Core.Core;
+using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 using GraphicsBitmap = Broiler.Graphics.BBitmap;

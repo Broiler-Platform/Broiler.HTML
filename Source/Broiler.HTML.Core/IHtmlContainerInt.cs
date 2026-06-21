@@ -5,7 +5,7 @@ using System;
 using System.Drawing;
 using System.IO;
 
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 /// <summary>
 /// Interface abstracting the HTML container for use by <c>CssBox</c> and related

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Broiler.HTML.Core.Core;
 using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
+using Broiler.HTML.Core;
 
 namespace Broiler.HTML.CSS.Core.Parse;
 

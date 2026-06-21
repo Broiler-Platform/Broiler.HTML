@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Core.Core;
+namespace Broiler.HTML.Core;
 
 internal static class CssDefaults
 {
