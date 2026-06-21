@@ -1,0 +1,53 @@
+{
+  "BaseUrl": "file:metadata-resource-discovery.html",
+  "DocumentBaseUrl": "https://example.test/assets/",
+  "Resources": [
+    {
+      "Index": 0,
+      "Element": "link",
+      "Attribute": "href",
+      "Role": "stylesheet",
+      "Raw": "site.css",
+      "Resource": "site.css",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "https://example.test/assets/site.css",
+      "UrlKind": "remote",
+      "Classification": "remote-network-blocked",
+      "MimeGuess": "text/css",
+      "LocalPath": null,
+      "Exists": false,
+      "LoadsNetwork": false,
+      "RendererDisposition": "blocked-network"
+    },
+    {
+      "Index": 1,
+      "Element": "link",
+      "Attribute": "href",
+      "Role": "link-resource",
+      "Raw": "favicon.ico",
+      "Resource": "favicon.ico",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "https://example.test/assets/favicon.ico",
+      "UrlKind": "remote",
+      "Classification": "remote-network-blocked",
+      "MimeGuess": null,
+      "LocalPath": null,
+      "Exists": false,
+      "LoadsNetwork": false,
+      "RendererDisposition": "blocked-network"
+    }
+  ],
+  "Summary": {
+    "Total": 2,
+    "LocalFileExists": 0,
+    "LocalFileMissing": 0,
+    "DataUri": 0,
+    "RemoteNetworkBlocked": 2,
+    "Empty": 0,
+    "Unsupported": 0
+  }
+}

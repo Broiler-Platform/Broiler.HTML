@@ -1,0 +1,29 @@
+.phase3-effects {
+  color: color-mix(in srgb, red 40%, blue);
+  background-image: image-set(url("one.png") 1x, url("two.png") 2x);
+  background-clip: text;
+  border-start-start-radius: 12px;
+  border-end-end-radius: 8px;
+  border-block: 2px solid lch(50% 40 20);
+  box-shadow: 0 0 0 2px color(display-p3 1 0 0);
+  mask-image: linear-gradient(black, transparent);
+  mask-mode: alpha;
+  mask-repeat: no-repeat;
+  mask-size: cover;
+  mask-border-source: linear-gradient(black, white);
+  mask-composite: add;
+  backdrop-filter: blur(2px);
+  filter: drop-shadow(1px 1px 1px black) saturate(120%);
+  shape-outside: ellipse(40% 50%);
+  shape-margin: 4px;
+  shape-image-threshold: 0.5;
+  transform: translate(2px, 3px) rotate(10deg) scale(1.1);
+  transform-box: border-box;
+  rotate: 10deg;
+  scale: 1.1;
+  translate: 2px 3px;
+  mix-blend-mode: screen;
+  background-blend-mode: multiply;
+  color-adjust: exact;
+  print-color-adjust: exact;
+}

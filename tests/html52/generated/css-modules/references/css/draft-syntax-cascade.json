@@ -1,0 +1,25 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase4-sentinel": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "purple"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-sentinel",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

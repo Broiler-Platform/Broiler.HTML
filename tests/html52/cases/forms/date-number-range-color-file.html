@@ -1,0 +1,21 @@
+<!doctype html>
+<style>
+  body { margin: 20px; background: #ffffff; font-family: Arial, sans-serif; }
+  form { width: 570px; padding: 12px; border: 3px solid #343a40; background: #edf2ff; }
+  label { display: inline-block; width: 260px; margin: 6px; }
+  input { width: 150px; height: 23px; padding: 2px 5px; border: 2px solid #364fc7; background: #ffffff; }
+  input[type="range"] { width: 150px; border: 0; background: #91a7ff; }
+  input[type="color"] { width: 52px; background: #2f9e44; }
+  input[type="file"] { width: 210px; background: #fff3bf; }
+</style>
+<form>
+  <label>Date <input type="date" value="2026-06-20"></label>
+  <label>Month <input type="month" value="2026-06"></label>
+  <label>Week <input type="week" value="2026-W25"></label>
+  <label>Time <input type="time" value="12:34"></label>
+  <label>Date time <input type="datetime-local" value="2026-06-20T12:34"></label>
+  <label>Number <input type="number" min="1" max="9" step="2" value="5"></label>
+  <label>Range <input type="range" min="0" max="100" step="10" value="40"></label>
+  <label>Color <input type="color" value="#2f9e44"></label>
+  <label>File <input type="file" multiple></label>
+</form>

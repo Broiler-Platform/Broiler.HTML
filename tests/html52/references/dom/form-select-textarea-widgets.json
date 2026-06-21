@@ -1,0 +1,462 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "form",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "id": "widgets"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "select",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "id": "fruit",
+                    "name": "fruit"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "optgroup",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "label": "Fruit"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "\n      ",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        },
+                        {
+                          "kind": "element",
+                          "name": "option",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {
+                            "selected": "",
+                            "value": "apple"
+                          },
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "Apple",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "\n      ",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        },
+                        {
+                          "kind": "element",
+                          "name": "option",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {
+                            "value": "pear"
+                          },
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "Pear",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "\n    ",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "optgroup",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "label": "Vegetables"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "\n      ",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        },
+                        {
+                          "kind": "element",
+                          "name": "option",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {
+                            "value": "carrot"
+                          },
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "Carrot",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "\n    ",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n  ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "select",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "id": "letters",
+                    "multiple": "",
+                    "name": "letters",
+                    "size": "2"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "option",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "selected": ""
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "A",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "option",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "B",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n  ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "datalist",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "id": "colors"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "option",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "value": "red"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "\n    ",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        },
+                        {
+                          "kind": "element",
+                          "name": "option",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {
+                            "value": "green"
+                          },
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "\n  ",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "textarea",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "cols": "16",
+                    "name": "notes",
+                    "rows": "3"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Line one\nLine two",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "progress",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "max": "10",
+                    "value": "3"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "30%",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "meter",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "high": "70",
+                    "low": "30",
+                    "max": "100",
+                    "min": "0",
+                    "optimum": "80",
+                    "value": "65"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "65",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

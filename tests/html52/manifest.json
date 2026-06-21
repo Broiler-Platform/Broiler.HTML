@@ -1,0 +1,3311 @@
+{
+  "schemaVersion": 1,
+  "suite": {
+    "id": "html52-plain-renderer",
+    "title": "HTML 5.2 Plain-HTML Renderer Suite",
+    "description": "Repository-owned HTML 5.2 tests for static rendering without WPT fixtures or JavaScript execution.",
+    "standard": {
+      "name": "HTML",
+      "version": "5.2",
+      "snapshotDate": "2017-12-14",
+      "url": "https://www.w3.org/TR/2017/REC-html52-20171214/"
+    }
+  },
+  "defaults": {
+    "viewports": [
+      {
+        "width": 800,
+        "height": 600,
+        "deviceScaleFactor": 1
+      }
+    ],
+    "fonts": [
+      "DeterministicSans"
+    ],
+    "tolerance": {
+      "pixelDiffThreshold": 0.001,
+      "colorTolerance": 2
+    }
+  },
+  "generatedManifests": [
+    "generated/css-modules/manifest.generated.json"
+  ],
+  "cases": [
+    {
+      "id": "html52-syntax-basic-doctype-001",
+      "title": "Tokenizer emits doctype, paragraph tags, text, and EOF",
+      "cluster": "syntax",
+      "subcluster": "doctype",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#tokenization"
+        }
+      ],
+      "input": "cases/syntax/basic-doctype.html",
+      "assertions": [
+        "The tokenizer preserves the document token order and emits an EOF token."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/basic-doctype.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-syntax-attributes-mixed-001",
+      "title": "Tokenizer normalizes mixed-case tags and quoted or unquoted attributes",
+      "cluster": "syntax",
+      "subcluster": "attributes",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4.35",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#attribute-name-state"
+        }
+      ],
+      "input": "cases/syntax/attributes-mixed.html",
+      "assertions": [
+        "The tokenizer lowercases tag and attribute names and records boolean attributes with empty values."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/attributes-mixed.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-syntax-comment-basic-001",
+      "title": "Tokenizer emits character and comment tokens in source order",
+      "cluster": "syntax",
+      "subcluster": "comments",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4.44",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#comment-state"
+        }
+      ],
+      "input": "cases/syntax/comment-basic.html",
+      "assertions": [
+        "A normal HTML comment is emitted between surrounding character tokens."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/comment-basic.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-syntax-raw-style-001",
+      "title": "Tokenizer keeps style content as raw text until the matching end tag",
+      "cluster": "syntax",
+      "subcluster": "raw-text",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#rawtext-state"
+        }
+      ],
+      "input": "cases/syntax/raw-style.html",
+      "assertions": [
+        "The greater-than sign inside style content does not terminate markup."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/raw-style.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-syntax-self-closing-voids-001",
+      "title": "Tokenizer marks slash-closed void elements as self-closing",
+      "cluster": "syntax",
+      "subcluster": "self-closing",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4.40",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#self-closing-start-tag-state"
+        }
+      ],
+      "input": "cases/syntax/self-closing-voids.html",
+      "assertions": [
+        "Slash-closed img and br start tags carry the selfClosing marker."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/self-closing-voids.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-syntax-bogus-comment-001",
+      "title": "Tokenizer treats unknown markup declarations as bogus comments",
+      "cluster": "syntax",
+      "subcluster": "comments",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4.44",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#bogus-comment-state"
+        }
+      ],
+      "input": "cases/syntax/bogus-comment.html",
+      "assertions": [
+        "A non-doctype markup declaration is emitted as a comment token."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/bogus-comment.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-syntax-unquoted-attribute-spaces-001",
+      "title": "Tokenizer handles unquoted attributes separated by whitespace",
+      "cluster": "syntax",
+      "subcluster": "attributes",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4.38",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#attribute-value-(unquoted)-state"
+        }
+      ],
+      "input": "cases/syntax/unquoted-attribute-spaces.html",
+      "assertions": [
+        "Unquoted attribute values end at whitespace and a trailing boolean attribute is preserved."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/unquoted-attribute-spaces.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-syntax-eof-in-comment-001",
+      "title": "Tokenizer emits an open comment when EOF is reached",
+      "cluster": "syntax",
+      "subcluster": "comments",
+      "featureId": "cluster-tokenization-syntax",
+      "spec": [
+        {
+          "section": "8.2.4.44",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#comment-state"
+        }
+      ],
+      "input": "cases/syntax/eof-in-comment.html",
+      "assertions": [
+        "EOF inside an HTML comment still yields the accumulated comment token."
+      ],
+      "expectations": {
+        "tokens": "references/tokens/eof-in-comment.json"
+      },
+      "requires": [
+        "html-tokenizer"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-text-only-implicit-001",
+      "title": "Parser creates implicit html, head, and body elements for text-only input",
+      "cluster": "tree-construction",
+      "subcluster": "implicit-structure",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.2.5.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#tree-construction"
+        }
+      ],
+      "input": "cases/tree-construction/text-only-implicit.html",
+      "assertions": [
+        "Text-only input is wrapped in an implicit html element and body element."
+      ],
+      "expectations": {
+        "dom": "references/dom/text-only-implicit.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-explicit-html-head-body-001",
+      "title": "Parser preserves explicit html, head, title, and body structure",
+      "cluster": "tree-construction",
+      "subcluster": "document-structure",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.2.5.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#tree-construction"
+        }
+      ],
+      "input": "cases/tree-construction/explicit-html-head-body.html",
+      "assertions": [
+        "Explicit document structure remains in the parsed tree."
+      ],
+      "expectations": {
+        "dom": "references/dom/explicit-html-head-body.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-head-elements-001",
+      "title": "Parser moves leading metadata elements into the implicit head",
+      "cluster": "tree-construction",
+      "subcluster": "head-body-transition",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.2.5.4.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#parsing-main-inhead"
+        }
+      ],
+      "input": "cases/tree-construction/head-elements.html",
+      "assertions": [
+        "Leading meta and style elements are grouped under head while the paragraph is under body."
+      ],
+      "expectations": {
+        "dom": "references/dom/head-elements.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-p-implied-end-div-001",
+      "title": "Parser implicitly closes p before a div start tag",
+      "cluster": "tree-construction",
+      "subcluster": "implied-end-tags",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.2.5.4.7",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#parsing-main-inbody"
+        }
+      ],
+      "input": "cases/tree-construction/p-implied-end-div.html",
+      "assertions": [
+        "The div becomes a sibling of the paragraph rather than a paragraph child."
+      ],
+      "expectations": {
+        "dom": "references/dom/p-implied-end-div.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-nested-paragraphs-001",
+      "title": "Parser closes the first p when a second p starts",
+      "cluster": "tree-construction",
+      "subcluster": "implied-end-tags",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.2.5.4.7",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#parsing-main-inbody"
+        }
+      ],
+      "input": "cases/tree-construction/nested-paragraphs.html",
+      "assertions": [
+        "Two p start tags produce sibling paragraph elements."
+      ],
+      "expectations": {
+        "dom": "references/dom/nested-paragraphs.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-void-elements-001",
+      "title": "Parser keeps void elements as leaf boxes in phrasing content",
+      "cluster": "tree-construction",
+      "subcluster": "void-elements",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.1.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#elements-2"
+        }
+      ],
+      "input": "cases/tree-construction/void-elements.html",
+      "assertions": [
+        "br and img are represented as single leaf elements."
+      ],
+      "expectations": {
+        "dom": "references/dom/void-elements.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-input-value-text-001",
+      "title": "Parser injects text-box content for text input values",
+      "cluster": "tree-construction",
+      "subcluster": "forms",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.5.1.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#text-(type=text)-state-and-search-state-(type=search)"
+        }
+      ],
+      "input": "cases/tree-construction/input-value-text.html",
+      "assertions": [
+        "A text input value is represented as child text for static rendering."
+      ],
+      "expectations": {
+        "dom": "references/dom/input-value-text.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-input-submit-default-001",
+      "title": "Parser injects the default submit button label when value is absent",
+      "cluster": "tree-construction",
+      "subcluster": "forms",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.5.1.18",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#submit-button-state-(type=submit)"
+        }
+      ],
+      "input": "cases/tree-construction/input-submit-default.html",
+      "assertions": [
+        "A submit input without value receives the default static label."
+      ],
+      "expectations": {
+        "dom": "references/dom/input-submit-default.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-body-reuse-001",
+      "title": "Parser reuses an explicit body when creating implicit html",
+      "cluster": "tree-construction",
+      "subcluster": "implicit-structure",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.2.5.4.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#parsing-main-afterhead"
+        }
+      ],
+      "input": "cases/tree-construction/body-reuse.html",
+      "assertions": [
+        "An explicit body is parented under the implicit html element without double-wrapping."
+      ],
+      "expectations": {
+        "dom": "references/dom/body-reuse.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-uppercase-tags-001",
+      "title": "Parser normalizes uppercase element names",
+      "cluster": "tree-construction",
+      "subcluster": "case-normalization",
+      "featureId": "cluster-tree-construction",
+      "spec": [
+        {
+          "section": "8.2.4.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#tag-name-state"
+        }
+      ],
+      "input": "cases/tree-construction/uppercase-tags.html",
+      "assertions": [
+        "Uppercase source tag names appear as lowercase element names in the parsed tree."
+      ],
+      "expectations": {
+        "dom": "references/dom/uppercase-tags.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-style-in-body-001",
+      "title": "Parser keeps body style elements in the explicit body tree",
+      "cluster": "tree-construction",
+      "subcluster": "style",
+      "featureId": "elements-document-metadata",
+      "spec": [
+        {
+          "section": "4.2.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/document-metadata.html#the-style-element"
+        }
+      ],
+      "input": "cases/tree-construction/style-in-body.html",
+      "assertions": [
+        "A style element authored inside an explicit body remains in body order."
+      ],
+      "expectations": {
+        "dom": "references/dom/style-in-body.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tree-script-raw-text-001",
+      "title": "Parser treats script content as raw text and does not execute it",
+      "cluster": "tree-construction",
+      "subcluster": "raw-text",
+      "featureId": "elements-scripting-static",
+      "spec": [
+        {
+          "section": "4.12.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-scripting.html#the-script-element"
+        }
+      ],
+      "input": "cases/tree-construction/script-raw-text.html",
+      "assertions": [
+        "Script text is parsed as raw text and no script execution is required."
+      ],
+      "expectations": {
+        "dom": "references/dom/script-raw-text.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "markup-only",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-headings-paragraph-001",
+      "title": "Render heading and paragraph defaults with author styling",
+      "cluster": "elements",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-element-default-rendering",
+      "spec": [
+        {
+          "section": "10.3.7",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#sections-and-headings"
+        }
+      ],
+      "input": "cases/elements/headings-paragraph.html",
+      "assertions": [
+        "Headings and paragraphs render in normal document flow."
+      ],
+      "expectations": {
+        "render": "references/images/headings-paragraph.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-hidden-attribute-001",
+      "title": "Render hidden elements as not displayed",
+      "cluster": "elements",
+      "subcluster": "phase2-visual",
+      "featureId": "attributes-global-core",
+      "spec": [
+        {
+          "section": "10.3.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#hidden-elements"
+        }
+      ],
+      "input": "cases/elements/hidden-attribute.html",
+      "assertions": [
+        "The hidden element does not paint after the visible block."
+      ],
+      "expectations": {
+        "render": "references/images/hidden-attribute.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-pre-whitespace-001",
+      "title": "Render preformatted whitespace",
+      "cluster": "elements",
+      "subcluster": "phase2-visual",
+      "featureId": "elements-grouping-content",
+      "spec": [
+        {
+          "section": "4.4.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/grouping-content.html#the-pre-element"
+        }
+      ],
+      "input": "cases/elements/pre-whitespace.html",
+      "assertions": [
+        "The pre element preserves line breaks and indentation."
+      ],
+      "expectations": {
+        "render": "references/images/pre-whitespace.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-figure-figcaption-001",
+      "title": "Render figure and figcaption layout",
+      "cluster": "elements",
+      "subcluster": "phase2-visual",
+      "featureId": "elements-grouping-content",
+      "spec": [
+        {
+          "section": "4.4.12",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/grouping-content.html#the-figure-element"
+        }
+      ],
+      "input": "cases/elements/figure-figcaption.html",
+      "assertions": [
+        "Figure content and figcaption render as grouped content."
+      ],
+      "expectations": {
+        "render": "references/images/figure-figcaption.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-hr-styled-001",
+      "title": "Render styled horizontal rule",
+      "cluster": "elements",
+      "subcluster": "phase2-visual",
+      "featureId": "elements-grouping-content",
+      "spec": [
+        {
+          "section": "10.3.12",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-hr-element"
+        }
+      ],
+      "input": "cases/elements/hr-default-styled.html",
+      "assertions": [
+        "A styled hr paints as a block separator between paragraphs."
+      ],
+      "expectations": {
+        "render": "references/images/hr-default-styled.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-canvas-fallback-001",
+      "title": "Render canvas fallback content without script execution",
+      "cluster": "embedded-content",
+      "subcluster": "phase2-visual",
+      "featureId": "elements-embedded-content",
+      "spec": [
+        {
+          "section": "4.12.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-scripting.html#the-canvas-element"
+        }
+      ],
+      "input": "cases/elements/canvas-fallback.html",
+      "assertions": [
+        "Canvas fallback content is available to the static renderer."
+      ],
+      "expectations": {
+        "render": "references/images/canvas-fallback.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "markup-only",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-root-body-background-001",
+      "title": "Render root and body background propagation",
+      "cluster": "painting",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-painting-compositing",
+      "spec": [
+        {
+          "section": "10.3.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-page"
+        }
+      ],
+      "input": "cases/css/root-body-background.html",
+      "assertions": [
+        "Root, body, and child backgrounds paint in the expected order."
+      ],
+      "expectations": {
+        "render": "references/images/root-body-background.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-box-model-001",
+      "title": "Render margin, border, padding, and content boxes",
+      "cluster": "layout",
+      "subcluster": "phase2-visual",
+      "featureId": "css-box-layout",
+      "spec": [
+        {
+          "section": "10.3.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/css/box-model.html",
+      "assertions": [
+        "The CSS box model controls painted content geometry."
+      ],
+      "expectations": {
+        "render": "references/images/box-model.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-display-inline-block-001",
+      "title": "Render inline-block elements in a single line",
+      "cluster": "layout",
+      "subcluster": "phase2-visual",
+      "featureId": "css-box-layout",
+      "spec": [
+        {
+          "section": "10.3.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#phrasing-content-3"
+        }
+      ],
+      "input": "cases/css/display-inline-block.html",
+      "assertions": [
+        "Inline-block boxes participate in inline formatting without text gaps."
+      ],
+      "expectations": {
+        "render": "references/images/display-inline-block.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-cascade-specificity-001",
+      "title": "Render cascade and specificity interactions",
+      "cluster": "css",
+      "subcluster": "phase2-visual",
+      "featureId": "css-cascade-selectors",
+      "spec": [
+        {
+          "section": "10.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-css-user-agent-style-sheet-and-presentational-hints"
+        }
+      ],
+      "input": "cases/css/cascade-specificity.html",
+      "assertions": [
+        "Type, class, and ID selectors combine through cascade and specificity."
+      ],
+      "expectations": {
+        "render": "references/images/cascade-specificity.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-absolute-position-001",
+      "title": "Render absolutely positioned children inside a positioned ancestor",
+      "cluster": "layout",
+      "subcluster": "phase2-visual",
+      "featureId": "css-box-layout",
+      "spec": [
+        {
+          "section": "10.3.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/css/absolute-position.html",
+      "assertions": [
+        "Absolutely positioned boxes paint at their declared offsets."
+      ],
+      "expectations": {
+        "render": "references/images/absolute-position.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-float-clear-001",
+      "title": "Render float and clear interactions",
+      "cluster": "layout",
+      "subcluster": "phase2-visual",
+      "featureId": "css-box-layout",
+      "spec": [
+        {
+          "section": "10.3.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/css/float-clear.html",
+      "assertions": [
+        "The clear block is placed below the preceding float."
+      ],
+      "expectations": {
+        "render": "references/images/float-clear.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-unordered-list-001",
+      "title": "Render unordered list markers and item flow",
+      "cluster": "elements",
+      "subcluster": "phase2-visual",
+      "featureId": "elements-grouping-content",
+      "spec": [
+        {
+          "section": "10.3.8",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#lists"
+        }
+      ],
+      "input": "cases/lists/unordered-basic.html",
+      "assertions": [
+        "List items render with default marker placement."
+      ],
+      "expectations": {
+        "render": "references/images/unordered-basic.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-ordered-list-start-001",
+      "title": "Render ordered list start attribute",
+      "cluster": "elements",
+      "subcluster": "phase2-visual",
+      "featureId": "elements-grouping-content",
+      "spec": [
+        {
+          "section": "10.3.8",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#lists"
+        }
+      ],
+      "input": "cases/lists/ordered-start.html",
+      "assertions": [
+        "Ordered list markers honor the start attribute in static rendering."
+      ],
+      "expectations": {
+        "render": "references/images/ordered-start.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-simple-table-001",
+      "title": "Render a simple separated-border table",
+      "cluster": "tables",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/simple-table.html",
+      "assertions": [
+        "Table rows and cells render with separate border spacing."
+      ],
+      "expectations": {
+        "render": "references/images/simple-table.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-table-border-collapse-001",
+      "title": "Render a collapsed-border table",
+      "cluster": "tables",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/border-collapse.html",
+      "assertions": [
+        "Collapsed table borders paint without separated gaps."
+      ],
+      "expectations": {
+        "render": "references/images/border-collapse.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-img-local-svg-001",
+      "title": "Render a local SVG image resource through img",
+      "cluster": "embedded-content",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "10.4.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#images-3"
+        }
+      ],
+      "input": "cases/resources/img-local-svg.html",
+      "assertions": [
+        "A local SVG resource is resolved and painted as replaced image content."
+      ],
+      "expectations": {
+        "render": "references/images/img-local-svg.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "image-loader",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-inline-svg-001",
+      "title": "Render inline SVG content",
+      "cluster": "embedded-content",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.18",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#svg"
+        }
+      ],
+      "input": "cases/resources/inline-svg.html",
+      "assertions": [
+        "Inline SVG is boxed and painted as replaced content."
+      ],
+      "expectations": {
+        "render": "references/images/inline-svg.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "svg",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-details-open-001",
+      "title": "Render open details content",
+      "cluster": "user-interaction",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-user-interaction-static",
+      "spec": [
+        {
+          "section": "10.5.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-details-and-summary-elements"
+        }
+      ],
+      "input": "cases/user-interaction/details-open.html",
+      "assertions": [
+        "Open details content is visible below its summary."
+      ],
+      "expectations": {
+        "render": "references/images/details-open.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-visual-details-closed-001",
+      "title": "Render closed details static state",
+      "cluster": "user-interaction",
+      "subcluster": "phase2-visual",
+      "featureId": "cluster-user-interaction-static",
+      "spec": [
+        {
+          "section": "10.5.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-details-and-summary-elements"
+        }
+      ],
+      "input": "cases/user-interaction/details-closed.html",
+      "assertions": [
+        "Closed details content follows the renderer's current static-state behavior."
+      ],
+      "expectations": {
+        "render": "references/images/details-closed.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-dom-section-order-001",
+      "title": "Parser preserves caption, column group, and table section order",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-dom",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "4.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/tabular-data.html"
+        }
+      ],
+      "input": "cases/tables/section-order-dom.html",
+      "assertions": [
+        "Caption, colgroup, thead, tbody, and tfoot elements remain in source order in the DOM dump."
+      ],
+      "expectations": {
+        "dom": "references/dom/table-section-order.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-dom-spans-001",
+      "title": "Parser preserves table cell span and header attributes",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-dom",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "4.9.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/tabular-data.html#attributes-common-to-td-and-th-elements"
+        }
+      ],
+      "input": "cases/tables/spans-dom.html",
+      "assertions": [
+        "Rowspan, colspan, id, scope, and headers attributes are available to table semantics and layout."
+      ],
+      "expectations": {
+        "dom": "references/dom/table-spans.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-dom-anonymous-cells-001",
+      "title": "Parser exposes loose table cells for layout recovery",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-dom",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "4.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/tabular-data.html"
+        }
+      ],
+      "input": "cases/tables/anonymous-cells-dom.html",
+      "assertions": [
+        "Loose td children are visible in the DOM dump before the layout layer creates anonymous table rows."
+      ],
+      "expectations": {
+        "dom": "references/dom/table-anonymous-cells.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-dom-input-states-001",
+      "title": "Parser preserves all HTML 5.2 input type states",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-dom",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.5.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#states-of-the-type-attribute"
+        }
+      ],
+      "input": "cases/forms/input-states-dom.html",
+      "assertions": [
+        "Hidden, text, search, tel, url, email, password, date, month, week, time, datetime-local, number, range, color, checkbox, radio, file, submit, image, reset, button, and default text states are represented."
+      ],
+      "expectations": {
+        "dom": "references/dom/form-input-states.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-dom-associated-controls-001",
+      "title": "Parser preserves form-associated control attributes",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-dom",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.18",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#association-of-controls-and-forms"
+        }
+      ],
+      "input": "cases/forms/form-associated-controls-dom.html",
+      "assertions": [
+        "Labels, fieldsets, legends, buttons, external form attributes, and output associations remain inspectable without script execution."
+      ],
+      "expectations": {
+        "dom": "references/dom/form-associated-controls.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-dom-select-textarea-widgets-001",
+      "title": "Parser preserves select, datalist, textarea, progress, and meter widgets",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-dom",
+      "featureId": "elements-forms",
+      "spec": [
+        {
+          "section": "4.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html"
+        }
+      ],
+      "input": "cases/forms/select-textarea-widgets-dom.html",
+      "assertions": [
+        "Option grouping, selected and multiple states, textarea text, progress values, and meter values are preserved."
+      ],
+      "expectations": {
+        "dom": "references/dom/form-select-textarea-widgets.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-render-section-groups-001",
+      "title": "Render table section groups with distinct styling",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-render",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/caption-sections.html",
+      "assertions": [
+        "Thead, tbody, and tfoot rows are laid out as table rows with distinct cell backgrounds."
+      ],
+      "expectations": {
+        "render": "references/images/table-caption-sections.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "table-layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-render-row-col-spans-001",
+      "title": "Render rowspan and colspan table cells",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-render",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/row-col-spans.html",
+      "assertions": [
+        "Rowspan and colspan cells reserve the expected table grid area."
+      ],
+      "expectations": {
+        "render": "references/images/table-row-col-spans.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "table-layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-render-column-widths-001",
+      "title": "Render table columns with different widths",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-render",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/column-widths.html",
+      "assertions": [
+        "Cells with narrow, medium, and wide classes produce visibly different column widths."
+      ],
+      "expectations": {
+        "render": "references/images/table-column-widths.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "table-layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-render-cell-alignment-001",
+      "title": "Render table cell horizontal and vertical alignment",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-render",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/cell-alignment.html",
+      "assertions": [
+        "Table-cell text aligns left/top, center/middle, and right/bottom according to CSS."
+      ],
+      "expectations": {
+        "render": "references/images/table-cell-alignment.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "table-layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-table-render-anonymous-cells-001",
+      "title": "Render loose table cells through anonymous table row layout",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-render",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/anonymous-cells.html",
+      "assertions": [
+        "Direct td children of a table are rendered in a recovered row-like table layout."
+      ],
+      "expectations": {
+        "render": "references/images/table-anonymous-cells.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "table-layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-text-like-inputs-001",
+      "title": "Render text-like input values",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.5.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#states-of-the-type-attribute"
+        }
+      ],
+      "input": "cases/forms/text-like-inputs.html",
+      "assertions": [
+        "Text, search, email, URL, telephone, and password input values paint in static form controls."
+      ],
+      "expectations": {
+        "render": "references/images/form-text-like-inputs.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-button-inputs-001",
+      "title": "Render button input states and button element",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.5.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#states-of-the-type-attribute"
+        }
+      ],
+      "input": "cases/forms/button-inputs.html",
+      "assertions": [
+        "Submit, reset, button input states and the button element paint as static clickable controls."
+      ],
+      "expectations": {
+        "render": "references/images/form-button-inputs.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-choice-inputs-001",
+      "title": "Render checkbox and radio input states",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.5.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#states-of-the-type-attribute"
+        }
+      ],
+      "input": "cases/forms/choice-inputs.html",
+      "assertions": [
+        "Checked and unchecked checkbox and radio controls produce distinct static boxes."
+      ],
+      "expectations": {
+        "render": "references/images/form-choice-inputs.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-date-number-range-color-file-001",
+      "title": "Render date, numeric, range, color, and file input states",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "cluster-forms-widgets",
+      "spec": [
+        {
+          "section": "4.10.5.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#states-of-the-type-attribute"
+        }
+      ],
+      "input": "cases/forms/date-number-range-color-file.html",
+      "assertions": [
+        "Date, month, week, time, datetime-local, number, range, color, and file controls paint stable static boxes."
+      ],
+      "expectations": {
+        "render": "references/images/form-date-number-range-color-file.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-select-textarea-001",
+      "title": "Render select and textarea controls",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "elements-forms",
+      "spec": [
+        {
+          "section": "4.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html"
+        }
+      ],
+      "input": "cases/forms/select-textarea.html",
+      "assertions": [
+        "Select, multiple select, and textarea widgets render as static form-control boxes."
+      ],
+      "expectations": {
+        "render": "references/images/form-select-textarea.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-fieldset-legend-001",
+      "title": "Render fieldset and legend grouping",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "elements-forms",
+      "spec": [
+        {
+          "section": "4.10.15",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#the-fieldset-element"
+        }
+      ],
+      "input": "cases/forms/fieldset-legend.html",
+      "assertions": [
+        "Fieldset border, legend content, and descendant controls paint as grouped form content."
+      ],
+      "expectations": {
+        "render": "references/images/form-fieldset-legend.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-progress-meter-001",
+      "title": "Render progress and meter static widgets",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "elements-forms",
+      "spec": [
+        {
+          "section": "4.10.14",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#the-meter-element"
+        }
+      ],
+      "input": "cases/forms/progress-meter.html",
+      "assertions": [
+        "Progress and meter elements render stable static boxes with fallback text available."
+      ],
+      "expectations": {
+        "render": "references/images/form-progress-meter.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-disabled-readonly-required-001",
+      "title": "Render disabled, readonly, and required form attributes",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "attributes-forms",
+      "spec": [
+        {
+          "section": "4.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html"
+        }
+      ],
+      "input": "cases/forms/disabled-readonly-required.html",
+      "assertions": [
+        "Disabled, readonly, and required attributes are selectable and produce distinct static styling."
+      ],
+      "expectations": {
+        "render": "references/images/form-disabled-readonly-required.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-form-render-input-state-grid-001",
+      "title": "Render a grid containing every HTML 5.2 input state",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "attributes-forms",
+      "spec": [
+        {
+          "section": "4.10.5.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#states-of-the-type-attribute"
+        }
+      ],
+      "input": "cases/forms/input-state-grid.html",
+      "assertions": [
+        "Every HTML 5.2 input state appears in one static-rendering fixture, with hidden inputs omitted from paint by default styling."
+      ],
+      "expectations": {
+        "render": "references/images/form-input-state-grid.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-imgs-001",
+      "title": "Classify local, data URI, and missing image resources",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-resource-log",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "4.7.5",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#the-img-element"
+        }
+      ],
+      "input": "cases/resources/resource-log-imgs.html",
+      "assertions": [
+        "Image src values are classified as existing local files, data URIs, or missing local files without network access."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/imgs.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-picture-source-001",
+      "title": "Classify picture, source, img, and srcset resource candidates",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-resource-log",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#the-picture-element"
+        }
+      ],
+      "input": "cases/resources/picture-source-resource-log.html",
+      "assertions": [
+        "Picture source and img fallback srcset candidates are logged separately with descriptors."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/picture-source.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-media-001",
+      "title": "Classify media poster, source, and track resources",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-resource-log",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#media-elements"
+        }
+      ],
+      "input": "cases/resources/media-resource-log.html",
+      "assertions": [
+        "Video poster, source children, audio src, and text track src values are classified without media playback."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/media.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-object-embed-iframe-001",
+      "title": "Classify object, embed, and iframe resources",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-resource-log",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html"
+        }
+      ],
+      "input": "cases/resources/object-embed-iframe-resource-log.html",
+      "assertions": [
+        "Object data, embed src, and iframe src resources are logged with local existence and static renderer disposition."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/object-embed-iframe.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-base-resolution-001",
+      "title": "Resolve resources against the first base href",
+      "cluster": "resources",
+      "subcluster": "phase4-resource-log",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "4.2.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/document-metadata.html#the-base-element"
+        }
+      ],
+      "input": "cases/resources/base-resolution-resource-log.html",
+      "assertions": [
+        "Relative image and source candidates resolve against the document base element."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/base-resolution.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-input-image-001",
+      "title": "Classify input type image resources",
+      "cluster": "forms",
+      "subcluster": "phase4-resource-log",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "4.10.5.1.20",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sec-forms.html#image-button-state-(type=image)"
+        }
+      ],
+      "input": "cases/resources/input-image-resource-log.html",
+      "assertions": [
+        "Image submit button src values are logged as local existing or local missing resources."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/input-image.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-canvas-fallback-001",
+      "title": "Classify resources inside canvas fallback content",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-resource-log",
+      "featureId": "elements-embedded-content",
+      "spec": [
+        {
+          "section": "4.12.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-scripting.html#the-canvas-element"
+        }
+      ],
+      "input": "cases/resources/canvas-fallback-resource-log.html",
+      "assertions": [
+        "Image resources inside canvas fallback content remain visible to static resource classification."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/canvas-fallback.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "markup-only",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-srcset-candidates-001",
+      "title": "Classify multiple img srcset candidates",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-resource-log",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "4.7.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#srcset-attributes"
+        }
+      ],
+      "input": "cases/resources/srcset-candidates-resource-log.html",
+      "assertions": [
+        "Each srcset candidate is logged with its width or density descriptor."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/srcset-candidates.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-link-resources-001",
+      "title": "Classify link stylesheet, icon, and preload resources",
+      "cluster": "document-metadata",
+      "subcluster": "phase4-resource-log",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "4.2.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/document-metadata.html#the-link-element"
+        }
+      ],
+      "input": "cases/resources/link-resource-log.html",
+      "assertions": [
+        "Link href resources are logged by role while preserving local-only resolution."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/link-resources.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-log-remote-blocked-001",
+      "title": "Classify remote resources as network-blocked",
+      "cluster": "resources",
+      "subcluster": "phase4-resource-log",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "2.5",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/infrastructure.html#urls"
+        }
+      ],
+      "input": "cases/resources/remote-blocked-resource-log.html",
+      "assertions": [
+        "HTTP and HTTPS resource URLs are reported as blocked and are not fetched by the resource-log oracle."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/remote-blocked.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log",
+        "network-disabled"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-img-svg-dimensions-001",
+      "title": "Render local SVG img resource with explicit dimensions",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "10.4.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#images-3"
+        }
+      ],
+      "input": "cases/resources/img-local-svg-dimensions.html",
+      "assertions": [
+        "A local SVG image resource paints inside an explicitly sized img element."
+      ],
+      "expectations": {
+        "render": "references/images/resource-img-local-svg-dimensions.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "image-loader",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-data-uri-image-001",
+      "title": "Render data URI image resource",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "10.4.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#images-3"
+        }
+      ],
+      "input": "cases/resources/data-uri-image.html",
+      "assertions": [
+        "A data URI SVG image paints as replaced image content without external resource access."
+      ],
+      "expectations": {
+        "render": "references/images/resource-data-uri-image.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "image-loader",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-broken-image-001",
+      "title": "Render broken image resource state",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "10.4.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#images-3"
+        }
+      ],
+      "input": "cases/resources/broken-image.html",
+      "assertions": [
+        "A missing local image paints the renderer's broken-image static state without crashing."
+      ],
+      "expectations": {
+        "render": "references/images/resource-broken-image.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "image-loader",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-picture-fallback-001",
+      "title": "Render picture fallback img content",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#the-picture-element"
+        }
+      ],
+      "input": "cases/resources/picture-source-fallback.html",
+      "assertions": [
+        "Picture source candidates are inert in the current static renderer while the img fallback paints."
+      ],
+      "expectations": {
+        "render": "references/images/resource-picture-source-fallback.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "image-loader",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-object-data-svg-001",
+      "title": "Render object data image resource",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#the-object-element"
+        }
+      ],
+      "input": "cases/resources/object-data-svg.html",
+      "assertions": [
+        "An object element with image data paints as replaced object content and suppresses fallback children."
+      ],
+      "expectations": {
+        "render": "references/images/resource-object-data-svg.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "image-loader",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-object-fallback-001",
+      "title": "Render unsupported object fallback content",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#the-object-element"
+        }
+      ],
+      "input": "cases/resources/object-fallback.html",
+      "assertions": [
+        "An object element with unsupported data keeps and paints fallback content."
+      ],
+      "expectations": {
+        "render": "references/images/resource-object-fallback.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-iframe-static-001",
+      "title": "Render iframe static placeholder",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#the-iframe-element"
+        }
+      ],
+      "input": "cases/resources/iframe-static.html",
+      "assertions": [
+        "Iframe content is not navigated, but its static replaced-content placeholder box is painted."
+      ],
+      "expectations": {
+        "render": "references/images/resource-iframe-static.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "network-disabled"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-media-static-001",
+      "title": "Render media elements as static boxes",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#media-elements"
+        }
+      ],
+      "input": "cases/resources/media-static.html",
+      "assertions": [
+        "Video and audio elements paint static media boxes without playback or remote loading."
+      ],
+      "expectations": {
+        "render": "references/images/resource-media-static.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "network-disabled"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-canvas-fallback-image-001",
+      "title": "Render canvas fallback content containing an image",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "elements-embedded-content",
+      "spec": [
+        {
+          "section": "4.12.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-scripting.html#the-canvas-element"
+        }
+      ],
+      "input": "cases/resources/canvas-fallback-image.html",
+      "assertions": [
+        "Canvas fallback content remains visible to the static renderer and can include local image resources."
+      ],
+      "expectations": {
+        "render": "references/images/resource-canvas-fallback-image.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "image-loader",
+        "layout",
+        "paint"
+      ],
+      "scripts": "markup-only",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-embed-static-001",
+      "title": "Render embed as a static resource placeholder",
+      "cluster": "embedded-content",
+      "subcluster": "phase4-render",
+      "featureId": "cluster-embedded-replaced-content",
+      "spec": [
+        {
+          "section": "4.7.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/semantics-embedded-content.html#the-embed-element"
+        }
+      ],
+      "input": "cases/resources/embed-static.html",
+      "assertions": [
+        "Embed paints a static placeholder box while its src is tracked through resource-log cases."
+      ],
+      "expectations": {
+        "render": "references/images/resource-embed-static.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-css-attribute-selectors-001",
+      "title": "Render attribute selectors used by HTML fixtures",
+      "cluster": "css",
+      "subcluster": "phase5-css-required",
+      "featureId": "cluster-css-required-by-html",
+      "spec": [
+        {
+          "section": "10.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-css-user-agent-style-sheet-and-presentational-hints"
+        }
+      ],
+      "input": "cases/css/attribute-selectors.html",
+      "assertions": [
+        "Attribute selectors for presence, exact value, token list, and language prefix affect visible boxes."
+      ],
+      "expectations": {
+        "render": "references/images/css-attribute-selectors.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-css-units-colors-currentcolor-001",
+      "title": "Render CSS units, percentage widths, and currentColor",
+      "cluster": "css",
+      "subcluster": "phase5-css-required",
+      "featureId": "cluster-css-required-by-html",
+      "spec": [
+        {
+          "section": "10.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html"
+        }
+      ],
+      "input": "cases/css/units-colors-currentcolor.html",
+      "assertions": [
+        "Length units, percentage sizing, transparent backgrounds, and currentColor borders resolve consistently."
+      ],
+      "expectations": {
+        "render": "references/images/css-units-colors-currentcolor.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-css-display-overflow-clipping-001",
+      "title": "Render display values and overflow clipping",
+      "cluster": "css",
+      "subcluster": "phase5-css-required",
+      "featureId": "cluster-css-required-by-html",
+      "spec": [
+        {
+          "section": "10.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/css/display-overflow-clipping.html",
+      "assertions": [
+        "Inline-block content participates in flow and overflow hidden clips excess paint."
+      ],
+      "expectations": {
+        "render": "references/images/css-display-overflow-clipping.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-css-whitespace-line-height-001",
+      "title": "Render whitespace collapsing and preformatted line height",
+      "cluster": "css",
+      "subcluster": "phase5-css-required",
+      "featureId": "css-text-fonts",
+      "spec": [
+        {
+          "section": "10.3.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#phrasing-content-3"
+        }
+      ],
+      "input": "cases/css/whitespace-line-height.html",
+      "assertions": [
+        "Normal whitespace collapses while preformatted whitespace and line-height preserve block rhythm."
+      ],
+      "expectations": {
+        "render": "references/images/css-whitespace-line-height.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-css-table-list-form-rendering-001",
+      "title": "Render CSS display table, list, and input styling",
+      "cluster": "css",
+      "subcluster": "phase5-css-required",
+      "featureId": "css-table-list-form-rendering",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/css/table-list-form-css.html",
+      "assertions": [
+        "CSS display table boxes, list item styling, and form control author styles render together."
+      ],
+      "expectations": {
+        "render": "references/images/css-table-list-form-rendering.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-css-style-attribute-inheritance-001",
+      "title": "Render style attribute cascade and inherited text color",
+      "cluster": "css",
+      "subcluster": "phase5-css-required",
+      "featureId": "css-cascade-selectors",
+      "spec": [
+        {
+          "section": "3.2.5",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/dom.html#the-style-attribute"
+        }
+      ],
+      "input": "cases/css/style-attribute-inheritance.html",
+      "assertions": [
+        "Inline style attributes override author rules and descendant text inherits the resolved color."
+      ],
+      "expectations": {
+        "render": "references/images/css-style-attribute-inheritance.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-level-semantics-001",
+      "title": "Render visible text-level semantic elements in inline flow",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "elements-text-level-semantics",
+      "spec": [
+        {
+          "section": "4.5",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/textlevel-semantics.html"
+        }
+      ],
+      "input": "cases/text-i18n/text-level-semantics.html",
+      "assertions": [
+        "Common phrasing elements remain inline and their visible font, color, baseline, and highlighting effects paint in source order."
+      ],
+      "expectations": {
+        "render": "references/images/text-level-semantics.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "text-shaping"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-ruby-fallback-001",
+      "title": "Parse ruby, rt, and rp fallback content",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "elements-text-level-semantics",
+      "spec": [
+        {
+          "section": "4.5.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/textlevel-semantics.html#the-ruby-element"
+        }
+      ],
+      "input": "cases/text-i18n/ruby-fallback.html",
+      "assertions": [
+        "Ruby base text, annotation text, and parenthesis fallback nodes are preserved in the parsed tree without script."
+      ],
+      "expectations": {
+        "dom": "references/dom/ruby-fallback.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-bidi-bdo-dir-001",
+      "title": "Render dir and bdo bidirectional controls",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "cluster-text-fonts-i18n",
+      "spec": [
+        {
+          "section": "3.2.5.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/dom.html#the-dir-attribute"
+        }
+      ],
+      "input": "cases/text-i18n/bidi-bdo-dir.html",
+      "assertions": [
+        "RTL spans and bdo controls reserve and paint inline runs distinctly from surrounding LTR text."
+      ],
+      "expectations": {
+        "render": "references/images/text-bidi-bdo-dir.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "text-shaping"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-cjk-preservation-001",
+      "title": "Preserve CJK text content through parsing",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "cluster-text-fonts-i18n",
+      "spec": [
+        {
+          "section": "8.2.2.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#character-encodings"
+        }
+      ],
+      "input": "cases/text-i18n/cjk-line-break.html",
+      "assertions": [
+        "UTF-8 CJK text content is preserved as text nodes for future glyph-backed line breaking tests."
+      ],
+      "expectations": {
+        "dom": "references/dom/cjk-line-break.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-arabic-bidi-001",
+      "title": "Render Arabic and Latin bidirectional inline text",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "cluster-text-fonts-i18n",
+      "spec": [
+        {
+          "section": "3.2.5.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/dom.html#the-dir-attribute"
+        }
+      ],
+      "input": "cases/text-i18n/arabic-hebrew-bidi.html",
+      "assertions": [
+        "Arabic and Latin runs paint in stable positions in both normal and rtl-directed blocks."
+      ],
+      "expectations": {
+        "render": "references/images/text-arabic-bidi.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "text-shaping"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-combining-accents-001",
+      "title": "Render combining marks and precomposed accented text",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "css-text-fonts",
+      "spec": [
+        {
+          "section": "10.3.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#phrasing-content-3"
+        }
+      ],
+      "input": "cases/text-i18n/combining-accents.html",
+      "assertions": [
+        "Combining marks and precomposed accented characters affect measured text runs without script."
+      ],
+      "expectations": {
+        "render": "references/images/text-combining-accents.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "text-shaping"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-line-break-controls-001",
+      "title": "Render br, wbr, and non-breaking spaces",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "css-text-fonts",
+      "spec": [
+        {
+          "section": "4.5.29",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/textlevel-semantics.html#the-br-element"
+        }
+      ],
+      "input": "cases/text-i18n/line-break-controls.html",
+      "assertions": [
+        "Explicit line breaks, word break opportunities, and non-breaking spaces produce stable line boxes."
+      ],
+      "expectations": {
+        "render": "references/images/text-line-break-controls.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "text-shaping"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-text-edits-ins-del-001",
+      "title": "Parse ins and del edit elements with citation metadata",
+      "cluster": "text-i18n",
+      "subcluster": "phase5-text-i18n",
+      "featureId": "elements-edits",
+      "spec": [
+        {
+          "section": "4.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/edits.html"
+        }
+      ],
+      "input": "cases/text-i18n/edits-ins-del.html",
+      "assertions": [
+        "Insertion and deletion elements preserve their text, cite, and datetime attributes in the static DOM."
+      ],
+      "expectations": {
+        "dom": "references/dom/edits-ins-del.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-stacking-z-index-001",
+      "title": "Render positioned stacking with z-index order",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "cluster-painting-compositing",
+      "spec": [
+        {
+          "section": "10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html"
+        }
+      ],
+      "input": "cases/painting/stacking-z-index.html",
+      "assertions": [
+        "Positioned boxes with z-index paint in front-to-back order independent of source order."
+      ],
+      "expectations": {
+        "render": "references/images/paint-stacking-z-index.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-opacity-overlap-001",
+      "title": "Render opacity over overlapping boxes",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "css-backgrounds-borders-paint",
+      "spec": [
+        {
+          "section": "10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html"
+        }
+      ],
+      "input": "cases/painting/opacity-overlap.html",
+      "assertions": [
+        "Opacity creates a blended overlap region while preserving the opaque sibling box."
+      ],
+      "expectations": {
+        "render": "references/images/paint-opacity-overlap.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-border-radius-outline-001",
+      "title": "Render border radius and outline paint",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "css-backgrounds-borders-paint",
+      "spec": [
+        {
+          "section": "10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html"
+        }
+      ],
+      "input": "cases/painting/border-radius-outline.html",
+      "assertions": [
+        "Rounded borders, outlines, and nested rounded backgrounds paint without clipping the surrounding canvas."
+      ],
+      "expectations": {
+        "render": "references/images/paint-border-radius-outline.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-background-clip-origin-001",
+      "title": "Render background clipping across border and content boxes",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "css-backgrounds-borders-paint",
+      "spec": [
+        {
+          "section": "10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html"
+        }
+      ],
+      "input": "cases/painting/background-clip-origin.html",
+      "assertions": [
+        "Background color, padding, border, and content backgrounds produce distinct painted regions."
+      ],
+      "expectations": {
+        "render": "references/images/paint-background-clip-origin.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-inline-background-fragment-001",
+      "title": "Render inline background fragments across line boxes",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "css-backgrounds-borders-paint",
+      "spec": [
+        {
+          "section": "10.3.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#phrasing-content-3"
+        }
+      ],
+      "input": "cases/painting/inline-background-fragment.html",
+      "assertions": [
+        "Inline backgrounds and borders fragment over multiple wrapped line boxes."
+      ],
+      "expectations": {
+        "render": "references/images/paint-inline-background-fragment.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-table-background-layers-001",
+      "title": "Render table background layers and empty cells",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "css-backgrounds-borders-paint",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/painting/table-background-layers.html",
+      "assertions": [
+        "Table, row group, row, cell, and transparent empty-cell backgrounds paint in stable layer order."
+      ],
+      "expectations": {
+        "render": "references/images/paint-table-background-layers.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-image-scaling-001",
+      "title": "Render scaled image resources in paint order",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "cluster-painting-compositing",
+      "spec": [
+        {
+          "section": "10.4.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#images-3"
+        }
+      ],
+      "input": "cases/painting/image-scaling.html",
+      "assertions": [
+        "The same local SVG image can paint at two CSS sizes inside one containing block."
+      ],
+      "expectations": {
+        "render": "references/images/paint-image-scaling.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "image-loader"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-paint-nested-paint-order-001",
+      "title": "Render nested background, border, and content paint order",
+      "cluster": "painting",
+      "subcluster": "phase5-painting",
+      "featureId": "cluster-painting-compositing",
+      "spec": [
+        {
+          "section": "10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html"
+        }
+      ],
+      "input": "cases/painting/nested-paint-order.html",
+      "assertions": [
+        "Nested element backgrounds, borders, and inline content paint from ancestor backgrounds through descendant content."
+      ],
+      "expectations": {
+        "render": "references/images/paint-nested-paint-order.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-input-document-setup-doctype-meta-001",
+      "title": "Parse doctype, charset metadata, title, and language setup",
+      "cluster": "input-document-setup",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "cluster-input-document-setup",
+      "spec": [
+        {
+          "section": "8.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#writing-html-documents"
+        }
+      ],
+      "input": "cases/input-document-setup/doctype-meta-charset.html",
+      "assertions": [
+        "A minimal document setup keeps doctype-triggered document structure, charset metadata, title, language, and body content stable."
+      ],
+      "expectations": {
+        "dom": "references/dom/doctype-meta-charset.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-microsyntax-character-references-001",
+      "title": "Parse character references and microsyntax-bearing elements",
+      "cluster": "microsyntaxes",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "cluster-character-references-microsyntaxes",
+      "spec": [
+        {
+          "section": "8.5",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#character-references"
+        }
+      ],
+      "input": "cases/microsyntaxes/character-references.html",
+      "assertions": [
+        "Character reference spelling in text, decoded ampersands in attributes, and time/data microsyntax attributes are captured deterministically."
+      ],
+      "expectations": {
+        "dom": "references/dom/character-references.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-document-metadata-elements-001",
+      "title": "Parse document metadata elements and base metadata",
+      "cluster": "document-metadata",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "elements-document-metadata",
+      "spec": [
+        {
+          "section": "4.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/document-metadata.html"
+        }
+      ],
+      "input": "cases/document-metadata/metadata-elements.html",
+      "assertions": [
+        "html, head, title, base, meta, link, and style elements remain in metadata order before body content."
+      ],
+      "expectations": {
+        "dom": "references/dom/metadata-elements.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-document-metadata-resource-discovery-001",
+      "title": "Classify metadata link resources against base href",
+      "cluster": "document-metadata",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "cluster-document-metadata",
+      "spec": [
+        {
+          "section": "4.2.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/document-metadata.html#the-link-element"
+        }
+      ],
+      "input": "cases/document-metadata/metadata-resource-discovery.html",
+      "assertions": [
+        "Stylesheet and icon link resources resolve against base href and remain network-blocked in the static resource oracle."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/metadata-resource-discovery.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log",
+        "network-disabled"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-links-base-target-001",
+      "title": "Parse anchor links, targets, rel values, and base URL metadata",
+      "cluster": "links",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "cluster-links-url-resolution",
+      "spec": [
+        {
+          "section": "4.6",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/links.html"
+        }
+      ],
+      "input": "cases/links/anchors-base-target.html",
+      "assertions": [
+        "Anchor href, target, rel, hreflang, download, and fragment target metadata are preserved without navigation."
+      ],
+      "expectations": {
+        "dom": "references/dom/anchors-base-target.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-elements-sectioning-render-001",
+      "title": "Render sectioning and heading elements in static flow",
+      "cluster": "elements",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "elements-sectioning",
+      "spec": [
+        {
+          "section": "4.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/sections.html"
+        }
+      ],
+      "input": "cases/elements/sectioning-article-nav-aside.html",
+      "assertions": [
+        "header, nav, article, section, aside, heading, paragraph, and footer boxes render in source flow."
+      ],
+      "expectations": {
+        "render": "references/images/sectioning-article-nav-aside.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-tables-tabular-elements-metadata-001",
+      "title": "Parse all tabular data element categories",
+      "cluster": "tables",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "elements-tabular-data",
+      "spec": [
+        {
+          "section": "4.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/tabular-data.html"
+        }
+      ],
+      "input": "cases/tables/tabular-elements-metadata.html",
+      "assertions": [
+        "caption, colgroup, col, thead, tbody, tfoot, tr, th, td, scope, and headers metadata stay in table order."
+      ],
+      "expectations": {
+        "dom": "references/dom/tabular-elements-metadata.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-user-interaction-global-attributes-001",
+      "title": "Parse static global interaction attributes",
+      "cluster": "user-interaction",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "attributes-global-interaction",
+      "spec": [
+        {
+          "section": "5",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/editing.html"
+        }
+      ],
+      "input": "cases/user-interaction/global-interaction-attributes.html",
+      "assertions": [
+        "accesskey, contenteditable, draggable, spellcheck, and tabindex attributes are preserved as static metadata."
+      ],
+      "expectations": {
+        "dom": "references/dom/global-interaction-attributes.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-user-interaction-interactive-static-001",
+      "title": "Render open details and dialog static states",
+      "cluster": "user-interaction",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "elements-interactive-static",
+      "spec": [
+        {
+          "section": "4.11",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/interactive-elements.html"
+        }
+      ],
+      "input": "cases/user-interaction/interactive-static-dialog-details.html",
+      "assertions": [
+        "Open details and open dialog content paint as static interactive element states without event processing."
+      ],
+      "expectations": {
+        "render": "references/images/interactive-static-dialog-details.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-css-ua-defaults-presentational-hints-001",
+      "title": "Render UA defaults and simple presentational hints",
+      "cluster": "css",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "css-ua-defaults-presentational-hints",
+      "spec": [
+        {
+          "section": "10.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-css-user-agent-style-sheet-and-presentational-hints"
+        }
+      ],
+      "input": "cases/css/ua-defaults-presentational-hints.html",
+      "assertions": [
+        "Heading, paragraph, b/i defaults, and table presentational hints produce a deterministic static render."
+      ],
+      "expectations": {
+        "render": "references/images/css-ua-defaults-presentational-hints.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-xhtml-xml-prolog-namespaces-001",
+      "title": "Parse XHTML-shaped document with XML prolog and namespace attributes",
+      "cluster": "xhtml",
+      "subcluster": "phase6-xhtml",
+      "featureId": "cluster-xhtml-xml",
+      "spec": [
+        {
+          "section": "9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/xhtml.html"
+        }
+      ],
+      "input": "cases/xhtml/xml-prolog-namespaces.html",
+      "assertions": [
+        "XML prolog text handling, xmlns attributes, xml:lang, slash-closed void elements, and body content are captured deterministically."
+      ],
+      "expectations": {
+        "dom": "references/dom/xhtml-xml-prolog-namespaces.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-xhtml-self-closing-foreign-content-001",
+      "title": "Parse XHTML-style foreign content self-closing elements",
+      "cluster": "xhtml",
+      "subcluster": "phase6-xhtml",
+      "featureId": "cluster-xhtml-xml",
+      "spec": [
+        {
+          "section": "9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/xhtml.html"
+        }
+      ],
+      "input": "cases/xhtml/self-closing-foreign-content.html",
+      "assertions": [
+        "SVG and MathML namespace attributes and XHTML-style self-closing children remain stable in the static tree."
+      ],
+      "expectations": {
+        "dom": "references/dom/xhtml-self-closing-foreign-content.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-obsolete-center-font-strike-001",
+      "title": "Render obsolete center, font, and strike markup statically",
+      "cluster": "obsolete",
+      "subcluster": "phase6-legacy",
+      "featureId": "cluster-obsolete-legacy",
+      "spec": [
+        {
+          "section": "11",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/obsolete.html"
+        }
+      ],
+      "input": "cases/obsolete/center-font-strike.html",
+      "assertions": [
+        "Obsolete center, font, and strike markup remains parseable and paints with deterministic static fallback styling."
+      ],
+      "expectations": {
+        "render": "references/images/obsolete-center-font-strike.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-obsolete-table-presentational-attributes-001",
+      "title": "Parse legacy table presentational attributes",
+      "cluster": "obsolete",
+      "subcluster": "phase6-legacy",
+      "featureId": "attributes-table-legacy-presentational",
+      "spec": [
+        {
+          "section": "10.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-css-user-agent-style-sheet-and-presentational-hints"
+        }
+      ],
+      "input": "cases/obsolete/table-presentational-attributes.html",
+      "assertions": [
+        "Legacy align, valign, bgcolor, border, cellpadding, cellspacing, width, and height attributes remain visible to compatibility code."
+      ],
+      "expectations": {
+        "dom": "references/dom/obsolete-table-presentational-attributes.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-stress-deep-nesting-001",
+      "title": "Render deeply nested block content without crashing",
+      "cluster": "stress",
+      "subcluster": "phase6-stress-security",
+      "featureId": "cluster-stress-robustness-security",
+      "spec": [
+        {
+          "section": "1.10",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/introduction.html#conformance-requirements"
+        }
+      ],
+      "input": "cases/stress/deep-nesting.html",
+      "assertions": [
+        "Deeply nested block boxes lay out and paint within the normal timeout budget."
+      ],
+      "expectations": {
+        "render": "references/images/stress-deep-nesting.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-stress-long-attributes-001",
+      "title": "Parse long attributes without truncation or crashes",
+      "cluster": "stress",
+      "subcluster": "phase6-stress-security",
+      "featureId": "cluster-stress-robustness-security",
+      "spec": [
+        {
+          "section": "8.2.4",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/syntax.html#tokenization"
+        }
+      ],
+      "input": "cases/stress/long-attributes.html",
+      "assertions": [
+        "Long attribute values and normal text content remain in the parsed tree without excessive work."
+      ],
+      "expectations": {
+        "dom": "references/dom/stress-long-attributes.json"
+      },
+      "requires": [
+        "html-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-stress-remote-sandbox-resources-001",
+      "title": "Classify remote resources as blocked in sandbox stress input",
+      "cluster": "stress",
+      "subcluster": "phase6-stress-security",
+      "featureId": "cluster-stress-robustness-security",
+      "spec": [
+        {
+          "section": "2.5",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/infrastructure.html#urls"
+        }
+      ],
+      "input": "cases/stress/remote-sandbox-resources.html",
+      "assertions": [
+        "Remote stylesheet, image, iframe, and object resources are classified as blocked and are never fetched."
+      ],
+      "expectations": {
+        "resourceLog": "references/resource-log/stress-remote-sandbox-resources.json"
+      },
+      "requires": [
+        "html-parser",
+        "resource-log",
+        "network-disabled"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-stress-many-siblings-001",
+      "title": "Render many inline-block siblings deterministically",
+      "cluster": "stress",
+      "subcluster": "phase6-stress-security",
+      "featureId": "cluster-stress-robustness-security",
+      "spec": [
+        {
+          "section": "10.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/stress/many-siblings.html",
+      "assertions": [
+        "Many sibling inline-block boxes wrap and paint consistently across repeated suite runs."
+      ],
+      "expectations": {
+        "render": "references/images/stress-many-siblings.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-regression-inline-void-boundary-001",
+      "title": "Render line break and inline replaced void boundary regression",
+      "cluster": "regressions",
+      "subcluster": "phase6-regression",
+      "featureId": "cluster-regression-fixtures",
+      "spec": [
+        {
+          "section": "10.4.2",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#images-3"
+        }
+      ],
+      "input": "cases/regressions/inline-void-boundary.html",
+      "assertions": [
+        "A br-created line boundary followed by an inline image and text paints without losing surrounding inline content."
+      ],
+      "expectations": {
+        "render": "references/images/regression-inline-void-boundary.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout",
+        "paint",
+        "image-loader"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    }
+  ]
+}

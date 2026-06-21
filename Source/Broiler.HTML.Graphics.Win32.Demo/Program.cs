@@ -20,7 +20,7 @@ internal static class Program
     {
         _ = SetProcessDpiAwarenessContext(new IntPtr(-4)); // PER_MONITOR_AWARE_V2, best effort.
 
-        if (args.Length != 1 || IsHelpArgument(args[0]))
+        if (args.Length > 1 || (args.Length == 1 && IsHelpArgument(args[0])))
         {
             ShowUsage();
             return args.Length == 1 && IsHelpArgument(args[0]) ? IdOk : 1;
@@ -28,15 +28,13 @@ internal static class Program
 
         try
         {
-            string source = args[0];
-            string html = LoadHtml(source, out string baseUrl);
-
-            using var window = new RenderedUrlWindow(source, html, baseUrl);
+            string source = args.Length == 1 ? args[0] : "https://example.com/";
+            using var window = new RenderedUrlWindow(source);
             return window.Run();
         }
         catch (Exception ex)
         {
-            MessageBox(IntPtr.Zero, ex.Message, "Broiler.HTML.Graphics Win32 Demo", MbIconError | MbOk);
+            ShowError(IntPtr.Zero, ex.Message);
             return 1;
         }
     }
@@ -48,14 +46,14 @@ internal static class Program
     {
         const string usage =
             "Usage:\n" +
-            "  Broiler.HTML.Graphics.Win32.Demo.exe <url>\n\n" +
+            "  Broiler.HTML.Graphics.Win32.Demo.exe [url]\n\n" +
             "Example:\n" +
             "  Broiler.HTML.Graphics.Win32.Demo.exe https://example.com/";
 
         MessageBox(IntPtr.Zero, usage, "Broiler.HTML.Graphics Win32 Demo", MbIconInformation | MbOk);
     }
 
-    private static string LoadHtml(string source, out string baseUrl)
+    internal static string LoadHtml(string source, out string baseUrl)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(source);
 
@@ -79,6 +77,11 @@ internal static class Program
         return File.ReadAllText(path);
     }
 
+    internal static void ShowError(IntPtr hwnd, string message)
+    {
+        MessageBox(hwnd, message, "Broiler.HTML.Graphics Win32 Demo", MbIconError | MbOk);
+    }
+
     private const uint MbOk = 0x00000000;
     private const uint MbIconError = 0x00000010;
     private const uint MbIconInformation = 0x00000040;
@@ -96,28 +99,58 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
 {
     private const int DesiredClientWidth = 1024;
     private const int DesiredClientHeight = 768;
+    private const double ToolbarHeight = 44;
+    private const double ControlMargin = 8;
+    private const double ButtonWidth = 88;
+    private const double ControlHeight = 28;
 
+    private readonly string _initialSource;
     private readonly HtmlContainer _container = new();
+    private BEditControl? _urlEdit;
+    private BButtonControl? _loadButton;
     private HtmlGraphicsRenderList? _renderList;
     private bool _layoutDirty = true;
+    private bool _hasContent;
 
-    public RenderedUrlWindow(string source, string html, string baseUrl)
+    public RenderedUrlWindow(string source)
         : base(new BWindowOptions
         {
-            Title = $"Broiler.HTML.Graphics Direct2D - {source}",
+            Title = "Broiler.HTML.Graphics Direct2D",
             ClientWidth = DesiredClientWidth,
             ClientHeight = DesiredClientHeight,
             ClearColor = BColor.White,
             RenderOptions = new BRenderOptions(Antialias: true, VSync: true, SubpixelText: true),
         })
     {
+        _initialSource = source;
         _container.AvoidAsyncImagesLoading = true;
         _container.AvoidImagesLateLoading = true;
-        _container.SetHtml(html, baseUrl: baseUrl);
+    }
+
+    protected override void OnCreated()
+    {
+        _urlEdit = CreateEditControl(new BControlOptions
+        {
+            Text = _initialSource,
+            Bounds = UrlEditBounds(ClientSize),
+        });
+        _urlEdit.Submitted += (_, _) => LoadFromEdit();
+
+        _loadButton = CreateButtonControl(new BControlOptions
+        {
+            Text = "Load",
+            Bounds = LoadButtonBounds(ClientSize),
+        });
+        _loadButton.Clicked += (_, _) => LoadFromEdit();
+
+        LayoutControls(ClientSize);
+        LoadUrl(_initialSource);
+        _urlEdit.Focus();
     }
 
     protected override void OnResized(BSize clientSize, double dpiScale)
     {
+        LayoutControls(clientSize);
         MarkLayoutDirty();
     }
 
@@ -126,12 +159,15 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
         MarkLayoutDirty();
     }
 
+    protected override BRect GetRenderBounds(BSize clientSize) =>
+        new(0, ToolbarHeight, clientSize.Width, Math.Max(0, clientSize.Height - ToolbarHeight));
+
     protected override BFrameContext CreateFrameContext(long frameIndex) =>
         new(ResolveClearColor(), frameIndex, Options.RenderOptions);
 
     protected override BRenderList? BuildRenderList(BSize clientSize)
     {
-        if (clientSize.IsEmpty || Renderer is null)
+        if (!_hasContent || clientSize.IsEmpty || Renderer is null)
             return null;
 
         if (!_layoutDirty && _renderList is not null)
@@ -153,12 +189,79 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
     {
         if (disposing)
         {
+            _urlEdit?.Dispose();
+            _urlEdit = null;
+            _loadButton?.Dispose();
+            _loadButton = null;
             _renderList?.Dispose();
             _renderList = null;
             _container.Dispose();
         }
 
         base.Dispose(disposing);
+    }
+
+    private void LoadFromEdit()
+    {
+        if (_urlEdit is not null)
+            LoadUrl(_urlEdit.Text);
+    }
+
+    private void LoadUrl(string source)
+    {
+        if (string.IsNullOrWhiteSpace(source))
+            return;
+
+        SetControlsEnabled(false);
+        try
+        {
+            string html = Program.LoadHtml(source, out string baseUrl);
+            _container.SetHtml(html, baseUrl: baseUrl);
+            _hasContent = true;
+
+            if (_urlEdit is not null && !string.Equals(_urlEdit.Text, source, StringComparison.Ordinal))
+                _urlEdit.Text = source;
+
+            MarkLayoutDirty();
+            Invalidate();
+        }
+        catch (Exception ex)
+        {
+            Program.ShowError(NativeHandle, ex.Message);
+        }
+        finally
+        {
+            SetControlsEnabled(true);
+        }
+    }
+
+    private void SetControlsEnabled(bool enabled)
+    {
+        if (_urlEdit is not null)
+            _urlEdit.Enabled = enabled;
+        if (_loadButton is not null)
+            _loadButton.Enabled = enabled;
+    }
+
+    private void LayoutControls(BSize clientSize)
+    {
+        if (_urlEdit is null || _loadButton is null)
+            return;
+
+        _urlEdit.Bounds = UrlEditBounds(clientSize);
+        _loadButton.Bounds = LoadButtonBounds(clientSize);
+    }
+
+    private static BRect UrlEditBounds(BSize clientSize)
+    {
+        double width = Math.Max(1, clientSize.Width - (ControlMargin * 3) - ButtonWidth);
+        return new BRect(ControlMargin, ControlMargin, width, ControlHeight);
+    }
+
+    private static BRect LoadButtonBounds(BSize clientSize)
+    {
+        double x = Math.Max(ControlMargin, clientSize.Width - ControlMargin - ButtonWidth);
+        return new BRect(x, ControlMargin, ButtonWidth, ControlHeight);
     }
 
     private void MarkLayoutDirty()

@@ -1,0 +1,78 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "title",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Title",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "p",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Body",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    }
+  ]
+}

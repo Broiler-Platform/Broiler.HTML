@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Broiler.HTML.Dom\Broiler.HTML.Dom.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Image.Compat\Broiler.HTML.Image.Compat.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Image\Broiler.HTML.Image.csproj" />
   </ItemGroup>

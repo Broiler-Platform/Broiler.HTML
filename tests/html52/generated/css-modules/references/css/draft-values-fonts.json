@@ -1,0 +1,48 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase4-fonts": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "font-family": "phase4font",
+            "font-palette": "--phase4-palette",
+            "font-size-adjust": "ex-height 0.5",
+            "font-synthesis-position": "none",
+            "font-variant-emoji": "emoji"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-fonts",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-values": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "light-dark(black, white)",
+            "margin-left": "mod(17px, 5px)",
+            "padding-top": "env(safe-area-inset-top, 0px)",
+            "transition-timing-function": "linear(0, 0.25 50%, 1)"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-values",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

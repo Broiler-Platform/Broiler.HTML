@@ -1,0 +1,49 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      "li::before": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "content": "counter(phase2-item) \u0022. \u0022",
+            "counter-increment": "phase2-item"
+          },
+          "pseudoClass": null,
+          "selector": "li::before",
+          "selectors": [
+            {
+              "adjacentSibling": false,
+              "directParent": true,
+              "pseudoClass": null,
+              "selector": "ol.phase2-counter"
+            }
+          ],
+          "sourceOrder": 1,
+          "specificity": 1003
+        }
+      ],
+      "ol.phase2-counter": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "counter-reset": "phase2-item"
+          },
+          "pseudoClass": null,
+          "selector": "ol.phase2-counter",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1001
+        }
+      ]
+    }
+  }
+}

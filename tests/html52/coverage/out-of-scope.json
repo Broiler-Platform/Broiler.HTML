@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "featureId": "out-of-scope-javascript-execution",
+      "title": "JavaScript execution and DOM mutation after parse",
+      "cluster": "web-application-apis",
+      "specSections": ["4.12.1", "7"],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "reason": "The suite is for plain static HTML rendering; script markup is tested only as inert/raw-text content.",
+      "tests": []
+    },
+    {
+      "featureId": "out-of-scope-navigation-history-storage-workers",
+      "title": "Navigation, history, storage, workers, and browsing-context APIs",
+      "cluster": "web-application-apis",
+      "specSections": ["6", "7"],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "reason": "These APIs require a browser runtime rather than a static document renderer.",
+      "tests": []
+    },
+    {
+      "featureId": "out-of-scope-live-media-playback",
+      "title": "Live media playback, seeking, tracks, and media event sequencing",
+      "cluster": "embedded-content",
+      "specSections": ["4.7.13"],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "reason": "Static poster/fallback/resource behavior is in scope; time-based playback behavior is not.",
+      "tests": []
+    },
+    {
+      "featureId": "out-of-scope-form-submission-network",
+      "title": "Form submission over the network",
+      "cluster": "forms",
+      "specSections": ["4.10.21"],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "reason": "The suite tests static form control rendering and metadata, not HTTP submission.",
+      "tests": []
+    },
+    {
+      "featureId": "out-of-scope-editing-drag-drop-events",
+      "title": "Editing commands, drag and drop events, and live user event processing",
+      "cluster": "user-interaction",
+      "specSections": ["5"],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "reason": "Static states and metadata are in scope; event dispatch and editing command APIs are not.",
+      "tests": []
+    },
+    {
+      "featureId": "out-of-scope-canvas-drawing-api",
+      "title": "Canvas drawing APIs",
+      "cluster": "embedded-content",
+      "specSections": ["4.12.4"],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "reason": "Canvas fallback rendering and static sizing are in scope; script-driven drawing APIs are not.",
+      "tests": []
+    }
+  ]
+}

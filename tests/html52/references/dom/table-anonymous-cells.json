@@ -1,0 +1,116 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "table",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "id": "loose"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "td",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "id": "loose-a"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "A",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "td",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "id": "loose-b"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "B",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

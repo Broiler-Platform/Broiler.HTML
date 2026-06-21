@@ -1,0 +1,168 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "meta",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "charset": "utf-8"
+              },
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "style",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  body { margin: 20px; background: #ffffff; font-family: Arial, sans-serif; }\n  p { width: 520px; padding: 14px; border: 3px solid #495057; background: #f8f9fa; font-size: 22px; line-height: 34px; }\n  ins { background: #d3f9d8; color: #2b8a3e; font-family: Arial, sans-serif; }\n  del { background: #ffe3e3; color: #c92a2a; font-family: Arial, sans-serif; }\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "p",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Version ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "del",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "cite": "#old",
+                    "datetime": "2026-06-20"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "old text",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": " ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "ins",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "cite": "#new",
+                    "datetime": "2026-06-21"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "new text",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": " complete.",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

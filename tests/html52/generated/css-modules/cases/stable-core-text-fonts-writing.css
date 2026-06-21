@@ -1,0 +1,24 @@
+@font-face {
+  font-family: Phase2Face;
+  src: local("Arial");
+  font-weight: 400;
+}
+
+.phase2-text {
+  font-family: Phase2Face, serif;
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 700;
+  font-variant: small-caps;
+  line-height: 1.25;
+  white-space: pre-wrap;
+  word-break: break-word;
+  text-align: end;
+  text-indent: 2em;
+  text-decoration: underline dotted red;
+  text-decoration-thickness: 2px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  direction: rtl;
+  unicode-bidi: bidi-override;
+}

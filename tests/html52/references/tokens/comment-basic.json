@@ -1,0 +1,30 @@
+[
+  {
+    "type": "Character",
+    "name": null,
+    "data": "before",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Comment",
+    "name": null,
+    "data": " note ",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Character",
+    "name": null,
+    "data": "after\n",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndOfFile",
+    "name": null,
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  }
+]

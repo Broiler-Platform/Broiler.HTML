@@ -1,0 +1,33 @@
+@media (dynamic-range: high) and (prefers-color-scheme: dark) and (horizontal-viewport-segments: 1) {
+  .phase3-media {
+    color: canvastext;
+    background-color: canvas;
+  }
+}
+
+@page {
+  size: A4;
+  margin: 1cm;
+}
+
+@viewport {
+  width: device-width;
+  zoom: 1.0;
+}
+
+@supports selector(:has(*)) {
+  .phase3-supports:has(.child) {
+    outline: 1px solid currentColor;
+  }
+}
+
+.phase3-ui {
+  accent-color: auto;
+  appearance: none;
+  caret-color: red;
+  pointer-events: auto;
+  user-select: text;
+  touch-action: pan-x;
+  resize: both;
+  cursor: zoom-in;
+}

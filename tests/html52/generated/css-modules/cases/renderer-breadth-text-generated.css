@@ -1,0 +1,66 @@
+@font-face {
+  font-family: Phase3Variable;
+  src: local("Arial");
+  font-display: swap;
+  font-stretch: 75% 125%;
+}
+
+@font-feature-values Phase3Variable {
+  @styleset {
+    phase3-alt: 1;
+  }
+  @swash {
+    phase3-swash: 2;
+  }
+}
+
+.phase3-text {
+  font-family: Phase3Variable, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "wght" 650;
+  font-feature-settings: "liga" 1, "kern" 1;
+  font-variant-alternates: styleset(phase3-alt);
+  text-wrap: balance;
+  text-spacing: trim-start;
+  hanging-punctuation: first;
+  text-decoration-line: underline overline;
+  text-decoration-style: wavy;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 0.2em;
+  text-emphasis: filled sesame red;
+  initial-letter: 2;
+  line-height-step: 4px;
+}
+
+ruby.phase3-ruby {
+  ruby-position: over;
+  ruby-align: center;
+}
+
+.phase3-list {
+  list-style-type: disclosure-open;
+  list-style-position: inside;
+  marker-side: match-parent;
+}
+
+.phase3-list::marker {
+  content: counters(item, ".") " ";
+}
+
+.phase3-generated::before {
+  content: target-counter(attr(href url), page);
+  quotes: "<<" ">>";
+}
+
+.phase3-generated::after {
+  content: leader(".") target-text(attr(href url));
+}
+
+.phase3-part::part(label) {
+  color: red;
+}
+
+:where(.phase3-generated, .phase3-list)::selection {
+  background: yellow;
+  color: black;
+}

@@ -1,0 +1,62 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "input",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "type": "submit"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Submit",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

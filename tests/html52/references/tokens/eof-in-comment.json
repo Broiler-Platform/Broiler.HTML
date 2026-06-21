@@ -1,0 +1,37 @@
+[
+  {
+    "type": "StartTag",
+    "name": "p",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Character",
+    "name": null,
+    "data": "before",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndTag",
+    "name": "p",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Comment",
+    "name": null,
+    "data": " open comment\n",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndOfFile",
+    "name": null,
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  }
+]

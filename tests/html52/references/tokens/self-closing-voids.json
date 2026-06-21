@@ -1,0 +1,32 @@
+[
+  {
+    "type": "StartTag",
+    "name": "img",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {
+      "src": "image.png/"
+    }
+  },
+  {
+    "type": "StartTag",
+    "name": "br",
+    "data": null,
+    "selfClosing": true,
+    "attributes": {}
+  },
+  {
+    "type": "Character",
+    "name": null,
+    "data": "\n",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndOfFile",
+    "name": null,
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  }
+]

@@ -1,0 +1,115 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "meta",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "charset": "utf-8"
+              },
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "title",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Document setup",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "p",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "id": "intro",
+                "lang": "en"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Document setup fixture",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

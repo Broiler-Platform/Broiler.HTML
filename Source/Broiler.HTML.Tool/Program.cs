@@ -1,6 +1,9 @@
 using System.Globalization;
+using System.Drawing;
 using System.Text.Json;
+using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core.IR;
+using Broiler.HTML.Dom.Core.Parse;
 using Broiler.HTML.Image;
 
 return HtmlImageRendererCli.Run(args);
@@ -30,6 +33,27 @@ internal static class HtmlImageRendererCli
 
             if (string.Equals(args[0], "compare", StringComparison.OrdinalIgnoreCase))
                 return RunCompare(args[1..]);
+
+            if (string.Equals(args[0], "dump-tokens", StringComparison.OrdinalIgnoreCase))
+                return RunDumpTokens(args[1..]);
+
+            if (string.Equals(args[0], "dump-dom", StringComparison.OrdinalIgnoreCase))
+                return RunDumpDom(args[1..]);
+
+            if (string.Equals(args[0], "dump-resources", StringComparison.OrdinalIgnoreCase))
+                return RunDumpResources(args[1..]);
+
+            if (string.Equals(args[0], "dump-layout", StringComparison.OrdinalIgnoreCase))
+                return RunDumpLayout(args[1..]);
+
+            if (string.Equals(args[0], "dump-display-list", StringComparison.OrdinalIgnoreCase))
+                return RunDumpDisplayList(args[1..]);
+
+            if (string.Equals(args[0], "dump-computed-style", StringComparison.OrdinalIgnoreCase))
+                return RunDumpComputedStyle(args[1..]);
+
+            if (string.Equals(args[0], "dump-css", StringComparison.OrdinalIgnoreCase))
+                return RunDumpCss(args[1..]);
 
             return RunRender(args);
         }
@@ -80,6 +104,8 @@ internal static class HtmlImageRendererCli
         }
 
         var format = ResolveFormat(options.Format, outputPath);
+        var stylesheetLoad = options.DisableNetwork ? CreateNetworkBlockingStylesheetHandler(baseUrl) : null;
+        var imageLoad = options.DisableNetwork ? CreateNetworkBlockingImageHandler(baseUrl) : null;
         if (options.AutoSize)
         {
             HtmlRender.RenderToFileAutoSized(
@@ -89,6 +115,8 @@ internal static class HtmlImageRendererCli
                 options.MaxHeight,
                 format,
                 options.Quality,
+                stylesheetLoad: stylesheetLoad,
+                imageLoad: imageLoad,
                 baseUrl: baseUrl);
         }
         else
@@ -100,6 +128,8 @@ internal static class HtmlImageRendererCli
                 outputPath,
                 format,
                 options.Quality,
+                stylesheetLoad: stylesheetLoad,
+                imageLoad: imageLoad,
                 baseUrl: baseUrl);
         }
 
@@ -195,6 +225,169 @@ internal static class HtmlImageRendererCli
         return diff.IsMatch ? 0 : 1;
     }
 
+    private static int RunDumpTokens(string[] args)
+    {
+        var parseResult = ParseDumpArguments(args, allowBaseUrl: false);
+        if (parseResult.ShowHelp)
+        {
+            Console.Out.WriteLine(GetDumpTokensHelpText());
+            return 0;
+        }
+
+        if (parseResult.ErrorMessage is not null)
+        {
+            Console.Error.WriteLine(parseResult.ErrorMessage);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine(GetDumpTokensHelpText());
+            return 1;
+        }
+
+        var options = parseResult.Options!;
+        var html = ReadHtmlInput(options, out _);
+        var json = HtmlParserDump.DumpTokensAsJson(html);
+        WriteDumpOutput(options, json);
+        return 0;
+    }
+
+    private static int RunDumpDom(string[] args)
+    {
+        var parseResult = ParseDumpArguments(args, allowBaseUrl: true);
+        if (parseResult.ShowHelp)
+        {
+            Console.Out.WriteLine(GetDumpDomHelpText());
+            return 0;
+        }
+
+        if (parseResult.ErrorMessage is not null)
+        {
+            Console.Error.WriteLine(parseResult.ErrorMessage);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine(GetDumpDomHelpText());
+            return 1;
+        }
+
+        var options = parseResult.Options!;
+        var html = ReadHtmlInput(options, out var inputBaseUrl);
+        var json = HtmlParserDump.DumpDomAsJson(html, options.BaseUrl ?? inputBaseUrl);
+        WriteDumpOutput(options, json);
+        return 0;
+    }
+
+    private static int RunDumpResources(string[] args)
+    {
+        var parseResult = ParseDumpArguments(args, allowBaseUrl: true);
+        if (parseResult.ShowHelp)
+        {
+            Console.Out.WriteLine(GetDumpResourcesHelpText());
+            return 0;
+        }
+
+        if (parseResult.ErrorMessage is not null)
+        {
+            Console.Error.WriteLine(parseResult.ErrorMessage);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine(GetDumpResourcesHelpText());
+            return 1;
+        }
+
+        var options = parseResult.Options!;
+        var html = ReadHtmlInput(options, out var inputBaseUrl);
+        var json = HtmlParserDump.DumpResourceLogAsJson(html, options.BaseUrl ?? inputBaseUrl);
+        WriteDumpOutput(options, json);
+        return 0;
+    }
+
+    private static int RunDumpLayout(string[] args)
+    {
+        var parseResult = ParseDumpArguments(args, allowBaseUrl: true);
+        if (parseResult.ShowHelp)
+        {
+            Console.Out.WriteLine(GetDumpLayoutHelpText());
+            return 0;
+        }
+
+        if (parseResult.ErrorMessage is not null)
+        {
+            Console.Error.WriteLine(parseResult.ErrorMessage);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine(GetDumpLayoutHelpText());
+            return 1;
+        }
+
+        using var container = CreateLaidOutContainer(parseResult.Options!);
+        var fragment = container.LatestFragmentTree ?? throw new InvalidOperationException("No fragment tree was produced.");
+        WriteDumpOutput(parseResult.Options!, FragmentJsonDumper.ToJson(fragment));
+        return 0;
+    }
+
+    private static int RunDumpDisplayList(string[] args)
+    {
+        var parseResult = ParseDumpArguments(args, allowBaseUrl: true);
+        if (parseResult.ShowHelp)
+        {
+            Console.Out.WriteLine(GetDumpDisplayListHelpText());
+            return 0;
+        }
+
+        if (parseResult.ErrorMessage is not null)
+        {
+            Console.Error.WriteLine(parseResult.ErrorMessage);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine(GetDumpDisplayListHelpText());
+            return 1;
+        }
+
+        using var container = CreateLaidOutContainer(parseResult.Options!);
+        WriteDumpOutput(parseResult.Options!, DisplayListJsonDumper.ToJson(container.CreateDisplayList()));
+        return 0;
+    }
+
+    private static int RunDumpComputedStyle(string[] args)
+    {
+        var parseResult = ParseDumpArguments(args, allowBaseUrl: true);
+        if (parseResult.ShowHelp)
+        {
+            Console.Out.WriteLine(GetDumpComputedStyleHelpText());
+            return 0;
+        }
+
+        if (parseResult.ErrorMessage is not null)
+        {
+            Console.Error.WriteLine(parseResult.ErrorMessage);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine(GetDumpComputedStyleHelpText());
+            return 1;
+        }
+
+        using var container = CreateLaidOutContainer(parseResult.Options!);
+        var fragment = container.LatestFragmentTree ?? throw new InvalidOperationException("No fragment tree was produced.");
+        WriteDumpOutput(parseResult.Options!, ComputedStyleJsonDumper.ToJson(fragment));
+        return 0;
+    }
+
+    private static int RunDumpCss(string[] args)
+    {
+        var parseResult = ParseDumpArguments(args, allowBaseUrl: false);
+        if (parseResult.ShowHelp)
+        {
+            Console.Out.WriteLine(GetDumpCssHelpText());
+            return 0;
+        }
+
+        if (parseResult.ErrorMessage is not null)
+        {
+            Console.Error.WriteLine(parseResult.ErrorMessage);
+            Console.Error.WriteLine();
+            Console.Error.WriteLine(GetDumpCssHelpText());
+            return 1;
+        }
+
+        var css = ReadHtmlInput(parseResult.Options!, out _);
+        var cssData = HtmlRender.ParseStyleSheet(css, combineWithDefault: false);
+        WriteDumpOutput(parseResult.Options!, CssDataJsonDumper.ToJson(cssData));
+        return 0;
+    }
+
     private static ParseResult<RenderCliOptions> ParseRenderArguments(string[] args)
     {
         if (args.Length == 0)
@@ -279,6 +472,9 @@ internal static class HtmlImageRendererCli
                     break;
                 case "--auto-size":
                     options.AutoSize = true;
+                    break;
+                case "--disable-network":
+                    options.DisableNetwork = true;
                     break;
                 default:
                     return ParseResult<RenderCliOptions>.Error($"Unknown argument: {argument}");
@@ -371,6 +567,176 @@ internal static class HtmlImageRendererCli
             return ParseResult<CompareCliOptions>.Error("Missing required --baseline argument.");
 
         return ParseResult<CompareCliOptions>.Success(options);
+    }
+
+    private static ParseResult<DumpCliOptions> ParseDumpArguments(string[] args, bool allowBaseUrl)
+    {
+        if (args.Length == 0)
+            return ParseResult<DumpCliOptions>.Help();
+
+        var options = new DumpCliOptions();
+
+        for (var index = 0; index < args.Length; index++)
+        {
+            var argument = args[index];
+            if (IsHelpArgument(argument))
+                return ParseResult<DumpCliOptions>.Help();
+
+            var splitIndex = argument.IndexOf('=');
+            var name = splitIndex >= 0 ? argument[..splitIndex] : argument;
+            string? value = splitIndex >= 0 ? argument[(splitIndex + 1)..] : null;
+
+            switch (name)
+            {
+                case "--input":
+                case "-i":
+                    if (!TryReadValue(args, ref index, ref value, out var inputPath, out var inputError))
+                        return ParseResult<DumpCliOptions>.Error(inputError!);
+                    options.InputPath = inputPath;
+                    break;
+                case "--html":
+                case "-s":
+                    if (!TryReadValue(args, ref index, ref value, out var html, out var htmlError))
+                        return ParseResult<DumpCliOptions>.Error(htmlError!);
+                    options.Html = html;
+                    break;
+                case "--output":
+                case "-o":
+                    if (!TryReadValue(args, ref index, ref value, out var outputPath, out var outputError))
+                        return ParseResult<DumpCliOptions>.Error(outputError!);
+                    options.OutputPath = outputPath;
+                    break;
+                case "--base-url" when allowBaseUrl:
+                    if (!TryReadValue(args, ref index, ref value, out var baseUrl, out var baseUrlError))
+                        return ParseResult<DumpCliOptions>.Error(baseUrlError!);
+                    options.BaseUrl = baseUrl;
+                    break;
+                case "--base-url":
+                    return ParseResult<DumpCliOptions>.Error("--base-url is not supported by this dump command.");
+                case "--font":
+                    if (!TryReadValue(args, ref index, ref value, out var fontRegistration, out var fontError))
+                        return ParseResult<DumpCliOptions>.Error(fontError!);
+                    options.Fonts.Add(ParseFontRegistration(fontRegistration!));
+                    break;
+                case "--width":
+                case "-w":
+                    if (!TryReadInt(args, ref index, ref value, name, positiveOnly: true, out var width, out var widthError))
+                        return ParseResult<DumpCliOptions>.Error(widthError!);
+                    options.Width = width;
+                    break;
+                case "--height":
+                    if (!TryReadInt(args, ref index, ref value, name, positiveOnly: true, out var height, out var heightError))
+                        return ParseResult<DumpCliOptions>.Error(heightError!);
+                    options.Height = height;
+                    break;
+                case "--disable-network":
+                    options.DisableNetwork = true;
+                    break;
+                default:
+                    return ParseResult<DumpCliOptions>.Error($"Unknown argument: {argument}");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(options.InputPath) == string.IsNullOrWhiteSpace(options.Html))
+            return ParseResult<DumpCliOptions>.Error("Specify exactly one of --input or --html.");
+
+        return ParseResult<DumpCliOptions>.Success(options);
+    }
+
+    private static string ReadHtmlInput(DumpCliOptions options, out string? inputBaseUrl)
+    {
+        inputBaseUrl = null;
+        if (options.InputPath is null)
+            return options.Html!;
+
+        var inputPath = Path.GetFullPath(options.InputPath);
+        inputBaseUrl = new Uri(inputPath).AbsoluteUri;
+        return File.ReadAllText(inputPath);
+    }
+
+    private static HtmlContainer CreateLaidOutContainer(DumpCliOptions options)
+    {
+        foreach (var font in options.Fonts)
+        {
+            var fontPath = Path.GetFullPath(font.Path);
+            if (!File.Exists(fontPath))
+                throw new FileNotFoundException($"Font file not found: {fontPath}", fontPath);
+
+            HtmlRender.LoadFontFromFile(fontPath, font.Alias);
+        }
+
+        var html = ReadHtmlInput(options, out var inputBaseUrl);
+        var baseUrl = options.BaseUrl ?? inputBaseUrl;
+        var stylesheetLoad = options.DisableNetwork ? CreateNetworkBlockingStylesheetHandler(baseUrl) : null;
+        var imageLoad = options.DisableNetwork ? CreateNetworkBlockingImageHandler(baseUrl) : null;
+        var width = options.Width ?? DefaultWidth;
+        var height = options.Height ?? DefaultHeight;
+        var container = new HtmlContainer
+        {
+            AvoidAsyncImagesLoading = true,
+            AvoidImagesLateLoading = true,
+            Location = new PointF(0, 0),
+            MaxSize = new SizeF(width, height)
+        };
+
+        if (stylesheetLoad != null)
+            container.StylesheetLoad += stylesheetLoad;
+        if (imageLoad != null)
+            container.ImageLoad += imageLoad;
+
+        container.SetHtml(html, baseUrl: baseUrl);
+        container.PerformLayout(new RectangleF(0, 0, width, height));
+        return container;
+    }
+
+    private static void WriteDumpOutput(DumpCliOptions options, string json)
+    {
+        if (string.IsNullOrWhiteSpace(options.OutputPath))
+        {
+            Console.Out.Write(json);
+            return;
+        }
+
+        var outputPath = Path.GetFullPath(options.OutputPath);
+        Directory.CreateDirectory(Path.GetDirectoryName(outputPath) ?? Environment.CurrentDirectory);
+        File.WriteAllText(outputPath, json);
+        Console.Out.WriteLine($"Wrote dump to {outputPath}");
+    }
+
+    private static EventHandler<HtmlStylesheetLoadEventArgs> CreateNetworkBlockingStylesheetHandler(string? baseUrl) =>
+        (_, args) =>
+        {
+            if (IsNetworkResource(args.Src, baseUrl))
+                args.SetStyleSheet = string.Empty;
+        };
+
+    private static EventHandler<HtmlImageLoadEventArgs> CreateNetworkBlockingImageHandler(string? baseUrl) =>
+        (_, args) =>
+        {
+            if (IsNetworkResource(args.Src, args.BaseUri?.AbsoluteUri ?? baseUrl))
+                args.Callback();
+        };
+
+    private static bool IsNetworkResource(string? rawResource, string? baseUrl)
+    {
+        if (string.IsNullOrWhiteSpace(rawResource))
+            return false;
+
+        if (rawResource.StartsWith("data:", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        if (!Uri.TryCreate(rawResource, UriKind.RelativeOrAbsolute, out var uri))
+            return false;
+
+        if (!uri.IsAbsoluteUri && !string.IsNullOrWhiteSpace(baseUrl) &&
+            Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri))
+        {
+            uri = new Uri(baseUri, uri);
+        }
+
+        return uri.IsAbsoluteUri &&
+            (uri.Scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
+             uri.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool TryReadValue(string[] args, ref int index, ref string? currentValue, out string? value, out string? error)
@@ -481,16 +847,45 @@ internal static class HtmlImageRendererCli
         Usage:
           broiler-html-render [render] --input ./page.html --output ./page.png [--width 1280 --height 720]
           broiler-html-render compare --actual ./broiler.png --baseline ./chromium.png [--diff-output ./diff.png]
+          broiler-html-render dump-tokens --input ./page.html [--output ./tokens.json]
+          broiler-html-render dump-dom --input ./page.html [--output ./dom.json]
+          broiler-html-render dump-resources --input ./page.html [--output ./resources.json]
+          broiler-html-render dump-layout --input ./page.html [--output ./layout.json]
+          broiler-html-render dump-display-list --input ./page.html [--output ./display-list.json]
+          broiler-html-render dump-computed-style --input ./page.html [--output ./computed-style.json]
+          broiler-html-render dump-css --input ./style.css [--output ./css.json]
 
         Commands:
-          render   Render HTML to an image. This is the default command.
-          compare  Compare two rendered images and optionally emit a diff/report.
+          render       Render HTML to an image. This is the default command.
+          compare      Compare two rendered images and optionally emit a diff/report.
+          dump-tokens  Write tokenizer output as deterministic JSON.
+          dump-dom     Write parsed DOM/tree output as deterministic JSON.
+          dump-resources Write static resource URL classification as deterministic JSON.
+          dump-layout  Write laid-out fragment tree output as deterministic JSON.
+          dump-display-list Write paint display-list output as deterministic JSON.
+          dump-computed-style Write computed-style tree output as deterministic JSON.
+          dump-css     Write parsed stylesheet output as deterministic JSON.
 
         Render help:
         {{GetRenderHelpText()}}
 
         Compare help:
         {{GetCompareHelpText()}}
+
+        Dump help:
+        {{GetDumpTokensHelpText()}}
+
+        {{GetDumpDomHelpText()}}
+
+        {{GetDumpResourcesHelpText()}}
+
+        {{GetDumpLayoutHelpText()}}
+
+        {{GetDumpDisplayListHelpText()}}
+
+        {{GetDumpComputedStyleHelpText()}}
+
+        {{GetDumpCssHelpText()}}
         """;
 
     private static string GetRenderHelpText() =>
@@ -512,6 +907,7 @@ internal static class HtmlImageRendererCli
               --auto-size             Size the image to the rendered content instead of a fixed viewport.
               --max-width <px>        Maximum width used with --auto-size. 0 means unbounded.
               --max-height <px>       Maximum height used with --auto-size. 0 means unbounded.
+              --disable-network       Treat http/https stylesheets and images as unavailable.
           -q, --quality <1-100>       JPEG quality. Ignored for PNG. Defaults to 90.
           -h, --help                  Show help.
         """;
@@ -529,6 +925,111 @@ internal static class HtmlImageRendererCli
               --pixel-diff-threshold <n>   Match threshold from 0.0 to 1.0. Defaults to 0.01.
               --color-tolerance <n>        Per-channel color tolerance from 0 to 255. Defaults to 5.
           -h, --help                       Show help.
+        """;
+
+    private static string GetDumpTokensHelpText() =>
+        """
+        Usage:
+          broiler-html-render dump-tokens --input ./page.html [--output ./tokens.json]
+          broiler-html-render dump-tokens --html "<p>Hello</p>" [--output ./tokens.json]
+
+        Options:
+          -i, --input <path>    Read a local HTML file.
+          -s, --html <markup>   Read an inline HTML string.
+          -o, --output <path>   Optional JSON output path. Writes to stdout when omitted.
+          -h, --help            Show help.
+        """;
+
+    private static string GetDumpDomHelpText() =>
+        """
+        Usage:
+          broiler-html-render dump-dom --input ./page.html [--output ./dom.json]
+          broiler-html-render dump-dom --html "<p>Hello</p>" [--output ./dom.json]
+
+        Options:
+          -i, --input <path>    Read a local HTML file.
+          -s, --html <markup>   Read an inline HTML string.
+          -o, --output <path>   Optional JSON output path. Writes to stdout when omitted.
+              --base-url <url>  Base URL used for DOM parsing. Defaults to the input file URL or about:blank.
+          -h, --help            Show help.
+        """;
+
+    private static string GetDumpResourcesHelpText() =>
+        """
+        Usage:
+          broiler-html-render dump-resources --input ./page.html [--output ./resources.json]
+          broiler-html-render dump-resources --html "<img src=local.svg>" [--output ./resources.json]
+
+        Options:
+          -i, --input <path>    Read a local HTML file.
+          -s, --html <markup>   Read an inline HTML string.
+          -o, --output <path>   Optional JSON output path. Writes to stdout when omitted.
+              --base-url <url>  Base URL used for resource URL resolution. Defaults to the input file URL or about:blank.
+          -h, --help            Show help.
+        """;
+
+    private static string GetDumpLayoutHelpText() =>
+        """
+        Usage:
+          broiler-html-render dump-layout --input ./page.html [--output ./layout.json] [--width 800 --height 600]
+
+        Options:
+          -i, --input <path>          Read a local HTML file.
+          -s, --html <markup>         Read an inline HTML string.
+          -o, --output <path>         Optional JSON output path. Writes to stdout when omitted.
+              --base-url <url>        Base URL used for resource URL resolution. Defaults to the input file URL or about:blank.
+              --font [Alias=]<path>   Register a TTF/OTF font before layout. Repeat as needed.
+          -w, --width <pixels>        Layout viewport width. Defaults to 1024.
+              --height <pixels>       Layout viewport height. Defaults to 768.
+              --disable-network       Treat http/https stylesheets and images as unavailable.
+          -h, --help                  Show help.
+        """;
+
+    private static string GetDumpDisplayListHelpText() =>
+        """
+        Usage:
+          broiler-html-render dump-display-list --input ./page.html [--output ./display-list.json] [--width 800 --height 600]
+
+        Options:
+          -i, --input <path>          Read a local HTML file.
+          -s, --html <markup>         Read an inline HTML string.
+          -o, --output <path>         Optional JSON output path. Writes to stdout when omitted.
+              --base-url <url>        Base URL used for resource URL resolution. Defaults to the input file URL or about:blank.
+              --font [Alias=]<path>   Register a TTF/OTF font before layout. Repeat as needed.
+          -w, --width <pixels>        Layout viewport width. Defaults to 1024.
+              --height <pixels>       Layout viewport height. Defaults to 768.
+              --disable-network       Treat http/https stylesheets and images as unavailable.
+          -h, --help                  Show help.
+        """;
+
+    private static string GetDumpComputedStyleHelpText() =>
+        """
+        Usage:
+          broiler-html-render dump-computed-style --input ./page.html [--output ./computed-style.json] [--width 800 --height 600]
+
+        Options:
+          -i, --input <path>          Read a local HTML file.
+          -s, --html <markup>         Read an inline HTML string.
+          -o, --output <path>         Optional JSON output path. Writes to stdout when omitted.
+              --base-url <url>        Base URL used for resource URL resolution. Defaults to the input file URL or about:blank.
+              --font [Alias=]<path>   Register a TTF/OTF font before layout. Repeat as needed.
+          -w, --width <pixels>        Layout viewport width. Defaults to 1024.
+              --height <pixels>       Layout viewport height. Defaults to 768.
+              --disable-network       Treat http/https stylesheets and images as unavailable.
+          -h, --help                  Show help.
+        """;
+
+    private static string GetDumpCssHelpText() =>
+        """
+        Usage:
+          broiler-html-render dump-css --input ./style.css [--output ./css.json]
+          broiler-html-render dump-css --html "p { color: red }" [--output ./css.json]
+
+        Options:
+          -i, --input <path>    Read a local CSS file.
+          -s, --html <css>      Read an inline CSS string.
+          -o, --output <path>   Optional JSON output path. Writes to stdout when omitted.
+          -h, --help            Show help.
         """;
 
     private sealed class RenderCliOptions
@@ -556,6 +1057,8 @@ internal static class HtmlImageRendererCli
         public int Quality { get; set; } = 90;
 
         public bool AutoSize { get; set; }
+
+        public bool DisableNetwork { get; set; }
     }
 
     private sealed class CompareCliOptions
@@ -571,6 +1074,25 @@ internal static class HtmlImageRendererCli
         public double? PixelDiffThreshold { get; set; }
 
         public int? ColorTolerance { get; set; }
+    }
+
+    private sealed class DumpCliOptions
+    {
+        public string? InputPath { get; set; }
+
+        public string? Html { get; set; }
+
+        public string? OutputPath { get; set; }
+
+        public string? BaseUrl { get; set; }
+
+        public List<FontRegistration> Fonts { get; } = [];
+
+        public int? Width { get; set; }
+
+        public int? Height { get; set; }
+
+        public bool DisableNetwork { get; set; }
     }
 
     private sealed record FontRegistration(string Path, string? Alias);

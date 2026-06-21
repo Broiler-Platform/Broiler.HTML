@@ -1,0 +1,86 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "p",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Before",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "br",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "After",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "img",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "src": "pixel.png"
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

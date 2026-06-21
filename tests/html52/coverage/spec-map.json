@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "standard": {
+    "name": "HTML",
+    "version": "5.2",
+    "snapshotDate": "2017-12-14",
+    "url": "https://www.w3.org/TR/2017/REC-html52-20171214/"
+  },
+  "items": [
+    {
+      "featureId": "cluster-input-document-setup",
+      "title": "Input, encoding, and document setup",
+      "cluster": "input-document-setup",
+      "specSections": ["2.1.6", "2.5", "3.1", "8.1"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 80,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-tokenization-syntax",
+      "title": "Tokenization and HTML syntax states",
+      "cluster": "syntax",
+      "specSections": ["8.1", "8.2.4", "8.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 220,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-tree-construction",
+      "title": "Tree construction and error recovery",
+      "cluster": "tree-construction",
+      "specSections": ["8.2.5", "8.2.8"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 300,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-character-references-microsyntaxes",
+      "title": "Character references and common microsyntaxes",
+      "cluster": "microsyntaxes",
+      "specSections": ["2.4", "8.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 140,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-document-metadata",
+      "title": "Document metadata and resource discovery",
+      "cluster": "document-metadata",
+      "specSections": ["4.1", "4.2"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 90,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-element-default-rendering",
+      "title": "HTML element default rendering",
+      "cluster": "elements",
+      "specSections": ["4", "10.3", "10.4", "10.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 360,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-links-url-resolution",
+      "title": "Links, anchors, and URL resolution",
+      "cluster": "links",
+      "specSections": ["2.5", "4.6"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 80,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-embedded-replaced-content",
+      "title": "Embedded and replaced content",
+      "cluster": "embedded-content",
+      "specSections": ["4.7", "10.4"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 180,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-tables",
+      "title": "Tables",
+      "cluster": "tables",
+      "specSections": ["4.9", "10.3.9"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 160,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-forms-widgets",
+      "title": "Forms and widgets",
+      "cluster": "forms",
+      "specSections": ["4.10", "10.3.11", "10.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 240,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-user-interaction-static",
+      "title": "User interaction static states",
+      "cluster": "user-interaction",
+      "specSections": ["5", "10.5.3"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 100,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-css-required-by-html",
+      "title": "CSS required for competitive HTML rendering",
+      "cluster": "css",
+      "specSections": ["10.2", "10.3", "10.4", "10.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 500,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-text-fonts-i18n",
+      "title": "Text, fonts, and internationalization",
+      "cluster": "text-i18n",
+      "specSections": ["3.2.7", "4.5", "10.3.4", "10.3.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 260,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-painting-compositing",
+      "title": "Painting and compositing",
+      "cluster": "painting",
+      "specSections": ["10"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 260,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-xhtml-xml",
+      "title": "XHTML and XML syntax",
+      "cluster": "xhtml",
+      "specSections": ["9"],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "targetMinimum": 100,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-obsolete-legacy",
+      "title": "Obsolete and legacy compatibility",
+      "cluster": "obsolete",
+      "specSections": ["11", "10.5.11"],
+      "supportLevel": "legacy",
+      "status": "planned",
+      "targetMinimum": 160,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-stress-robustness-security",
+      "title": "Stress, robustness, and security",
+      "cluster": "stress",
+      "specSections": ["1.10", "2.1", "2.6"],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 150,
+      "tests": []
+    },
+    {
+      "featureId": "cluster-regression-fixtures",
+      "title": "Regression fixtures",
+      "cluster": "regressions",
+      "specSections": [],
+      "supportLevel": "required",
+      "status": "planned",
+      "targetMinimum": 0,
+      "tests": []
+    }
+  ]
+}

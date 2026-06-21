@@ -1,0 +1,32 @@
+.phase4-scroll {
+  overflow: clip;
+  overflow-clip-margin: content-box 10px;
+  line-clamp: 3;
+  block-ellipsis: "...";
+  continue: fragments;
+  max-lines: 3;
+  scroll-start-target: auto;
+  scroll-target-group: auto;
+  overscroll-behavior-inline: contain;
+  overscroll-behavior-block: none;
+}
+
+.phase4-columns {
+  columns: 4 12em;
+  column-span: all;
+  column-fill: balance-all;
+  column-wrap: nowrap;
+}
+
+.phase4-float {
+  float-reference: page;
+  float-defer: last;
+  float-offset: 1em;
+}
+
+.phase4-break {
+  break-before: recto;
+  break-after: verso;
+  break-inside: avoid-region;
+  box-decoration-break: clone;
+}

@@ -1,0 +1,143 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "meta",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "charset": "utf-8"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "p",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "title": "A&B"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "&lt;section&gt; &amp; &#169; &#x1F600; &notin; &nbsp; end",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "time",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "datetime": "2026-06-21T12:34:56+02:00"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "timestamp",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "data",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "value": "123.45"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "number",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

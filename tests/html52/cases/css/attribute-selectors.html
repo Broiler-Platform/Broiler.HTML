@@ -1,0 +1,15 @@
+<!doctype html>
+<style>
+  body { margin: 20px; background: #ffffff; font-family: Arial, sans-serif; }
+  .panel { width: 440px; padding: 12px; border: 3px solid #343a40; background: #f8f9fa; }
+  span { display: inline-block; width: 92px; height: 38px; margin: 6px; border: 2px solid #868e96; background: #e9ecef; text-align: center; line-height: 38px; }
+  span[data-kind] { border-color: #1971c2; }
+  span[data-kind="primary"] { background: #74c0fc; }
+  span[data-kind~="accent"] { color: #862e9c; font-weight: bold; }
+  span[lang|="en"] { outline: 3px solid #2b8a3e; }
+</style>
+<div class="panel">
+  <span data-kind="primary" lang="en-US">one</span>
+  <span data-kind="accent secondary">two</span>
+  <span>three</span>
+</div>

@@ -1,0 +1,19 @@
+@property --phase4-length {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --phase4-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: black;
+}
+
+.phase4-registered {
+  --phase4-length: clamp(1px, 2vw, 20px);
+  --phase4-color: color-mix(in srgb, red 40%, blue);
+  width: var(--phase4-length);
+  color: var(--phase4-color);
+  transition-property: --phase4-length, --phase4-color;
+}

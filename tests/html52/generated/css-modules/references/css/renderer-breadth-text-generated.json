@@ -1,0 +1,119 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {
+    "Phase3Variable": {
+      "styleset": {
+        "phase3-alt": [
+          1
+        ]
+      },
+      "swash": {
+        "phase3-swash": [
+          2
+        ]
+      }
+    }
+  },
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase3-generated::after": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "content": "leader(\u0022.\u0022) target-text(attr(href url))"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-generated::after",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1001
+        }
+      ],
+      ".phase3-generated::before": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "content": "target-counter(attr(href url), page)",
+            "quotes": "\u0022\u003C\u003C\u0022 \u0022\u003E\u003E\u0022"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-generated::before",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1001
+        }
+      ],
+      ".phase3-list": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "list-style-position": "inside",
+            "marker-side": "match-parent"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-list",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase3-text": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "font-family": "phase3variable",
+            "font-feature-settings": "\u0022liga\u0022 1, \u0022kern\u0022 1",
+            "font-optical-sizing": "auto",
+            "font-variant-alternates": "styleset(phase3-alt)",
+            "font-variation-settings": "\u0022wght\u0022 650",
+            "hanging-punctuation": "first",
+            "initial-letter": "2",
+            "line-height-step": "4px",
+            "text-decoration-line": "underline overline",
+            "text-decoration-style": "wavy",
+            "text-decoration-thickness": "from-font",
+            "text-emphasis": "filled sesame red",
+            "text-spacing": "trim-start",
+            "text-underline-offset": "0.2em",
+            "text-wrap": "balance"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-text",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ],
+      "ruby.phase3-ruby": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "ruby-align": "center",
+            "ruby-position": "over"
+          },
+          "pseudoClass": null,
+          "selector": "ruby.phase3-ruby",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1001
+        }
+      ]
+    }
+  }
+}

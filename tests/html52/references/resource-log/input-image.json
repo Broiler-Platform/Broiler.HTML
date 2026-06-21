@@ -1,0 +1,53 @@
+{
+  "BaseUrl": "file:input-image-resource-log.html",
+  "DocumentBaseUrl": "file:input-image-resource-log.html",
+  "Resources": [
+    {
+      "Index": 0,
+      "Element": "input",
+      "Attribute": "src",
+      "Role": "image-submit",
+      "Raw": "../../assets/svg/green-square.svg",
+      "Resource": "../../assets/svg/green-square.svg",
+      "Descriptor": null,
+      "Type": "image",
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/green-square.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/green-square.svg",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "logged-resource"
+    },
+    {
+      "Index": 1,
+      "Element": "input",
+      "Attribute": "src",
+      "Role": "image-submit",
+      "Raw": "../../assets/svg/no-submit.svg",
+      "Resource": "../../assets/svg/no-submit.svg",
+      "Descriptor": null,
+      "Type": "image",
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/no-submit.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-missing",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/no-submit.svg",
+      "Exists": false,
+      "LoadsNetwork": false,
+      "RendererDisposition": "unavailable"
+    }
+  ],
+  "Summary": {
+    "Total": 2,
+    "LocalFileExists": 1,
+    "LocalFileMissing": 1,
+    "DataUri": 0,
+    "RemoteNetworkBlocked": 0,
+    "Empty": 0,
+    "Unsupported": 0
+  }
+}

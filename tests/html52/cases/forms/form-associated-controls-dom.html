@@ -1,0 +1,11 @@
+<form id="profile" action="/submit" method="post">
+  <label for="first-name">First name</label>
+  <input id="first-name" name="first" value="Ada" required>
+  <fieldset disabled>
+    <legend>Preferences</legend>
+    <label><input type="checkbox" name="mail" checked> Mail updates</label>
+  </fieldset>
+  <button type="submit" formaction="/save" formmethod="post">Save</button>
+</form>
+<input form="profile" name="external" value="outside">
+<output form="profile" name="summary" for="first-name external">Ready</output>

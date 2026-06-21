@@ -1,0 +1,58 @@
+[
+  {
+    "type": "StartTag",
+    "name": "style",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Character",
+    "name": null,
+    "data": "p > a { color: red; }",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndTag",
+    "name": "style",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "StartTag",
+    "name": "p",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Character",
+    "name": null,
+    "data": "After",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndTag",
+    "name": "p",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Character",
+    "name": null,
+    "data": "\n",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndOfFile",
+    "name": null,
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  }
+]

@@ -1,0 +1,44 @@
+@layer phase4.reset, phase4.theme;
+
+@layer phase4.theme {
+  .phase4-layer {
+    color: revert-layer;
+  }
+}
+
+@scope (.phase4-scope) to (.phase4-boundary) {
+  .child {
+    color: green;
+  }
+}
+
+@when media(width >= 10px) {
+  .phase4-when {
+    color: blue;
+  }
+} @else {
+  .phase4-when {
+    color: gray;
+  }
+}
+
+@mixin --phase4-tone($tone: red) {
+  color: $tone;
+}
+
+.phase4-nesting {
+  color: red;
+
+  & > .child:is(:has(a), :nth-child(2 of .item)) {
+    color: blue;
+  }
+}
+
+:nth-child(2 of .phase4-item),
+:has(> .phase4-child) {
+  outline: 1px solid currentColor;
+}
+
+.phase4-sentinel {
+  color: purple;
+}

@@ -1,0 +1,28 @@
+.phase3-cross {
+  writing-mode: vertical-rl;
+  margin-inline-start: 2ch;
+  padding-block: 1rem;
+  display: grid;
+  align-items: center;
+  justify-content: end;
+  overflow: clip;
+  position: relative;
+  inset-inline-start: 1rem;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, red, blue);
+  background: linear-gradient(red, blue) padding-box;
+  background-clip: padding-box;
+  border-radius: 12px;
+  contain: paint style;
+  print-color-adjust: exact;
+}
+
+.phase3-cross::before {
+  content: attr(data-label);
+}
+
+.phase3-cross:has(.child) > .child:is(span, em) {
+  scroll-snap-align: center;
+  transform: translateY(2px);
+  filter: contrast(120%);
+}

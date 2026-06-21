@@ -1,0 +1,174 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    },
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    },
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {
+        "xml:lang": "en",
+        "xmlns": "http://www.w3.org/1999/xhtml"
+      },
+      "children": [
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "title",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "XHTML namespace fixture",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "p",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "id": "xhtml-p"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Namespaced XHTML-shaped document",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "br",
+              "text": null,
+              "isSingle": true,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "img",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "alt": "blue",
+                "src": "../../assets/svg/blue-rect.svg"
+              },
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        },
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    }
+  ]
+}

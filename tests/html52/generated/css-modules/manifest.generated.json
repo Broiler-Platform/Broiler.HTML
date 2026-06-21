@@ -1,0 +1,754 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "snapshotDate": "2026-06-21"
+  },
+  "cases": [
+    {
+      "id": "css-module-phase2-syntax-cascade-001",
+      "title": "Parse stable syntax, namespace, selector, cascade, variable, and conditional-rule CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase2-stable-core",
+      "featureId": "css-module-phase2-syntax-cascade",
+      "spec": [
+        {
+          "section": "CSS Syntax Level 3",
+          "url": "https://www.w3.org/TR/css-syntax-3/"
+        },
+        {
+          "section": "CSS Namespaces",
+          "url": "https://www.w3.org/TR/css-namespaces/"
+        },
+        {
+          "section": "Selectors Level 3/4",
+          "url": "https://www.w3.org/TR/selectors-4/"
+        },
+        {
+          "section": "CSS Cascading and Inheritance Level 3/4/5",
+          "url": "https://www.w3.org/TR/css-cascade-5/"
+        },
+        {
+          "section": "CSS Conditional Rules Level 3/4",
+          "url": "https://www.w3.org/TR/css-conditional-4/"
+        },
+        {
+          "section": "CSS Custom Properties for Cascading Variables Level 1",
+          "url": "https://www.w3.org/TR/css-variables-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/stable-core-syntax-cascade.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for stable syntax, selector, cascade, variable, and conditional-rule constructs."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/stable-core-syntax-cascade.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase2-values-color-timing-001",
+      "title": "Parse stable values, color, geometry-adjacent, media query, and easing CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase2-stable-core",
+      "featureId": "css-module-phase2-values-color-timing",
+      "spec": [
+        {
+          "section": "CSS Values and Units Level 3",
+          "url": "https://www.w3.org/TR/css-values-3/"
+        },
+        {
+          "section": "CSS Color Level 3/4",
+          "url": "https://www.w3.org/TR/css-color-4/"
+        },
+        {
+          "section": "Media Queries Level 3/4",
+          "url": "https://www.w3.org/TR/mediaqueries-4/"
+        },
+        {
+          "section": "CSS Easing Functions Level 1",
+          "url": "https://www.w3.org/TR/css-easing-1/"
+        },
+        {
+          "section": "Geometry Interfaces Level 1",
+          "url": "https://www.w3.org/TR/geometry-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/stable-core-values-color-timing.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for stable value, color, media-query, easing, and geometry-adjacent declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/stable-core-values-color-timing.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase2-box-layout-001",
+      "title": "Parse stable box, containment, display, flex, grid, multicol, fragmentation, and scrolling CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase2-stable-core",
+      "featureId": "css-module-phase2-box-layout",
+      "spec": [
+        {
+          "section": "CSS Level 2 Revision 1",
+          "url": "https://www.w3.org/TR/CSS2/"
+        },
+        {
+          "section": "CSS Box Model Level 3",
+          "url": "https://www.w3.org/TR/css-box-3/"
+        },
+        {
+          "section": "CSS Containment Level 1",
+          "url": "https://www.w3.org/TR/css-contain-1/"
+        },
+        {
+          "section": "CSS Display Level 3",
+          "url": "https://www.w3.org/TR/css-display-3/"
+        },
+        {
+          "section": "CSS Flexible Box Layout Level 1",
+          "url": "https://www.w3.org/TR/css-flexbox-1/"
+        },
+        {
+          "section": "CSS Grid Layout Level 1/2",
+          "url": "https://www.w3.org/TR/css-grid-2/"
+        },
+        {
+          "section": "CSS Multi-column Layout Level 1",
+          "url": "https://www.w3.org/TR/css-multicol-1/"
+        },
+        {
+          "section": "CSS Fragmentation Level 3",
+          "url": "https://www.w3.org/TR/css-break-3/"
+        },
+        {
+          "section": "CSS Scroll Snap Level 1",
+          "url": "https://www.w3.org/TR/css-scroll-snap-1/"
+        },
+        {
+          "section": "CSS Scrollbars Styling Level 1",
+          "url": "https://www.w3.org/TR/css-scrollbars-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/stable-core-box-layout.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for stable box, containment, layout, fragmentation, and scrolling declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/stable-core-box-layout.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase2-text-fonts-writing-001",
+      "title": "Parse stable font, text, text-decoration, and writing-mode CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase2-stable-core",
+      "featureId": "css-module-phase2-text-fonts-writing",
+      "spec": [
+        {
+          "section": "CSS Fonts Level 3",
+          "url": "https://www.w3.org/TR/css-fonts-3/"
+        },
+        {
+          "section": "CSS Text Level 3",
+          "url": "https://www.w3.org/TR/css-text-3/"
+        },
+        {
+          "section": "CSS Text Decoration Level 3",
+          "url": "https://www.w3.org/TR/css-text-decor-3/"
+        },
+        {
+          "section": "CSS Writing Modes Level 3/4",
+          "url": "https://www.w3.org/TR/css-writing-modes-4/"
+        }
+      ],
+      "input": "generated/css-modules/cases/stable-core-text-fonts-writing.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for stable font, text, text-decoration, and writing-mode declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/stable-core-text-fonts-writing.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase2-lists-counters-001",
+      "title": "Parse stable counter style and list generated-content CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase2-stable-core",
+      "featureId": "css-module-phase2-lists-counters",
+      "spec": [
+        {
+          "section": "CSS Counter Styles Level 3",
+          "url": "https://www.w3.org/TR/css-counter-styles-3/"
+        }
+      ],
+      "input": "generated/css-modules/cases/stable-core-lists-counters.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for stable counter style and list generated-content declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/stable-core-lists-counters.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase2-paint-effects-001",
+      "title": "Parse stable background, image, mask, shape, transform, compositing, and color-adjustment CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase2-stable-core",
+      "featureId": "css-module-phase2-paint-effects",
+      "spec": [
+        {
+          "section": "CSS Backgrounds and Borders Level 3",
+          "url": "https://www.w3.org/TR/css-backgrounds-3/"
+        },
+        {
+          "section": "CSS Images Level 3",
+          "url": "https://www.w3.org/TR/css-images-3/"
+        },
+        {
+          "section": "CSS Masking Level 1",
+          "url": "https://www.w3.org/TR/css-masking-1/"
+        },
+        {
+          "section": "CSS Shapes Level 1",
+          "url": "https://www.w3.org/TR/css-shapes-1/"
+        },
+        {
+          "section": "CSS Transforms Level 1",
+          "url": "https://www.w3.org/TR/css-transforms-1/"
+        },
+        {
+          "section": "Compositing and Blending Level 1",
+          "url": "https://www.w3.org/TR/compositing-1/"
+        },
+        {
+          "section": "CSS Will Change Level 1",
+          "url": "https://www.w3.org/TR/css-will-change-1/"
+        },
+        {
+          "section": "CSS Color Adjustment Level 1",
+          "url": "https://www.w3.org/TR/css-color-adjust-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/stable-core-paint-effects.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for stable paint, image, mask, shape, transform, compositing, will-change, and color-adjustment declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/stable-core-paint-effects.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase3-layout-breadth-001",
+      "title": "Parse renderer-breadth layout, overflow, logical, table, region, and round-display CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase3-renderer-breadth",
+      "featureId": "css-module-phase3-layout-breadth",
+      "spec": [
+        {
+          "section": "CSS Box Alignment Level 3",
+          "url": "https://www.w3.org/TR/css-align-3/"
+        },
+        {
+          "section": "CSS Box Sizing Level 3/4",
+          "url": "https://www.w3.org/TR/css-sizing-4/"
+        },
+        {
+          "section": "CSS Logical Properties and Values Level 1",
+          "url": "https://www.w3.org/TR/css-logical-1/"
+        },
+        {
+          "section": "CSS Containment Level 2",
+          "url": "https://www.w3.org/TR/css-contain-2/"
+        },
+        {
+          "section": "CSS Overflow Level 3/4",
+          "url": "https://www.w3.org/TR/css-overflow-4/"
+        },
+        {
+          "section": "CSS Positioned Layout Level 3",
+          "url": "https://www.w3.org/TR/css-position-3/"
+        },
+        {
+          "section": "CSS Table Level 3",
+          "url": "https://www.w3.org/TR/css-tables-3/"
+        },
+        {
+          "section": "CSS Regions",
+          "url": "https://www.w3.org/TR/css-regions-1/"
+        },
+        {
+          "section": "CSS Exclusions",
+          "url": "https://www.w3.org/TR/css3-exclusions/"
+        },
+        {
+          "section": "CSS Line Grid",
+          "url": "https://www.w3.org/TR/css-line-grid-1/"
+        },
+        {
+          "section": "CSS Round Display Level 1",
+          "url": "https://www.w3.org/TR/css-round-display-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/renderer-breadth-layout.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for renderer-breadth layout, overflow, logical, table, region, exclusion, line-grid, and round-display declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/renderer-breadth-layout.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase3-text-generated-001",
+      "title": "Parse renderer-breadth text, font, ruby, list, pseudo-element, and generated-content CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase3-renderer-breadth",
+      "featureId": "css-module-phase3-text-generated",
+      "spec": [
+        {
+          "section": "CSS Fonts Level 4",
+          "url": "https://www.w3.org/TR/css-fonts-4/"
+        },
+        {
+          "section": "CSS Text Level 4",
+          "url": "https://www.w3.org/TR/css-text-4/"
+        },
+        {
+          "section": "CSS Text Decoration Level 4",
+          "url": "https://www.w3.org/TR/css-text-decor-4/"
+        },
+        {
+          "section": "CSS Ruby Annotation Layout Level 1",
+          "url": "https://www.w3.org/TR/css-ruby-1/"
+        },
+        {
+          "section": "CSS Lists and Counters Level 3",
+          "url": "https://www.w3.org/TR/css-lists-3/"
+        },
+        {
+          "section": "CSS Generated Content for Paged Media",
+          "url": "https://www.w3.org/TR/css-gcpm-3/"
+        },
+        {
+          "section": "CSS Generated Content Level 3",
+          "url": "https://www.w3.org/TR/css-content-3/"
+        },
+        {
+          "section": "CSS Pseudo-Elements Level 4",
+          "url": "https://www.w3.org/TR/css-pseudo-4/"
+        },
+        {
+          "section": "CSS Shadow Parts",
+          "url": "https://www.w3.org/TR/css-shadow-parts-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/renderer-breadth-text-generated.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for renderer-breadth text, font, ruby, list, pseudo-element, shadow-part, and generated-content declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/renderer-breadth-text-generated.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase3-paint-effects-001",
+      "title": "Parse renderer-breadth image, mask, filter, shape, transform, compositing, border, and color CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase3-renderer-breadth",
+      "featureId": "css-module-phase3-paint-effects",
+      "spec": [
+        {
+          "section": "CSS Image Values and Replaced Content Level 4",
+          "url": "https://www.w3.org/TR/css-images-4/"
+        },
+        {
+          "section": "Filter Effects Level 1",
+          "url": "https://www.w3.org/TR/filter-effects-1/"
+        },
+        {
+          "section": "CSS Color Level 5",
+          "url": "https://www.w3.org/TR/css-color-5/"
+        },
+        {
+          "section": "CSS Transforms Level 2",
+          "url": "https://www.w3.org/TR/css-transforms-2/"
+        },
+        {
+          "section": "CSS Borders and Box Decorations Level 4",
+          "url": "https://www.w3.org/TR/css-borders-4/"
+        }
+      ],
+      "input": "generated/css-modules/cases/renderer-breadth-paint-effects.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for renderer-breadth image, mask, filter, shape, transform, compositing, border, and modern color declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/renderer-breadth-paint-effects.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase3-media-ui-001",
+      "title": "Parse renderer-breadth media query, paged media, viewport, supports, and UI CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase3-renderer-breadth",
+      "featureId": "css-module-phase3-media-ui",
+      "spec": [
+        {
+          "section": "Media Queries Level 5",
+          "url": "https://www.w3.org/TR/mediaqueries-5/"
+        },
+        {
+          "section": "CSS Paged Media Level 3",
+          "url": "https://www.w3.org/TR/css-page-3/"
+        },
+        {
+          "section": "CSS Viewport Level 1",
+          "url": "https://www.w3.org/TR/css-viewport-1/"
+        },
+        {
+          "section": "CSS Basic User Interface Level 4",
+          "url": "https://www.w3.org/TR/css-ui-4/"
+        }
+      ],
+      "input": "generated/css-modules/cases/renderer-breadth-media-ui.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for renderer-breadth media query, paged media, viewport, supports, and UI declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/renderer-breadth-media-ui.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase3-cross-module-001",
+      "title": "Parse cross-module CSS interactions for logical layout, grid alignment, overflow, text decoration, and paint clipping",
+      "cluster": "css-modules",
+      "subcluster": "phase3-renderer-breadth",
+      "featureId": "css-module-phase3-cross-module",
+      "spec": [
+        {
+          "section": "CSS Logical Properties and Values Level 1",
+          "url": "https://www.w3.org/TR/css-logical-1/"
+        },
+        {
+          "section": "CSS Grid Layout Level 3",
+          "url": "https://www.w3.org/TR/css-grid-3/"
+        },
+        {
+          "section": "CSS Box Alignment Level 3",
+          "url": "https://www.w3.org/TR/css-align-3/"
+        },
+        {
+          "section": "CSS Overflow Level 4",
+          "url": "https://www.w3.org/TR/css-overflow-4/"
+        },
+        {
+          "section": "CSS Text Decoration Level 4",
+          "url": "https://www.w3.org/TR/css-text-decor-4/"
+        },
+        {
+          "section": "CSS Backgrounds and Borders Level 3",
+          "url": "https://www.w3.org/TR/css-backgrounds-3/"
+        }
+      ],
+      "input": "generated/css-modules/cases/renderer-breadth-cross-module.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump for cross-module renderer interactions spanning logical properties, grid alignment, overflow, text decoration, and background clipping."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/renderer-breadth-cross-module.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-draft-syntax-cascade-001",
+      "title": "Parse draft syntax, scoping, selectors, cascade, conditional, and mixin CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase4-draft-early",
+      "featureId": "css-module-phase4-draft-syntax-cascade",
+      "spec": [
+        {
+          "section": "CSS Nesting",
+          "url": "https://www.w3.org/TR/css-nesting-1/"
+        },
+        {
+          "section": "CSS Cascading and Inheritance Level 6",
+          "url": "https://www.w3.org/TR/css-cascade-6/"
+        },
+        {
+          "section": "CSS Conditional Rules Level 5",
+          "url": "https://www.w3.org/TR/css-conditional-5/"
+        },
+        {
+          "section": "CSS Scoping Level 1",
+          "url": "https://www.w3.org/TR/css-scoping-1/"
+        },
+        {
+          "section": "Selectors Level 5",
+          "url": "https://www.w3.org/TR/selectors-5/"
+        },
+        {
+          "section": "CSS Functions and Mixins",
+          "url": "https://www.w3.org/TR/css-mixins-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/draft-syntax-cascade.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for draft syntax, scoping, selectors, cascade, conditional, and mixin constructs."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/draft-syntax-cascade.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-draft-properties-values-001",
+      "title": "Parse draft registered custom property CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase4-draft-early",
+      "featureId": "css-module-phase4-draft-properties-values",
+      "spec": [
+        {
+          "section": "CSS Properties and Values API Level 1",
+          "url": "https://www.w3.org/TR/css-properties-values-api-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/draft-properties-values.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for registered custom property declarations and uses."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/draft-properties-values.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-draft-layout-position-001",
+      "title": "Parse draft containment, anchor positioning, display, gap decoration, and positioning CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase4-draft-early",
+      "featureId": "css-module-phase4-draft-layout-position",
+      "spec": [
+        {
+          "section": "CSS Containment Level 3",
+          "url": "https://www.w3.org/TR/css-contain-3/"
+        },
+        {
+          "section": "CSS Anchor Positioning",
+          "url": "https://www.w3.org/TR/css-anchor-position-1/"
+        },
+        {
+          "section": "CSS Anchor Positioning Level 2",
+          "url": "https://www.w3.org/TR/css-anchor-position-2/"
+        },
+        {
+          "section": "CSS Display Level 4",
+          "url": "https://www.w3.org/TR/css-display-4/"
+        },
+        {
+          "section": "CSS Gap Decorations Level 1",
+          "url": "https://www.w3.org/TR/css-gaps-1/"
+        },
+        {
+          "section": "CSS Positioned Layout Level 4",
+          "url": "https://www.w3.org/TR/css-position-4/"
+        }
+      ],
+      "input": "generated/css-modules/cases/draft-layout-position.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for draft containment, anchor positioning, display, gap decoration, and positioned layout declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/draft-layout-position.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-draft-values-fonts-001",
+      "title": "Parse draft values, environment variables, easing, and font CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase4-draft-early",
+      "featureId": "css-module-phase4-draft-values-fonts",
+      "spec": [
+        {
+          "section": "CSS Values and Units Level 5",
+          "url": "https://www.w3.org/TR/css-values-5/"
+        },
+        {
+          "section": "CSS Environment Variables Level 1",
+          "url": "https://www.w3.org/TR/css-env-1/"
+        },
+        {
+          "section": "CSS Easing Functions Level 2",
+          "url": "https://www.w3.org/TR/css-easing-2/"
+        },
+        {
+          "section": "CSS Fonts Level 5",
+          "url": "https://www.w3.org/TR/css-fonts-5/"
+        }
+      ],
+      "input": "generated/css-modules/cases/draft-values-fonts.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for draft value functions, environment variables, easing functions, and font declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/draft-values-fonts.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-early-layout-scroll-001",
+      "title": "Parse early-draft scrolling, overflow, multicolumn, fragmentation, and page-float CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase4-draft-early",
+      "featureId": "css-module-phase4-early-layout-scroll",
+      "spec": [
+        {
+          "section": "CSS Scroll Snap Level 2",
+          "url": "https://www.w3.org/TR/css-scroll-snap-2/"
+        },
+        {
+          "section": "CSS Overflow Level 5",
+          "url": "https://www.w3.org/TR/css-overflow-5/"
+        },
+        {
+          "section": "CSS Multi-column Layout Level 2",
+          "url": "https://www.w3.org/TR/css-multicol-2/"
+        },
+        {
+          "section": "CSS Fragmentation Level 4",
+          "url": "https://www.w3.org/TR/css-break-4/"
+        },
+        {
+          "section": "CSS Overscroll Behavior Level 1",
+          "url": "https://www.w3.org/TR/css-overscroll-1/"
+        },
+        {
+          "section": "CSS Page Floats",
+          "url": "https://www.w3.org/TR/css-page-floats-3/"
+        }
+      ],
+      "input": "generated/css-modules/cases/early-layout-scroll.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for early-draft scrolling, overflow, multicolumn, fragmentation, overscroll, and page-float declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/early-layout-scroll.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-early-paint-color-001",
+      "title": "Parse early-draft background, fill/stroke, color HDR, image animation, and CSS2 preview paint CSS",
+      "cluster": "css-modules",
+      "subcluster": "phase4-draft-early",
+      "featureId": "css-module-phase4-early-paint-color",
+      "spec": [
+        {
+          "section": "CSS Backgrounds Level 4",
+          "url": "https://www.w3.org/TR/css-backgrounds-4/"
+        },
+        {
+          "section": "CSS Fill and Stroke Level 3",
+          "url": "https://www.w3.org/TR/fill-stroke-3/"
+        },
+        {
+          "section": "CSS Color HDR Level 1",
+          "url": "https://www.w3.org/TR/css-color-hdr-1/"
+        },
+        {
+          "section": "CSS Image Animation Level 1",
+          "url": "https://www.w3.org/TR/css-image-animation-1/"
+        },
+        {
+          "section": "Preview of CSS Level 2",
+          "url": "https://www.w3.org/TR/CSS22/"
+        }
+      ],
+      "input": "generated/css-modules/cases/early-paint-color.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for early-draft background, fill/stroke, color HDR, image animation, and CSS2 preview paint declarations."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/early-paint-color.json"
+      },
+      "requires": [
+        "css-parser"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    }
+  ]
+}

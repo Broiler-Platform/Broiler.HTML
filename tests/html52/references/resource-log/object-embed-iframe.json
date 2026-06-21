@@ -1,0 +1,72 @@
+{
+  "BaseUrl": "file:object-embed-iframe-resource-log.html",
+  "DocumentBaseUrl": "file:object-embed-iframe-resource-log.html",
+  "Resources": [
+    {
+      "Index": 0,
+      "Element": "object",
+      "Attribute": "data",
+      "Role": "object-data",
+      "Raw": "../../assets/svg/blue-rect.svg",
+      "Resource": "../../assets/svg/blue-rect.svg",
+      "Descriptor": null,
+      "Type": "image/svg\u002Bxml",
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/blue-rect.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/blue-rect.svg",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "loadable-object-image"
+    },
+    {
+      "Index": 1,
+      "Element": "embed",
+      "Attribute": "src",
+      "Role": "embedded-content",
+      "Raw": "../../assets/svg/red-circle.svg",
+      "Resource": "../../assets/svg/red-circle.svg",
+      "Descriptor": null,
+      "Type": "image/svg\u002Bxml",
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/red-circle.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/red-circle.svg",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "logged-resource"
+    },
+    {
+      "Index": 2,
+      "Element": "iframe",
+      "Attribute": "src",
+      "Role": "nested-document",
+      "Raw": "../../assets/html/frame-content.html",
+      "Resource": "../../assets/html/frame-content.html",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/html/frame-content.html",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "text/html",
+      "LocalPath": "../../assets/html/frame-content.html",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "static-iframe-placeholder"
+    }
+  ],
+  "Summary": {
+    "Total": 3,
+    "LocalFileExists": 3,
+    "LocalFileMissing": 0,
+    "DataUri": 0,
+    "RemoteNetworkBlocked": 0,
+    "Empty": 0,
+    "Unsupported": 0
+  }
+}

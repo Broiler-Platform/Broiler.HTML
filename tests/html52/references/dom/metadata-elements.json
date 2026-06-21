@@ -1,0 +1,262 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    },
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {
+        "lang": "en"
+      },
+      "children": [
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "meta",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "charset": "utf-8"
+              },
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "base",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "href": "https://example.test/docs/"
+              },
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "title",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Metadata fixture",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "meta",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "content": "width=device-width",
+                "name": "viewport"
+              },
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "link",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "href": "author.html",
+                "rel": "author"
+              },
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "link",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "href": "../assets/css/missing.css",
+                "rel": "stylesheet"
+              },
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "style",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "body { margin: 20px; font-family: Arial, sans-serif; }",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        },
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "p",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Metadata body",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        },
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    }
+  ]
+}

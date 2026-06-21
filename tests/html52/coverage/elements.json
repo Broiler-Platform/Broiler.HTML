@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "featureId": "elements-document-metadata",
+      "title": "Document and metadata elements",
+      "cluster": "document-metadata",
+      "specSections": ["4.1", "4.2"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["html", "head", "title", "base", "link", "meta", "style"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-sectioning",
+      "title": "Sectioning and heading elements",
+      "cluster": "elements",
+      "specSections": ["4.3"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["body", "article", "section", "nav", "aside", "h1", "h2", "h3", "h4", "h5", "h6", "header", "footer"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-grouping-content",
+      "title": "Grouping content elements",
+      "cluster": "elements",
+      "specSections": ["4.4"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["p", "address", "hr", "pre", "blockquote", "ol", "ul", "li", "dl", "dt", "dd", "figure", "figcaption", "main", "div"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-text-level-semantics",
+      "title": "Text-level semantic elements",
+      "cluster": "text-i18n",
+      "specSections": ["4.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["a", "em", "strong", "small", "s", "cite", "q", "dfn", "abbr", "ruby", "rb", "rt", "rtc", "rp", "data", "time", "code", "var", "samp", "kbd", "sub", "sup", "i", "b", "u", "mark", "bdi", "bdo", "span", "br", "wbr"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-edits",
+      "title": "Edit elements",
+      "cluster": "elements",
+      "specSections": ["4.6"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["ins", "del"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-embedded-content",
+      "title": "Embedded and replaced content elements",
+      "cluster": "embedded-content",
+      "specSections": ["4.7", "10.4"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["picture", "source", "img", "iframe", "embed", "object", "param", "video", "audio", "track", "map", "area", "math", "svg", "canvas"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-tabular-data",
+      "title": "Table elements",
+      "cluster": "tables",
+      "specSections": ["4.9", "10.3.9"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["table", "caption", "colgroup", "col", "tbody", "thead", "tfoot", "tr", "td", "th"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-forms",
+      "title": "Form and widget elements",
+      "cluster": "forms",
+      "specSections": ["4.10", "10.3.11", "10.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["form", "label", "input", "button", "select", "datalist", "optgroup", "option", "textarea", "output", "progress", "meter", "fieldset", "legend"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-interactive-static",
+      "title": "Interactive elements in static states",
+      "cluster": "user-interaction",
+      "specSections": ["4.11", "10.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["details", "summary", "dialog"],
+      "tests": []
+    },
+    {
+      "featureId": "elements-scripting-static",
+      "title": "Scripting-related elements without execution",
+      "cluster": "syntax",
+      "specSections": ["4.12"],
+      "supportLevel": "required",
+      "status": "planned",
+      "elements": ["script", "noscript", "template"],
+      "tests": []
+    }
+  ]
+}
