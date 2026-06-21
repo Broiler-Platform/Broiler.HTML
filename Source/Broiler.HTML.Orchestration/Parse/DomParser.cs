@@ -2,7 +2,6 @@ using System.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Broiler.HTML.CSS.Core.Dom;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom.Parse;
 using Broiler.HTML.Dom.Utils;
@@ -11,6 +10,7 @@ using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
+using Broiler.HTML.CSS.Dom;
 
 namespace Broiler.HTML.Orchestration.Parse;
 

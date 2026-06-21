@@ -4,7 +4,7 @@ using Broiler.HTML.Utils;
 using System;
 using System.Globalization;
 
-namespace Broiler.HTML.CSS.Core.Dom;
+namespace Broiler.HTML.CSS.Dom;
 
 internal sealed class CssLength
 {
