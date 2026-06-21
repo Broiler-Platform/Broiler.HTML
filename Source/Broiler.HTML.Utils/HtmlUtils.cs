@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net;
 
-namespace Broiler.HTML.Utils.Core.Utils;
+namespace Broiler.HTML.Utils;
 
 internal static class HtmlUtils
 {

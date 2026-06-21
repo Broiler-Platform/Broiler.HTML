@@ -1,4 +1,4 @@
-using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Utils;
 using System;
 using System.Collections.Generic;
 

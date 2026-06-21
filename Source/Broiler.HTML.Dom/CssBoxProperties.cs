@@ -5,7 +5,7 @@ using Broiler.HTML.Core.Core.IR;
 using Broiler.HTML.CSS.Core.Dom;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom.Utils;
-using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Utils;
 using System;
 using System.Drawing;
 using System.Globalization;

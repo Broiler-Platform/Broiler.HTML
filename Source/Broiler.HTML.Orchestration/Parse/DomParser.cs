@@ -7,10 +7,10 @@ using Broiler.HTML.Core.Core.IR;
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.CSS.Core.Dom;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.Utils.Core.Utils;
 using Broiler.HTML.Dom.Parse;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Dom;
+using Broiler.HTML.Utils;
 
 namespace Broiler.HTML.Orchestration.Parse;
 

@@ -6,10 +6,10 @@ using System.Threading;
 using System.Drawing;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Utils.Core.Utils;
 using Broiler.HTML.Adapters;
+using Broiler.HTML.Utils;
 
-namespace Broiler.HTML.Rendering.Core.Handlers;
+namespace Broiler.HTML.Rendering.Handlers;
 
 internal sealed class ImageLoadHandler : IImageLoadHandler
 {

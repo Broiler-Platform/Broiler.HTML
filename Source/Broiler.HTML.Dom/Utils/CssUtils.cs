@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Utils;
 
 namespace Broiler.HTML.Dom.Utils;
 

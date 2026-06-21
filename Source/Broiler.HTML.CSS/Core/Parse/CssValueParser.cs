@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Utils;
 
 namespace Broiler.HTML.CSS.Core.Parse;
 

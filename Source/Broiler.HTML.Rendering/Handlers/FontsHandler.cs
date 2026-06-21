@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace Broiler.HTML.Rendering.Core.Handlers;
+namespace Broiler.HTML.Rendering.Handlers;
 
 internal sealed class FontsHandler
 {

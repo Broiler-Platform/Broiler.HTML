@@ -5,8 +5,8 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Core\Utils\ImageError.png" />
-    <EmbeddedResource Include="Core\Utils\ImageLoad.png" />
+    <EmbeddedResource Include="Utils\ImageError.png" />
+    <EmbeddedResource Include="Utils\ImageLoad.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">

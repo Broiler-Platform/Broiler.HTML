@@ -18,7 +18,4 @@
     <ProjectReference Include="..\Broiler.HTML.Rendering\Broiler.HTML.Rendering.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Dom\Broiler.HTML.Dom.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Core\" />
-  </ItemGroup>
 </Project>

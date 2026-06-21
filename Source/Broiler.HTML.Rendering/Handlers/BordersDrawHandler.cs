@@ -2,10 +2,10 @@ using System.Drawing;
 using System;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Utils.Core.Utils;
 using Broiler.HTML.Adapters;
+using Broiler.HTML.Utils;
 
-namespace Broiler.HTML.Rendering.Core.Handlers;
+namespace Broiler.HTML.Rendering.Handlers;
 
 internal sealed class BordersDrawHandler : IBordersDrawHandler
 {

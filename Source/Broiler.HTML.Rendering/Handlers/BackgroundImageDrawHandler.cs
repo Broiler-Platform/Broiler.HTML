@@ -3,7 +3,7 @@ using Broiler.HTML.Core.Core;
 using System;
 using System.Drawing;
 
-namespace Broiler.HTML.Rendering.Core.Handlers;
+namespace Broiler.HTML.Rendering.Handlers;
 
 internal sealed class BackgroundImageDrawHandler : IBackgroundImageDrawHandler
 {

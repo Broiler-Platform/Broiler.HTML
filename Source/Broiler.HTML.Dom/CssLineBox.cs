@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Utils;
 
 namespace Broiler.HTML.Dom;
 

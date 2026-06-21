@@ -1,6 +1,6 @@
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.Core.Core.Entities;
-using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;

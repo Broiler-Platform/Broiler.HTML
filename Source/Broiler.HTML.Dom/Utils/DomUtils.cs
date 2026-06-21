@@ -4,7 +4,7 @@ using System.Text;
 using System.Drawing;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Utils;
 
 namespace Broiler.HTML.Dom.Utils;
 
