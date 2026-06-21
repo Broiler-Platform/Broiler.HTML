@@ -1,10 +1,9 @@
 using Broiler.HTML.Core.Core.Dom;
-using Broiler.HTML.CSS.Parse;
 using Broiler.HTML.Utils;
 using System;
 using System.Globalization;
 
-namespace Broiler.HTML.CSS.Dom;
+namespace Broiler.HTML.CSS;
 
 internal sealed class CssLength
 {

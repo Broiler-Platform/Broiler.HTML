@@ -10,7 +10,7 @@ using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
-using Broiler.HTML.CSS.Dom;
+using Broiler.HTML.CSS;
 
 namespace Broiler.HTML.Orchestration.Parse;
 

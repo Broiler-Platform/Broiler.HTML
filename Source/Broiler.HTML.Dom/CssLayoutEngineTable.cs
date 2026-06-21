@@ -4,8 +4,7 @@ using System.Drawing;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.Entities;
-using Broiler.HTML.CSS.Dom;
-using Broiler.HTML.CSS.Parse;
+using Broiler.HTML.CSS;
 using Broiler.HTML.Utils;
 
 namespace Broiler.HTML.Dom;

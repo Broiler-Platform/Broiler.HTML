@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.CSS.Parse;
+using Broiler.HTML.CSS;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Utils;
 

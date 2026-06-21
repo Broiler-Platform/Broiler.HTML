@@ -2,9 +2,8 @@
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.IR;
+using Broiler.HTML.CSS;
 using Broiler.HTML.CSS.Core.Parse;
-using Broiler.HTML.CSS.Dom;
-using Broiler.HTML.CSS.Parse;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Utils;
 using System;

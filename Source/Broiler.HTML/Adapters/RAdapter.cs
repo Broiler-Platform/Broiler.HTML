@@ -1,5 +1,5 @@
 using Broiler.HTML.Core;
-using Broiler.HTML.CSS.Core;
+using Broiler.HTML.CSS;
 using Broiler.HTML.Rendering.Handlers;
 using System;
 using System.Collections.Concurrent;

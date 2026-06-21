@@ -1,7 +1,7 @@
 using Broiler.HTML.Core;
 using Broiler.HTML.CSS.Core.Parse;
 
-namespace Broiler.HTML.CSS.Core;
+namespace Broiler.HTML.CSS;
 
 
 internal static class CssDataParser

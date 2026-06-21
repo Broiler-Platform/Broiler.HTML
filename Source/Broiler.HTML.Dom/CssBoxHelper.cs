@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Broiler.HTML.CSS.Parse;
+using Broiler.HTML.CSS;
 using Broiler.HTML.Utils;
 
 namespace Broiler.HTML.Dom;
