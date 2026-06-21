@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Core.Entities;
+using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Dom;
 using Broiler.HTML.Dom.Utils;
 

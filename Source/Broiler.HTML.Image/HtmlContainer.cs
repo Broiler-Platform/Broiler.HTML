@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core.IR;
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Primitives.Adapters.Entities;
 using Broiler.HTML.Dom;
 using Broiler.HTML.Orchestration;
+using Broiler.HTML.Core.Entities;
 
 namespace Broiler.HTML.Image;
 

@@ -1,6 +1,6 @@
 using System;
 
-namespace Broiler.HTML.Core.Core.Entities;
+namespace Broiler.HTML.Core.Entities;
 
 public sealed class HtmlLinkClickedException : Exception
 {

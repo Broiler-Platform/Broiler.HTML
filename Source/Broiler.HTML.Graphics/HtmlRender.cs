@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Core.Entities;
+using Broiler.HTML.Core.Entities;
 using Broiler.HTML.CSS.Core;
 using GraphicsBitmap = Broiler.Graphics.BBitmap;
 using GraphicsColor = Broiler.Graphics.BColor;

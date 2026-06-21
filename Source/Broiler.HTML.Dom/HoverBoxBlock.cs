@@ -1,4 +1,4 @@
-using Broiler.HTML.Core.Core.Entities;
+using Broiler.HTML.Core.Entities;
 
 namespace Broiler.HTML.Dom;
 

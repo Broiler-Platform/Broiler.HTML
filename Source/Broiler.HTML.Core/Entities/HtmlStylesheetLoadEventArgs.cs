@@ -1,7 +1,8 @@
+using Broiler.HTML.Core.Core;
 using System;
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Core.Core.Entities;
+namespace Broiler.HTML.Core.Entities;
 
 public sealed class HtmlStylesheetLoadEventArgs : EventArgs
 {

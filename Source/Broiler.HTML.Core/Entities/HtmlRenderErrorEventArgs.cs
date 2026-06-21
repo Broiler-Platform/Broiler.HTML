@@ -1,6 +1,6 @@
 using System;
 
-namespace Broiler.HTML.Core.Core.Entities;
+namespace Broiler.HTML.Core.Entities;
 
 public sealed class HtmlRenderErrorEventArgs(HtmlRenderErrorType type, string message, Exception exception = null) : EventArgs
 {

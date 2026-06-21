@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Core.Core.Entities;
+namespace Broiler.HTML.Core.Entities;
 
 /// <summary>
 /// Represents a CSS attribute selector condition like [type="text"] or [hidden].

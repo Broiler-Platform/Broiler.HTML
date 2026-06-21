@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Core.Core.Entities;
+namespace Broiler.HTML.Core.Entities;
 
 /// <summary>
 /// Represents a single keyframe stop inside a <c>@keyframes</c> rule.

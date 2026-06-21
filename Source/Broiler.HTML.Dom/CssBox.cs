@@ -1,6 +1,6 @@
 ﻿using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Core.Entities;
+using Broiler.HTML.Core.Entities;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Utils;

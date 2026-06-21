@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Core.Core.Entities;
+namespace Broiler.HTML.Core.Entities;
 
 /// <summary>
 /// Represents a parsed @font-face declaration with its font-family name
