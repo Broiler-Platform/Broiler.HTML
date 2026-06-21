@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using Broiler.HTML.Core.Core;
 using Broiler.HTML.Core.Core.Entities;
 
 namespace Broiler.HTML.Core.Core.IR;
@@ -71,15 +70,14 @@ public static class CssDataJsonDumper
     }
 
     private static List<object?> WriteKeyframes(CssKeyframeRule rule) =>
-        rule.Stops
+        [.. rule.Stops
             .OrderBy(static stop => stop.Offset)
             .Select(static stop => new SortedDictionary<string, object?>(StringComparer.Ordinal)
             {
                 ["offset"] = Math.Round(stop.Offset, 4),
                 ["properties"] = SortProperties(stop.Properties)
             })
-            .Cast<object?>()
-            .ToList();
+            .Cast<object?>()];
 
     private static SortedDictionary<string, object?> WriteMediaBlocks(Dictionary<string, List<CssBlock>> blocks)
     {

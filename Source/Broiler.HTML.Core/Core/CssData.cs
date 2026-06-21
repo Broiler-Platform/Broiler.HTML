@@ -13,7 +13,7 @@ public sealed class CssData
     internal CssData() => _mediaBlocks.Add("all", new Dictionary<string, List<CssBlock>>(StringComparer.InvariantCultureIgnoreCase));
 
     /// <summary>Parsed @font-face rules from the stylesheet.</summary>
-    public List<CssFontFace> FontFaces { get; } = new();
+    public List<CssFontFace> FontFaces { get; } = [];
 
     /// <summary>Parsed @keyframes rules from the stylesheet, keyed by animation name.</summary>
     public Dictionary<string, CssKeyframeRule> Keyframes { get; } = new(StringComparer.OrdinalIgnoreCase);

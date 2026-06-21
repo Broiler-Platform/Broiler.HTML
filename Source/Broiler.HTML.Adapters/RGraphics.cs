@@ -8,7 +8,6 @@ public abstract class RGraphics : IDisposable
 {
     protected readonly IResourceFactory _adapter;
     protected readonly Stack<RectangleF> _clipStack = new();
-    private readonly Stack<RectangleF> _suspendedClips = new();
 
     protected RGraphics(IResourceFactory adapter, RectangleF initialClip)
     {

@@ -22,7 +22,7 @@ internal sealed class CssLength
             return;
 
         //If percentage, use ParseNumber
-        if (length.EndsWith("%"))
+        if (length.EndsWith('%'))
         {
             _number = CssValueParser.ParseNumber(length, 1);
             IsPercentage = true;
@@ -32,7 +32,7 @@ internal sealed class CssLength
         //If no units, has error
         if (length.Length < 3)
         {
-            double.TryParse(length, out _number);
+            _ = double.TryParse(length, out _number);
             HasError = true;
             return;
         }
@@ -45,7 +45,7 @@ internal sealed class CssLength
             {
                 Unit = CssUnit.Vmin;
                 IsRelative = true;
-                string vmNumber = length.Substring(0, length.Length - 4);
+                string vmNumber = length[..^4];
                 if (!double.TryParse(vmNumber, NumberStyles.Number, NumberFormatInfo.InvariantInfo, out _number))
                     HasError = true;
                 return;
@@ -54,7 +54,7 @@ internal sealed class CssLength
             {
                 Unit = CssUnit.Vmax;
                 IsRelative = true;
-                string vmNumber = length.Substring(0, length.Length - 4);
+                string vmNumber = length[..^4];
                 if (!double.TryParse(vmNumber, NumberStyles.Number, NumberFormatInfo.InvariantInfo, out _number))
                     HasError = true;
                 return;
@@ -66,7 +66,7 @@ internal sealed class CssLength
         {
             Unit = CssUnit.Rem;
             IsRelative = true;
-            string remNumber = length.Substring(0, length.Length - 3);
+            string remNumber = length[..^3];
             if (!double.TryParse(remNumber, NumberStyles.Number, NumberFormatInfo.InvariantInfo, out _number))
                 HasError = true;
             return;
@@ -76,7 +76,7 @@ internal sealed class CssLength
         string u = length.Substring(length.Length - 2, 2);
 
         //Number of the length
-        string number = length.Substring(0, length.Length - 2);
+        string number = length[..^2];
 
         //TODO: Units behave different in paper and in screen!
         switch (u)

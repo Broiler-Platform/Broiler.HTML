@@ -7,7 +7,7 @@ using Broiler.HTML.Orchestration.Core;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Dom.Core.Dom;
 
-namespace Broiler.HTML.Core.Handlers;
+namespace Broiler.HTML.Core;
 
 internal sealed class ContextMenuHandler : IDisposable
 {

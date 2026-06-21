@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Drawing;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using Broiler.HTML.Utils.Core.Utils;
 namespace Broiler.HTML.CSS.Core.Parse;
 
 
-internal sealed class CssParser
+internal sealed partial class CssParser
 {
     private static readonly char[] _cssBlockSplitters = ['}', ';'];
     private readonly IColorResolver _colorResolver;
@@ -44,19 +45,19 @@ internal sealed class CssParser
 
     public void ParseStyleSheet(CssData cssData, string stylesheet)
     {
-        if (!string.IsNullOrEmpty(stylesheet))
-        {
-            _sourceOrder = 0;
-            stylesheet = RemoveStylesheetComments(stylesheet);
+        if (string.IsNullOrEmpty(stylesheet))
+            return;
 
-            // Parse @font-face first so that font-family declarations in the
-            // style blocks can recognise custom (web-font) family names.
-            ParseFontFaceBlocks(cssData, stylesheet);
-            ParseFontFeatureValuesBlocks(cssData, stylesheet);
-            ParseStyleBlocks(cssData, StripAtRules(stylesheet));
-            ParseMediaStyleBlocks(cssData, stylesheet);
-            ParseKeyframeBlocks(cssData, stylesheet);
-        }
+        _sourceOrder = 0;
+        stylesheet = RemoveStylesheetComments(stylesheet);
+
+        // Parse @font-face first so that font-family declarations in the
+        // style blocks can recognise custom (web-font) family names.
+        ParseFontFaceBlocks(cssData, stylesheet);
+        ParseFontFeatureValuesBlocks(cssData, stylesheet);
+        ParseStyleBlocks(cssData, StripAtRules(stylesheet));
+        ParseMediaStyleBlocks(cssData, stylesheet);
+        ParseKeyframeBlocks(cssData, stylesheet);
     }
 
     public CssBlock ParseCssBlock(string className, string blockSource) => ParseCssBlockImp(className, blockSource);
@@ -261,11 +262,11 @@ internal sealed class CssParser
 
             string line = types[0].Value;
 
-            if (!line.StartsWith("@media", StringComparison.InvariantCultureIgnoreCase) || !line.EndsWith("{"))
+            if (!line.StartsWith("@media", StringComparison.InvariantCultureIgnoreCase) || !line.EndsWith('{'))
                 continue;
 
             //Get specified media types in the at-rule
-            string[] media = line.Substring(6, line.Length - 7).Split(' ');
+            string[] media = line[6..^1].Split(' ');
 
             //Scan media types
             foreach (string t in media)
@@ -322,8 +323,8 @@ internal sealed class CssParser
                 if (colon < 0)
                     continue;
 
-                string name = decl.Substring(0, colon).Trim().ToLowerInvariant();
-                string value = decl.Substring(colon + 1).Trim();
+                string name = decl[..colon].Trim().ToLowerInvariant();
+                string value = decl[(colon + 1)..].Trim();
 
                 if (name == "font-family")
                 {
@@ -338,7 +339,7 @@ internal sealed class CssParser
                         int pathEnd = value.IndexOf(')', pathStart);
                         if (pathEnd > pathStart)
                         {
-                            src = value.Substring(pathStart, pathEnd - pathStart).Trim('"', '\'', ' ');
+                            src = value[pathStart..pathEnd].Trim('"', '\'', ' ');
                         }
                     }
                 }
@@ -364,7 +365,7 @@ internal sealed class CssParser
     /// case-insensitive; value names are case-sensitive per CSS Fonts.  Repeated
     /// rules/values for the same family accumulate (later wins).
     /// </summary>
-    private void ParseFontFeatureValuesBlocks(CssData cssData, string stylesheet)
+    private static void ParseFontFeatureValuesBlocks(CssData cssData, string stylesheet)
     {
         const string keyword = "@font-feature-values";
         int startIdx = 0;
@@ -380,7 +381,7 @@ internal sealed class CssParser
             if (braceOpen < 0 || braceClose <= braceOpen)
                 continue;
 
-            string header = atrule.Substring(keyword.Length, braceOpen - keyword.Length).Trim();
+            string header = atrule[keyword.Length..braceOpen].Trim();
             string body = atrule.Substring(braceOpen + 1, braceClose - braceOpen - 1);
 
             foreach (var rawFamily in header.Split(','))
@@ -417,14 +418,14 @@ internal sealed class CssParser
                         int colon = decl.IndexOf(':');
                         if (colon < 0)
                             continue;
-                        string name = UnescapeIdentifier(decl.Substring(0, colon).Trim());
-                        var parts = decl.Substring(colon + 1).Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+                        string name = UnescapeIdentifier(decl[..colon].Trim());
+                        var parts = decl[(colon + 1)..].Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
                         var values = new List<int>(parts.Length);
                         foreach (var part in parts)
                             if (int.TryParse(part, out int v))
                                 values.Add(v);
                         if (name.Length > 0 && values.Count > 0)
-                            nameMap[name] = values.ToArray();
+                            nameMap[name] = [.. values];
                     }
 
                     i = close + 1;
@@ -454,7 +455,7 @@ internal sealed class CssParser
         if (string.IsNullOrEmpty(s) || s.IndexOf('\\') < 0)
             return s ?? string.Empty;
 
-        var sb = new System.Text.StringBuilder(s.Length);
+        var sb = new StringBuilder(s.Length);
         int i = 0;
         while (i < s.Length)
         {
@@ -517,7 +518,7 @@ internal sealed class CssParser
             if (braceOpen < 0 || nameStart >= braceOpen)
                 continue;
 
-            string animName = atrule.Substring(nameStart, braceOpen - nameStart).Trim().Trim('"', '\'');
+            string animName = atrule[nameStart..braceOpen].Trim().Trim('"', '\'');
             if (string.IsNullOrEmpty(animName))
                 continue;
 
@@ -558,7 +559,7 @@ internal sealed class CssParser
                 break;
 
             // The selector part before '{' contains the offset(s)
-            string selector = body.Substring(pos, openBrace - pos).Trim();
+            string selector = body[pos..openBrace].Trim();
 
             // Find the matching '}'
             int closeBrace = body.IndexOf('}', openBrace + 1);
@@ -583,8 +584,8 @@ internal sealed class CssParser
                         offset = 1.0;
                     else if (trimmed.EndsWith('%') && double.TryParse(
                         trimmed.AsSpan(0, trimmed.Length - 1),
-                        System.Globalization.NumberStyles.Float,
-                        System.Globalization.CultureInfo.InvariantCulture,
+                        NumberStyles.Float,
+                        CultureInfo.InvariantCulture,
                         out double pct))
                         offset = pct / 100.0;
                     else
@@ -611,7 +612,7 @@ internal sealed class CssParser
             return;
 
         string blockSource = block.Substring(startIdx + 1, endIdx - startIdx - 1);
-        var classes = block.Substring(0, startIdx).Split(',');
+        var classes = block[..startIdx].Split(',');
 
         foreach (string cls in classes)
         {
@@ -756,7 +757,7 @@ internal sealed class CssParser
         if (backslash < 0)
             return input;
 
-        var sb = new System.Text.StringBuilder(input.Length);
+        var sb = new StringBuilder(input.Length);
         int i = 0;
         while (i < input.Length)
         {
@@ -765,7 +766,7 @@ internal sealed class CssParser
                 i++;
                 if (IsHexDigit(input[i]))
                 {
-                    var hex = new System.Text.StringBuilder(6);
+                    var hex = new StringBuilder(6);
                     while (i < input.Length && IsHexDigit(input[i]) && hex.Length < 6)
                     {
                         hex.Append(input[i]);
@@ -775,7 +776,7 @@ internal sealed class CssParser
                     if (i < input.Length && (input[i] == ' ' || input[i] == '\t' || input[i] == '\n'
                         || input[i] == '\r' || input[i] == '\f'))
                         i++;
-                    int codePoint = int.Parse(hex.ToString(), System.Globalization.NumberStyles.HexNumber);
+                    int codePoint = int.Parse(hex.ToString(), NumberStyles.HexNumber);
                     if (codePoint > 0 && codePoint <= 0x10FFFF)
                         sb.Append(char.ConvertFromUtf32(codePoint));
                 }
@@ -825,8 +826,7 @@ internal sealed class CssParser
         // Strip attribute selectors: convert [class~=value] to .value,
         // and extract other attribute selectors as conditions.  This enables
         // CSS2.1 §5.8.1 attribute selectors used in the Acid2 test.
-        List<CssAttributeCondition> attrConditions = null;
-        className = StripAttributeSelectors(className, out attrConditions);
+        className = StripAttributeSelectors(className, out List<CssAttributeCondition> attrConditions);
         if (string.IsNullOrEmpty(className))
             return null;
 
@@ -834,29 +834,27 @@ internal sealed class CssParser
         // :last-child) that may appear anywhere in the selector chain.
         // Extract the pseudo-class and rewrite the selector so the rest of
         // the parsing pipeline handles it correctly.
-        string structuralPseudo = null;
-        bool structuralOnTerminal = false;
-        className = StripStructuralPseudoClasses(className, out structuralPseudo, out structuralOnTerminal);
+        className = StripStructuralPseudoClasses(className, out string structuralPseudo, out bool structuralOnTerminal);
         if (string.IsNullOrEmpty(className))
             return null;
 
         string psedoClass = null;
         string pseudoElement = null;
         bool descendantCombinatorBeforePseudo = false;
-        var colonIdx = className.IndexOf(":", StringComparison.Ordinal);
+        var colonIdx = className.IndexOf(':');
 
         if (colonIdx > -1 && !className.StartsWith("::"))
         {
-            var suffix = colonIdx < className.Length - 1 ? className.Substring(colonIdx + 1).Trim() : null;
+            var suffix = colonIdx < className.Length - 1 ? className[(colonIdx + 1)..].Trim() : null;
 
             // CSS2.1 §5.12: Detect whether a descendant combinator (whitespace)
             // precedes the pseudo-element.  ".nose div :after" (with space) means
             // "the ::after pseudo of *descendants* of .nose div", whereas
             // ".nose div:after" (no space) means "::after on .nose div elements
             // themselves".
-            var rawSelector = className.Substring(0, colonIdx);
+            var rawSelector = className[..colonIdx];
             descendantCombinatorBeforePseudo = rawSelector.Length > 0 &&
-                char.IsWhiteSpace(rawSelector[rawSelector.Length - 1]);
+                char.IsWhiteSpace(rawSelector[^1]);
             className = rawSelector.Trim();
 
             // CSS2.1 §12.1 / CSS3: Normalise :before/:after and ::before/::after
@@ -962,15 +960,15 @@ internal sealed class CssParser
         int nameStart = colonIdx + 1;
         int nameEnd = FindPseudoClassEnd(selector, nameStart);
 
-        string pseudoName = selector.Substring(nameStart, nameEnd - nameStart);
+        string pseudoName = selector[nameStart..nameEnd];
 
         if (!IsStructuralPseudoClass(pseudoName))
             return selector; // not structural — leave unchanged for existing handling
 
         pseudo = pseudoName;
 
-        string before = selector.Substring(0, colonIdx).TrimEnd();
-        string after = selector.Substring(nameEnd).TrimStart();
+        string before = selector[..colonIdx].TrimEnd();
+        string after = selector[nameEnd..].TrimStart();
 
         if (before.Length == 0)
         {
@@ -1125,13 +1123,13 @@ internal sealed class CssParser
             }
             else if (firstClass != null)
             {
-                selectors.Add(new CssBlockSelectorItem(className.Substring(0, endIdx + 1), directParent, adjacentSibling));
+                selectors.Add(new CssBlockSelectorItem(className[..(endIdx + 1)], directParent, adjacentSibling));
             }
 
             endIdx = startIdx;
         }
 
-        firstClass = firstClass ?? className;
+        firstClass ??= className;
         return selectors;
     }
 
@@ -1165,11 +1163,11 @@ internal sealed class CssParser
             if (splitIdx > -1)
             {
                 //Extract property name and value
-                startIdx = startIdx + (blockSource[startIdx] == ' ' ? 1 : 0);
+                startIdx += (blockSource[startIdx] == ' ' ? 1 : 0);
                 var adjEndIdx = endIdx - (blockSource[endIdx] == ' ' || blockSource[endIdx] == ';' ? 1 : 0);
-                string propName = blockSource.Substring(startIdx, splitIdx - startIdx).Trim().ToLower();
+                string propName = blockSource[startIdx..splitIdx].Trim().ToLower();
 
-                splitIdx = splitIdx + (blockSource[splitIdx + 1] == ' ' ? 2 : 1);
+                splitIdx += (blockSource[splitIdx + 1] == ' ' ? 2 : 1);
 
                 if (adjEndIdx >= splitIdx)
                 {
@@ -1204,10 +1202,10 @@ internal sealed class CssParser
         int bangIdx = propValue.IndexOf('!');
         if (bangIdx >= 0)
         {
-            var afterBang = propValue.Substring(bangIdx + 1).Trim();
+            var afterBang = propValue[(bangIdx + 1)..].Trim();
             if (afterBang.Equals("important", StringComparison.OrdinalIgnoreCase))
             {
-                propValue = propValue.Substring(0, bangIdx).Trim();
+                propValue = propValue[..bangIdx].Trim();
                 isImportant = true;
             }
             else
@@ -1215,7 +1213,7 @@ internal sealed class CssParser
         }
 
         if (!propName.StartsWith("--", StringComparison.Ordinal)
-            && propValue.IndexOf("var(", StringComparison.OrdinalIgnoreCase) >= 0)
+            && propValue.Contains("var(", StringComparison.OrdinalIgnoreCase))
         {
             propValue = ResolveKnownCustomProperties(propValue, properties);
         }
@@ -1596,9 +1594,7 @@ internal sealed class CssParser
         propValue.Equals("max-content", StringComparison.OrdinalIgnoreCase) ||
         propValue.Equals("fit-content", StringComparison.OrdinalIgnoreCase);
 
-    private static readonly Regex LengthAttrFunctionPattern = new(
-        @"attr\(\s*(?<name>[A-Za-z_][A-Za-z0-9_-]*)\s+type\(\s*<length>\s*\)\s*(?:,\s*(?<fallback>[^)]+?))?\s*\)",
-        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex LengthAttrFunctionPattern = CssRegex();
 
     private static bool IsValidAttrLengthExpression(string propValue)
     {
@@ -1682,8 +1678,8 @@ internal sealed class CssParser
             }
             if (closed)
             {
-                image = remaining.Substring(urlStart, urlEnd - urlStart);
-                remaining = remaining.Substring(0, urlStart) + remaining.Substring(urlEnd);
+                image = remaining[urlStart..urlEnd];
+                remaining = string.Concat(remaining.AsSpan(0, urlStart), remaining.AsSpan(urlEnd));
             }
         }
 
@@ -1722,7 +1718,7 @@ internal sealed class CssParser
                 if (t.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
                     t.Equals("cover", StringComparison.OrdinalIgnoreCase) ||
                     t.Equals("contain", StringComparison.OrdinalIgnoreCase) ||
-                    CssValueParser.IsValidLength(t) || t.EndsWith("%"))
+                    CssValueParser.IsValidLength(t) || t.EndsWith('%'))
                 {
                     sizeParts.Add(t.ToLowerInvariant());
                     continue;
@@ -1778,7 +1774,7 @@ internal sealed class CssParser
             }
 
             // Length or percentage (position value)
-            if (CssValueParser.IsValidLength(t) || t.EndsWith("%"))
+            if (CssValueParser.IsValidLength(t) || t.EndsWith('%'))
             {
                 positionParts.Add(t);
                 continue;
@@ -1919,8 +1915,8 @@ internal sealed class CssParser
                     }
                     if (closed)
                     {
-                        layerImage = layerStr.Substring(urlStart, urlEnd - urlStart);
-                        layerStr = layerStr.Substring(0, urlStart) + layerStr.Substring(urlEnd);
+                        layerImage = layerStr[urlStart..urlEnd];
+                        layerStr = string.Concat(layerStr.AsSpan(0, urlStart), layerStr.AsSpan(urlEnd));
                     }
                 }
             }
@@ -1944,7 +1940,7 @@ internal sealed class CssParser
                     if (t.Equals("auto", StringComparison.OrdinalIgnoreCase) ||
                         t.Equals("cover", StringComparison.OrdinalIgnoreCase) ||
                         t.Equals("contain", StringComparison.OrdinalIgnoreCase) ||
-                        CssValueParser.IsValidLength(t) || t.EndsWith("%"))
+                        CssValueParser.IsValidLength(t) || t.EndsWith('%'))
                     {
                         layerSize.Add(t.ToLowerInvariant());
                         continue;
@@ -1992,7 +1988,7 @@ internal sealed class CssParser
                     continue;
                 }
 
-                if (CssValueParser.IsValidLength(t) || t.EndsWith("%"))
+                if (CssValueParser.IsValidLength(t) || t.EndsWith('%'))
                 {
                     layerPosition.Add(t);
                     continue;
@@ -2112,8 +2108,8 @@ internal sealed class CssParser
                     delay ??= lower;
             }
             // Numeric iteration count
-            else if (double.TryParse(lower, System.Globalization.NumberStyles.Float,
-                         System.Globalization.CultureInfo.InvariantCulture, out _))
+            else if (double.TryParse(lower, NumberStyles.Float,
+                         CultureInfo.InvariantCulture, out _))
             {
                 iterationCount ??= lower;
             }
@@ -2149,12 +2145,12 @@ internal sealed class CssParser
     {
         if (value.EndsWith("ms"))
             return double.TryParse(value.AsSpan(0, value.Length - 2),
-                System.Globalization.NumberStyles.Float,
-                System.Globalization.CultureInfo.InvariantCulture, out _);
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture, out _);
         if (value.EndsWith('s'))
             return double.TryParse(value.AsSpan(0, value.Length - 1),
-                System.Globalization.NumberStyles.Float,
-                System.Globalization.CultureInfo.InvariantCulture, out _);
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture, out _);
         return false;
     }
 
@@ -2165,7 +2161,7 @@ internal sealed class CssParser
     private static string[] SplitAnimationTokens(string value)
     {
         var parts = new List<string>();
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         int depth = 0;
         foreach (char c in value)
         {
@@ -2187,7 +2183,7 @@ internal sealed class CssParser
         }
         if (sb.Length > 0)
             parts.Add(sb.ToString());
-        return parts.ToArray();
+        return [.. parts];
     }
 
     /// <summary>
@@ -2198,7 +2194,7 @@ internal sealed class CssParser
     private static string[] SplitBackgroundTokens(string value)
     {
         var parts = new List<string>();
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         int depth = 0;
         foreach (char c in value)
         {
@@ -2220,7 +2216,7 @@ internal sealed class CssParser
         }
         if (sb.Length > 0)
             parts.Add(sb.ToString());
-        return parts.ToArray();
+        return [.. parts];
     }
 
     /// <summary>
@@ -2264,7 +2260,7 @@ internal sealed class CssParser
 
             if (closed)
             {
-                string func = remaining.Substring(start, end - start);
+                string func = remaining[start..end];
                 remaining = remaining.Remove(start, end - start);
                 return func;
             }
@@ -2287,7 +2283,7 @@ internal sealed class CssParser
         int openParen = gradientFunc.IndexOf('(');
         if (openParen < 0) return null;
 
-        string inner = gradientFunc.Substring(openParen + 1).TrimEnd(')').Trim();
+        string inner = gradientFunc[(openParen + 1)..].TrimEnd(')').Trim();
         if (string.IsNullOrEmpty(inner)) return null;
 
         // Split on top-level commas (respecting nested parentheses like rgb()).
@@ -2333,7 +2329,7 @@ internal sealed class CssParser
         int openParen = gradientFunc.IndexOf('(');
         if (openParen < 0) return null;
 
-        string inner = gradientFunc.Substring(openParen + 1).TrimEnd(')').Trim();
+        string inner = gradientFunc[(openParen + 1)..].TrimEnd(')').Trim();
         if (string.IsNullOrEmpty(inner)) return null;
 
         var tokens = SplitOnTopLevelCommas(inner);
@@ -2363,8 +2359,8 @@ internal sealed class CssParser
         else if (first.EndsWith("deg"))
         {
             if (double.TryParse(first.AsSpan(0, first.Length - 3),
-                System.Globalization.NumberStyles.Float,
-                System.Globalization.CultureInfo.InvariantCulture, out double deg))
+                NumberStyles.Float,
+                CultureInfo.InvariantCulture, out double deg))
             {
                 angle = deg;
                 colorStartIdx = 1;
@@ -2388,7 +2384,7 @@ internal sealed class CssParser
     private static List<string> SplitOnTopLevelCommas(string value)
     {
         var parts = new List<string>();
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
         int depth = 0;
         foreach (char c in value)
         {
@@ -2424,7 +2420,7 @@ internal sealed class CssParser
 
         // Walk from the end; drop trailing length/percentage values.
         int end = parts.Length;
-        while (end > 1 && (CssValueParser.IsValidLength(parts[end - 1]) || parts[end - 1].EndsWith("%")))
+        while (end > 1 && (CssValueParser.IsValidLength(parts[end - 1]) || parts[end - 1].EndsWith('%')))
             end--;
 
         return string.Join(' ', parts[..end]);
@@ -2460,14 +2456,14 @@ internal sealed class CssParser
                 // [class~=value] → .value (if not already present)
                 if (inner.StartsWith("class~=", StringComparison.OrdinalIgnoreCase))
                 {
-                    var val = inner.Substring(7).Trim('"', '\'', ' ');
+                    var val = inner[7..].Trim('"', '\'', ' ');
                     if (!string.IsNullOrEmpty(val) && addedClasses.Add(val))
                         sb.Append('.').Append(val);
                 }
                 // [class=value] — exact match
                 else if (inner.StartsWith("class=", StringComparison.OrdinalIgnoreCase))
                 {
-                    var raw = inner.Substring(6);
+                    var raw = inner[6..];
                     // CSS2.1 §4.1.3: backslash-escaped characters like "second\ two"
                     // are valid IDENTs. Normalize by removing backslashes before spaces.
                     var val = raw.Replace("\\ ", " ").Trim('"', '\'', ' ');
@@ -2533,7 +2529,7 @@ internal sealed class CssParser
             return null;
 
         // Deduplicate class parts within each compound selector segment
-        if (result.IndexOf('.') >= 0)
+        if (result.Contains('.'))
             result = DeduplicateClassParts(result);
 
         return string.IsNullOrEmpty(result) ? null : result;
@@ -2562,7 +2558,7 @@ internal sealed class CssParser
             int start = i;
             while (i < selector.Length && selector[i] != ' ' && selector[i] != '>' && selector[i] != '+')
                 i++;
-            var compound = selector.Substring(start, i - start);
+            var compound = selector[start..i];
 
             // Deduplicate dot-separated parts
             var parts = compound.Split('.');
@@ -2605,13 +2601,13 @@ internal sealed class CssParser
         {
             mustBe = mustBe.Trim();
             //Check for style||variant||weight on the left
-            string leftSide = propValue.Substring(0, mustBePos);
+            string leftSide = propValue[..mustBePos];
             string fontStyle = RegexParserUtils.Search(RegexParserUtils.CssFontStyleRegex(), leftSide);
             string fontVariant = RegexParserUtils.Search(RegexParserUtils.CssFontVariantRegex(), leftSide);
             string fontWeight = RegexParserUtils.Search(RegexParserUtils.CssFontWeightRegex(), leftSide);
 
             //Check for family on the right
-            string rightSide = propValue.Substring(mustBePos + mustBe.Length);
+            string rightSide = propValue[(mustBePos + mustBe.Length)..];
             string fontFamily = rightSide.Trim(); //Parser.Search(Parser.CssFontFamily, rightSide); //TODO: Would this be right?
 
             // CSS 2.1 §15.8: The font shorthand requires both font-size and
@@ -2628,11 +2624,11 @@ internal sealed class CssParser
             string fontSize = mustBe;
             string lineHeight = string.Empty;
 
-            if (mustBe.Contains("/") && mustBe.Length > mustBe.IndexOf("/", StringComparison.Ordinal) + 1)
+            if (mustBe.Contains('/') && mustBe.Length > mustBe.IndexOf('/') + 1)
             {
-                int slashPos = mustBe.IndexOf("/", StringComparison.Ordinal);
-                fontSize = mustBe.Substring(0, slashPos);
-                lineHeight = mustBe.Substring(slashPos + 1);
+                int slashPos = mustBe.IndexOf('/');
+                fontSize = mustBe[..slashPos];
+                lineHeight = mustBe[(slashPos + 1)..];
             }
 
             if (!string.IsNullOrEmpty(fontFamily))
@@ -2974,7 +2970,7 @@ internal sealed class CssParser
         if (last.Length > 0)
             result.Add(last);
 
-        return result.ToArray();
+        return [.. result];
     }
 
     public void ParseBorder(string value, out string width, out string style, out string color)
@@ -3138,4 +3134,6 @@ internal sealed class CssParser
     }
 
     private string ParseBorderColor(string str, int idx, int length) => _valueParser.TryGetColor(str, idx, length, out _) ? str.Substring(idx, length) : null;
+    [GeneratedRegex(@"attr\(\s*(?<name>[A-Za-z_][A-Za-z0-9_-]*)\s+type\(\s*<length>\s*\)\s*(?:,\s*(?<fallback>[^)]+?))?\s*\)", RegexOptions.IgnoreCase | RegexOptions.Compiled, "de-DE")]
+    private static partial Regex CssRegex();
 }

@@ -114,8 +114,8 @@ public static class DeltaMinimizer
         if (results.Count > 1)
         {
             // If the first div spans the entire content, return only inner divs.
-            var first = results[0];
-            if (first.Start + first.Length >= html.IndexOf("</body>", StringComparison.OrdinalIgnoreCase))
+            var (Start, Length) = results[0];
+            if (Start + Length >= html.IndexOf("</body>", StringComparison.OrdinalIgnoreCase))
             {
                 // Return all but the outermost wrapper
                 results.RemoveAt(0);

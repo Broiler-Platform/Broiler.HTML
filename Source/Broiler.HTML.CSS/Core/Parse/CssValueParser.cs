@@ -124,24 +124,24 @@ internal sealed class CssValueParser
 
         string number = string.Empty;
 
-        if (value.EndsWith("%"))
+        if (value.EndsWith('%'))
         {
-            number = value.Substring(0, value.Length - 1);
+            number = value[..^1];
         }
         else if (value.EndsWith(CssConstants.Rem, StringComparison.Ordinal) && value.Length > 3)
         {
-            number = value.Substring(0, value.Length - 3);
+            number = value[..^3];
         }
         else if (value.EndsWith(CssConstants.Rlh, StringComparison.OrdinalIgnoreCase) && value.Length > 3)
         {
-            number = value.Substring(0, value.Length - 3);
+            number = value[..^3];
         }
         // CSS Values 3 §5.1.2: 4-character viewport units (vmin, vmax)
         else if (value.Length > 4 &&
                  (value.EndsWith(CssConstants.Vmin, StringComparison.OrdinalIgnoreCase) ||
                   value.EndsWith(CssConstants.Vmax, StringComparison.OrdinalIgnoreCase)))
         {
-            number = value.Substring(0, value.Length - 4);
+            number = value[..^4];
         }
         else if (value.Length > 2)
         {
@@ -160,14 +160,14 @@ internal sealed class CssValueParser
                 case CssConstants.In:
                 case CssConstants.Pt:
                 case CssConstants.Pc:
-                    number = value.Substring(0, value.Length - 2);
+                    number = value[..^2];
                     break;
                 default:
                     // CSS Values 3 §5.1.2: 2-character viewport units (vh, vw)
                     if (unit.Equals(CssConstants.Vh, StringComparison.OrdinalIgnoreCase) ||
                         unit.Equals(CssConstants.Vw, StringComparison.OrdinalIgnoreCase))
                     {
-                        number = value.Substring(0, value.Length - 2);
+                        number = value[..^2];
                         break;
                     }
                     return false; // unrecognized unit
@@ -183,10 +183,10 @@ internal sealed class CssValueParser
             return 0f;
 
         string toParse = number;
-        bool isPercent = number.EndsWith("%");
+        bool isPercent = number.EndsWith('%');
 
         if (isPercent)
-            toParse = number.Substring(0, number.Length - 1);
+            toParse = number[..^1];
 
         if (!double.TryParse(toParse, NumberStyles.Number, NumberFormatInfo.InvariantInfo, out double result))
             return 0f;
@@ -226,7 +226,7 @@ internal sealed class CssValueParser
         length = NormalizeSingleValueLengthFunction(length);
 
         //If percentage, use ParseNumber
-        if (length.EndsWith("%"))
+        if (length.EndsWith('%'))
             return ParseNumber(length, hundredPercent);
 
         //Get units of the length
@@ -239,7 +239,7 @@ internal sealed class CssValueParser
                       unit == CssConstants.Vmin || unit == CssConstants.Vmax ? 4 :
                       unit == CssConstants.Q ? 1 : 2;
         string number = hasUnit
-            ? length.Substring(0, length.Length - unitLen)
+            ? length[..^unitLen]
             : length;
 
         //TODO: Units behave different in paper and in screen!
@@ -535,7 +535,7 @@ internal sealed class CssValueParser
         if (string.IsNullOrEmpty(value))
             return false;
 
-        if (value.EndsWith("%", StringComparison.Ordinal))
+        if (value.EndsWith('%'))
         {
             evaluation = new LengthEvaluation(ParseNumber(value, hundredPercent), IsUnitless: false);
             return true;
@@ -559,7 +559,7 @@ internal sealed class CssValueParser
         int unitLen = unit == CssConstants.Rem || unit == CssConstants.Rlh ? 3 :
                       unit == CssConstants.Vmin || unit == CssConstants.Vmax ? 4 :
                       unit == CssConstants.Q ? 1 : 2;
-        string number = value.Substring(0, value.Length - unitLen);
+        string number = value[..^unitLen];
         if (!double.TryParse(number, NumberStyles.Number, NumberFormatInfo.InvariantInfo, out double parsedNumber))
             return false;
 
@@ -789,8 +789,8 @@ internal sealed class CssValueParser
                 // Check for single-character units (e.g. "Q" / "q")
                 if (length.Length >= 2)
                 {
-                    char lastChar = char.ToLowerInvariant(length[length.Length - 1]);
-                    char prevChar = length[length.Length - 2];
+                    char lastChar = char.ToLowerInvariant(length[^1]);
+                    char prevChar = length[^2];
                     if (lastChar == 'q' && (char.IsDigit(prevChar) || prevChar == '.'))
                     {
                         hasUnit = true;
@@ -1075,8 +1075,8 @@ internal sealed class CssValueParser
             int slashIdx = inner.IndexOf('/');
             if (slashIdx >= 0)
             {
-                hslPart = inner.Substring(0, slashIdx).Trim();
-                var alphaPart = inner.Substring(slashIdx + 1).Trim();
+                hslPart = inner[..slashIdx].Trim();
+                var alphaPart = inner[(slashIdx + 1)..].Trim();
                 if (alphaPart.EndsWith('%'))
                 {
                     alpha = double.Parse(alphaPart.TrimEnd('%'), CultureInfo.InvariantCulture) / 100.0;
@@ -1146,7 +1146,7 @@ internal sealed class CssValueParser
         foreach (var suffix in new[] { "deg", "grad", "rad", "turn" })
         {
             if (value.EndsWith(suffix, StringComparison.OrdinalIgnoreCase))
-                return value.Substring(0, value.Length - suffix.Length);
+                return value[..^suffix.Length];
         }
         return value;
     }
@@ -1201,7 +1201,7 @@ internal sealed class CssValueParser
         if (numEnd <= startIdx)
             return -1;
 
-        var numStr = str.Substring(startIdx, numEnd - startIdx);
+        var numStr = str[startIdx..numEnd];
         if (!double.TryParse(numStr, NumberStyles.Float, CultureInfo.InvariantCulture, out double val))
             return -1;
 

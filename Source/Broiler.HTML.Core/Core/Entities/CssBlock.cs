@@ -6,21 +6,15 @@ namespace Broiler.HTML.Core.Core.Entities;
 /// <summary>
 /// Represents a CSS attribute selector condition like [type="text"] or [hidden].
 /// </summary>
-public readonly struct CssAttributeCondition
+public readonly struct CssAttributeCondition(string name, string op, string value)
 {
-    public CssAttributeCondition(string name, string op, string value)
-    {
-        Name = name;
-        Op = op;
-        Value = value;
-    }
 
     /// <summary>Attribute name (e.g. "type", "hidden").</summary>
-    public string Name { get; }
+    public string Name { get; } = name;
     /// <summary>Match operator: "=", "~=", "|=", "^=", "$=", "*=", or null for presence-only.</summary>
-    public string Op { get; }
+    public string Op { get; } = op;
     /// <summary>Expected value, or null for presence-only checks like [hidden].</summary>
-    public string Value { get; }
+    public string Value { get; } = value;
 }
 
 public sealed class CssBlock
@@ -107,10 +101,12 @@ public sealed class CssBlock
 
     public CssBlock Clone()
     {
-        var clone = new CssBlock(Class, new Dictionary<string, string>(_properties), Selectors != null ? [.. Selectors] : null, Hover, PseudoClass);
-        clone.IsUserAgent = IsUserAgent;
-        clone.Specificity = Specificity;
-        clone.SourceOrder = SourceOrder;
+        var clone = new CssBlock(Class, new Dictionary<string, string>(_properties), Selectors != null ? [.. Selectors] : null, Hover, PseudoClass)
+        {
+            IsUserAgent = IsUserAgent,
+            Specificity = Specificity,
+            SourceOrder = SourceOrder
+        };
         if (_importantProperties != null)
             clone._importantProperties = new HashSet<string>(_importantProperties, StringComparer.OrdinalIgnoreCase);
         if (AttributeConditions != null)
