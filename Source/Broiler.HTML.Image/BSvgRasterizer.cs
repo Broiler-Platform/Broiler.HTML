@@ -7,7 +7,6 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.Image.Adapters;
 
 namespace Broiler.HTML.Image;

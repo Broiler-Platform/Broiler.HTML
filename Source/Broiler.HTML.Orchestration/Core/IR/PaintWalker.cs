@@ -1,10 +1,10 @@
-using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Core.Core.IR;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Orchestration.Core.IR;
 
@@ -133,7 +133,7 @@ internal static class PaintWalker
             if (!string.IsNullOrEmpty(posStr))
             {
                 float imgW = 0, imgH = 0;
-                if (imgSource.BackgroundImageHandle is Broiler.HTML.Adapters.Adapters.RImage bgImg)
+                if (imgSource.BackgroundImageHandle is RImage bgImg)
                 {
                     imgW = (float)bgImg.Width;
                     imgH = (float)bgImg.Height;

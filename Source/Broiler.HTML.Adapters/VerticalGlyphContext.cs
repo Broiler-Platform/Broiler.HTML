@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Adapters.Adapters;
+namespace Broiler.HTML.Adapters;
 
 /// <summary>
 /// PROTOTYPE bridge (vertical writing-mode flow, Stage 2): carries the

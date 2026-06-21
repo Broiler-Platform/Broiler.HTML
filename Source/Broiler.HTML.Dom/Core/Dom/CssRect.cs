@@ -1,5 +1,5 @@
 using System.Drawing;
-using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Dom.Core.Dom;
 

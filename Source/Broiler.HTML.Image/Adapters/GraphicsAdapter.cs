@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -116,7 +116,7 @@ internal sealed class GraphicsAdapter : RGraphics
 
     public override void DrawString(string str, RFont font, Color color, PointF point, SizeF size, bool rtl)
     {
-        float glyphRotation = Broiler.HTML.Adapters.Adapters.VerticalGlyphContext.RotationDeg;
+        float glyphRotation = VerticalGlyphContext.RotationDeg;
         if (CanUseRaster && _textShaper.TryDrawString(_rasterCanvas!, (FontAdapter)font, str, color, point, glyphRotation))
             return;
 

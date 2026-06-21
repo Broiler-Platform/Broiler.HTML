@@ -1,4 +1,3 @@
-using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.CSS.Core;
 using Broiler.HTML.Rendering.Core.Handlers;

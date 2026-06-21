@@ -1,4 +1,4 @@
-using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.Core.IR;
 using System;
@@ -473,14 +473,14 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
                 // PROTOTYPE (vertical flow, Stage 2): publish the requested
                 // glyph rotation for the shaper, then reset it so unrelated
                 // draws stay upright.
-                Broiler.HTML.Adapters.Adapters.VerticalGlyphContext.RotationDeg = item.GlyphRotationDeg;
+                VerticalGlyphContext.RotationDeg = item.GlyphRotationDeg;
                 try
                 {
                     g.DrawString(item.Text, font, item.Color, origin, size, item.IsRtl);
                 }
                 finally
                 {
-                    Broiler.HTML.Adapters.Adapters.VerticalGlyphContext.RotationDeg = 0f;
+                    VerticalGlyphContext.RotationDeg = 0f;
                 }
             }
         }

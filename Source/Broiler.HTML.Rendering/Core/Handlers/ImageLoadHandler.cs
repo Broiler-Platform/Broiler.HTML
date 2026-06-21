@@ -4,10 +4,10 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Drawing;
-using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Rendering.Core.Handlers;
 

@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace Broiler.HTML.Adapters.Adapters;
+namespace Broiler.HTML.Adapters;
 
 public interface IResourceFactory
 {

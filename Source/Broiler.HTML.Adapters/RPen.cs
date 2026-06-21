@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Adapters.Adapters;
+namespace Broiler.HTML.Adapters;
 
 public abstract class RPen
 {

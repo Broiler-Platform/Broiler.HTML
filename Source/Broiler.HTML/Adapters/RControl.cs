@@ -1,4 +1,3 @@
-using Broiler.HTML.Adapters.Adapters;
 using System;
 using System.Drawing;
 

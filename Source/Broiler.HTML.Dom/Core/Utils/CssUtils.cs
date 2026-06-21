@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Adapters;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom.Core.Dom;
 using Broiler.HTML.Utils.Core.Utils;

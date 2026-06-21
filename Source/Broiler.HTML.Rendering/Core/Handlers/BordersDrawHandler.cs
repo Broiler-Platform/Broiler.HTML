@@ -1,9 +1,9 @@
 using System.Drawing;
 using System;
-using Broiler.HTML.Adapters.Adapters;
 using Broiler.HTML.Core.Core.Dom;
 using Broiler.HTML.Core.Core;
 using Broiler.HTML.Utils.Core.Utils;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Rendering.Core.Handlers;
 

@@ -1,5 +1,5 @@
 using System;
-using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
