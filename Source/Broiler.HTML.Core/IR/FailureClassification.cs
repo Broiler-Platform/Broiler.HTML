@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Classifies the root cause of a pixel-regression failure.

@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Serialises a <see cref="Fragment"/> tree to deterministic JSON for

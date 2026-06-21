@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Broiler.HTML.Core.Core;
 using Broiler.HTML.Core.Entities;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Serializes parsed CSS data to deterministic JSON for parser and cascade tests.

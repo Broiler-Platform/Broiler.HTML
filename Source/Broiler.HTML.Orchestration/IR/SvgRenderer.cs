@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using Broiler.HTML.Core.Core.IR;
+using Broiler.HTML.Core.IR;
 
 namespace Broiler.HTML.Orchestration.Core.IR;
 

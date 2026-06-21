@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Broiler.HTML.Core.Core.IR;
+using Broiler.HTML.Core.IR;
 
 namespace Broiler.HTML.Image;
 

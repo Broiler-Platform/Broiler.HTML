@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Configuration for deterministic pixel-regression rendering

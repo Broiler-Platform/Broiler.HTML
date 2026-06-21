@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Immutable layout result for a single box/fragment.

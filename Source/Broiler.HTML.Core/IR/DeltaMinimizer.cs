@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Basic delta-reduction minimizer for HTML documents. Removes child

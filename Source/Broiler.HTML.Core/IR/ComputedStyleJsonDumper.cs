@@ -1,5 +1,6 @@
 #nullable enable
 
+using Broiler;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Serializes computed-style snapshots from a fragment tree to deterministic JSON.

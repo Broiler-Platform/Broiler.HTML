@@ -1,6 +1,6 @@
 using System.Drawing;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Resolved, typed CSS property values for a single element.

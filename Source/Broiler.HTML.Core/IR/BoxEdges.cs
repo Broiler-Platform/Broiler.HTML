@@ -1,6 +1,6 @@
 using System;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 public sealed class BoxEdges(double top, double right, double bottom, double left)
 {

@@ -1,4 +1,4 @@
-using Broiler.HTML.Core.Core.IR;
+using Broiler.HTML.Core.IR;
 using Broiler.HTML.Dom;
 using Broiler.HTML.Utils;
 using System;

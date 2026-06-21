@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Walks a <see cref="DisplayList"/> and checks structural paint

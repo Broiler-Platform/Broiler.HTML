@@ -1,4 +1,4 @@
-namespace Broiler.HTML.Core.Core.IR;
+namespace Broiler.HTML.Core.IR;
 
 /// <summary>
 /// Classifies the semantic role of a CSS box, derived from the HTML tag name

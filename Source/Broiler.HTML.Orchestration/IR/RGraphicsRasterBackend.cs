@@ -1,6 +1,6 @@
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.Core.Dom;
-using Broiler.HTML.Core.Core.IR;
+using Broiler.HTML.Core.IR;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
