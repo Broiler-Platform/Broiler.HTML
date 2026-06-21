@@ -5,9 +5,9 @@ using Broiler.HTML.Core.Core.IR;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom;
 using Broiler.HTML.Dom.Utils;
-using Broiler.HTML.Orchestration.Core.Handlers;
 using Broiler.HTML.Orchestration.Core.IR;
-using Broiler.HTML.Orchestration.Core.Parse;
+using Broiler.HTML.Orchestration.Handlers;
+using Broiler.HTML.Orchestration.Parse;
 using Broiler.HTML.Primitives.Adapters.Entities;
 using Broiler.HTML.Rendering.Core.Handlers;
 using Broiler.HTML.Utils.Core.Utils;
@@ -18,7 +18,7 @@ using System.Drawing;
 using System.IO;
 using System.Net.Http;
 
-namespace Broiler.HTML.Orchestration.Core;
+namespace Broiler.HTML.Orchestration;
 
 public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 {

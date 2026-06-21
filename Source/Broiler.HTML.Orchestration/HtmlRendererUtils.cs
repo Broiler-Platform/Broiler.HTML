@@ -2,7 +2,7 @@
 using System.Drawing;
 using Broiler.HTML.Adapters;
 
-namespace Broiler.HTML.Orchestration.Core;
+namespace Broiler.HTML.Orchestration;
 
 public static class HtmlRendererUtils
 {

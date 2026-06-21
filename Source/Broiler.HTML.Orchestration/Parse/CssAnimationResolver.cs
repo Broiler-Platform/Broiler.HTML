@@ -7,7 +7,7 @@ using Broiler.HTML.Core.Core.Entities;
 using Broiler.HTML.Dom;
 using Broiler.HTML.Dom.Utils;
 
-namespace Broiler.HTML.Orchestration.Core.Parse;
+namespace Broiler.HTML.Orchestration.Parse;
 
 /// <summary>
 /// Resolves CSS animation keyframe values for static rendering.

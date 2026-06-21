@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 
-namespace Broiler.HTML.Orchestration.Core.Handlers;
+namespace Broiler.HTML.Orchestration.Handlers;
 
 internal sealed class StylesheetLoadHandler : IStylesheetLoader
 {

@@ -12,7 +12,7 @@ using Broiler.HTML.Dom.Parse;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Dom;
 
-namespace Broiler.HTML.Orchestration.Core.Parse;
+namespace Broiler.HTML.Orchestration.Parse;
 
 internal sealed class DomParser
 {
