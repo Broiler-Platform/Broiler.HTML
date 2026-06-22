@@ -26,7 +26,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires animation timelines and time sampling beyond static document rendering."
     },
     {
@@ -47,7 +49,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires animation worklet execution."
     },
     {
@@ -68,7 +72,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires animation timelines and event behavior beyond static rendering."
     },
     {
@@ -89,7 +95,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires style-change timelines beyond a static initial render."
     },
     {
@@ -110,7 +118,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires a live document transition timeline and DOM state changes."
     },
     {
@@ -131,7 +141,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires a live document transition timeline and DOM state changes."
     },
     {
@@ -152,7 +164,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires animation path sampling for moving boxes rather than static layout alone."
     },
     {
@@ -173,7 +187,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires scroll-linked animation timelines."
     },
     {
@@ -194,7 +210,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires style-change timelines beyond a static initial render."
     },
     {
@@ -215,7 +233,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires the Web Animations runtime API and timelines."
     },
     {
@@ -236,7 +256,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
       "reason": "Requires the Web Animations runtime API and timelines."
     }
   ]

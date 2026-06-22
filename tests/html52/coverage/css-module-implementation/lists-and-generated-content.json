@@ -15,18 +15,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-text-generated-001"
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "counter-styles",
@@ -35,18 +36,19 @@
       "supportLevel": "required",
       "w3cStatus": "CR",
       "upcomingStatus": "PR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-lists-counters-001"
+        "css-module-phase2-lists-counters-001",
+        "css-module-phase4-layout-lists-generated-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "gcpm",
@@ -55,18 +57,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-text-generated-001"
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "lists",
@@ -75,18 +78,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-text-generated-001"
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     }
   ]
 }

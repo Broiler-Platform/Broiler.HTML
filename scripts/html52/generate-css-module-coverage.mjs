@@ -154,6 +154,87 @@ const phase3LayoutRenderTests = new Map([
   ['ui', ['css-module-phase3-layout-ui-forms-001']]
 ]);
 
+const phase4LayoutRenderTests = new Map([
+  ['align', ['css-module-phase4-layout-flex-grid-001']],
+  ['css-grid-2', ['css-module-phase4-layout-flex-grid-001']],
+  ['css-grid-3', ['css-module-phase4-layout-flex-grid-001']],
+  ['flexbox', ['css-module-phase4-layout-flex-grid-001']],
+  ['grid-layout', ['css-module-phase4-layout-flex-grid-001']],
+  ['exclusions', ['css-module-phase4-layout-tables-columns-001']],
+  ['linegrid', ['css-module-phase4-layout-tables-columns-001']],
+  ['multicol', ['css-module-phase4-layout-tables-columns-001']],
+  ['regions', ['css-module-phase4-layout-tables-columns-001']],
+  ['tables', ['css-module-phase4-layout-tables-columns-001']],
+  ['break', ['css-module-phase4-layout-media-paged-001']],
+  ['mediaqueries', ['css-module-phase4-layout-media-paged-001']],
+  ['mediaqueries-4', ['css-module-phase4-layout-media-paged-001']],
+  ['mediaqueries-5', ['css-module-phase4-layout-media-paged-001']],
+  ['paged-media', ['css-module-phase4-layout-media-paged-001']],
+  ['content', ['css-module-phase4-layout-lists-generated-001']],
+  ['counter-styles', ['css-module-phase4-layout-lists-generated-001']],
+  ['gcpm', ['css-module-phase4-layout-lists-generated-001']],
+  ['lists', ['css-module-phase4-layout-lists-generated-001']]
+]);
+
+const phase5TextFontTests = new Map([
+  ['css-fonts-4', ['css-module-phase5-text-fonts-001']],
+  ['css-fonts-5', ['css-module-phase5-text-fonts-001']],
+  ['fonts', ['css-module-phase5-text-fonts-001']],
+  ['css-text-4', ['css-module-phase5-text-inline-ruby-001']],
+  ['css-text-decor-4', ['css-module-phase5-text-inline-ruby-001']],
+  ['inline', ['css-module-phase5-text-inline-ruby-001']],
+  ['ruby', ['css-module-phase5-text-inline-ruby-001']],
+  ['text', ['css-module-phase5-text-inline-ruby-001']],
+  ['text-decor', ['css-module-phase5-text-inline-ruby-001']],
+  ['writing-modes', ['css-module-phase5-text-writing-bidi-001']],
+  ['writing-modes-4', ['css-module-phase5-text-writing-bidi-001']]
+]);
+
+const phase6PaintRenderTests = new Map([
+  ['background', ['css-module-phase6-paint-background-color-001']],
+  ['color', ['css-module-phase6-paint-background-color-001']],
+  ['css-borders-4', ['css-module-phase6-paint-background-color-001', 'css-module-phase6-paint-pseudo-shadow-gaps-001']],
+  ['css-color-4', ['css-module-phase6-paint-background-color-001']],
+  ['css-color-5', ['css-module-phase6-paint-background-color-001']],
+  ['css-color-adjust-1', ['css-module-phase6-paint-background-color-001']],
+  ['css-color-hdr-1', ['css-module-phase6-paint-background-color-001']],
+  ['css-images-4', ['css-module-phase6-paint-images-masks-shapes-001']],
+  ['css-masking', ['css-module-phase6-paint-images-masks-shapes-001']],
+  ['images', ['css-module-phase6-paint-images-masks-shapes-001']],
+  ['shapes', ['css-module-phase6-paint-images-masks-shapes-001']],
+  ['compositing', ['css-module-phase6-paint-effects-transforms-001']],
+  ['css-transforms-2', ['css-module-phase6-paint-effects-transforms-001']],
+  ['css-will-change-1', ['css-module-phase6-paint-effects-transforms-001']],
+  ['filter', ['css-module-phase6-paint-effects-transforms-001']],
+  ['transforms', ['css-module-phase6-paint-effects-transforms-001']],
+  ['css-gaps-1', ['css-module-phase6-paint-pseudo-shadow-gaps-001']],
+  ['css-shadow-parts-1', ['css-module-phase6-paint-pseudo-shadow-gaps-001']],
+  ['pseudo-4', ['css-module-phase6-paint-pseudo-shadow-gaps-001']]
+]);
+
+const phase7RuntimeBoundaryTests = new Map([
+  ['animations', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['css-animation-worklet-1', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['css-animations-2', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['css-transitions-2', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['css-view-transitions-1', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['css-view-transitions-2', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['motion-1', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['scroll-animations-1', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['transitions', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['web-animations', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['web-animations-2', ['css-module-phase7-runtime-dynamic-timelines-001']],
+  ['css-font-loading-3', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['css-highlight-api-1', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['css-layout-api-1', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['css-paint-api-1', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['css-typed-om-1', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['css-nav-1', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['cssom', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['cssom-view', ['css-module-phase7-runtime-cssom-houdini-001']],
+  ['resize-observer-1', ['css-module-phase7-runtime-cssom-houdini-001']]
+]);
+
 const phase4DraftEarlyTests = new Map([
   ['css-properties-values-api-1', ['css-module-phase4-draft-properties-values-001']],
   ['css-fonts-5', ['css-module-phase4-draft-values-fonts-001']],
@@ -346,6 +427,10 @@ function createCoverageItem(module) {
     ...(phase2ComputedStyleTests.get(module.id) ?? []),
     ...(phase3RendererBreadthTests.get(module.id) ?? []),
     ...(phase3LayoutRenderTests.get(module.id) ?? []),
+    ...(phase4LayoutRenderTests.get(module.id) ?? []),
+    ...(phase5TextFontTests.get(module.id) ?? []),
+    ...(phase6PaintRenderTests.get(module.id) ?? []),
+    ...(phase7RuntimeBoundaryTests.get(module.id) ?? []),
     ...(phase4DraftEarlyTests.get(module.id) ?? [])
   ];
   const implementation = createImplementationMetadata(module, family, supportLevel, tests, runtimeReason);
@@ -390,7 +475,7 @@ function currentOracleDepthFor(tests, runtimeReason) {
   if (runtimeReason) {
     return 'out-of-scope';
   }
-  if (tests.some(hasPhase3LayoutRenderTest)) {
+  if (tests.some(hasLayoutRenderTest)) {
     return 'render';
   }
   if (tests.some((testId) => testId.includes('phase2-computed'))) {
@@ -554,6 +639,15 @@ function supportLevelFor(status) {
 }
 
 function reasonFor(supportLevel, currentStatus, tests) {
+  if (tests.some(hasPhase6PaintRenderTest)) {
+    return 'Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior.';
+  }
+  if (tests.some(hasPhase5TextFontTest)) {
+    return 'Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior.';
+  }
+  if (tests.some(hasPhase4LayoutRenderTest)) {
+    return 'Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior.';
+  }
   if (tests.some(hasPhase3LayoutRenderTest)) {
     return 'Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior.';
   }
@@ -588,6 +682,33 @@ function hasPhase3LayoutRenderTest(testId) {
   return testId === 'css-module-phase3-layout-core-001'
     || testId === 'css-module-phase3-layout-overflow-scroll-001'
     || testId === 'css-module-phase3-layout-ui-forms-001';
+}
+
+function hasPhase4LayoutRenderTest(testId) {
+  return testId === 'css-module-phase4-layout-flex-grid-001'
+    || testId === 'css-module-phase4-layout-tables-columns-001'
+    || testId === 'css-module-phase4-layout-media-paged-001'
+    || testId === 'css-module-phase4-layout-lists-generated-001';
+}
+
+function hasPhase5TextFontTest(testId) {
+  return testId === 'css-module-phase5-text-fonts-001'
+    || testId === 'css-module-phase5-text-inline-ruby-001'
+    || testId === 'css-module-phase5-text-writing-bidi-001';
+}
+
+function hasPhase6PaintRenderTest(testId) {
+  return testId === 'css-module-phase6-paint-background-color-001'
+    || testId === 'css-module-phase6-paint-images-masks-shapes-001'
+    || testId === 'css-module-phase6-paint-effects-transforms-001'
+    || testId === 'css-module-phase6-paint-pseudo-shadow-gaps-001';
+}
+
+function hasLayoutRenderTest(testId) {
+  return hasPhase3LayoutRenderTest(testId)
+    || hasPhase4LayoutRenderTest(testId)
+    || hasPhase5TextFontTest(testId)
+    || hasPhase6PaintRenderTest(testId);
 }
 
 function createImplementationDocuments(coverage) {

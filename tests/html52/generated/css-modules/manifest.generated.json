@@ -1046,6 +1046,292 @@
       "status": "active"
     },
     {
+      "id": "css-module-phase4-layout-flex-grid-001",
+      "title": "Layout and render Phase 4 CSS flexbox, grid, subgrid, and box-alignment probes",
+      "cluster": "css-modules",
+      "subcluster": "phase4-layout-render",
+      "featureId": "css-module-phase4-layout-flex-grid",
+      "spec": [
+        {
+          "section": "CSS Flexible Box Layout Level 1",
+          "url": "https://www.w3.org/TR/css-flexbox-1/"
+        },
+        {
+          "section": "CSS Grid Layout Level 1/2/3",
+          "url": "https://www.w3.org/TR/css-grid-3/"
+        },
+        {
+          "section": "CSS Box Alignment Level 3",
+          "url": "https://www.w3.org/TR/css-align-3/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase4-layout-flex-grid.html",
+      "assertions": [
+        "The layout dumper and renderer emit deterministic geometry and pixels for flex containers, grid containers, alignment declarations, explicit grid placement, and subgrid syntax probes."
+      ],
+      "expectations": {
+        "layout": "generated/css-modules/references/layout/phase4-layout-flex-grid.json",
+        "render": "generated/css-modules/references/images/phase4-layout-flex-grid.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-layout-tables-columns-001",
+      "title": "Layout and render Phase 4 CSS table, multicolumn, line-grid, regions, and exclusions probes",
+      "cluster": "css-modules",
+      "subcluster": "phase4-layout-render",
+      "featureId": "css-module-phase4-layout-tables-columns",
+      "spec": [
+        {
+          "section": "CSS Table Level 3",
+          "url": "https://www.w3.org/TR/css-tables-3/"
+        },
+        {
+          "section": "CSS Multi-column Layout Level 1",
+          "url": "https://www.w3.org/TR/css-multicol-1/"
+        },
+        {
+          "section": "CSS Line Grid",
+          "url": "https://www.w3.org/TR/css-line-grid-1/"
+        },
+        {
+          "section": "CSS Regions",
+          "url": "https://www.w3.org/TR/css-regions-1/"
+        },
+        {
+          "section": "CSS Exclusions",
+          "url": "https://www.w3.org/TR/css3-exclusions/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase4-layout-tables-columns.html",
+      "assertions": [
+        "The layout dumper and renderer emit deterministic geometry and pixels for CSS table display, multicolumn declarations, line-grid declarations, regions declarations, and exclusions declarations."
+      ],
+      "expectations": {
+        "layout": "generated/css-modules/references/layout/phase4-layout-tables-columns.json",
+        "render": "generated/css-modules/references/images/phase4-layout-tables-columns.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-layout-media-paged-001",
+      "title": "Layout and render Phase 4 CSS media query, paged media, fragmentation, and page-float probes",
+      "cluster": "css-modules",
+      "subcluster": "phase4-layout-render",
+      "featureId": "css-module-phase4-layout-media-paged",
+      "spec": [
+        {
+          "section": "Media Queries Level 3/4/5",
+          "url": "https://www.w3.org/TR/mediaqueries-5/"
+        },
+        {
+          "section": "CSS Paged Media Level 3",
+          "url": "https://www.w3.org/TR/css-page-3/"
+        },
+        {
+          "section": "CSS Fragmentation Level 3",
+          "url": "https://www.w3.org/TR/css-break-3/"
+        },
+        {
+          "section": "CSS Page Floats",
+          "url": "https://www.w3.org/TR/css-page-floats-3/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase4-layout-media-paged.html",
+      "assertions": [
+        "The layout dumper and renderer emit deterministic geometry and pixels for media queries, range media syntax, paged-media rules, fragmentation declarations, and page-float declarations."
+      ],
+      "expectations": {
+        "layout": "generated/css-modules/references/layout/phase4-layout-media-paged.json",
+        "render": "generated/css-modules/references/images/phase4-layout-media-paged.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase4-layout-lists-generated-001",
+      "title": "Layout and render Phase 4 CSS lists, counters, counter styles, generated content, and GCPM probes",
+      "cluster": "css-modules",
+      "subcluster": "phase4-layout-render",
+      "featureId": "css-module-phase4-layout-lists-generated",
+      "spec": [
+        {
+          "section": "CSS Lists and Counters Level 3",
+          "url": "https://www.w3.org/TR/css-lists-3/"
+        },
+        {
+          "section": "CSS Counter Styles Level 3",
+          "url": "https://www.w3.org/TR/css-counter-styles-3/"
+        },
+        {
+          "section": "CSS Generated Content Level 3",
+          "url": "https://www.w3.org/TR/css-content-3/"
+        },
+        {
+          "section": "CSS Generated Content for Paged Media",
+          "url": "https://www.w3.org/TR/css-gcpm-3/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase4-layout-lists-generated.html",
+      "assertions": [
+        "The layout dumper and renderer emit deterministic geometry and pixels for list markers, counters, generated pseudo-element content, counter style syntax, and GCPM declarations."
+      ],
+      "expectations": {
+        "layout": "generated/css-modules/references/layout/phase4-layout-lists-generated.json",
+        "render": "generated/css-modules/references/images/phase4-layout-lists-generated.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase5-text-fonts-001",
+      "title": "Compute, layout, and render Phase 5 CSS font face, fallback, feature, and variation probes",
+      "cluster": "css-modules",
+      "subcluster": "phase5-text-fonts",
+      "featureId": "css-module-phase5-text-fonts",
+      "spec": [
+        {
+          "section": "CSS Fonts Level 3",
+          "url": "https://www.w3.org/TR/css-fonts-3/"
+        },
+        {
+          "section": "CSS Fonts Level 4",
+          "url": "https://www.w3.org/TR/css-fonts-4/"
+        },
+        {
+          "section": "CSS Fonts Level 5",
+          "url": "https://www.w3.org/TR/css-fonts-5/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase5-text-fonts.html",
+      "assertions": [
+        "The computed-style dumper, layout dumper, and renderer emit deterministic output for @font-face loading, font fallback, feature settings, alternates, variation settings, font palette syntax, and font synthesis declarations."
+      ],
+      "expectations": {
+        "computedStyle": "generated/css-modules/references/computed-style/phase5-text-fonts.json",
+        "layout": "generated/css-modules/references/layout/phase5-text-fonts.json",
+        "render": "generated/css-modules/references/images/phase5-text-fonts.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "computed-style",
+        "layout",
+        "paint",
+        "font-loader"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase5-text-inline-ruby-001",
+      "title": "Compute, layout, and render Phase 5 CSS inline text, decoration, transform, wrapping, and ruby probes",
+      "cluster": "css-modules",
+      "subcluster": "phase5-text-fonts",
+      "featureId": "css-module-phase5-text-inline-ruby",
+      "spec": [
+        {
+          "section": "CSS Text Level 3/4",
+          "url": "https://www.w3.org/TR/css-text-4/"
+        },
+        {
+          "section": "CSS Text Decoration Level 3/4",
+          "url": "https://www.w3.org/TR/css-text-decor-4/"
+        },
+        {
+          "section": "CSS Inline Layout Level 3",
+          "url": "https://www.w3.org/TR/css-inline-3/"
+        },
+        {
+          "section": "CSS Ruby Annotation Layout Level 1",
+          "url": "https://www.w3.org/TR/css-ruby-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase5-text-inline-ruby.html",
+      "assertions": [
+        "The computed-style dumper, layout dumper, and renderer emit deterministic output for inline text wrapping, text decoration, text transform, word breaking, ruby fallback layout, and ruby annotation declarations."
+      ],
+      "expectations": {
+        "computedStyle": "generated/css-modules/references/computed-style/phase5-text-inline-ruby.json",
+        "layout": "generated/css-modules/references/layout/phase5-text-inline-ruby.json",
+        "render": "generated/css-modules/references/images/phase5-text-inline-ruby.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "computed-style",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase5-text-writing-bidi-001",
+      "title": "Compute, layout, and render Phase 5 CSS writing-mode, logical text, and bidi probes",
+      "cluster": "css-modules",
+      "subcluster": "phase5-text-fonts",
+      "featureId": "css-module-phase5-text-writing-bidi",
+      "spec": [
+        {
+          "section": "CSS Writing Modes Level 3",
+          "url": "https://www.w3.org/TR/css-writing-modes-3/"
+        },
+        {
+          "section": "CSS Writing Modes Level 4",
+          "url": "https://www.w3.org/TR/css-writing-modes-4/"
+        },
+        {
+          "section": "CSS Text Level 3/4",
+          "url": "https://www.w3.org/TR/css-text-4/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase5-text-writing-bidi.html",
+      "assertions": [
+        "The computed-style dumper, layout dumper, and renderer emit deterministic output for vertical writing modes, text orientation, logical sizing and borders, direction, unicode-bidi, and mixed-direction line layout."
+      ],
+      "expectations": {
+        "computedStyle": "generated/css-modules/references/computed-style/phase5-text-writing-bidi.json",
+        "layout": "generated/css-modules/references/layout/phase5-text-writing-bidi.json",
+        "render": "generated/css-modules/references/images/phase5-text-writing-bidi.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "computed-style",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
       "id": "css-module-phase5-declaration-matrix-001",
       "title": "Stress CSS declaration shorthands, longhands, cascade, inheritance, and custom property cycles",
       "cluster": "css-modules",
@@ -1212,6 +1498,274 @@
         "html-parser",
         "resource-log",
         "network-disabled"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase6-paint-background-color-001",
+      "title": "Display-list and render Phase 6 CSS background, color, and border paint probes",
+      "cluster": "css-modules",
+      "subcluster": "phase6-paint-effects",
+      "featureId": "css-module-phase6-paint-background-color",
+      "spec": [
+        {
+          "section": "CSS Color Level 3/4/5",
+          "url": "https://www.w3.org/TR/css-color-5/"
+        },
+        {
+          "section": "CSS Backgrounds and Borders Level 3/4",
+          "url": "https://www.w3.org/TR/css-backgrounds-3/"
+        },
+        {
+          "section": "CSS Color Adjustment Level 1",
+          "url": "https://www.w3.org/TR/css-color-adjust-1/"
+        },
+        {
+          "section": "CSS Color HDR Level 1",
+          "url": "https://www.w3.org/TR/css-color-hdr-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase6-paint-background-color.html",
+      "assertions": [
+        "The display-list dumper and renderer emit deterministic paint primitives and pixels for layered backgrounds, background clipping, border radii, border-area clipping, currentColor, color-adjustment declarations, and modern color function fallbacks."
+      ],
+      "expectations": {
+        "displayList": "generated/css-modules/references/display-list/phase6-paint-background-color.json",
+        "render": "generated/css-modules/references/images/phase6-paint-background-color.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "display-list",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase6-paint-images-masks-shapes-001",
+      "title": "Display-list and render Phase 6 CSS images, masks, and shapes probes",
+      "cluster": "css-modules",
+      "subcluster": "phase6-paint-effects",
+      "featureId": "css-module-phase6-paint-images-masks-shapes",
+      "spec": [
+        {
+          "section": "CSS Images Level 3/4",
+          "url": "https://www.w3.org/TR/css-images-4/"
+        },
+        {
+          "section": "CSS Masking Level 1",
+          "url": "https://www.w3.org/TR/css-masking-1/"
+        },
+        {
+          "section": "CSS Shapes Level 1",
+          "url": "https://www.w3.org/TR/css-shapes-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase6-paint-images-masks-shapes.html",
+      "assertions": [
+        "The display-list dumper and renderer emit deterministic paint primitives and pixels for gradient images, conic/radial image functions, image-set fallbacks, clip-path, mask declarations, and shape-outside static flow."
+      ],
+      "expectations": {
+        "displayList": "generated/css-modules/references/display-list/phase6-paint-images-masks-shapes.json",
+        "render": "generated/css-modules/references/images/phase6-paint-images-masks-shapes.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "display-list",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase6-paint-effects-transforms-001",
+      "title": "Display-list and render Phase 6 CSS effects, compositing, and transforms probes",
+      "cluster": "css-modules",
+      "subcluster": "phase6-paint-effects",
+      "featureId": "css-module-phase6-paint-effects-transforms",
+      "spec": [
+        {
+          "section": "CSS Transforms Level 1/2",
+          "url": "https://www.w3.org/TR/css-transforms-2/"
+        },
+        {
+          "section": "Compositing and Blending Level 1",
+          "url": "https://www.w3.org/TR/compositing-1/"
+        },
+        {
+          "section": "Filter Effects Level 1",
+          "url": "https://www.w3.org/TR/filter-effects-1/"
+        },
+        {
+          "section": "CSS Will Change Level 1",
+          "url": "https://www.w3.org/TR/css-will-change-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase6-paint-effects-transforms.html",
+      "assertions": [
+        "The display-list dumper and renderer emit deterministic paint primitives and pixels for opacity, blend modes, filters, transform matrices, transform origins, 3D transform fallbacks, and will-change declarations."
+      ],
+      "expectations": {
+        "displayList": "generated/css-modules/references/display-list/phase6-paint-effects-transforms.json",
+        "render": "generated/css-modules/references/images/phase6-paint-effects-transforms.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "display-list",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase6-paint-pseudo-shadow-gaps-001",
+      "title": "Display-list and render Phase 6 CSS pseudo, shadow, and gap paint probes",
+      "cluster": "css-modules",
+      "subcluster": "phase6-paint-effects",
+      "featureId": "css-module-phase6-paint-pseudo-shadow-gaps",
+      "spec": [
+        {
+          "section": "CSS Pseudo-Elements Level 4",
+          "url": "https://www.w3.org/TR/css-pseudo-4/"
+        },
+        {
+          "section": "CSS Shadow Parts Level 1",
+          "url": "https://www.w3.org/TR/css-shadow-parts-1/"
+        },
+        {
+          "section": "CSS Gap Decorations Level 1",
+          "url": "https://www.w3.org/TR/css-gaps-1/"
+        },
+        {
+          "section": "CSS Borders and Box Decorations Level 4",
+          "url": "https://www.w3.org/TR/css-borders-4/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase6-paint-pseudo-shadow-gaps.html",
+      "assertions": [
+        "The display-list dumper and renderer emit deterministic paint primitives and pixels for pseudo-element generated content, text shadow, box shadow, flex gaps, marker styling, part selector parsing, and gap-decoration declarations."
+      ],
+      "expectations": {
+        "displayList": "generated/css-modules/references/display-list/phase6-paint-pseudo-shadow-gaps.json",
+        "render": "generated/css-modules/references/images/phase6-paint-pseudo-shadow-gaps.png"
+      },
+      "requires": [
+        "html-parser",
+        "css-parser",
+        "layout",
+        "display-list",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase7-runtime-dynamic-timelines-001",
+      "title": "Parse Phase 7 runtime-boundary CSS dynamic timeline syntax",
+      "cluster": "css-modules",
+      "subcluster": "phase7-runtime-boundary",
+      "featureId": "css-module-phase7-runtime-dynamic-timelines",
+      "spec": [
+        {
+          "section": "CSS Animations Level 1/2",
+          "url": "https://www.w3.org/TR/css-animations-2/"
+        },
+        {
+          "section": "CSS Transitions Level 1/2",
+          "url": "https://www.w3.org/TR/css-transitions-2/"
+        },
+        {
+          "section": "Scroll-driven Animations",
+          "url": "https://www.w3.org/TR/scroll-animations-1/"
+        },
+        {
+          "section": "CSS View Transitions Level 1/2",
+          "url": "https://www.w3.org/TR/css-view-transitions-2/"
+        },
+        {
+          "section": "Motion Path Level 1",
+          "url": "https://www.w3.org/TR/motion-1/"
+        },
+        {
+          "section": "Web Animations",
+          "url": "https://www.w3.org/TR/web-animations-2/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase7-runtime-dynamic-timelines.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for dynamic timeline syntax while the browser-runtime animation, transition, scroll-timeline, view-transition, motion-path, and Web Animations APIs remain outside static renderer release gates."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/phase7-runtime-dynamic-timelines.json"
+      },
+      "requires": [
+        "css-parser",
+        "browser-runtime-boundary"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "css-module-phase7-runtime-cssom-houdini-001",
+      "title": "Parse Phase 7 runtime-boundary CSSOM and Houdini-adjacent syntax",
+      "cluster": "css-modules",
+      "subcluster": "phase7-runtime-boundary",
+      "featureId": "css-module-phase7-runtime-cssom-houdini",
+      "spec": [
+        {
+          "section": "CSS Object Model",
+          "url": "https://www.w3.org/TR/cssom-1/"
+        },
+        {
+          "section": "CSSOM View",
+          "url": "https://www.w3.org/TR/cssom-view-1/"
+        },
+        {
+          "section": "CSS Typed OM Level 1",
+          "url": "https://www.w3.org/TR/css-typed-om-1/"
+        },
+        {
+          "section": "CSS Painting API Level 1",
+          "url": "https://www.w3.org/TR/css-paint-api-1/"
+        },
+        {
+          "section": "CSS Layout API Level 1",
+          "url": "https://www.w3.org/TR/css-layout-api-1/"
+        },
+        {
+          "section": "CSS Custom Highlight API Level 1",
+          "url": "https://www.w3.org/TR/css-highlight-api-1/"
+        },
+        {
+          "section": "CSS Font Loading Module Level 3",
+          "url": "https://www.w3.org/TR/css-font-loading-3/"
+        },
+        {
+          "section": "Resize Observer",
+          "url": "https://www.w3.org/TR/resize-observer-1/"
+        },
+        {
+          "section": "CSS Spatial Navigation Level 1",
+          "url": "https://www.w3.org/TR/css-nav-1/"
+        }
+      ],
+      "input": "generated/css-modules/cases/phase7-runtime-cssom-houdini.css",
+      "assertions": [
+        "The CSS parser emits a deterministic stylesheet dump or stable no-crash behavior for CSSOM/Houdini-adjacent stylesheet syntax while script-visible CSSOM, Typed OM, worklet, highlight registry, resize observer, and navigation runtimes remain outside static renderer release gates."
+      ],
+      "expectations": {
+        "css": "generated/css-modules/references/css/phase7-runtime-cssom-houdini.json"
+      },
+      "requires": [
+        "css-parser",
+        "browser-runtime-boundary"
       ],
       "scripts": "not-required",
       "status": "active"

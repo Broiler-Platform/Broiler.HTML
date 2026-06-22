@@ -14,7 +14,7 @@ test-suite structure. This plan is about implementation architecture, subsystem
 ownership, conformance gates, and how to turn parser/no-crash coverage into
 computed-style, layout, display-list, and pixel-level correctness.
 
-The current merged HTML+CSS suite is healthy: 150 active cases pass, all 130
+The current merged HTML+CSS suite is healthy: 154 active cases pass, all 130
 CSS current-work registry rows are covered or classified, and no planned
 coverage items are uncovered. That does not mean Broiler.HTML implements every
 CSS behavior. Many CSS module rows currently have parser, stress, or no-crash
@@ -54,13 +54,13 @@ a separate product decision.
 
 As of this plan:
 
-- Comprehensive merged suite: 150 cases, 150 passing.
-- CSS module generated cases: 29.
+- Comprehensive merged suite: 163 cases, 163 passing.
+- CSS module generated cases: 42.
 - CSS current-work registry rows: 130.
-- CSS module current oracle depth: 20 computed-style rows, 24 render rows, 65
+- CSS module current oracle depth: 20 computed-style rows, 73 render rows, 16
   parser rows, and 21 static-renderer out-of-scope rows.
 - CSS implementation-depth gaps before the static-renderer completion target:
-  49.
+  0.
 - Registry rows by support level: 43 required, 50 recommended, 16 experimental,
   21 out of scope.
 - Registry rows by family:
@@ -80,9 +80,13 @@ As of this plan:
   - ui-and-forms: 4
   - values-and-units: 7
 
-The current CSS module suite primarily proves inventory closure, parser
-stability, and resource isolation. The next implementation phase must assign
-each in-scope row a target oracle depth.
+The current CSS module suite proves inventory closure, parser stability,
+resource isolation, computed-style coverage, layout coverage, display-list
+coverage, and render baselines for all required/recommended static-renderer
+rows. It also carries runtime-boundary parser smokes for browser-runtime CSS
+syntax while keeping those APIs outside static-renderer release gates. Later
+work should deepen section-by-section assertions beyond these target-oracle
+smoke gates.
 
 ## Completion Scorecard
 
@@ -404,6 +408,17 @@ Exit criteria:
   Generated Content have layout and render baselines.
 - Large layout stress tests have bounded runtime and memory.
 
+Phase 4 artifacts:
+
+- `npm run html52:css-generate-phase4-implementation` generates four HTML
+  layout fixtures for flex/grid/alignment, tables/multicolumn/regions,
+  media/paged/fragmentation, and lists/generated content.
+- `npm run html52:css-modern-layout` runs the focused `phase4-layout-render`
+  subcluster.
+- The merged suite now carries four additional CSS module cases with both layout
+  JSON and render PNG baselines, raising the root manifest to 154 active cases
+  and reducing implementation-depth gaps from 49 to 30.
+
 ### Phase 5: Text, Fonts, And Writing Modes
 
 Families:
@@ -424,6 +439,16 @@ Exit criteria:
   fonts.
 - Writing modes and logical layout interact correctly with layout systems.
 
+Phase 5 artifacts:
+
+- `npm run html52:css-generate-phase5-implementation` generates three HTML
+  text fixtures for fonts/features, inline text/ruby, and writing-mode/bidi.
+- `npm run html52:css-text` runs the focused `phase5-text-fonts` subcluster.
+- The merged suite now carries three additional CSS module cases with
+  computed-style, layout JSON, and render PNG baselines, raising the root
+  manifest to 157 active cases and reducing implementation-depth gaps from 30
+  to 19.
+
 ### Phase 6: Paint, Images, And Effects
 
 Families:
@@ -442,6 +467,20 @@ Exit criteria:
 
 - Paint rows have display-list and render tests.
 - Visual mismatches can be diagnosed without looking only at final pixels.
+
+Phase 6 artifacts:
+
+- `npm run html52:css-generate-phase6-implementation` generates four HTML
+  paint fixtures for background/color/border paint, images/masks/shapes,
+  effects/transforms/compositing, and pseudo/shadow/gap paint.
+- `npm run html52:css-paint` runs the focused `phase6-paint-effects`
+  subcluster.
+- The display-list dumper now serializes transform, gradient, tiled image,
+  blend-mode, SVG, rounded-clip, and text-shadow/gradient paint fields so
+  paint regressions can be diagnosed before pixel comparison.
+- The merged suite now carries four additional CSS module cases with
+  display-list JSON and render PNG baselines, raising the root manifest to 161
+  active cases and reducing implementation-depth gaps from 19 to 0.
 
 ### Phase 7: Runtime CSS Platform Decision
 
@@ -470,6 +509,20 @@ Exit criteria for static renderer:
 
 - Runtime rows remain classified and tested for safe parsing or deterministic
   non-support.
+
+Phase 7 artifacts:
+
+- `npm run html52:css-generate-phase7-runtime` generates two parser-only CSS
+  fixtures for dynamic timeline syntax and CSSOM/Houdini-adjacent stylesheet
+  syntax.
+- `npm run html52:css-runtime` runs the focused `phase7-runtime-boundary`
+  subcluster.
+- The runtime-boundary coverage links 20 browser-runtime rows to deterministic
+  parser/no-crash oracles while preserving their `out-of-scope` oracle target;
+  the aural Speech row remains an aural-backend boundary.
+- The merged suite now carries two additional CSS module parser cases, raising
+  the root manifest to 163 active cases while keeping implementation-depth gaps
+  at 0.
 
 Exit criteria for full platform:
 

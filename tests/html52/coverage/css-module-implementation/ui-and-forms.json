@@ -25,7 +25,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
       "reason": "Requires focus navigation behavior and event/runtime integration."
     },
     {

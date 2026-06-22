@@ -1,0 +1,883 @@
+{
+  "x": 0,
+  "y": 0,
+  "width": 800,
+  "height": 371,
+  "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+  "stackLevel": 0,
+  "createsStackingContext": false,
+  "lines": [],
+  "children": [
+    {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 371,
+      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+      "stackLevel": 0,
+      "createsStackingContext": false,
+      "lines": [],
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "stackLevel": 0,
+          "createsStackingContext": false,
+          "lines": [],
+          "children": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "stackLevel": 0,
+              "createsStackingContext": false,
+              "lines": [],
+              "children": []
+            },
+            {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "stackLevel": 0,
+              "createsStackingContext": false,
+              "lines": [],
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [],
+                  "children": []
+                }
+              ]
+            },
+            {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "stackLevel": 0,
+              "createsStackingContext": false,
+              "lines": [],
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "x": 0,
+          "y": 8,
+          "width": 800,
+          "height": 363,
+          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "stackLevel": 0,
+          "createsStackingContext": false,
+          "lines": [],
+          "children": [
+            {
+              "x": 8,
+              "y": 8,
+              "width": 720,
+              "height": 363,
+              "margin": { "top": 8, "right": 8, "bottom": 8, "left": 8 },
+              "border": { "top": 2, "right": 2, "bottom": 2, "left": 2 },
+              "padding": { "top": 8, "right": 8, "bottom": 8, "left": 8 },
+              "stackLevel": 0,
+              "createsStackingContext": false,
+              "lines": [],
+              "children": [
+                {
+                  "x": 18,
+                  "y": 18,
+                  "width": 341,
+                  "height": 97,
+                  "margin": { "top": 0, "right": 0, "bottom": 12, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [],
+                  "children": [
+                    {
+                      "x": 0,
+                      "y": 0,
+                      "width": 0,
+                      "height": 0,
+                      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [],
+                      "children": [
+                        {
+                          "x": 17,
+                          "y": 17,
+                          "width": 105,
+                          "height": 50,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+                          "padding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [
+                            {
+                              "x": 25,
+                              "y": 25,
+                              "width": 10.44,
+                              "height": 18.56,
+                              "baseline": 0,
+                              "inlines": [
+                                {
+                                  "x": 25,
+                                  "y": 32.72,
+                                  "width": 10.44,
+                                  "height": 18.56,
+                                  "text": "A"
+                                }
+                              ]
+                            }
+                          ],
+                          "children": [
+                            {
+                              "x": 0,
+                              "y": 7.72,
+                              "width": 0,
+                              "height": 0,
+                              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "stackLevel": 0,
+                              "createsStackingContext": false,
+                              "lines": [],
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "x": 121,
+                          "y": 17,
+                          "width": 135,
+                          "height": 50,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+                          "padding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [
+                            {
+                              "x": 129,
+                              "y": 25,
+                              "width": 9.97,
+                              "height": 18.56,
+                              "baseline": 0,
+                              "inlines": [
+                                {
+                                  "x": 129,
+                                  "y": 32.72,
+                                  "width": 9.97,
+                                  "height": 18.56,
+                                  "text": "B"
+                                }
+                              ]
+                            }
+                          ],
+                          "children": [
+                            {
+                              "x": 0,
+                              "y": 7.72,
+                              "width": 0,
+                              "height": 0,
+                              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "stackLevel": 0,
+                              "createsStackingContext": false,
+                              "lines": [],
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "x": 255,
+                          "y": 17,
+                          "width": 105,
+                          "height": 50,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+                          "padding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [
+                            {
+                              "x": 263,
+                              "y": 25,
+                              "width": 10.41,
+                              "height": 18.56,
+                              "baseline": 0,
+                              "inlines": [
+                                {
+                                  "x": 263,
+                                  "y": 32.72,
+                                  "width": 10.41,
+                                  "height": 18.56,
+                                  "text": "C"
+                                }
+                              ]
+                            }
+                          ],
+                          "children": [
+                            {
+                              "x": 0,
+                              "y": 7.72,
+                              "width": 0,
+                              "height": 0,
+                              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "stackLevel": 0,
+                              "createsStackingContext": false,
+                              "lines": [],
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "x": 0,
+                      "y": 0,
+                      "width": 0,
+                      "height": 0,
+                      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [],
+                      "children": [
+                        {
+                          "x": 17,
+                          "y": 66,
+                          "width": 105,
+                          "height": 50,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+                          "padding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [
+                            {
+                              "x": 25,
+                              "y": 74,
+                              "width": 10.5,
+                              "height": 18.56,
+                              "baseline": 0,
+                              "inlines": [
+                                {
+                                  "x": 25,
+                                  "y": 81.72,
+                                  "width": 10.5,
+                                  "height": 18.56,
+                                  "text": "D"
+                                }
+                              ]
+                            }
+                          ],
+                          "children": [
+                            {
+                              "x": 0,
+                              "y": 7.72,
+                              "width": 0,
+                              "height": 0,
+                              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "stackLevel": 0,
+                              "createsStackingContext": false,
+                              "lines": [],
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "x": 121,
+                          "y": 66,
+                          "width": 135,
+                          "height": 50,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+                          "padding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [
+                            {
+                              "x": 129,
+                              "y": 74,
+                              "width": 9.09,
+                              "height": 18.56,
+                              "baseline": 0,
+                              "inlines": [
+                                {
+                                  "x": 129,
+                                  "y": 81.72,
+                                  "width": 9.09,
+                                  "height": 18.56,
+                                  "text": "E"
+                                }
+                              ]
+                            }
+                          ],
+                          "children": [
+                            {
+                              "x": 0,
+                              "y": 7.72,
+                              "width": 0,
+                              "height": 0,
+                              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "stackLevel": 0,
+                              "createsStackingContext": false,
+                              "lines": [],
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "x": 255,
+                          "y": 66,
+                          "width": 105,
+                          "height": 50,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+                          "padding": { "top": 5, "right": 5, "bottom": 5, "left": 5 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [
+                            {
+                              "x": 263,
+                              "y": 74,
+                              "width": 8.84,
+                              "height": 18.56,
+                              "baseline": 0,
+                              "inlines": [
+                                {
+                                  "x": 263,
+                                  "y": 81.72,
+                                  "width": 8.84,
+                                  "height": 18.56,
+                                  "text": "F"
+                                }
+                              ]
+                            }
+                          ],
+                          "children": [
+                            {
+                              "x": 0,
+                              "y": 7.72,
+                              "width": 0,
+                              "height": 0,
+                              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                              "stackLevel": 0,
+                              "createsStackingContext": false,
+                              "lines": [],
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 127,
+                  "width": 408,
+                  "height": 102,
+                  "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+                  "padding": { "top": 6, "right": 6, "bottom": 6, "left": 6 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [],
+                  "children": [
+                    {
+                      "x": 36,
+                      "y": 136,
+                      "width": 102.67,
+                      "height": 40,
+                      "margin": { "top": 0, "right": 0, "bottom": 6, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [
+                        {
+                          "x": 27,
+                          "y": 136,
+                          "width": 76.53,
+                          "height": 18.56,
+                          "baseline": 0,
+                          "inlines": [
+                            {
+                              "x": 36,
+                              "y": 136,
+                              "width": 40.83,
+                              "height": 18.56,
+                              "text": "Alpha"
+                            },
+                            {
+                              "x": 81.12,
+                              "y": 136,
+                              "width": 31.41,
+                              "height": 18.56,
+                              "text": "beta"
+                            }
+                          ]
+                        },
+                        {
+                          "x": 27,
+                          "y": 156,
+                          "width": 98.43,
+                          "height": 18.56,
+                          "baseline": 0,
+                          "inlines": [
+                            {
+                              "x": 36,
+                              "y": 156,
+                              "width": 54.45,
+                              "height": 18.56,
+                              "text": "gamma"
+                            },
+                            {
+                              "x": 94.75,
+                              "y": 156,
+                              "width": 39.68,
+                              "height": 18.56,
+                              "text": "delta."
+                            }
+                          ]
+                        }
+                      ],
+                      "children": [
+                        {
+                          "x": 9,
+                          "y": 0,
+                          "width": 0,
+                          "height": 0,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [],
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "x": 36,
+                      "y": 176,
+                      "width": 102.67,
+                      "height": 40,
+                      "margin": { "top": 0, "right": 0, "bottom": 6, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [
+                        {
+                          "x": 27,
+                          "y": 182,
+                          "width": 86.73,
+                          "height": 18.56,
+                          "baseline": 0,
+                          "inlines": [
+                            {
+                              "x": 36,
+                              "y": 176,
+                              "width": 52.08,
+                              "height": 18.56,
+                              "text": "Epsilon"
+                            },
+                            {
+                              "x": 92.38,
+                              "y": 176,
+                              "width": 30.36,
+                              "height": 18.56,
+                              "text": "zeta"
+                            }
+                          ]
+                        },
+                        {
+                          "x": 27,
+                          "y": 202,
+                          "width": 67.53,
+                          "height": 18.56,
+                          "baseline": 0,
+                          "inlines": [
+                            {
+                              "x": 36,
+                              "y": 196,
+                              "width": 22.42,
+                              "height": 18.56,
+                              "text": "eta"
+                            },
+                            {
+                              "x": 62.72,
+                              "y": 196,
+                              "width": 40.81,
+                              "height": 18.56,
+                              "text": "theta."
+                            }
+                          ]
+                        }
+                      ],
+                      "children": [
+                        {
+                          "x": 9,
+                          "y": -6,
+                          "width": 0,
+                          "height": 0,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [],
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "x": 170.67,
+                      "y": 136,
+                      "width": 102.67,
+                      "height": 40,
+                      "margin": { "top": 0, "right": 0, "bottom": 6, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [
+                        {
+                          "x": 27,
+                          "y": 228,
+                          "width": 75.2,
+                          "height": 18.56,
+                          "baseline": 0,
+                          "inlines": [
+                            {
+                              "x": 170.67,
+                              "y": 136,
+                              "width": 27.41,
+                              "height": 18.56,
+                              "text": "Iota"
+                            },
+                            {
+                              "x": 202.38,
+                              "y": 136,
+                              "width": 43.48,
+                              "height": 18.56,
+                              "text": "kappa"
+                            }
+                          ]
+                        },
+                        {
+                          "x": 27,
+                          "y": 248,
+                          "width": 84.83,
+                          "height": 18.56,
+                          "baseline": 0,
+                          "inlines": [
+                            {
+                              "x": 170.67,
+                              "y": 156,
+                              "width": 53.34,
+                              "height": 18.56,
+                              "text": "lambda"
+                            },
+                            {
+                              "x": 228.3,
+                              "y": 156,
+                              "width": 27.2,
+                              "height": 18.56,
+                              "text": "mu."
+                            }
+                          ]
+                        }
+                      ],
+                      "children": [
+                        {
+                          "x": 143.67,
+                          "y": -92,
+                          "width": 0,
+                          "height": 0,
+                          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                          "stackLevel": 0,
+                          "createsStackingContext": false,
+                          "lines": [],
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 241,
+                  "width": 250,
+                  "height": 32,
+                  "margin": { "top": 12, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [
+                    {
+                      "x": 18,
+                      "y": 241,
+                      "width": 106.74,
+                      "height": 18.56,
+                      "baseline": 0,
+                      "inlines": [
+                        {
+                          "x": 18,
+                          "y": 241,
+                          "width": 29.83,
+                          "height": 18.56,
+                          "text": "Line"
+                        },
+                        {
+                          "x": 52.12,
+                          "y": 241,
+                          "width": 27.32,
+                          "height": 18.56,
+                          "text": "grid"
+                        },
+                        {
+                          "x": 83.74,
+                          "y": 241,
+                          "width": 41,
+                          "height": 18.56,
+                          "text": "probe"
+                        }
+                      ]
+                    }
+                  ],
+                  "children": [
+                    {
+                      "x": 0,
+                      "y": 0,
+                      "width": 0,
+                      "height": 0,
+                      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [],
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 281,
+                  "width": 160,
+                  "height": 22,
+                  "margin": { "top": 8, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [
+                    {
+                      "x": 18,
+                      "y": 281,
+                      "width": 101.96,
+                      "height": 18.56,
+                      "baseline": 0,
+                      "inlines": [
+                        {
+                          "x": 18,
+                          "y": 281,
+                          "width": 49.18,
+                          "height": 18.56,
+                          "text": "Region"
+                        },
+                        {
+                          "x": 71.48,
+                          "y": 281,
+                          "width": 48.48,
+                          "height": 18.56,
+                          "text": "source"
+                        }
+                      ]
+                    }
+                  ],
+                  "children": [
+                    {
+                      "x": 0,
+                      "y": 0,
+                      "width": 0,
+                      "height": 0,
+                      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [],
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 307,
+                  "width": 160,
+                  "height": 22,
+                  "margin": { "top": 4, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [
+                    {
+                      "x": 18,
+                      "y": 307,
+                      "width": 95.54,
+                      "height": 18.56,
+                      "baseline": 0,
+                      "inlines": [
+                        {
+                          "x": 18,
+                          "y": 307,
+                          "width": 49.18,
+                          "height": 18.56,
+                          "text": "Region"
+                        },
+                        {
+                          "x": 71.48,
+                          "y": 307,
+                          "width": 42.06,
+                          "height": 18.56,
+                          "text": "target"
+                        }
+                      ]
+                    }
+                  ],
+                  "children": [
+                    {
+                      "x": 0,
+                      "y": 0,
+                      "width": 0,
+                      "height": 0,
+                      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [],
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "x": 18,
+                  "y": 337,
+                  "width": 130,
+                  "height": 24,
+                  "margin": { "top": 8, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [
+                    {
+                      "x": 18,
+                      "y": 337,
+                      "width": 68.23,
+                      "height": 18.56,
+                      "baseline": 0,
+                      "inlines": [
+                        {
+                          "x": 18,
+                          "y": 337,
+                          "width": 68.23,
+                          "height": 18.56,
+                          "text": "Exclusion"
+                        }
+                      ]
+                    }
+                  ],
+                  "children": [
+                    {
+                      "x": 0,
+                      "y": 0,
+                      "width": 0,
+                      "height": 0,
+                      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                      "stackLevel": 0,
+                      "createsStackingContext": false,
+                      "lines": [],
+                      "children": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

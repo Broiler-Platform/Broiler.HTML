@@ -15,18 +15,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
+        "css-module-phase6-paint-pseudo-shadow-gaps-001",
         "css-module-phase4-draft-layout-position-001"
       ],
-      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-paint-api-1",
@@ -45,7 +46,9 @@
       ],
       "scopeDecision": "static-renderer-out-of-scope",
       "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
-      "tests": [],
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
       "reason": "Requires CSS Painting API worklet execution; static CSS parsing remains a negative/no-crash concern."
     },
     {
@@ -55,18 +58,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-text-generated-001"
+        "css-module-phase3-text-generated-001",
+        "css-module-phase6-paint-pseudo-shadow-gaps-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-will-change-1",
@@ -75,18 +79,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "pseudo-4",
@@ -95,18 +100,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-text-generated-001"
+        "css-module-phase3-text-generated-001",
+        "css-module-phase6-paint-pseudo-shadow-gaps-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     }
   ]
 }

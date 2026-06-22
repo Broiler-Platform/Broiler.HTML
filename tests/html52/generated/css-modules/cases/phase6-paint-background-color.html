@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 6 CSS background, color, and border paint</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body { font: 16px/20px serif; background: #ffffff; color: #212529; color-scheme: light; forced-color-adjust: none; print-color-adjust: exact; }
+#phase6-color-root { width: 700px; margin: 8px; padding: 8px; border: 2px solid #212529; background: #f8f9fa; }
+.phase6-paint-row { display: flex; gap: 12px; align-items: flex-start; }
+#phase6-layered-background { width: 180px; height: 86px; padding: 12px; border: 8px double #1864ab; border-radius: 20px 8px 24px 12px; background-color: #d0ebff; background-image: linear-gradient(to right, rgba(255,255,255,.75), rgba(24,100,171,.25)), linear-gradient(to bottom, #4dabf7 0%, #1c7ed6 100%); background-origin: border-box, content-box; background-clip: border-box, content-box; box-decoration-break: clone; }
+#phase6-border-area { width: 150px; height: 80px; padding: 10px; border: 10px solid #e67700; border-radius: 16px; background: #ffe8cc; background-clip: border-area; color: #5c2b00; }
+#phase6-color-functions { width: 180px; height: 86px; padding: 12px; border: 6px solid currentColor; background: #ebfbee; background: color-mix(in srgb, #2b8a3e 68%, white); color: #2b8a3e; color: lab(42% -32 28); outline: 4px solid #66a80f; }
+#phase6-wide-gamut { width: 168px; height: 52px; margin-top: 12px; padding: 8px; border: 5px ridge #862e9c; background: #f3d9fa; background: color(display-p3 0.72 0.35 0.89); color: oklch(45% 0.15 320); dynamic-range-limit: standard; }
+</style>
+</head>
+<body>
+<div id="phase6-color-root">
+<div class="phase6-paint-row">
+<div id="phase6-layered-background">Background layers</div>
+<div id="phase6-border-area">Border area</div>
+<div id="phase6-color-functions">Color functions</div>
+</div>
+<div id="phase6-wide-gamut">Wide gamut fallback</div>
+</div>
+</body>
+</html>

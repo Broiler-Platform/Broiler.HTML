@@ -15,18 +15,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-background-color-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "color",
@@ -35,18 +36,19 @@
       "supportLevel": "required",
       "w3cStatus": "REC",
       "upcomingStatus": "REC",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-values-color-timing-001"
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase6-paint-background-color-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "compositing",
@@ -55,18 +57,19 @@
       "supportLevel": "required",
       "w3cStatus": "CR",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-borders-4",
@@ -75,18 +78,20 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-paint-effects-001"
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-background-color-001",
+        "css-module-phase6-paint-pseudo-shadow-gaps-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-color-4",
@@ -95,18 +100,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-values-color-timing-001"
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase6-paint-background-color-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-color-5",
@@ -115,18 +121,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-paint-effects-001"
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-background-color-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-color-adjust-1",
@@ -135,18 +142,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-background-color-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-color-hdr-1",
@@ -155,18 +163,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
+        "css-module-phase6-paint-background-color-001",
         "css-module-phase4-early-paint-color-001"
       ],
-      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-image-animation-1",
@@ -195,18 +204,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-paint-effects-001"
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-masking",
@@ -215,18 +225,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css-transforms-2",
@@ -235,18 +246,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-paint-effects-001"
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "css4-background",
@@ -295,19 +307,20 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
         "css-module-phase3-paint-effects-001",
-        "css-module-phase3-cross-module-001"
+        "css-module-phase3-cross-module-001",
+        "css-module-phase6-paint-effects-transforms-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "images",
@@ -316,18 +329,19 @@
       "supportLevel": "required",
       "w3cStatus": "CR",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "shapes",
@@ -336,18 +350,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     },
     {
       "moduleId": "transforms",
@@ -356,18 +371,19 @@
       "supportLevel": "required",
       "w3cStatus": "CR",
       "upcomingStatus": "PR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "displayList",
+      "nextOracle": "section-complete-matrix",
       "owner": "paint-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-paint-effects-001"
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
     }
   ]
 }

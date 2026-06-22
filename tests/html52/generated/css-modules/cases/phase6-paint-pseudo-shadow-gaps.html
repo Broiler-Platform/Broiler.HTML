@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 6 CSS pseudo, shadow, and gap paint</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body { font: 16px/20px serif; background: #ffffff; }
+#phase6-shadow-root { width: 700px; margin: 8px; padding: 8px; border: 2px solid #212529; }
+#phase6-shadow-text { width: 300px; min-height: 34px; padding: 8px; color: #862e9c; text-shadow: 3px 3px 0 #eebefa; background: #f8f0fc; border: 3px solid #ae3ec9; }
+#phase6-pseudo-box { width: 320px; margin-top: 12px; padding: 8px; border: 3px solid #c2255c; background: #fff0f6; box-shadow: 6px 6px 0 rgba(194,37,92,.32); }
+#phase6-pseudo-box::before { content: "before"; display: inline-block; width: 66px; height: 22px; margin-right: 8px; background: #fcc2d7; }
+#phase6-pseudo-box::after { content: "after"; display: inline-block; width: 54px; height: 22px; margin-left: 8px; background: #faa2c1; }
+#phase6-gap-flex { display: flex; gap: 12px 18px; row-gap: 12px; column-gap: 18px; width: 360px; margin-top: 14px; padding: 8px; border: 3px solid #0b7285; background: #e3fafc; }
+.phase6-gap-item { width: 56px; height: 34px; background: #66d9e8; box-shadow: 3px 3px 0 #0b7285; }
+#phase6-part-host::part(label) { color: #5c940d; background: #d8f5a2; }
+#phase6-list { margin: 12px 0 0 22px; padding: 0; }
+#phase6-list li::marker { color: #e67700; font-size: 20px; }
+</style>
+</head>
+<body>
+<div id="phase6-shadow-root">
+<div id="phase6-shadow-text">Text shadow paint</div>
+<div id="phase6-pseudo-box">Pseudo content</div>
+<div id="phase6-gap-flex"><div class="phase6-gap-item"></div><div class="phase6-gap-item"></div><div class="phase6-gap-item"></div></div>
+<div id="phase6-part-host"><span part="label">Part selector probe</span></div>
+<ul id="phase6-list"><li>Marker pseudo</li><li>Second marker</li></ul>
+</div>
+</body>
+</html>

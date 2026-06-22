@@ -15,19 +15,20 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
         "css-module-phase3-layout-breadth-001",
-        "css-module-phase3-cross-module-001"
+        "css-module-phase3-cross-module-001",
+        "css-module-phase4-layout-flex-grid-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "css-grid-2",
@@ -36,18 +37,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-box-layout-001"
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "css-grid-3",
@@ -56,18 +58,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-cross-module-001"
+        "css-module-phase3-cross-module-001",
+        "css-module-phase4-layout-flex-grid-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "css-multicol-2",
@@ -96,18 +99,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-layout-breadth-001"
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "flexbox",
@@ -116,18 +120,19 @@
       "supportLevel": "required",
       "w3cStatus": "CR",
       "upcomingStatus": "PR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-box-layout-001"
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "grid-layout",
@@ -136,18 +141,19 @@
       "supportLevel": "required",
       "w3cStatus": "CRD",
       "upcomingStatus": "CR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-box-layout-001"
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "linegrid",
@@ -156,18 +162,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-layout-breadth-001"
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "multicol",
@@ -176,18 +183,19 @@
       "supportLevel": "required",
       "w3cStatus": "CR",
       "upcomingStatus": "PR",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase2-box-layout-001"
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-tables-columns-001"
       ],
-      "reason": "Phase 2 stable-core coverage links this module to executable CSS parser sweep cases; add render/layout oracles in later phases where Broiler.HTML implements the rendering behavior."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "regions",
@@ -196,18 +204,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-layout-breadth-001"
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     },
     {
       "moduleId": "tables",
@@ -216,18 +225,19 @@
       "supportLevel": "recommended",
       "w3cStatus": "WD",
       "upcomingStatus": "WD",
-      "implementationStatus": "parser-smoke",
-      "oracleDepth": "parse",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
       "targetOracleDepth": "render",
-      "nextOracle": "layout",
+      "nextOracle": "section-complete-matrix",
       "owner": "layout-engine",
       "blockedBy": [],
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "tests": [
-        "css-module-phase3-layout-breadth-001"
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
       ],
-      "reason": "Phase 3 renderer-breadth coverage links this module to executable CSS parser sweep cases; add computed-style, layout, display-list, or render oracles as implementation depth grows."
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
     }
   ]
 }
