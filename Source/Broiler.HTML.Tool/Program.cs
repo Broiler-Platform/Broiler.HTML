@@ -106,7 +106,11 @@ internal static class HtmlImageRendererCli
         var format = ResolveFormat(options.Format, outputPath);
         var stylesheetLoad = options.DisableNetwork ? CreateNetworkBlockingStylesheetHandler(baseUrl) : null;
         var imageLoad = options.DisableNetwork ? CreateNetworkBlockingImageHandler(baseUrl) : null;
-        if (options.AutoSize)
+        if (options.Pipeline)
+        {
+            RenderThroughPipeline(options, html!, baseUrl, outputPath, format, stylesheetLoad, imageLoad);
+        }
+        else if (options.AutoSize)
         {
             HtmlRender.RenderToFileAutoSized(
                 html!,
@@ -135,6 +139,53 @@ internal static class HtmlImageRendererCli
 
         Console.Out.WriteLine($"Rendered {format.ToString().ToUpperInvariant()} image to {outputPath}");
         return 0;
+    }
+
+    private static void RenderThroughPipeline(
+        RenderCliOptions options,
+        string html,
+        string? baseUrl,
+        string outputPath,
+        BImageFormat format,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad)
+    {
+#if WINDOWS
+        if (!OperatingSystem.IsWindowsVersionAtLeast(7))
+            throw new PlatformNotSupportedException("--pipeline requires Windows 7 or newer.");
+
+        using var renderer = new Broiler.Graphics.Windows.Direct2DRenderer();
+        if (options.AutoSize)
+        {
+            Broiler.HTML.Graphics.HtmlRender.RenderPipelineToFileAutoSized(
+                renderer,
+                html,
+                outputPath,
+                options.MaxWidth,
+                options.MaxHeight,
+                ToGraphicsFormat(format),
+                options.Quality,
+                stylesheetLoad: stylesheetLoad,
+                imageLoad: imageLoad,
+                baseUrl: baseUrl);
+        }
+        else
+        {
+            Broiler.HTML.Graphics.HtmlRender.RenderPipelineToFile(
+                renderer,
+                html,
+                options.Width ?? DefaultWidth,
+                options.Height ?? DefaultHeight,
+                outputPath,
+                ToGraphicsFormat(format),
+                options.Quality,
+                stylesheetLoad: stylesheetLoad,
+                imageLoad: imageLoad,
+                baseUrl: baseUrl);
+        }
+#else
+        throw new PlatformNotSupportedException("--pipeline requires the Broiler.HTML.Tool Windows target.");
+#endif
     }
 
     private static int RunCompare(string[] args)
@@ -472,6 +523,10 @@ internal static class HtmlImageRendererCli
                     break;
                 case "--auto-size":
                     options.AutoSize = true;
+                    break;
+                case "--pipeline":
+                case "--direct2d":
+                    options.Pipeline = true;
                     break;
                 case "--disable-network":
                     options.DisableNetwork = true;
@@ -839,6 +894,14 @@ internal static class HtmlImageRendererCli
         };
     }
 
+#if WINDOWS
+    private static Broiler.Graphics.BImageEncodeFormat ToGraphicsFormat(BImageFormat format) => format switch
+    {
+        BImageFormat.Jpeg => Broiler.Graphics.BImageEncodeFormat.Jpeg,
+        _ => Broiler.Graphics.BImageEncodeFormat.Png,
+    };
+#endif
+
     private static bool IsHelpArgument(string argument)
         => argument is "--help" or "-h" or "-?";
 
@@ -907,6 +970,7 @@ internal static class HtmlImageRendererCli
               --auto-size             Size the image to the rendered content instead of a fixed viewport.
               --max-width <px>        Maximum width used with --auto-size. 0 means unbounded.
               --max-height <px>       Maximum height used with --auto-size. 0 means unbounded.
+              --pipeline              Render through Broiler.Graphics and Direct2D on Windows.
               --disable-network       Treat http/https stylesheets and images as unavailable.
           -q, --quality <1-100>       JPEG quality. Ignored for PNG. Defaults to 90.
           -h, --help                  Show help.
@@ -1057,6 +1121,8 @@ internal static class HtmlImageRendererCli
         public int Quality { get; set; } = 90;
 
         public bool AutoSize { get; set; }
+
+        public bool Pipeline { get; set; }
 
         public bool DisableNetwork { get; set; }
     }

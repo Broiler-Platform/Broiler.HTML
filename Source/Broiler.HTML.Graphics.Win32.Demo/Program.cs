@@ -66,7 +66,13 @@ internal static class Program
 
             using var client = new HttpClient();
             client.DefaultRequestHeaders.UserAgent.ParseAdd("Broiler.HTML.Graphics.Win32.Demo/1.0");
-            return client.GetStringAsync(uri).GetAwaiter().GetResult();
+            using var response = client.GetAsync(uri).GetAwaiter().GetResult();
+            response.EnsureSuccessStatusCode();
+
+            if (response.RequestMessage?.RequestUri is { } responseUri)
+                baseUrl = responseUri.AbsoluteUri;
+
+            return response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
         }
 
         string path = Path.GetFullPath(source);
