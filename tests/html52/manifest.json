@@ -1300,6 +1300,34 @@
       "status": "active"
     },
     {
+      "id": "html52-table-render-single-cell-colspan-001",
+      "title": "Render a single-cell table row with colspan",
+      "cluster": "tables",
+      "subcluster": "phase3-tables-render",
+      "featureId": "cluster-tables",
+      "spec": [
+        {
+          "section": "10.3.9",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#tables-2"
+        }
+      ],
+      "input": "cases/tables/colspan-single-cell.html",
+      "assertions": [
+        "A row containing one table cell with colspan still reserves the spanned table grid columns."
+      ],
+      "expectations": {
+        "render": "references/images/table-colspan-single-cell.png"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "table-layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
       "id": "html52-table-render-column-widths-001",
       "title": "Render table columns with different widths",
       "cluster": "tables",
@@ -1869,7 +1897,8 @@
         "Link href resources are logged by role while preserving local-only resolution."
       ],
       "expectations": {
-        "resourceLog": "references/resource-log/link-resources.json"
+        "resourceLog": "references/resource-log/link-resources.json",
+        "computedStyle": "references/computed-style/link-local-stylesheet.json"
       },
       "requires": [
         "html-parser",
@@ -3303,6 +3332,87 @@
         "layout",
         "paint",
         "image-loader"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-regression-flex-row-shrink-001",
+      "title": "Shrink row flex items instead of stacking them",
+      "cluster": "regressions",
+      "subcluster": "phase6-regression",
+      "featureId": "cluster-regression-fixtures",
+      "spec": [
+        {
+          "section": "10.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/regressions/flex-row-shrink.html",
+      "assertions": [
+        "A row flex container shrinks oversized direct children onto one horizontal line."
+      ],
+      "expectations": {
+        "layout": "references/layout/regression-flex-row-shrink.json"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-regression-flex-nested-row-in-column-001",
+      "title": "Lay out nested row flex content inside column flex fallback",
+      "cluster": "regressions",
+      "subcluster": "phase6-regression",
+      "featureId": "cluster-regression-fixtures",
+      "spec": [
+        {
+          "section": "10.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/regressions/flex-nested-row-in-column.html",
+      "assertions": [
+        "A nested row flex container reached through the inline-block fallback keeps its columns on the same horizontal line."
+      ],
+      "expectations": {
+        "layout": "references/layout/regression-flex-nested-row-in-column.json"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-regression-surrogate-pair-break-all-001",
+      "title": "Preserve surrogate pairs while breaking words",
+      "cluster": "regressions",
+      "subcluster": "phase6-regression",
+      "featureId": "cluster-regression-fixtures",
+      "spec": [
+        {
+          "section": "10.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#flow-content-3"
+        }
+      ],
+      "input": "cases/regressions/surrogate-pair-break-all.html",
+      "assertions": [
+        "A supplementary Unicode character remains one inline text fragment when word-break permits per-character breaks."
+      ],
+      "expectations": {
+        "layout": "references/layout/regression-surrogate-pair-break-all.json"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout"
       ],
       "scripts": "not-required",
       "status": "active"

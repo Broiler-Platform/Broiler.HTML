@@ -147,6 +147,10 @@ public sealed class ComputedStyle
     // --- Flex ---
 
     public string FlexDirection { get; init; } = "row";
+    public string FlexGrow { get; init; } = "0";
+    public string FlexShrink { get; init; } = "1";
+    public string FlexBasis { get; init; } = "auto";
+    public string FlexWrap { get; init; } = "nowrap";
     public string JustifyContent { get; init; } = "flex-start";
     public string AlignItems { get; init; } = "stretch";
 

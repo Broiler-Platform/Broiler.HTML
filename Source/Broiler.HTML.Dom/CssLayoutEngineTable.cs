@@ -322,16 +322,11 @@ internal sealed class CssLayoutEngineTable
 
     private double CalculateCountAndWidth()
     {
-        //Columns
-        if (_columns.Count > 0)
-        {
-            _columnCount = _columns.Count;
-        }
-        else
-        {
-            foreach (CssBox b in _allRows)
-                _columnCount = Math.Max(_columnCount, b.Boxes.Count);
-        }
+        // Columns. Count the effective grid columns, not just the number of
+        // physical cell boxes, because a one-cell row can span several columns.
+        _columnCount = _columns.Count;
+        foreach (CssBox row in _allRows)
+            _columnCount = Math.Max(_columnCount, GetColumnSpanCount(row));
 
         //Initialize column widths array with NaNs
         _columnWidths = new double[_columnCount];
@@ -366,29 +361,66 @@ internal sealed class CssLayoutEngineTable
             foreach (CssBox row in _allRows)
             {
                 //Check for column width in table-cell definitions
-                for (int i = 0; i < _columnCount; i++)
+                int columnIndex = 0;
+                foreach (CssBox cell in row.Boxes)
                 {
-                    if (i >= 20 && !double.IsNaN(_columnWidths[i])) // limit column width check
-                        continue;
+                    int colspan = GetColSpan(cell);
+                    int endColumn = Math.Min(_columnWidths.Length, columnIndex + colspan);
+                    if (columnIndex >= _columnWidths.Length)
+                        break;
 
-                    if (i >= row.Boxes.Count || row.Boxes[i].Display != CssConstants.TableCell)
+                    if (cell.Display != CssConstants.TableCell)
+                    {
+                        columnIndex += colspan;
                         continue;
+                    }
 
-                    double len = CssValueParser.ParseLength(row.Boxes[i].Width, availCellSpace, row.Boxes[i].GetEmHeight());
+                    if (columnIndex >= 20)
+                    {
+                        bool spanAlreadyResolved = true;
+                        for (int j = columnIndex; j < endColumn; j++)
+                        {
+                            if (double.IsNaN(_columnWidths[j]))
+                            {
+                                spanAlreadyResolved = false;
+                                break;
+                            }
+                        }
+
+                        if (spanAlreadyResolved)
+                        {
+                            columnIndex += colspan;
+                            continue;
+                        }
+                    }
+
+                    double len = CssValueParser.ParseLength(cell.Width, availCellSpace, cell.GetEmHeight());
 
                     if (len <= 0) //If some width specified
+                    {
+                        columnIndex += colspan;
                         continue;
+                    }
 
-                    int colspan = GetColSpan(row.Boxes[i]);
                     len /= Convert.ToSingle(colspan);
 
-                    for (int j = i; j < i + colspan; j++)
+                    for (int j = columnIndex; j < endColumn; j++)
                         _columnWidths[j] = double.IsNaN(_columnWidths[j]) ? len : Math.Max(_columnWidths[j], len);
+
+                    columnIndex += colspan;
                 }
             }
         }
 
         return availCellSpace;
+    }
+
+    private static int GetColumnSpanCount(CssBox row)
+    {
+        int count = 0;
+        foreach (CssBox cell in row.Boxes)
+            count += GetColSpan(cell);
+        return count;
     }
 
     private void DetermineMissingColumnWidths(double availCellSpace)
@@ -635,17 +667,6 @@ internal sealed class CssLayoutEngineTable
         double maxBottom = 0f;
         int currentrow = 0;
 
-        // change start X by if the table should align to center or right
-        if (_tableBox.TextAlign == CssConstants.Center || _tableBox.TextAlign == CssConstants.Right)
-        {
-            double maxRightCalc = GetWidthSum();
-            startx = _tableBox.TextAlign == CssConstants.Right
-                ? GetAvailableTableWidth() - maxRightCalc
-                : startx + (GetAvailableTableWidth() - maxRightCalc) / 2;
-
-            _tableBox.Location = new PointF((float)(startx - _tableBox.ActualBorderLeftWidth - _tableBox.ActualPaddingLeft - GetHorizontalSpacing()), _tableBox.Location.Y);
-        }
-
         for (int i = 0; i < _allRows.Count; i++)
         {
             var row = _allRows[i];
@@ -807,7 +828,7 @@ internal sealed class CssLayoutEngineTable
     {
         string att = b.GetAttribute("colspan", "1");
 
-        if (!int.TryParse(att, out int colspan))
+        if (!int.TryParse(att, out int colspan) || colspan < 1)
             return 1;
 
         return colspan;

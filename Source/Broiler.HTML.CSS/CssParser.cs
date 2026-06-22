@@ -1309,6 +1309,9 @@ internal sealed partial class CssParser
                         properties["column-count"] = "auto";
                 }
                 break;
+            case "flex":
+                ParseFlexShorthand(propValue, properties);
+                break;
             case "animation":
                 ParseAnimationShorthand(propValue, properties);
                 break;
@@ -1486,7 +1489,7 @@ internal sealed partial class CssParser
         "font" or "border" or "border-left" or "border-top" or "border-right" or
         "border-bottom" or "border-inline" or "border-block" or
         "margin" or "border-style" or "border-width" or
-        "border-color" or "padding" or "background" or "columns" or "animation" => true,
+        "border-color" or "padding" or "background" or "columns" or "flex" or "animation" => true,
         _ => false
     };
 
@@ -1584,6 +1587,94 @@ internal sealed partial class CssParser
             IsValidAttrLengthExpression(propValue))
         properties[propName] = propValue;
     }
+
+    private static void ParseFlexShorthand(string propValue, Dictionary<string, string> properties)
+    {
+        if (string.IsNullOrWhiteSpace(propValue))
+            return;
+
+        var lower = propValue.Trim().ToLowerInvariant();
+        if (lower == "none")
+        {
+            properties["flex-grow"] = "0";
+            properties["flex-shrink"] = "0";
+            properties["flex-basis"] = "auto";
+            return;
+        }
+
+        if (lower == "auto")
+        {
+            properties["flex-grow"] = "1";
+            properties["flex-shrink"] = "1";
+            properties["flex-basis"] = "auto";
+            return;
+        }
+
+        if (lower == "initial")
+        {
+            properties["flex-grow"] = "0";
+            properties["flex-shrink"] = "1";
+            properties["flex-basis"] = "auto";
+            return;
+        }
+
+        var tokens = lower.Split([' ', '\t', '\r', '\n', '\f'], StringSplitOptions.RemoveEmptyEntries);
+        if (tokens.Length == 0 || tokens.Length > 3)
+            return;
+
+        string grow = null;
+        string shrink = null;
+        string basis = null;
+
+        foreach (var token in tokens)
+        {
+            if (IsFlexNumber(token))
+            {
+                if (grow == null)
+                    grow = token;
+                else if (shrink == null)
+                    shrink = token;
+                else
+                    return;
+            }
+            else if (IsFlexBasisToken(token))
+            {
+                if (basis == null)
+                    basis = token;
+                else
+                    return;
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if (grow == null && basis != null)
+        {
+            properties["flex-grow"] = "1";
+            properties["flex-shrink"] = "1";
+            properties["flex-basis"] = basis;
+            return;
+        }
+
+        if (grow == null)
+            return;
+
+        properties["flex-grow"] = grow;
+        properties["flex-shrink"] = shrink ?? "1";
+        // CSS Flexbox §7.1: flex:1 expands to flex-basis:0.
+        properties["flex-basis"] = basis ?? "0";
+    }
+
+    private static bool IsFlexNumber(string token) =>
+        double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out double number)
+        && number >= 0;
+
+    private static bool IsFlexBasisToken(string token) =>
+        token == "auto"
+        || token == "content"
+        || CssValueParser.IsValidLength(token);
 
     /// <summary>
     /// CSS Sizing 3 §5: the intrinsic sizing keywords

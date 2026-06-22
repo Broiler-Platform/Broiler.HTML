@@ -138,6 +138,10 @@ internal static class ComputedStyleBuilder
 
             // Flex
             FlexDirection = box.FlexDirection,
+            FlexGrow = box.FlexGrow,
+            FlexShrink = box.FlexShrink,
+            FlexBasis = box.FlexBasis,
+            FlexWrap = box.FlexWrap,
             JustifyContent = box.JustifyContent,
             AlignItems = box.AlignItems,
 

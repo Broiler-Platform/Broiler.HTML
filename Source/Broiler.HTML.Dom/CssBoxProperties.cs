@@ -367,6 +367,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     }
     public string MaxWidth { get; set; } = "none";
     public string MinWidth { get; set; } = "0";
+    internal bool IsMinWidthSpecified { get; set; }
     public string Height
     {
         get => ResolvePhysicalSize(_height, isWidth: false);
@@ -561,6 +562,10 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     public string Contain { get; set; } = "none";
     public string Transform { get; set; } = "none";
     public string FlexDirection { get; set; } = "row";
+    public string FlexGrow { get; set; } = "0";
+    public string FlexShrink { get; set; } = "1";
+    public string FlexBasis { get; set; } = "auto";
+    public string FlexWrap { get; set; } = "nowrap";
     public string JustifyContent { get; set; } = "flex-start";
     public string JustifyItems { get; set; } = "normal";
     public string AlignItems { get; set; } = "stretch";
@@ -581,6 +586,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
     public string ColumnCount { get; set; } = "auto";
     public string ColumnWidth { get; set; } = "auto";
     public string ColumnFill { get; set; } = "balance";
+    public string RowGap { get; set; } = "normal";
     public string ColumnGap { get; set; } = "normal";
     public string BreakInside { get; set; } = "auto";
     public string GridRow { get; set; } = "auto";
@@ -1718,6 +1724,7 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         Width = p.Width;
         MaxWidth = p.MaxWidth;
         MinWidth = p.MinWidth;
+        IsMinWidthSpecified = p.IsMinWidthSpecified;
         MinHeight = p.MinHeight;
         MaxHeight = p.MaxHeight;
         _wordSpacing = p._wordSpacing;
@@ -1731,9 +1738,18 @@ internal abstract class CssBoxProperties : IBorderRenderData, IBackgroundRenderD
         BackgroundClip = p.BackgroundClip;
         ClipPath = p.ClipPath;
         FlexDirection = p.FlexDirection;
+        FlexGrow = p.FlexGrow;
+        FlexShrink = p.FlexShrink;
+        FlexBasis = p.FlexBasis;
+        FlexWrap = p.FlexWrap;
         JustifyContent = p.JustifyContent;
         JustifyItems = p.JustifyItems;
         AlignItems = p.AlignItems;
+        AlignContent = p.AlignContent;
+        JustifySelf = p.JustifySelf;
+        AlignSelf = p.AlignSelf;
+        RowGap = p.RowGap;
+        ColumnGap = p.ColumnGap;
     }
 
     protected void InvalidateFontDependentValues()

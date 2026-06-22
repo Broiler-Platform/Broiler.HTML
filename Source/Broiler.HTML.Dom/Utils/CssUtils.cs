@@ -46,6 +46,10 @@ internal static class CssUtils
             "box-shadow" => cssBox.BoxShadow,
             "text-shadow" => cssBox.TextShadow,
             "flex-direction" => cssBox.FlexDirection,
+            "flex-grow" => cssBox.FlexGrow,
+            "flex-shrink" => cssBox.FlexShrink,
+            "flex-basis" => cssBox.FlexBasis,
+            "flex-wrap" => cssBox.FlexWrap,
             "justify-content" => cssBox.JustifyContent,
             "justify-items" => cssBox.JustifyItems,
             "align-items" => cssBox.AlignItems,
@@ -125,7 +129,9 @@ internal static class CssUtils
             "column-count" => cssBox.ColumnCount,
             "column-width" => cssBox.ColumnWidth,
             "column-fill" => cssBox.ColumnFill,
+            "row-gap" => cssBox.RowGap,
             "column-gap" => cssBox.ColumnGap,
+            "gap" => cssBox.RowGap == cssBox.ColumnGap ? cssBox.RowGap : $"{cssBox.RowGap} {cssBox.ColumnGap}",
             "break-inside" => cssBox.BreakInside,
             "grid-row" => cssBox.GridRow,
             "grid-column" => cssBox.GridColumn,
@@ -234,6 +240,18 @@ internal static class CssUtils
             case "flex-direction":
                 cssBox.FlexDirection = value;
                 break;
+            case "flex-grow":
+                cssBox.FlexGrow = value;
+                break;
+            case "flex-shrink":
+                cssBox.FlexShrink = value;
+                break;
+            case "flex-basis":
+                cssBox.FlexBasis = value;
+                break;
+            case "flex-wrap":
+                cssBox.FlexWrap = value;
+                break;
             case "justify-content":
                 cssBox.JustifyContent = value;
                 break;
@@ -267,8 +285,26 @@ internal static class CssUtils
             case "column-fill":
                 cssBox.ColumnFill = value;
                 break;
+            case "row-gap":
+                cssBox.RowGap = value;
+                break;
             case "column-gap":
                 cssBox.ColumnGap = value;
+                break;
+            case "gap":
+                {
+                    var parts = value.Trim().Split([' '], StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length == 1)
+                    {
+                        cssBox.RowGap = parts[0];
+                        cssBox.ColumnGap = parts[0];
+                    }
+                    else if (parts.Length >= 2)
+                    {
+                        cssBox.RowGap = parts[0];
+                        cssBox.ColumnGap = parts[1];
+                    }
+                }
                 break;
             case "break-inside":
                 cssBox.BreakInside = value;
@@ -404,6 +440,7 @@ internal static class CssUtils
                 break;
             case "min-width":
                 cssBox.MinWidth = value;
+                cssBox.IsMinWidthSpecified = true;
                 break;
             case "height":
                 cssBox.Height = value;

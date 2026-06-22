@@ -827,7 +827,11 @@ internal static class CssLayoutEngine
         b.ActualBottom = b.Location.Y;
 
         // --- Lay out children inside the inline-block ---
-        if (b.Display is "grid" or "inline-grid")
+        if (b.Display == "flex" && b.IsRowFlexContainer() && HasBlockLevelFlexItems(b))
+        {
+            b.PerformFlexRowLayout(g);
+        }
+        else if (b.Display is "grid" or "inline-grid")
         {
             // CSS Grid Level 1: Grid items should be laid out as blocks
             // (not inline-blocks) so that width:auto stretches to the
@@ -904,6 +908,21 @@ internal static class CssLayoutEngine
 
         maxRight = Math.Max(maxRight, ibBorderLeft + ibBoxWidth);
         maxbottom = Math.Max(maxbottom, b.ActualBottom + b.ActualMarginBottom);
+    }
+
+    private static bool HasBlockLevelFlexItems(CssBox box)
+    {
+        foreach (var child in box.Boxes)
+        {
+            if (child.Display == CssConstants.None)
+                continue;
+            if (child.Position is CssConstants.Absolute or CssConstants.Fixed)
+                continue;
+            if (!child.IsInline)
+                return true;
+        }
+
+        return false;
     }
 
     /// <summary>

@@ -60,16 +60,38 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
             return LoadStylesheetFromDataUri(src);
         }
 
+        src = ResolveStylesheetSource(src);
         var uri = CommonUtils.TryGetUri(src);
 
-        if (uri == null || !uri.IsAbsoluteUri || uri.Scheme == "file")
+        if (uri == null || !uri.IsAbsoluteUri)
         {
-            return LoadStylesheetFromFile((uri != null && uri.IsAbsoluteUri) ? uri.AbsolutePath : src);
+            return LoadStylesheetFromFile(src);
+        }
+        else if (uri.Scheme == "file")
+        {
+            return LoadStylesheetFromFile(uri.LocalPath);
         }
         else
         {
             return LoadStylesheetFromUri(uri);
         }
+    }
+
+    private string ResolveStylesheetSource(string src)
+    {
+        if (string.IsNullOrWhiteSpace(src))
+            return src;
+
+        if (Uri.TryCreate(src, UriKind.Absolute, out _))
+            return src;
+
+        if (!string.IsNullOrWhiteSpace(_htmlContainer.BaseUrl) &&
+            Uri.TryCreate(_htmlContainer.BaseUrl, UriKind.Absolute, out var baseUri))
+        {
+            return new Uri(baseUri, src).AbsoluteUri;
+        }
+
+        return src;
     }
 
     /// <summary>

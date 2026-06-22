@@ -379,18 +379,10 @@ internal static class ComplexTextShaper
     private static List<int> ToCodepoints(string text)
     {
         var list = new List<int>(text.Length);
-        for (int i = 0; i < text.Length; i++)
+        for (int i = 0; i < text.Length;)
         {
-            char c = text[i];
-            if (char.IsHighSurrogate(c) && i + 1 < text.Length && char.IsLowSurrogate(text[i + 1]))
-            {
-                list.Add(char.ConvertToUtf32(c, text[i + 1]));
-                i++;
-            }
-            else
-            {
-                list.Add(c);
-            }
+            list.Add(UnicodeCodepointReader.ReadCodePoint(text, i, out int nextIndex));
+            i = nextIndex;
         }
         return list;
     }
