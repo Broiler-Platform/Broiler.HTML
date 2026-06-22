@@ -150,11 +150,7 @@ internal static class HtmlImageRendererCli
         EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
         EventHandler<HtmlImageLoadEventArgs>? imageLoad)
     {
-#if WINDOWS
-        if (!OperatingSystem.IsWindowsVersionAtLeast(7))
-            throw new PlatformNotSupportedException("--pipeline requires Windows 7 or newer.");
-
-        using var renderer = new Broiler.Graphics.Windows.Direct2DRenderer();
+        using Broiler.Graphics.IBroilerRenderer renderer = CreatePipelineRenderer(options);
         if (options.AutoSize)
         {
             Broiler.HTML.Graphics.HtmlRender.RenderPipelineToFileAutoSized(
@@ -183,8 +179,20 @@ internal static class HtmlImageRendererCli
                 imageLoad: imageLoad,
                 baseUrl: baseUrl);
         }
+    }
+
+    private static Broiler.Graphics.IBroilerRenderer CreatePipelineRenderer(RenderCliOptions options)
+    {
+        if (!options.Direct2D)
+            return new Broiler.Graphics.BImageRenderer();
+
+#if WINDOWS
+        if (!OperatingSystem.IsWindowsVersionAtLeast(7))
+            throw new PlatformNotSupportedException("--direct2d requires Windows 7 or newer.");
+
+        return new Broiler.Graphics.Windows.Direct2DRenderer();
 #else
-        throw new PlatformNotSupportedException("--pipeline requires the Broiler.HTML.Tool Windows target.");
+        throw new PlatformNotSupportedException("--direct2d requires the Broiler.HTML.Tool Windows target.");
 #endif
     }
 
@@ -525,8 +533,11 @@ internal static class HtmlImageRendererCli
                     options.AutoSize = true;
                     break;
                 case "--pipeline":
+                    options.Pipeline = true;
+                    break;
                 case "--direct2d":
                     options.Pipeline = true;
+                    options.Direct2D = true;
                     break;
                 case "--disable-network":
                     options.DisableNetwork = true;
@@ -894,13 +905,11 @@ internal static class HtmlImageRendererCli
         };
     }
 
-#if WINDOWS
     private static Broiler.Graphics.BImageEncodeFormat ToGraphicsFormat(BImageFormat format) => format switch
     {
         BImageFormat.Jpeg => Broiler.Graphics.BImageEncodeFormat.Jpeg,
         _ => Broiler.Graphics.BImageEncodeFormat.Png,
     };
-#endif
 
     private static bool IsHelpArgument(string argument)
         => argument is "--help" or "-h" or "-?";
@@ -970,7 +979,8 @@ internal static class HtmlImageRendererCli
               --auto-size             Size the image to the rendered content instead of a fixed viewport.
               --max-width <px>        Maximum width used with --auto-size. 0 means unbounded.
               --max-height <px>       Maximum height used with --auto-size. 0 means unbounded.
-              --pipeline              Render through Broiler.Graphics and Direct2D on Windows.
+              --pipeline              Render through the platform-neutral Broiler.Graphics image backend.
+              --direct2d              Render through the Windows Direct2D pipeline backend.
               --disable-network       Treat http/https stylesheets and images as unavailable.
           -q, --quality <1-100>       JPEG quality. Ignored for PNG. Defaults to 90.
           -h, --help                  Show help.
@@ -1123,6 +1133,8 @@ internal static class HtmlImageRendererCli
         public bool AutoSize { get; set; }
 
         public bool Pipeline { get; set; }
+
+        public bool Direct2D { get; set; }
 
         public bool DisableNetwork { get; set; }
     }
