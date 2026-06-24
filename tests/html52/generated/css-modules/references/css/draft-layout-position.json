@@ -1,0 +1,123 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase4-anchor-popover": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset-block-start": "anchor(block-end)",
+            "inset-inline-start": "anchor(center)",
+            "position": "absolute",
+            "position-anchor": "--phase4-target",
+            "position-area": "block-end inline-start",
+            "position-try-options": "flip-block, flip-inline",
+            "position-visibility": "anchors-visible"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-anchor-popover",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-anchor-target": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "anchor-name": "--phase4-target"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-anchor-target",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-contain": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "contain-intrinsic-size": "auto 200px",
+            "container-name": "phase4-card",
+            "container-type": "inline-size",
+            "content-visibility": "auto"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-contain",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-display": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "margin-trim": "block",
+            "reading-flow": "grid-rows",
+            "reading-order": "2"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-display",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-gaps": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "column-rule": "2px dashed blue",
+            "column-rule-outset": "4px",
+            "display": "grid",
+            "gap": "1rem",
+            "row-rule": "1px solid red",
+            "row-rule-break": "intersection"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-gaps",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-position": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "inset": "auto 1rem 2rem auto",
+            "overlay": "auto",
+            "position": "sticky"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-position",
+          "selectors": null,
+          "sourceOrder": 5,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

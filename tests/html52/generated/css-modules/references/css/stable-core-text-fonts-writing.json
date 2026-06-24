@@ -1,0 +1,40 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase2-text": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "direction": "rtl",
+            "font-family": "phase2face",
+            "font-size": "16px",
+            "font-style": "italic",
+            "font-variant": "small-caps",
+            "font-weight": "700",
+            "line-height": "1.25",
+            "text-align": "end",
+            "text-decoration": "underline dotted red",
+            "text-decoration-thickness": "2px",
+            "text-indent": "2em",
+            "text-orientation": "mixed",
+            "unicode-bidi": "bidi-override",
+            "white-space": "pre-wrap",
+            "word-break": "break-word",
+            "writing-mode": "vertical-rl"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-text",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

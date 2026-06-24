@@ -1,7 +1,7 @@
 using System;
 using System.Drawing;
-using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Core.Entities;
+using Broiler.HTML.Core;
+using Broiler.HTML.Core.Entities;
 using Broiler.HTML.CSS.Core;
 using GraphicsBitmap = Broiler.Graphics.BBitmap;
 using GraphicsColor = Broiler.Graphics.BColor;
@@ -150,6 +150,100 @@ public static class HtmlRender
         return ToGraphicsBitmap(image);
     }
 
+    public static GraphicsBitmap RenderPipelineToImage(
+        Broiler.Graphics.IBroilerRenderer renderer,
+        string html,
+        int width,
+        int height,
+        GraphicsColor? backgroundColor = null,
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        ArgumentNullException.ThrowIfNull(renderer);
+        ValidateDimensions(width, height);
+
+        GraphicsColor bgColor = backgroundColor ?? GraphicsColor.White;
+        var list = new Broiler.Graphics.BRenderList();
+
+        if (!string.IsNullOrEmpty(html))
+        {
+            using var container = CreatePipelineContainer(stylesheetLoad, imageLoad);
+            var clip = new RectangleF(0, 0, width, height);
+            container.Location = PointF.Empty;
+            container.MaxSize = clip.Size;
+            container.SetHtml(html, cssData, baseUrl);
+
+            if (backgroundColor is null)
+                bgColor = ResolveCanvasBackground(container, bgColor);
+
+            container.PerformLayout(clip);
+            using HtmlGraphicsRenderList renderList = container.CreateRenderList(renderer, clip);
+            return renderer.RenderToImage(
+                renderList.RenderList,
+                CreatePipelineSurfaceDescriptor(width, height),
+                new Broiler.Graphics.BFrameContext(bgColor));
+        }
+
+        return renderer.RenderToImage(
+            list,
+            CreatePipelineSurfaceDescriptor(width, height),
+            new Broiler.Graphics.BFrameContext(bgColor));
+    }
+
+    public static GraphicsBitmap RenderPipelineToImageAutoSized(
+        Broiler.Graphics.IBroilerRenderer renderer,
+        string html,
+        int maxWidth = 0,
+        int maxHeight = 0,
+        GraphicsColor? backgroundColor = null,
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        ArgumentNullException.ThrowIfNull(renderer);
+
+        GraphicsColor bgColor = backgroundColor ?? GraphicsColor.White;
+        if (string.IsNullOrEmpty(html))
+        {
+            return renderer.RenderToImage(
+                new Broiler.Graphics.BRenderList(),
+                CreatePipelineSurfaceDescriptor(1, 1),
+                new Broiler.Graphics.BFrameContext(bgColor));
+        }
+
+        using var container = CreatePipelineContainer(stylesheetLoad, imageLoad);
+        container.SetHtml(html, cssData, baseUrl);
+
+        if (backgroundColor is null)
+            bgColor = ResolveCanvasBackground(container, bgColor);
+
+        float measureWidth = maxWidth > 0 ? maxWidth : 99999;
+        float measureHeight = maxHeight > 0 ? maxHeight : 99999;
+        container.MaxSize = new SizeF(maxWidth, maxHeight);
+        container.PerformLayout(new RectangleF(0, 0, measureWidth, measureHeight));
+
+        int width = Math.Max(1, (int)Math.Ceiling(container.ActualSize.Width));
+        int height = Math.Max(1, (int)Math.Ceiling(container.ActualSize.Height));
+
+        if (maxWidth < 1 && width > 4096)
+            width = 4096;
+        if (maxWidth > 0 && width > maxWidth)
+            width = maxWidth;
+        if (maxHeight > 0 && height > maxHeight)
+            height = maxHeight;
+
+        var clip = new RectangleF(0, 0, width, height);
+        container.MaxSize = clip.Size;
+        using HtmlGraphicsRenderList renderList = container.CreateRenderList(renderer, clip);
+        return renderer.RenderToImage(
+            renderList.RenderList,
+            CreatePipelineSurfaceDescriptor(width, height),
+            new Broiler.Graphics.BFrameContext(bgColor));
+    }
+
     public static GraphicsBitmap? RenderToImageAtAnchor(
         string html,
         string elementId,
@@ -226,6 +320,64 @@ public static class HtmlRender
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
         using GraphicsBitmap bitmap = RenderToImageAutoSized(html, maxWidth, maxHeight, backgroundColor, cssData, stylesheetLoad, imageLoad, baseUrl);
+        bitmap.Save(filePath, format, quality);
+    }
+
+    public static void RenderPipelineToFile(
+        Broiler.Graphics.IBroilerRenderer renderer,
+        string html,
+        int width,
+        int height,
+        string filePath,
+        GraphicsFormat format = GraphicsFormat.Png,
+        int quality = 90,
+        GraphicsColor? backgroundColor = null,
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath);
+
+        using GraphicsBitmap bitmap = RenderPipelineToImage(
+            renderer,
+            html,
+            width,
+            height,
+            backgroundColor,
+            cssData,
+            stylesheetLoad,
+            imageLoad,
+            baseUrl);
+        bitmap.Save(filePath, format, quality);
+    }
+
+    public static void RenderPipelineToFileAutoSized(
+        Broiler.Graphics.IBroilerRenderer renderer,
+        string html,
+        string filePath,
+        int maxWidth = 0,
+        int maxHeight = 0,
+        GraphicsFormat format = GraphicsFormat.Png,
+        int quality = 90,
+        GraphicsColor? backgroundColor = null,
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath);
+
+        using GraphicsBitmap bitmap = RenderPipelineToImageAutoSized(
+            renderer,
+            html,
+            maxWidth,
+            maxHeight,
+            backgroundColor,
+            cssData,
+            stylesheetLoad,
+            imageLoad,
+            baseUrl);
         bitmap.Save(filePath, format, quality);
     }
 
@@ -424,11 +576,41 @@ public static class HtmlRender
         return container;
     }
 
+    private static HtmlContainer CreatePipelineContainer(
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad)
+    {
+        var container = new HtmlContainer
+        {
+            AvoidAsyncImagesLoading = true,
+            AvoidImagesLateLoading = true,
+        };
+
+        if (stylesheetLoad != null)
+            container.StylesheetLoad += stylesheetLoad;
+        if (imageLoad != null)
+            container.ImageLoad += imageLoad;
+
+        return container;
+    }
+
+    private static Broiler.Graphics.BSurfaceDescriptor CreatePipelineSurfaceDescriptor(int width, int height) =>
+        new(new Broiler.Graphics.BSize(width, height), 1.0, EnableTransparency: true);
+
     private static ImageColor ResolveCanvasBackground(ImageContainer container, ImageColor fallback)
     {
         Color rootBg = container.GetRootBackgroundColor();
         if (!rootBg.IsEmpty && rootBg.A > 0)
             return new ImageColor(rootBg.R, rootBg.G, rootBg.B, rootBg.A);
+
+        return fallback;
+    }
+
+    private static GraphicsColor ResolveCanvasBackground(HtmlContainer container, GraphicsColor fallback)
+    {
+        Color rootBg = container.GetRootBackgroundColor();
+        if (!rootBg.IsEmpty && rootBg.A > 0)
+            return new GraphicsColor(rootBg.R, rootBg.G, rootBg.B, rootBg.A);
 
         return fallback;
     }

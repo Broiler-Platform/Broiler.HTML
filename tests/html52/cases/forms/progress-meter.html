@@ -1,0 +1,12 @@
+<!doctype html>
+<style>
+  body { margin: 20px; background: #ffffff; font-family: Arial, sans-serif; }
+  .panel { width: 430px; padding: 16px; border: 3px solid #343a40; background: #f8f9fa; }
+  progress, meter { display: inline-block; width: 220px; height: 24px; margin: 10px; border: 3px solid #364fc7; background: #bac8ff; vertical-align: middle; }
+  meter { border-color: #2b8a3e; background: #b2f2bb; }
+  span { display: inline-block; width: 80px; }
+</style>
+<div class="panel">
+  <span>Progress</span><progress value="3" max="10">30%</progress>
+  <span>Meter</span><meter min="0" low="30" high="70" optimum="80" max="100" value="65">65</meter>
+</div>

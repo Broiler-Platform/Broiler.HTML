@@ -1,0 +1,141 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "meta",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "charset": "utf-8"
+              },
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "style",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  body { margin: 20px; background: #ffffff; font-family: \"Yu Gothic\", \"Microsoft YaHei\", Arial, sans-serif; }\n  .panel { width: 270px; padding: 14px; border: 3px solid #495057; background: #f8f9fa; font-size: 22px; line-height: 34px; }\n  .text { background: #e3fafc; }\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "div",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "class": "panel"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "span",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "class": "text"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "日本語の文章と漢字かな交じり文。中文文本用于换行测试。",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,5 @@
-using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Handlers;
-using Broiler.HTML.Dom.Core.Dom;
+using Broiler.HTML.Core;
+using Broiler.HTML.Dom;
 
 namespace Broiler.HTML.Adapters;
 

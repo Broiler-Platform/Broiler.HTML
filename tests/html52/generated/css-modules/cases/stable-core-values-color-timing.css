@@ -1,0 +1,16 @@
+.phase2-values {
+  color: rgba(10, 20, 30, 0.5);
+  background-color: hsl(120, 100%, 25%);
+  border-color: currentColor;
+  width: calc(50% + 10px);
+  margin: 1em 2rem 3px 4%;
+  transform-origin: 10px 20px;
+  transition-timing-function: cubic-bezier(0.1, 0.7, 1, 0.1);
+}
+
+@media (color) and (min-resolution: 1dppx) {
+  .phase2-color4 {
+    color: color(display-p3 1 0 0);
+    outline-color: lab(50% 40 30);
+  }
+}

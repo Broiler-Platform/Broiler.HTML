@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "layout-systems",
+  "itemCount": 11,
+  "items": [
+    {
+      "moduleId": "align",
+      "moduleTitle": "CSS Box Alignment Level 3",
+      "featureId": "css-module-align",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "css-grid-2",
+      "moduleTitle": "CSS Grid Layout Level 2",
+      "featureId": "css-module-css-grid-2",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "css-grid-3",
+      "moduleTitle": "CSS Grid Layout Level 3",
+      "featureId": "css-module-css-grid-3",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-cross-module-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "css-multicol-2",
+      "moduleTitle": "CSS Multi-column Layout Level 2",
+      "featureId": "css-module-css-multicol-2",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-early-layout-scroll-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "exclusions",
+      "moduleTitle": "CSS Exclusions",
+      "featureId": "css-module-exclusions",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "flexbox",
+      "moduleTitle": "CSS Flexible Box Layout Level 1",
+      "featureId": "css-module-flexbox",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "grid-layout",
+      "moduleTitle": "CSS Grid Layout Level 1",
+      "featureId": "css-module-grid-layout",
+      "supportLevel": "required",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "linegrid",
+      "moduleTitle": "CSS Line Grid",
+      "featureId": "css-module-linegrid",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "multicol",
+      "moduleTitle": "CSS Multi-column Layout Level 1",
+      "featureId": "css-module-multicol",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "regions",
+      "moduleTitle": "CSS Regions",
+      "featureId": "css-module-regions",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "tables",
+      "moduleTitle": "CSS Table Level 3",
+      "featureId": "css-module-tables",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {
+    "phase4-image-resolution": [
+      {
+        "offset": 0,
+        "properties": {
+          "image-resolution": "1dppx"
+        }
+      },
+      {
+        "offset": 1,
+        "properties": {
+          "image-resolution": "2dppx"
+        }
+      }
+    ]
+  },
+  "mediaBlocks": {
+    "all": {
+      ".phase4-paint": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "animation-name": "phase4-image-resolution",
+            "background-clip": "border-area",
+            "background-color": "oklch(60% 0.15 40)",
+            "background-position-x": "right 1rem",
+            "background-position-y": "bottom 2rem",
+            "background-repeat": "space round",
+            "border-bottom-color": "color(display-p3 1 0 0)",
+            "border-left-color": "color(display-p3 1 0 0)",
+            "border-right-color": "color(display-p3 1 0 0)",
+            "border-top-color": "color(display-p3 1 0 0)",
+            "dynamic-range-limit": "standard",
+            "fill": "context-fill",
+            "fill-rule": "evenodd",
+            "image-orientation": "from-image",
+            "image-rendering": "smooth",
+            "image-resolution": "2dppx snap",
+            "stroke": "color-mix(in srgb, red 40%, blue)",
+            "stroke-dasharray": "4 2",
+            "stroke-linejoin": "round",
+            "stroke-width": "2px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-paint",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

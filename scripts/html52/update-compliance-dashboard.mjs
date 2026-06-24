@@ -1,0 +1,381 @@
+#!/usr/bin/env node
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import {
+  countBy,
+  defaultCoverageRoot,
+  defaultManifestPath,
+  defaultOutputRoot,
+  parseRepeatedOption,
+  readJson,
+  readManifestWithGenerated,
+  repositoryRoot,
+  toRepositoryRelative,
+  writeText
+} from './common.mjs';
+import {
+  createCoverageSummary,
+  loadCoverageItems
+} from './summarize-coverage.mjs';
+import { validateManifest } from './validate-manifest.mjs';
+
+const defaultDocumentPath = path.join(repositoryRoot, 'docs', 'compliance.md');
+const beginMarker = '<!-- BEGIN: html52-dashboard -->';
+const endMarker = '<!-- END: html52-dashboard -->';
+
+async function main(argv = process.argv.slice(2)) {
+  try {
+    const options = parseArguments(argv);
+    if (options.help) {
+      console.log(getHelpText());
+      return 0;
+    }
+
+    const manifest = await readManifestWithGenerated(options.manifestPath);
+    const validation = await validateManifest(manifest, {
+      manifestPath: options.manifestPath,
+      checkFiles: false
+    });
+    if (validation.errors.length > 0) {
+      console.error(`Manifest validation failed with ${validation.errors.length} error(s).`);
+      for (const error of validation.errors) {
+        console.error(`- ${error}`);
+      }
+      return 1;
+    }
+
+    const coverageItems = await loadCoverageItems(options.coverageRoot);
+    const coverage = createCoverageSummary(manifest, coverageItems, options);
+    const dashboard = createDashboardMarkdown(manifest, coverage, options);
+
+    if (options.check) {
+      const current = await readTextIfExists(options.documentPath);
+      const expected = updateMarkedSection(current, dashboard);
+      if (current !== expected) {
+        console.error(`${toRepositoryRelative(options.documentPath)} is out of date. Run npm run html52:dashboard.`);
+        return 1;
+      }
+      console.log(`${toRepositoryRelative(options.documentPath)} is up to date.`);
+      return 0;
+    }
+
+    const current = await readTextIfExists(options.documentPath);
+    await writeText(options.documentPath, updateMarkedSection(current, dashboard));
+    console.log(`Updated ${toRepositoryRelative(options.documentPath)}.`);
+    return 0;
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    return 1;
+  }
+}
+
+function parseArguments(argv) {
+  const options = {
+    manifestPath: defaultManifestPath,
+    coverageRoot: defaultCoverageRoot,
+    documentPath: defaultDocumentPath,
+    output: defaultOutputRoot,
+    check: false,
+    help: false
+  };
+
+  for (let index = 0; index < argv.length; index++) {
+    const argument = argv[index];
+    if (argument === '--') {
+      continue;
+    }
+    const name = argument.includes('=') ? argument.slice(0, argument.indexOf('=')) : argument;
+    switch (name) {
+      case '--manifest':
+      case '-m': {
+        const parsed = parseRepeatedOption(argv, name, index);
+        options.manifestPath = path.resolve(parsed.value);
+        index = parsed.nextIndex;
+        break;
+      }
+      case '--coverage-root': {
+        const parsed = parseRepeatedOption(argv, name, index);
+        options.coverageRoot = path.resolve(parsed.value);
+        index = parsed.nextIndex;
+        break;
+      }
+      case '--document':
+      case '-d': {
+        const parsed = parseRepeatedOption(argv, name, index);
+        options.documentPath = path.resolve(parsed.value);
+        index = parsed.nextIndex;
+        break;
+      }
+      case '--check':
+        options.check = true;
+        break;
+      case '-h':
+      case '--help':
+        options.help = true;
+        break;
+      default:
+        throw new Error(`Unknown argument: ${argument}`);
+    }
+  }
+
+  options.manifestPath = path.resolve(options.manifestPath);
+  options.coverageRoot = path.resolve(options.coverageRoot);
+  options.documentPath = path.resolve(options.documentPath);
+  return options;
+}
+
+function createDashboardMarkdown(manifest, coverage, options) {
+  const activeCases = manifest.cases.filter((testCase) => testCase.status === 'active').length;
+  const quarantinedCases = manifest.cases.filter((testCase) => testCase.status === 'quarantined');
+  const byCluster = countBy(manifest.cases, (testCase) => testCase.cluster);
+  const byStatus = countBy(manifest.cases, (testCase) => testCase.status);
+  const byExpectation = countExpectations(manifest.cases);
+  const coverageByCluster = summarizeCoverageByCluster(coverage.items);
+  const uncoveredRequired = coverage.items.filter((item) => !item.covered && ['required', 'recommended'].includes(item.supportLevel));
+  const uncoveredNonCssModules = uncoveredRequired.filter((item) => item.source !== 'css-modules');
+  const uncoveredCssModules = coverage.cssModuleCoverage.uncovered;
+
+  const lines = [
+    beginMarker,
+    '## HTML 5.2 Plain-HTML Suite',
+    '',
+    'This section is generated by `npm run html52:dashboard` from `tests/html52/manifest.json` and `tests/html52/coverage/*.json`.',
+    '',
+    '| Metric | Value |',
+    '| --- | ---: |',
+    `| Manifest cases | ${manifest.cases.length} |`,
+    `| Active cases | ${activeCases} |`,
+    `| Quarantined cases | ${quarantinedCases.length} |`,
+    `| Coverage items | ${coverage.coverageItemCount} |`,
+    `| Covered or classified items | ${coverage.coveredCount} |`,
+    `| Uncovered planned items | ${coverage.uncoveredPlannedCount} |`,
+    `| CSS module registry rows | ${coverage.cssModuleCoverage.itemCount} |`,
+    `| Uncovered CSS module rows | ${coverage.cssModuleCoverage.uncoveredCount} |`,
+    `| Out-of-scope items | ${coverage.outOfScopeCount} |`,
+    '',
+    '### Commands',
+    '',
+    '| Purpose | Command |',
+    '| --- | --- |',
+    '| Validate manifest and checked files | `npm run html52:validate` |',
+    '| Run PR smoke subset | `npm run html52:smoke` |',
+    '| Run full suite | `npm run html52:run` |',
+    '| Repeat full suite twice | `npm run html52:repeat` |',
+    '| Refresh coverage artifacts | `npm run html52:coverage` |',
+    '| Refresh this dashboard | `npm run html52:dashboard` |',
+    '',
+    '### CI Policy',
+    '',
+    '- Pull requests run manifest validation, coverage closure, and `npm run html52:smoke`.',
+    '- Scheduled CI runs the full HTML 5.2 suite and uploads render, JSON, and summary artifacts.',
+    '- Quarantined cases still execute, but every quarantine must carry owner, reason, issue when available, and an expiry date.',
+    '',
+    '### Case Counts By Cluster',
+    '',
+    '| Cluster | Cases |',
+    '| --- | ---: |',
+    ...formatCountRows(byCluster),
+    '',
+    '### Case Counts By Status',
+    '',
+    '| Status | Cases |',
+    '| --- | ---: |',
+    ...formatCountRows(byStatus),
+    '',
+    '### Expectation Counts',
+    '',
+    '| Expectation | Uses |',
+    '| --- | ---: |',
+    ...formatCountRows(byExpectation),
+    '',
+    '### Coverage By Cluster',
+    '',
+    '| Cluster | Items | Covered/classified | Uncovered required | Out of scope |',
+    '| --- | ---: | ---: | ---: | ---: |',
+    ...coverageByCluster.map((item) => `| ${item.cluster} | ${item.total} | ${item.covered} | ${item.uncoveredRequired} | ${item.outOfScope} |`),
+    '',
+    '### Uncovered Required Items',
+    ''
+  ];
+
+  if (uncoveredNonCssModules.length === 0) {
+    lines.push('No uncovered required or recommended HTML 5.2 renderer coverage rows remain.');
+  } else {
+    lines.push('| Feature | Cluster | Source | Support |', '| --- | --- | --- | --- |');
+    for (const item of uncoveredNonCssModules) {
+      lines.push(`| \`${item.featureId}\` | ${item.cluster} | ${item.source} | ${item.supportLevel} |`);
+    }
+  }
+
+  if (coverage.cssModuleCoverage.itemCount > 0) {
+    lines.push(
+      '',
+      '### CSS Module Coverage',
+      '',
+      '| W3C status | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byW3cStatus),
+      '',
+      '| Support level | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.bySupportLevel),
+      '',
+      '| Family | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byFamily),
+      '',
+      '### CSS Implementation Depth',
+      '',
+      `Implementation gaps before static-renderer completion target: ${coverage.cssModuleCoverage.implementationGapCount}.`,
+      '',
+      '| Implementation status | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byImplementationStatus),
+      '',
+      '| Current oracle depth | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byOracleDepth),
+      '',
+      '| Target oracle depth | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byTargetOracleDepth),
+      '',
+      '| Next oracle | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byNextOracle),
+      '',
+      '| Owner | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byOwner),
+      '',
+      '| Scope decision | Rows |',
+      '| --- | ---: |',
+      ...formatCountRows(coverage.cssModuleCoverage.byScopeDecision),
+      '',
+      '### Uncovered CSS Module Rows',
+      ''
+    );
+
+    if (uncoveredCssModules.length === 0) {
+      lines.push('No uncovered required or recommended CSS module rows remain.');
+    } else {
+      lines.push('| Feature | W3C status | Support | Family |', '| --- | --- | --- | --- |');
+      for (const item of uncoveredCssModules) {
+        lines.push(`| \`${item.featureId}\` | ${item.w3cStatus ?? 'n/a'} | ${item.supportLevel} | ${item.moduleFamily ?? 'n/a'} |`);
+      }
+    }
+  }
+
+  lines.push('', '### Out Of Scope', '', '| Feature | Cluster | Reason |', '| --- | --- | --- |');
+  for (const item of coverage.outOfScope) {
+    lines.push(`| \`${item.featureId}\` | ${item.cluster} | ${item.reason ?? 'n/a'} |`);
+  }
+
+  lines.push('', '### Current Quarantine Queue', '');
+  if (quarantinedCases.length === 0) {
+    lines.push('No HTML 5.2 cases are currently quarantined.');
+  } else {
+    lines.push('| Case | Owner | Expires | Reason |', '| --- | --- | --- | --- |');
+    for (const testCase of quarantinedCases) {
+      lines.push(`| \`${testCase.id}\` | ${testCase.quarantine.owner} | ${testCase.quarantine.expires} | ${testCase.quarantine.reason} |`);
+    }
+  }
+
+  lines.push('', `Manifest: \`${toRepositoryRelative(options.manifestPath)}\`. Coverage maps: \`${toRepositoryRelative(options.coverageRoot)}\`.`, endMarker, '');
+  return lines.join('\n');
+}
+
+function countExpectations(cases) {
+  const counts = {};
+  for (const testCase of cases) {
+    for (const expectationName of Object.keys(testCase.expectations ?? {})) {
+      counts[expectationName] = (counts[expectationName] ?? 0) + 1;
+    }
+  }
+  return Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
+}
+
+function summarizeCoverageByCluster(items) {
+  const byCluster = new Map();
+  for (const item of items) {
+    const entry = byCluster.get(item.cluster) ?? {
+      cluster: item.cluster,
+      total: 0,
+      covered: 0,
+      uncoveredRequired: 0,
+      outOfScope: 0
+    };
+    entry.total++;
+    if (item.covered) {
+      entry.covered++;
+    }
+    if (item.supportLevel === 'out-of-scope' || item.status === 'out-of-scope') {
+      entry.outOfScope++;
+    } else if (!item.covered && ['required', 'recommended'].includes(item.supportLevel)) {
+      entry.uncoveredRequired++;
+    }
+    byCluster.set(item.cluster, entry);
+  }
+  return [...byCluster.values()].sort((a, b) => a.cluster.localeCompare(b.cluster));
+}
+
+function formatCountRows(counts) {
+  return Object.entries(counts).map(([key, value]) => `| ${key} | ${value} |`);
+}
+
+function updateMarkedSection(currentDocument, dashboard) {
+  const document = currentDocument.trimEnd();
+  const begin = document.indexOf(beginMarker);
+  const end = document.indexOf(endMarker);
+
+  if (begin >= 0 && end > begin) {
+    const before = document.slice(0, begin).trimEnd();
+    const after = document.slice(end + endMarker.length).trimStart();
+    return `${before}\n\n${dashboard}${after ? `\n${after}` : ''}\n`;
+  }
+
+  if (document.startsWith('# ')) {
+    const firstNewline = document.indexOf('\n');
+    if (firstNewline >= 0) {
+      return `${document.slice(0, firstNewline).trimEnd()}\n\n${dashboard}${document.slice(firstNewline).trimStart() ? `\n${document.slice(firstNewline).trimStart()}` : ''}\n`;
+    }
+  }
+
+  return `${dashboard}${document ? `\n${document}` : ''}\n`;
+}
+
+async function readTextIfExists(filePath) {
+  try {
+    return await fs.readFile(filePath, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') {
+      return '# Broiler.HTML compliance tracking\n';
+    }
+    throw error;
+  }
+}
+
+function getHelpText() {
+  return `Usage:
+  npm run html52:dashboard -- [options]
+
+Options:
+  --manifest <path>       Manifest to read. Defaults to tests/html52/manifest.json.
+  --coverage-root <dir>   Coverage map directory. Defaults to tests/html52/coverage.
+  --document <path>       Markdown document to update. Defaults to docs/compliance.md.
+  --check                 Exit non-zero if the document is out of date.
+  -h, --help              Show this help text.`;
+}
+
+export {
+  createDashboardMarkdown,
+  main,
+  parseArguments,
+  updateMarkedSection
+};
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  process.exit(await main());
+}

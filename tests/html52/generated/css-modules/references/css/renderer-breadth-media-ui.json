@@ -1,0 +1,165 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "(dynamic-range:": {
+      ".phase3-media": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "canvas",
+            "color": "canvastext"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-media",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(horizontal-viewport-segments:": {
+      ".phase3-media": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "canvas",
+            "color": "canvastext"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-media",
+          "selectors": null,
+          "sourceOrder": 7,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(prefers-color-scheme:": {
+      ".phase3-media": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "canvas",
+            "color": "canvastext"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-media",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1000
+        }
+      ]
+    },
+    "1)": {
+      ".phase3-media": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "canvas",
+            "color": "canvastext"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-media",
+          "selectors": null,
+          "sourceOrder": 8,
+          "specificity": 1000
+        }
+      ]
+    },
+    "all": {
+      ".phase3-ui": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "accent-color": "auto",
+            "appearance": "none",
+            "caret-color": "red",
+            "cursor": "zoom-in",
+            "pointer-events": "auto",
+            "resize": "both",
+            "touch-action": "pan-x",
+            "user-select": "text"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-ui",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    },
+    "and": {
+      ".phase3-media": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "canvas",
+            "color": "canvastext"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-media",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ]
+    },
+    "dark)": {
+      ".phase3-media": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "canvas",
+            "color": "canvastext"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-media",
+          "selectors": null,
+          "sourceOrder": 5,
+          "specificity": 1000
+        }
+      ]
+    },
+    "high)": {
+      ".phase3-media": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "canvas",
+            "color": "canvastext"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-media",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

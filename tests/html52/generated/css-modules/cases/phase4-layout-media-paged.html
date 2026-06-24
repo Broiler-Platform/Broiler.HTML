@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 4 media, paged, and fragmentation layout</title>
+<style>
+@page { size: 800px 600px; margin: 24px; @top-left { content: "phase4"; } }
+html, body { margin: 0; padding: 0; }
+body { font: 16px/20px serif; background: #ffffff; }
+#phase4-media-root { width: 620px; margin: 8px; padding: 8px; border: 2px solid #212529; }
+#phase4-media-box { width: 140px; height: 32px; background: #ffe8cc; border: 3px solid #e8590c; }
+@media all { #phase4-media-box { margin-left: 12px; } }
+@media (min-width: 700px) { #phase4-media-box { width: 180px; } }
+@media (width >= 700px) { #phase4-media-range { height: 26px; background: #d3f9d8; } }
+#phase4-media-range { width: 150px; height: 20px; margin-top: 10px; background: #ebfbee; border: 2px solid #2f9e44; }
+#phase4-fragment { width: 260px; margin-top: 12px; padding: 6px; border: 3px solid #364fc7; break-inside: avoid; page-break-inside: avoid; background: #edf2ff; }
+#phase4-fragment h2 { break-before: avoid; page-break-before: auto; margin: 0 0 6px 0; font-size: 18px; line-height: 22px; }
+#phase4-fragment p { widows: 2; orphans: 2; margin: 0; }
+#phase4-page-float { float-reference: page; float: block-start; clear: both; width: 130px; height: 24px; margin-top: 10px; background: #f3f0ff; border: 2px solid #7048e8; }
+</style>
+</head>
+<body>
+<div id="phase4-media-root">
+<div id="phase4-media-box"></div>
+<div id="phase4-media-range"></div>
+<section id="phase4-fragment"><h2>Fragment</h2><p>Stable fragmentation probe text for layout and render output.</p></section>
+<div id="phase4-page-float"></div>
+</div>
+</body>
+</html>

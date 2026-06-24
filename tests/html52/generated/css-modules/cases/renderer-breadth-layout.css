@@ -1,0 +1,77 @@
+.phase3-logical {
+  writing-mode: vertical-rl;
+  inline-size: min(30vw, 12rem);
+  block-size: fit-content;
+  min-inline-size: 10px;
+  max-block-size: 20rem;
+  margin-inline-start: 1rem;
+  padding-block: 2px;
+  border-inline-end: 1px solid red;
+  contain: size layout style paint;
+  contain-intrinsic-size: 120px 80px;
+  overflow: clip;
+  overflow-x: auto;
+  overscroll-behavior: contain;
+  scroll-snap-type: block mandatory;
+  scroll-snap-align: start;
+  scroll-padding-block: 1rem;
+  scroll-margin-inline: 2px;
+  scrollbar-gutter: stable both-edges;
+  scrollbar-width: thin;
+  scrollbar-color: #222 #eee;
+  position: sticky;
+  inset-block-start: 0;
+  inset-inline-end: 1ch;
+  box-sizing: border-box;
+  aspect-ratio: 16 / 9;
+}
+
+.phase3-grid-align {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  place-items: center end;
+  place-content: space-between;
+  justify-self: stretch;
+  align-self: first baseline;
+  gap: 10px;
+  row-gap: 2%;
+  column-gap: 1em;
+}
+
+.phase3-multicol-flow {
+  columns: 3 8em;
+  column-rule: 1px solid gray;
+  break-before: column;
+  break-after: avoid-page;
+  break-inside: avoid;
+}
+
+.phase3-table {
+  display: table;
+  table-layout: fixed;
+  border-collapse: collapse;
+  caption-side: bottom;
+  empty-cells: hide;
+}
+
+.phase3-region {
+  flow-into: phase3-flow;
+  flow-from: phase3-flow;
+}
+
+.phase3-exclusion {
+  wrap-flow: both;
+  wrap-through: none;
+  shape-inside: inset(1px);
+}
+
+.phase3-linegrid {
+  line-grid: match-parent;
+  line-snap: baseline;
+}
+
+.phase3-round {
+  polar-anchor: center;
+  polar-distance: 10px;
+  polar-angle: 45deg;
+}

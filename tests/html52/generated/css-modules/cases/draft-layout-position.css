@@ -1,0 +1,42 @@
+.phase4-anchor-target {
+  anchor-name: --phase4-target;
+}
+
+.phase4-anchor-popover {
+  position: absolute;
+  position-anchor: --phase4-target;
+  position-area: block-end inline-start;
+  position-try-options: flip-block, flip-inline;
+  position-visibility: anchors-visible;
+  inset-block-start: anchor(block-end);
+  inset-inline-start: anchor(center);
+}
+
+.phase4-display {
+  display: block flow;
+  reading-flow: grid-rows;
+  reading-order: 2;
+  margin-trim: block;
+}
+
+.phase4-contain {
+  container-type: inline-size;
+  container-name: phase4-card;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 200px;
+}
+
+.phase4-gaps {
+  display: grid;
+  gap: 1rem;
+  row-rule: 1px solid red;
+  column-rule: 2px dashed blue;
+  row-rule-break: intersection;
+  column-rule-outset: 4px;
+}
+
+.phase4-position {
+  position: sticky;
+  inset: auto 1rem 2rem auto;
+  overlay: auto;
+}

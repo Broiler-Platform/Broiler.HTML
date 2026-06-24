@@ -1,0 +1,391 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "box-and-layout-core",
+  "itemCount": 18,
+  "items": [
+    {
+      "moduleId": "box",
+      "moduleTitle": "CSS Box Model Level 3",
+      "featureId": "css-module-box",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-anchor-position-1",
+      "moduleTitle": "CSS Anchor Positioning",
+      "featureId": "css-module-css-anchor-position-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-anchor-position-2",
+      "moduleTitle": "CSS Anchor Positioning Level 2",
+      "featureId": "css-module-css-anchor-position-2",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "css-box-4",
+      "moduleTitle": "CSS Box Model Level 4",
+      "featureId": "css-module-css-box-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-contain-1",
+      "moduleTitle": "CSS Containment Level 1",
+      "featureId": "css-module-css-contain-1",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-contain-2",
+      "moduleTitle": "CSS Containment Level 2",
+      "featureId": "css-module-css-contain-2",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-contain-3",
+      "moduleTitle": "CSS Containment Level 3",
+      "featureId": "css-module-css-contain-3",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-display-3",
+      "moduleTitle": "CSS Display Level 3",
+      "featureId": "css-module-css-display-3",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-display-4",
+      "moduleTitle": "CSS Display Level 4",
+      "featureId": "css-module-css-display-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-logical-1",
+      "moduleTitle": "CSS Logical Properties and Values Level 1",
+      "featureId": "css-module-css-logical-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-position-4",
+      "moduleTitle": "CSS Positioned Layout Level 4",
+      "featureId": "css-module-css-position-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-rhythm-1",
+      "moduleTitle": "CSS Rhythmic Sizing Level 1",
+      "featureId": "css-module-css-rhythm-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-round-display-1",
+      "moduleTitle": "CSS Round Display Level 1",
+      "featureId": "css-module-css-round-display-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css-sizing-4",
+      "moduleTitle": "CSS Box Sizing Level 4",
+      "featureId": "css-module-css-sizing-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css21",
+      "moduleTitle": "CSS Level 2 Revision 1",
+      "featureId": "css-module-css21",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "css22",
+      "moduleTitle": "Preview of CSS Level 2",
+      "featureId": "css-module-css22",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "NOTE",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "moduleId": "positioning",
+      "moduleTitle": "CSS Positioned Layout Level 3",
+      "featureId": "css-module-positioning",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "sizing",
+      "moduleTitle": "CSS Box Sizing Level 3",
+      "featureId": "css-module-sizing",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "CR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    }
+  ]
+}

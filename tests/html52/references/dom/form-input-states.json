@@ -1,0 +1,628 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "form",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "id": "states"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "token",
+                    "type": "hidden",
+                    "value": "secret"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "text",
+                    "type": "text",
+                    "value": "alpha"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "alpha",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "search",
+                    "type": "search",
+                    "value": "query"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "query",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "tel",
+                    "type": "tel",
+                    "value": "12345"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "12345",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "url",
+                    "type": "url",
+                    "value": "https://example.test/"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "https://example.test/",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "email",
+                    "type": "email",
+                    "value": "a@example.test"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "a@example.test",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "password",
+                    "type": "password",
+                    "value": "hidden"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "hidden",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "date",
+                    "type": "date",
+                    "value": "2026-06-20"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "month",
+                    "type": "month",
+                    "value": "2026-06"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "week",
+                    "type": "week",
+                    "value": "2026-W25"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "time",
+                    "type": "time",
+                    "value": "12:34"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "datetime",
+                    "type": "datetime-local",
+                    "value": "2026-06-20T12:34"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "max": "9",
+                    "min": "1",
+                    "name": "number",
+                    "step": "2",
+                    "type": "number",
+                    "value": "5"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "5",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "max": "100",
+                    "min": "0",
+                    "name": "range",
+                    "step": "10",
+                    "type": "range",
+                    "value": "40"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "color",
+                    "type": "color",
+                    "value": "#2f9e44"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "checked": "",
+                    "name": "check",
+                    "type": "checkbox"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "checked": "",
+                    "name": "choice",
+                    "type": "radio",
+                    "value": "a"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "multiple": "",
+                    "name": "upload",
+                    "type": "file"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "submit",
+                    "type": "submit",
+                    "value": "Send"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Send",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "alt": "Image submit",
+                    "name": "image",
+                    "src": "../../assets/svg/green-square.svg",
+                    "type": "image"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "reset",
+                    "type": "reset",
+                    "value": "Clear"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Clear",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "button",
+                    "type": "button",
+                    "value": "Plain"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Plain",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "name": "default-text",
+                    "value": "Default type"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Default type",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

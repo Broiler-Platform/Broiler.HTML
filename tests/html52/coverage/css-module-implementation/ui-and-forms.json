@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "ui-and-forms",
+  "itemCount": 4,
+  "items": [
+    {
+      "moduleId": "css-nav-1",
+      "moduleTitle": "CSS Spatial Navigation Level 1",
+      "featureId": "css-module-css-nav-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "reason": "Requires focus navigation behavior and event/runtime integration."
+    },
+    {
+      "moduleId": "css-ui-4",
+      "moduleTitle": "CSS Basic User Interface Level 4",
+      "featureId": "css-module-css-ui-4",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-media-ui-001",
+        "css-module-phase3-layout-ui-forms-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "device-adapt",
+      "moduleTitle": "CSS Viewport Level 1",
+      "featureId": "css-module-device-adapt",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-media-ui-001",
+        "css-module-phase3-layout-ui-forms-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "moduleId": "ui",
+      "moduleTitle": "CSS Basic User Interface Level 3",
+      "featureId": "css-module-ui",
+      "supportLevel": "required",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase3-layout-ui-forms-001"
+      ],
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    }
+  ]
+}

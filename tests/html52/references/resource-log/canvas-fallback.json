@@ -1,0 +1,34 @@
+{
+  "BaseUrl": "file:canvas-fallback-resource-log.html",
+  "DocumentBaseUrl": "file:canvas-fallback-resource-log.html",
+  "Resources": [
+    {
+      "Index": 0,
+      "Element": "img",
+      "Attribute": "src",
+      "Role": "image",
+      "Raw": "../../assets/svg/blue-rect.svg",
+      "Resource": "../../assets/svg/blue-rect.svg",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/blue-rect.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/blue-rect.svg",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "loadable-image"
+    }
+  ],
+  "Summary": {
+    "Total": 1,
+    "LocalFileExists": 1,
+    "LocalFileMissing": 0,
+    "DataUri": 0,
+    "RemoteNetworkBlocked": 0,
+    "Empty": 0,
+    "Unsupported": 0
+  }
+}

@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 2 computed custom properties</title>
+<style>
+:root {
+  --phase2-accent: #7048e8;
+  --phase2-background: #f3f0ff;
+}
+#phase2-custom {
+  color: var(--phase2-accent);
+  background-color: var(--phase2-background, #ffffff);
+  border: 2px solid currentColor;
+}
+#phase2-inherit { color: inherit; border: 1px solid currentColor; }
+</style>
+</head>
+<body><div id="phase2-custom-parent" style="color: #0b7285;"><div id="phase2-custom"></div><div id="phase2-inherit"></div></div></body>
+</html>

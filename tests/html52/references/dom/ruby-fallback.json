@@ -1,0 +1,291 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "meta",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "charset": "utf-8"
+              },
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "style",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  body { margin: 20px; background: #ffffff; font-family: \"Segoe UI\", Arial, sans-serif; }\n  .panel { width: 500px; padding: 14px; border: 3px solid #495057; background: #f8f9fa; font-size: 26px; line-height: 42px; }\n  ruby { background: #fff3bf; }\n  rt { color: #c92a2a; font-size: 14px; }\n  rp { color: #868e96; }\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "div",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "class": "panel"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "ruby",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "漢",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "rp",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "(",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "element",
+                      "name": "rt",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "kan",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "element",
+                      "name": "rp",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": ")",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "字",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "rp",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "(",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "element",
+                      "name": "rt",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "ji",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "element",
+                      "name": "rp",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": ")",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "ruby",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "HTML",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "rt",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "markup",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

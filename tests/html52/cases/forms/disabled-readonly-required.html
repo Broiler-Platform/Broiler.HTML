@@ -1,0 +1,15 @@
+<!doctype html>
+<style>
+  body { margin: 20px; background: #ffffff; font-family: Arial, sans-serif; }
+  form { width: 520px; padding: 12px; border: 3px solid #495057; background: #f8f9fa; }
+  label { display: block; margin: 9px 0; }
+  input { width: 230px; height: 24px; margin-left: 10px; padding: 3px 6px; border: 2px solid #1971c2; background: #e7f5ff; }
+  input[disabled] { border-color: #868e96; background: #e9ecef; color: #495057; }
+  input[readonly] { border-color: #f08c00; background: #fff3bf; }
+  input[required] { border-color: #c92a2a; background: #ffe3e3; }
+</style>
+<form>
+  <label>Disabled <input type="text" value="disabled" disabled></label>
+  <label>Readonly <input type="text" value="readonly" readonly></label>
+  <label>Required <input type="email" value="needed@example.test" required></label>
+</form>

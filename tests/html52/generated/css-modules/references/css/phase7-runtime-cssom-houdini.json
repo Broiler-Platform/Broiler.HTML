@@ -1,0 +1,84 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase7-cssom-query-target": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "min-height": "max(1lh, 20px)",
+            "resize": "both",
+            "scroll-margin-top": "12px",
+            "scroll-padding-inline": "8px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase7-cssom-query-target",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase7-layout-worklet": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "contain": "layout paint",
+            "layout-name": "phase7-masonry"
+          },
+          "pseudoClass": null,
+          "selector": ".phase7-layout-worklet",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ],
+      ".phase7-spatial-navigation": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "nav-down": "auto",
+            "nav-left": "auto",
+            "nav-right": "#phase7-next",
+            "nav-up": "auto",
+            "spatial-navigation-action": "focus",
+            "spatial-navigation-contain": "contain"
+          },
+          "pseudoClass": null,
+          "selector": ".phase7-spatial-navigation",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ],
+      "::highlight(phase7-search-match)": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "rgb(255 230 120 / .72)",
+            "color": "canvastext",
+            "text-decoration": "underline"
+          },
+          "pseudoClass": null,
+          "selector": "::highlight(phase7-search-match)",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 2
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 5 CSS inline text, decoration, and ruby</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body { font: 16px/22px serif; background: #ffffff; }
+#phase5-inline-root { width: 620px; margin: 8px; padding: 8px; border: 2px solid #212529; }
+#phase5-inline-flow { width: 330px; padding: 6px; border: 3px solid #1971c2; background: #e7f5ff; white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; line-break: anywhere; text-wrap: balance; text-indent: 24px; text-align: start; hanging-punctuation: first; }
+#phase5-decoration { display: inline; text-decoration-line: underline overline; text-decoration-style: wavy; text-decoration-color: #c2255c; text-decoration-thickness: 2px; text-underline-offset: 3px; background: #fff0f6; }
+#phase5-transform { display: inline-block; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; word-spacing: 4px; background: #fff9db; }
+ruby.phase5-ruby { ruby-position: over; ruby-align: center; background: #f3f0ff; }
+ruby.phase5-ruby rt { font-size: 10px; color: #5f3dc4; }
+</style>
+</head>
+<body>
+<div id="phase5-inline-root">
+<p id="phase5-inline-flow"><span id="phase5-decoration">Decorated inline text wraps across the inline formatting context.</span> Text continues with a verylongunbrokenphase5word for breaking.</p>
+<div id="phase5-transform">mixed case text</div>
+<p><ruby class="phase5-ruby">&#x6f22;<rp>(</rp><rt>kan</rt><rp>)</rp>&#x5b57;<rp>(</rp><rt>ji</rt><rp>)</rp></ruby> <ruby class="phase5-ruby">HTML<rt>markup</rt></ruby></p>
+</div>
+</body>
+</html>

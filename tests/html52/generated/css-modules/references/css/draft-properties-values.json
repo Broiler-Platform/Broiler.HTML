@@ -1,0 +1,28 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase4-registered": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "--phase4-color": "color-mix(in srgb, red 40%, blue)",
+            "--phase4-length": "clamp(1px, 2vw, 20px)",
+            "color": "color-mix(in srgb, red 40%, blue)",
+            "transition-property": "--phase4-length, --phase4-color"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-registered",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

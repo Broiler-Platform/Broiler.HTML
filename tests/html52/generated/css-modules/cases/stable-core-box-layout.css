@@ -1,0 +1,44 @@
+.phase2-box {
+  display: block;
+  box-sizing: border-box;
+  contain: layout paint;
+  width: 20ch;
+  min-width: 10px;
+  max-width: 100px;
+  padding: 1px 2px;
+  border: 3px solid;
+  margin: 4px;
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  overflow: hidden;
+}
+
+.phase2-flex {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.phase2-grid {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-template-rows: minmax(10px, auto);
+  grid-auto-flow: column;
+}
+
+.phase2-multicol {
+  column-count: 2;
+  column-gap: 12px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.phase2-scroll {
+  scroll-snap-type: x mandatory;
+  scroll-snap-align: start;
+  scrollbar-color: red blue;
+  scrollbar-width: thin;
+}

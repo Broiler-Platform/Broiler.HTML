@@ -1,0 +1,50 @@
+@keyframes phase7-fade {
+  from { opacity: 0; transform: translateX(0); offset-distance: 0%; }
+  50% { opacity: .65; transform: translateX(12px); offset-distance: 45%; }
+  to { opacity: 1; transform: translateX(24px); offset-distance: 100%; }
+}
+
+@scroll-timeline phase7-scroll {
+  source: selector(#phase7-scrollport);
+  orientation: block;
+  scroll-offsets: start 0%, end 100%;
+}
+
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-group(phase7-card) {
+  animation-duration: 180ms;
+  animation-timing-function: ease-in-out;
+}
+
+.phase7-animation {
+  animation: phase7-fade 200ms ease-in-out 50ms 2 alternate both;
+  animation-composition: accumulate;
+  animation-delay: 50ms;
+  animation-direction: alternate;
+  animation-duration: 200ms;
+  animation-fill-mode: both;
+  animation-iteration-count: 2;
+  animation-name: phase7-fade;
+  animation-play-state: paused;
+  animation-range: entry 10% exit 90%;
+  animation-timeline: phase7-scroll;
+  transition: opacity 150ms linear, transform 250ms steps(4, end);
+  transition-behavior: allow-discrete;
+  view-transition-name: phase7-card;
+  offset-path: path("M 0 0 L 40 20 L 80 0");
+  offset-distance: 25%;
+  offset-position: normal;
+  offset-rotate: auto 45deg;
+}
+
+@supports (animation-timeline: scroll()) {
+  .phase7-scroll-linked {
+    animation-name: phase7-fade;
+    animation-timeline: scroll(root block);
+    animation-range-start: entry 0%;
+    animation-range-end: exit 100%;
+  }
+}

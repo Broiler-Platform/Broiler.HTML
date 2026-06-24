@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "featureId": "css-ua-defaults-presentational-hints",
+      "title": "User-agent defaults and presentational hints",
+      "cluster": "css",
+      "specSections": ["10.2"],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": []
+    },
+    {
+      "featureId": "css-cascade-selectors",
+      "title": "Cascade, inheritance, specificity, and selectors used by HTML fixtures",
+      "cluster": "css",
+      "specSections": ["10.2"],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": []
+    },
+    {
+      "featureId": "css-box-layout",
+      "title": "Display, box model, normal flow, floats, and positioning",
+      "cluster": "layout",
+      "specSections": ["10.3"],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": []
+    },
+    {
+      "featureId": "css-text-fonts",
+      "title": "Text, font, line box, whitespace, and text decoration properties",
+      "cluster": "text-i18n",
+      "specSections": ["10.3.4", "10.3.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": []
+    },
+    {
+      "featureId": "css-backgrounds-borders-paint",
+      "title": "Background, border, outline, opacity, and paint order properties",
+      "cluster": "painting",
+      "specSections": ["10"],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": []
+    },
+    {
+      "featureId": "css-table-list-form-rendering",
+      "title": "CSS behavior required for tables, lists, and form controls",
+      "cluster": "css",
+      "specSections": ["10.3.8", "10.3.9", "10.3.11", "10.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": []
+    }
+  ]
+}

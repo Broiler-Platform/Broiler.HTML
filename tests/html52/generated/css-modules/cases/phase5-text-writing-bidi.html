@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 5 CSS writing modes and bidi</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body { font: 16px/20px serif; background: #ffffff; }
+#phase5-writing-root { width: 620px; margin: 8px; padding: 8px; border: 2px solid #212529; }
+#phase5-vertical { writing-mode: vertical-rl; text-orientation: mixed; direction: rtl; unicode-bidi: bidi-override; inline-size: 90px; block-size: 170px; margin-inline-start: 12px; padding-block-start: 6px; border-inline-start: 4px solid #0b7285; background: #e3fafc; }
+#phase5-logical { writing-mode: horizontal-tb; direction: rtl; unicode-bidi: plaintext; width: 280px; min-height: 54px; margin-top: 14px; padding-inline-start: 12px; border-inline-end: 4px solid #e8590c; background: #fff4e6; }
+#phase5-sideways { writing-mode: sideways-lr; text-orientation: sideways; width: 130px; height: 28px; margin-top: 12px; background: #edf2ff; }
+</style>
+</head>
+<body>
+<div id="phase5-writing-root">
+<div id="phase5-vertical">Vertical ABC &#x05d0;&#x05d1;&#x05d2;</div>
+<div id="phase5-logical">English line<br>&#x05e9;&#x05dc;&#x05d5;&#x05dd; mixed 123<br>Neutral line</div>
+<div id="phase5-sideways">Sideways text</div>
+</div>
+</body>
+</html>

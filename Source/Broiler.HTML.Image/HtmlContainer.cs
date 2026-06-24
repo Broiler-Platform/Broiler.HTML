@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Orchestration.Core;
-using Broiler.HTML.Core.Core.Entities;
-using Broiler.HTML.Core.Core.IR;
-using Broiler.HTML.Core.Core;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Primitives.Adapters.Entities;
+using Broiler.HTML.Dom;
+using Broiler.HTML.Orchestration;
+using Broiler.HTML.Core.Entities;
+using Broiler.HTML.Core.IR;
+using Broiler.HTML.Core;
 
 namespace Broiler.HTML.Image;
 
@@ -280,7 +281,7 @@ public sealed class HtmlContainer : IDisposable
         if (!bg.IsEmpty && bg.A > 0)
             return bg;
 
-        Broiler.HTML.Dom.Core.Dom.CssBox? htmlBox = null;
+        CssBox? htmlBox = null;
         foreach (var child in root.Boxes)
         {
             if (string.Equals(child.HtmlTag?.Name, "html", StringComparison.OrdinalIgnoreCase))
@@ -350,8 +351,8 @@ public sealed class HtmlContainer : IDisposable
     /// model wraps it inside anonymous block boxes, so a direct-child search
     /// may fail.  This method walks up to 3 levels deep to find the body element.
     /// </summary>
-    private static Broiler.HTML.Dom.Core.Dom.CssBox? FindBodyBoxRecursive(
-        Broiler.HTML.Dom.Core.Dom.CssBox parent, int depth = 0)
+    private static CssBox? FindBodyBoxRecursive(
+        CssBox parent, int depth = 0)
     {
         if (depth > 3) return null;
 
@@ -378,7 +379,7 @@ public sealed class HtmlContainer : IDisposable
     /// background propagation to the canvas (display:none, display:contents,
     /// contain:paint/strict/content).
     /// </summary>
-    private static bool SuppressesCanvasPropagation(Broiler.HTML.Dom.Core.Dom.CssBox box)
+    private static bool SuppressesCanvasPropagation(CssBox box)
     {
         var display = box.Display;
         if (string.Equals(display, "none", StringComparison.OrdinalIgnoreCase))

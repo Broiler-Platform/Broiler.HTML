@@ -1,0 +1,35 @@
+[
+  {
+    "type": "StartTag",
+    "name": "div",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {
+      "class": "a b",
+      "data-x": "1",
+      "hidden": "",
+      "id": "main"
+    }
+  },
+  {
+    "type": "EndTag",
+    "name": "div",
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "Character",
+    "name": null,
+    "data": "\n",
+    "selfClosing": false,
+    "attributes": {}
+  },
+  {
+    "type": "EndOfFile",
+    "name": null,
+    "data": null,
+    "selfClosing": false,
+    "attributes": {}
+  }
+]

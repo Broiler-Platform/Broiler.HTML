@@ -1,0 +1,26 @@
+.phase2-paint {
+  color: rebeccapurple;
+  background: linear-gradient(45deg, red, blue) no-repeat border-box content-box;
+  background-size: 20px 30px;
+  border: 2px solid rgba(10, 20, 30, 0.75);
+  border-radius: 4px;
+  outline: 1px solid black;
+  outline-offset: 2px;
+  box-shadow: 1px 2px 3px #000;
+  opacity: 0.75;
+  cursor: pointer;
+  resize: both;
+  mix-blend-mode: multiply;
+  background-blend-mode: screen;
+  isolation: isolate;
+  filter: blur(1px);
+  clip-path: inset(1px);
+  mask-image: linear-gradient(black, transparent);
+  shape-outside: circle(50%);
+  transform: translateX(2px) rotate(5deg);
+  will-change: transform;
+  color-adjust: exact;
+  print-color-adjust: exact;
+  image-rendering: pixelated;
+  object-fit: contain;
+}

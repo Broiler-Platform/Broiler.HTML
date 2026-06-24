@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Core.Entities;
-using Broiler.HTML.Core.Core.IR;
+using Broiler.HTML.Core;
+using Broiler.HTML.Core.Entities;
+using Broiler.HTML.Core.IR;
 using GraphicsBitmap = Broiler.Graphics.BBitmap;
 using ImageBitmap = Broiler.HTML.Image.BBitmap;
 using ImageContainer = Broiler.HTML.Image.HtmlContainer;

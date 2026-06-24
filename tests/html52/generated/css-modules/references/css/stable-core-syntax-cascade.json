@@ -1,0 +1,264 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "(min-width:": {
+      ".body": [
+        {
+          "attributeConditions": [
+            {
+              "name": "data-state",
+              "op": "~=",
+              "value": "active"
+            }
+          ],
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "green"
+          },
+          "pseudoClass": null,
+          "selector": ".body",
+          "selectors": [
+            {
+              "adjacentSibling": true,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".title"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": true,
+              "pseudoClass": null,
+              "selector": ".phase2-card"
+            }
+          ],
+          "sourceOrder": 4,
+          "specificity": 4000
+        }
+      ]
+    },
+    "(orientation:": {
+      ".body": [
+        {
+          "attributeConditions": [
+            {
+              "name": "data-state",
+              "op": "~=",
+              "value": "active"
+            }
+          ],
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "green"
+          },
+          "pseudoClass": null,
+          "selector": ".body",
+          "selectors": [
+            {
+              "adjacentSibling": true,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".title"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": true,
+              "pseudoClass": null,
+              "selector": ".phase2-card"
+            }
+          ],
+          "sourceOrder": 7,
+          "specificity": 4000
+        }
+      ]
+    },
+    "300px)": {
+      ".body": [
+        {
+          "attributeConditions": [
+            {
+              "name": "data-state",
+              "op": "~=",
+              "value": "active"
+            }
+          ],
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "green"
+          },
+          "pseudoClass": null,
+          "selector": ".body",
+          "selectors": [
+            {
+              "adjacentSibling": true,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".title"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": true,
+              "pseudoClass": null,
+              "selector": ".phase2-card"
+            }
+          ],
+          "sourceOrder": 5,
+          "specificity": 4000
+        }
+      ]
+    },
+    "all": {
+      ".body": [
+        {
+          "attributeConditions": [
+            {
+              "name": "data-state",
+              "op": "~=",
+              "value": "active"
+            }
+          ],
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "green"
+          },
+          "pseudoClass": null,
+          "selector": ".body",
+          "selectors": [
+            {
+              "adjacentSibling": true,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".title"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": true,
+              "pseudoClass": null,
+              "selector": ".phase2-card"
+            }
+          ],
+          "sourceOrder": 2,
+          "specificity": 4000
+        }
+      ],
+      "html": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "--phase2-accent": "#123456"
+          },
+          "pseudoClass": "root",
+          "selector": "html",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ],
+      "svg|rect": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [
+            "background-color"
+          ],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "white",
+            "color": "var(--phase2-accent)"
+          },
+          "pseudoClass": null,
+          "selector": "svg|rect",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 2
+        }
+      ]
+    },
+    "and": {
+      ".body": [
+        {
+          "attributeConditions": [
+            {
+              "name": "data-state",
+              "op": "~=",
+              "value": "active"
+            }
+          ],
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "green"
+          },
+          "pseudoClass": null,
+          "selector": ".body",
+          "selectors": [
+            {
+              "adjacentSibling": true,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".title"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": true,
+              "pseudoClass": null,
+              "selector": ".phase2-card"
+            }
+          ],
+          "sourceOrder": 3,
+          "specificity": 4000
+        }
+      ]
+    },
+    "landscape)": {
+      ".body": [
+        {
+          "attributeConditions": [
+            {
+              "name": "data-state",
+              "op": "~=",
+              "value": "active"
+            }
+          ],
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "green"
+          },
+          "pseudoClass": null,
+          "selector": ".body",
+          "selectors": [
+            {
+              "adjacentSibling": true,
+              "directParent": false,
+              "pseudoClass": null,
+              "selector": ".title"
+            },
+            {
+              "adjacentSibling": false,
+              "directParent": true,
+              "pseudoClass": null,
+              "selector": ".phase2-card"
+            }
+          ],
+          "sourceOrder": 8,
+          "specificity": 4000
+        }
+      ]
+    }
+  }
+}

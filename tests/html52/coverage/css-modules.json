@@ -1,0 +1,3810 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "items": [
+    {
+      "featureId": "css-module-color",
+      "title": "CSS Color Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-color-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase6-paint-background-color-001"
+      ],
+      "moduleId": "color",
+      "moduleTitle": "CSS Color Level 3",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-color-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-namespace",
+      "title": "CSS Namespaces",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-namespaces/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "namespace",
+      "moduleTitle": "CSS Namespaces",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-namespaces/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-selectors",
+      "title": "Selectors Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/selectors-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "selectors",
+      "moduleTitle": "Selectors Level 3",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/selectors-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css21",
+      "title": "CSS Level 2 Revision 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/CSS2/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css21",
+      "moduleTitle": "CSS Level 2 Revision 1",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css2/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-mediaqueries",
+      "title": "Media Queries Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/mediaqueries-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase4-layout-media-paged-001"
+      ],
+      "moduleId": "mediaqueries",
+      "moduleTitle": "Media Queries Level 3",
+      "moduleFamily": "media-and-paged-output",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/mediaqueries-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-style-attr",
+      "title": "CSS Style Attributes",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-style-attr/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "html52-css-style-attribute-inheritance-001",
+        "css-module-phase2-computed-custom-properties-001"
+      ],
+      "moduleId": "style-attr",
+      "moduleTitle": "CSS Style Attributes",
+      "moduleFamily": "syntax-and-parsing",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-style-attr/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-cascade",
+      "title": "CSS Cascading and Inheritance Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-cascade-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "cascade",
+      "moduleTitle": "CSS Cascading and Inheritance Level 3",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-cascade-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-fonts",
+      "title": "CSS Fonts Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-fonts-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001",
+        "css-module-phase5-text-fonts-001"
+      ],
+      "moduleId": "fonts",
+      "moduleTitle": "CSS Fonts Level 3",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-fonts-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-writing-modes",
+      "title": "CSS Writing Modes Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-writing-modes-3"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001",
+        "css-module-phase5-text-writing-bidi-001"
+      ],
+      "moduleId": "writing-modes",
+      "moduleTitle": "CSS Writing Modes Level 3",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-writing-modes-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-ui",
+      "title": "CSS Basic User Interface Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-ui-3"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase3-layout-ui-forms-001"
+      ],
+      "moduleId": "ui",
+      "moduleTitle": "CSS Basic User Interface Level 3",
+      "moduleFamily": "ui-and-forms",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-ui-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-box",
+      "title": "CSS Box Model Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-box-3"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "box",
+      "moduleTitle": "CSS Box Model Level 3",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-box/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-contain-1",
+      "title": "CSS Containment Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-contain-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-contain-1",
+      "moduleTitle": "CSS Containment Level 1",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "REC",
+      "upcomingStatus": "REC",
+      "editorDraftUrl": "https://drafts.csswg.org/css-contain-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-background",
+      "title": "CSS Backgrounds and Borders Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-backgrounds-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-background-color-001"
+      ],
+      "moduleId": "background",
+      "moduleTitle": "CSS Backgrounds and Borders Level 3",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-backgrounds-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-conditional",
+      "title": "CSS Conditional Rules Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-conditional-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "conditional",
+      "moduleTitle": "CSS Conditional Rules Level 3",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-conditional-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-multicol",
+      "title": "CSS Multi-column Layout Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-multicol-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "moduleId": "multicol",
+      "moduleTitle": "CSS Multi-column Layout Level 1",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-multicol-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-values",
+      "title": "CSS Values and Units Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-values-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase2-computed-values-shorthands-001"
+      ],
+      "moduleId": "values",
+      "moduleTitle": "CSS Values and Units Level 3",
+      "moduleFamily": "values-and-units",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-values-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-flexbox",
+      "title": "CSS Flexible Box Layout Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-flexbox-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "moduleId": "flexbox",
+      "moduleTitle": "CSS Flexible Box Layout Level 1",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-flexbox-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-counter-styles",
+      "title": "CSS Counter Styles Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-counter-styles-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-lists-counters-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "moduleId": "counter-styles",
+      "moduleTitle": "CSS Counter Styles Level 3",
+      "moduleFamily": "lists-and-generated-content",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-counter-styles-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-images",
+      "title": "CSS Images Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css3-images"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
+      ],
+      "moduleId": "images",
+      "moduleTitle": "CSS Images Level 3",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-images-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-speech",
+      "title": "CSS Speech Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-speech-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [],
+      "moduleId": "speech",
+      "moduleTitle": "CSS Speech Level 1",
+      "moduleFamily": "aural-and-speech",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-speech-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "aural-renderer",
+      "blockedBy": [
+        "aural-renderer"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-aural-renderer-is-added",
+      "reason": "Requires an aural/speech rendering backend rather than Broiler.HTML static visual rendering."
+    },
+    {
+      "featureId": "css-module-text-decor",
+      "title": "CSS Text Decoration Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-text-decor-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001",
+        "css-module-phase5-text-inline-ruby-001"
+      ],
+      "moduleId": "text-decor",
+      "moduleTitle": "CSS Text Decoration Level 3",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-text-decor-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-shapes",
+      "title": "CSS Shapes Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-shapes-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
+      ],
+      "moduleId": "shapes",
+      "moduleTitle": "CSS Shapes Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-shapes-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-masking",
+      "title": "CSS Masking Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-masking-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
+      ],
+      "moduleId": "css-masking",
+      "moduleTitle": "CSS Masking Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.fxtf.org/css-masking-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-text",
+      "title": "CSS Text Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-text-3"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001",
+        "css-module-phase5-text-inline-ruby-001"
+      ],
+      "moduleId": "text",
+      "moduleTitle": "CSS Text Level 3",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-text-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-break",
+      "title": "CSS Fragmentation Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-break-3"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-media-paged-001"
+      ],
+      "moduleId": "break",
+      "moduleTitle": "CSS Fragmentation Level 3",
+      "moduleFamily": "media-and-paged-output",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-break-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-transforms",
+      "title": "CSS Transforms Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-transforms-1"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
+      ],
+      "moduleId": "transforms",
+      "moduleTitle": "CSS Transforms Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-transforms-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-variables",
+      "title": "CSS Custom Properties for Cascading Variables Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-variables-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-custom-properties-001"
+      ],
+      "moduleId": "variables",
+      "moduleTitle": "CSS Custom Properties for Cascading Variables Level 1",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-variables-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-compositing",
+      "title": "Compositing and Blending Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/compositing-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
+      ],
+      "moduleId": "compositing",
+      "moduleTitle": "Compositing and Blending Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.fxtf.org/compositing-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-syntax",
+      "title": "CSS Syntax Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-syntax-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "syntax",
+      "moduleTitle": "CSS Syntax Level 3",
+      "moduleFamily": "syntax-and-parsing",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-syntax-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-grid-layout",
+      "title": "CSS Grid Layout Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-grid-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "moduleId": "grid-layout",
+      "moduleTitle": "CSS Grid Layout Level 1",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-grid-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-css-display-3",
+      "title": "CSS Display Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-display-3/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-display-3",
+      "moduleTitle": "CSS Display Level 3",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-display-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-will-change-1",
+      "title": "CSS Will Change Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-will-change-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
+      ],
+      "moduleId": "css-will-change-1",
+      "moduleTitle": "CSS Will Change Level 1",
+      "moduleFamily": "miscellaneous",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-will-change-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-mediaqueries-4",
+      "title": "Media Queries Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/mediaqueries-4/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase4-layout-media-paged-001"
+      ],
+      "moduleId": "mediaqueries-4",
+      "moduleTitle": "Media Queries Level 4",
+      "moduleFamily": "media-and-paged-output",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/mediaqueries-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-geometry-1",
+      "title": "Geometry Interfaces Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/geometry-1"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase2-computed-values-shorthands-001"
+      ],
+      "moduleId": "geometry-1",
+      "moduleTitle": "Geometry Interfaces Level 1",
+      "moduleFamily": "values-and-units",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.fxtf.org/geometry-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-cascade-4",
+      "title": "CSS Cascading and Inheritance Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-cascade-4/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "cascade-4",
+      "moduleTitle": "CSS Cascading and Inheritance Level 4",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-cascade-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-snappoints-1",
+      "title": "CSS Scroll Snap Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-scroll-snap-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-overflow-scroll-001"
+      ],
+      "moduleId": "css-snappoints-1",
+      "moduleTitle": "CSS Scroll Snap Level 1",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-scroll-snap-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-paint-api-1",
+      "title": "CSS Painting API Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-paint-api-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "css-paint-api-1",
+      "moduleTitle": "CSS Painting API Level 1",
+      "moduleFamily": "miscellaneous",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.css-houdini.org/css-paint-api-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires CSS Painting API worklet execution; static CSS parsing remains a negative/no-crash concern."
+    },
+    {
+      "featureId": "css-module-css-color-4",
+      "title": "CSS Color Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-color-4/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase6-paint-background-color-001"
+      ],
+      "moduleId": "css-color-4",
+      "moduleTitle": "CSS Color Level 4",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-color-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-timing-1",
+      "title": "CSS Easing Functions Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-easing-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-values-color-timing-001",
+        "css-module-phase2-computed-values-shorthands-001"
+      ],
+      "moduleId": "css-timing-1",
+      "moduleTitle": "CSS Easing Functions Level 1",
+      "moduleFamily": "values-and-units",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-easing/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-writing-modes-4",
+      "title": "CSS Writing Modes Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-writing-modes-4/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-text-fonts-writing-001",
+        "css-module-phase5-text-writing-bidi-001"
+      ],
+      "moduleId": "writing-modes-4",
+      "moduleTitle": "CSS Writing Modes Level 4",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-writing-modes-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-css-grid-2",
+      "title": "CSS Grid Layout Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-grid-2/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "moduleId": "css-grid-2",
+      "moduleTitle": "CSS Grid Layout Level 2",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-grid-2/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-css-scrollbars-1",
+      "title": "CSS Scrollbars Styling Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-scrollbars-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-box-layout-001",
+        "css-module-phase3-layout-overflow-scroll-001"
+      ],
+      "moduleId": "css-scrollbars-1",
+      "moduleTitle": "CSS Scrollbars Styling Level 1",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-scrollbars/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-color-adjust-1",
+      "title": "CSS Color Adjustment Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-color-adjust-1/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-paint-effects-001",
+        "css-module-phase6-paint-background-color-001"
+      ],
+      "moduleId": "css-color-adjust-1",
+      "moduleTitle": "CSS Color Adjustment Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "CRD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-color-adjust-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-conditional-4",
+      "title": "CSS Conditional Rules Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-conditional-4/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "css-conditional-4",
+      "moduleTitle": "CSS Conditional Rules Level 4",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-conditional-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-cascade-5",
+      "title": "CSS Cascading and Inheritance Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-cascade-5/"
+      ],
+      "supportLevel": "required",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-syntax-cascade-001",
+        "css-module-phase2-computed-cascade-selectors-001"
+      ],
+      "moduleId": "css-cascade-5",
+      "moduleTitle": "CSS Cascading and Inheritance Level 5",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-cascade/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-view-transitions-1",
+      "title": "CSS View Transitions Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-view-transitions-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "css-view-transitions-1",
+      "moduleTitle": "CSS View Transitions Level 1",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "CR",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-view-transitions-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires a live document transition timeline and DOM state changes."
+    },
+    {
+      "featureId": "css-module-animations",
+      "title": "CSS Animations Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-animations-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "animations",
+      "moduleTitle": "CSS Animations Level 1",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-animations/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires animation timelines and time sampling beyond static document rendering."
+    },
+    {
+      "featureId": "css-module-web-animations",
+      "title": "Web Animations",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/web-animations-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "web-animations",
+      "moduleTitle": "Web Animations",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/web-animations-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires the Web Animations runtime API and timelines."
+    },
+    {
+      "featureId": "css-module-transitions",
+      "title": "CSS Transitions",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-transitions-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "transitions",
+      "moduleTitle": "CSS Transitions",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-transitions-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires style-change timelines beyond a static initial render."
+    },
+    {
+      "featureId": "css-module-align",
+      "title": "CSS Box Alignment Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-align-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "moduleId": "align",
+      "moduleTitle": "CSS Box Alignment Level 3",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-align-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-selectors4",
+      "title": "Selectors Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/selectors-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-computed-cascade-selectors-001",
+        "css-module-phase3-text-generated-001",
+        "css-module-phase3-cross-module-001"
+      ],
+      "moduleId": "selectors4",
+      "moduleTitle": "Selectors Level 4",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/selectors-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-sizing",
+      "title": "CSS Box Sizing Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-sizing-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "sizing",
+      "moduleTitle": "CSS Box Sizing Level 3",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "CR",
+      "editorDraftUrl": "https://drafts.csswg.org/css-sizing-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-lists",
+      "title": "CSS Lists and Counters Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-lists-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "moduleId": "lists",
+      "moduleTitle": "CSS Lists and Counters Level 3",
+      "moduleFamily": "lists-and-generated-content",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-lists-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-positioning",
+      "title": "CSS Positioned Layout Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-position-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "positioning",
+      "moduleTitle": "CSS Positioned Layout Level 3",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-position-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-motion-1",
+      "title": "Motion Path Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/motion-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "motion-1",
+      "moduleTitle": "Motion Path Level 1",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.fxtf.org/motion-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires animation path sampling for moving boxes rather than static layout alone."
+    },
+    {
+      "featureId": "css-module-css-fonts-4",
+      "title": "CSS Fonts Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-fonts-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase5-text-fonts-001"
+      ],
+      "moduleId": "css-fonts-4",
+      "moduleTitle": "CSS Fonts Level 4",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-fonts-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-css-logical-1",
+      "title": "CSS Logical Properties and Values Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-logical-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-logical-1",
+      "moduleTitle": "CSS Logical Properties and Values Level 1",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-logical-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-values-4",
+      "title": "CSS Values and Units Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-values-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-computed-values-shorthands-001",
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-paint-effects-001"
+      ],
+      "moduleId": "css-values-4",
+      "moduleTitle": "CSS Values and Units Level 4",
+      "moduleFamily": "values-and-units",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-values/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-contain-2",
+      "title": "CSS Containment Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-contain-2/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-contain-2",
+      "moduleTitle": "CSS Containment Level 2",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-contain-2/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-paged-media",
+      "title": "CSS Paged Media Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css3-page"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-media-ui-001",
+        "css-module-phase4-layout-media-paged-001"
+      ],
+      "moduleId": "paged-media",
+      "moduleTitle": "CSS Paged Media Level 3",
+      "moduleFamily": "media-and-paged-output",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-page-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-cssom-view",
+      "title": "CSSOM View",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/cssom-view/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "cssom-view",
+      "moduleTitle": "CSSOM View",
+      "moduleFamily": "cssom-and-houdini-apis",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/cssom-view/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires browser viewport, scrolling, and geometry APIs."
+    },
+    {
+      "featureId": "css-module-ruby",
+      "title": "CSS Ruby Annotation Layout Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-ruby-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase5-text-inline-ruby-001"
+      ],
+      "moduleId": "ruby",
+      "moduleTitle": "CSS Ruby Annotation Layout Level 1",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-ruby-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-cssom",
+      "title": "CSS Object Model (CSSOM)",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/cssom/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "cssom",
+      "moduleTitle": "CSS Object Model (CSSOM)",
+      "moduleFamily": "cssom-and-houdini-apis",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/cssom/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires CSS object model APIs and script-visible mutation/query behavior."
+    },
+    {
+      "featureId": "css-module-css-overflow-3",
+      "title": "CSS Overflow Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-overflow-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-overflow-scroll-001"
+      ],
+      "moduleId": "css-overflow-3",
+      "moduleTitle": "CSS Overflow Level 3",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-overflow-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-font-loading-3",
+      "title": "CSS Font Loading Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-font-loading-3/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "css-font-loading-3",
+      "moduleTitle": "CSS Font Loading Level 3",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-font-loading/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-font-loading-api-is-added",
+      "reason": "Requires the CSS Font Loading API; static @font-face resource behavior is covered by font/layout tests."
+    },
+    {
+      "featureId": "css-module-css-scoping-1",
+      "title": "CSS Scoping Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-scoping-1/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "moduleId": "css-scoping-1",
+      "moduleTitle": "CSS Scoping Level 1",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-scoping/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-pseudo-4",
+      "title": "CSS Pseudo-Elements Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-pseudo-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase6-paint-pseudo-shadow-gaps-001"
+      ],
+      "moduleId": "pseudo-4",
+      "moduleTitle": "CSS Pseudo-Elements Level 4",
+      "moduleFamily": "miscellaneous",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-pseudo-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-images-4",
+      "title": "CSS Image Values and Replaced Content Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-images-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-images-masks-shapes-001"
+      ],
+      "moduleId": "css-images-4",
+      "moduleTitle": "CSS Image Values and Replaced Content Level 4",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-images-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-overflow-4",
+      "title": "CSS Overflow Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-overflow-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase3-layout-overflow-scroll-001"
+      ],
+      "moduleId": "css-overflow-4",
+      "moduleTitle": "CSS Overflow Level 4",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-overflow-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-text-decor-4",
+      "title": "CSS Text Decoration Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-text-decor-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase5-text-inline-ruby-001"
+      ],
+      "moduleId": "css-text-decor-4",
+      "moduleTitle": "CSS Text Decoration Level 4",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-text-decor-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-resize-observer-1",
+      "title": "Resize Observer",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/resize-observer-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "resize-observer-1",
+      "moduleTitle": "Resize Observer",
+      "moduleFamily": "cssom-and-houdini-apis",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/resize-observer/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires observer callback delivery from a live layout engine."
+    },
+    {
+      "featureId": "css-module-mediaqueries-5",
+      "title": "Media Queries Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/mediaqueries-5"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-media-ui-001",
+        "css-module-phase4-layout-media-paged-001"
+      ],
+      "moduleId": "mediaqueries-5",
+      "moduleTitle": "Media Queries Level 5",
+      "moduleFamily": "media-and-paged-output",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/mediaqueries-5/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-css-sizing-4",
+      "title": "CSS Box Sizing Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-sizing-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-sizing-4",
+      "moduleTitle": "CSS Box Sizing Level 4",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-sizing-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css4-background",
+      "title": "CSS Backgrounds Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-backgrounds-4/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "moduleId": "css4-background",
+      "moduleTitle": "CSS Backgrounds Level 4",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-backgrounds-4/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-device-adapt",
+      "title": "CSS Viewport Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-viewport-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-media-ui-001",
+        "css-module-phase3-layout-ui-forms-001"
+      ],
+      "moduleId": "device-adapt",
+      "moduleTitle": "CSS Viewport Level 1",
+      "moduleFamily": "ui-and-forms",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-viewport/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-exclusions",
+      "title": "CSS Exclusions",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css3-exclusions/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "moduleId": "exclusions",
+      "moduleTitle": "CSS Exclusions",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-exclusions/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-filter",
+      "title": "Filter Effects Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/filter-effects-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase3-cross-module-001",
+        "css-module-phase6-paint-effects-transforms-001"
+      ],
+      "moduleId": "filter",
+      "moduleTitle": "Filter Effects Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.fxtf.org/filter-effects-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-gcpm",
+      "title": "CSS Generated Content for Paged Media",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-gcpm-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "moduleId": "gcpm",
+      "moduleTitle": "CSS Generated Content for Paged Media",
+      "moduleFamily": "lists-and-generated-content",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-gcpm-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-page-floats",
+      "title": "CSS Page Floats",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-page-floats-3/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-layout-scroll-001"
+      ],
+      "moduleId": "page-floats",
+      "moduleTitle": "CSS Page Floats",
+      "moduleFamily": "media-and-paged-output",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-page-floats/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-linegrid",
+      "title": "CSS Line Grid",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-line-grid-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "moduleId": "linegrid",
+      "moduleTitle": "CSS Line Grid",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-line-grid-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-regions",
+      "title": "CSS Regions",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-regions-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "moduleId": "regions",
+      "moduleTitle": "CSS Regions",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-regions-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-tables",
+      "title": "CSS Table Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-tables-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase4-layout-tables-columns-001"
+      ],
+      "moduleId": "tables",
+      "moduleTitle": "CSS Table Level 3",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-tables-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-inline",
+      "title": "CSS Inline Layout Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-inline-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase5-text-inline-ruby-001"
+      ],
+      "moduleId": "inline",
+      "moduleTitle": "CSS Inline Layout Level 3",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-inline-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-css-round-display-1",
+      "title": "CSS Round Display Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-round-display-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-round-display-1",
+      "moduleTitle": "CSS Round Display Level 1",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-round-display-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-ui-4",
+      "title": "CSS Basic User Interface Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-ui-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-media-ui-001",
+        "css-module-phase3-layout-ui-forms-001"
+      ],
+      "moduleId": "css-ui-4",
+      "moduleTitle": "CSS Basic User Interface Level 4",
+      "moduleFamily": "ui-and-forms",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-ui-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-text-4",
+      "title": "CSS Text Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-text-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase5-text-inline-ruby-001"
+      ],
+      "moduleId": "css-text-4",
+      "moduleTitle": "CSS Text Level 4",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-text-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-css-properties-values-api-1",
+      "title": "CSS Properties and Values API Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-properties-values-api-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-computed-registered-properties-001",
+        "css-module-phase4-draft-properties-values-001"
+      ],
+      "moduleId": "css-properties-values-api-1",
+      "moduleTitle": "CSS Properties and Values API Level 1",
+      "moduleFamily": "cssom-and-houdini-apis",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.css-houdini.org/css-properties-values-api-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-typed-om-1",
+      "title": "CSS Typed OM Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-typed-om-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "css-typed-om-1",
+      "moduleTitle": "CSS Typed OM Level 1",
+      "moduleFamily": "cssom-and-houdini-apis",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.css-houdini.org/css-typed-om-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires CSS Typed OM script-visible value objects and mutation/query APIs."
+    },
+    {
+      "featureId": "css-module-css-rhythm-1",
+      "title": "CSS Rhythmic Sizing Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-rhythm-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-rhythm-1",
+      "moduleTitle": "CSS Rhythmic Sizing Level 1",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-rhythm-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-fill-stroke-3",
+      "title": "CSS Fill and Stroke Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/fill-stroke-3/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "moduleId": "fill-stroke-3",
+      "moduleTitle": "CSS Fill and Stroke Level 3",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.fxtf.org/fill-stroke-3/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-layout-api-1",
+      "title": "CSS Layout API Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-layout-api-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "css-layout-api-1",
+      "moduleTitle": "CSS Layout API Level 1",
+      "moduleFamily": "cssom-and-houdini-apis",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.css-houdini.org/css-layout-api-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires Houdini layout worklet execution."
+    },
+    {
+      "featureId": "css-module-css-shadow-parts-1",
+      "title": "CSS Shadow Parts",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-shadow-parts-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase6-paint-pseudo-shadow-gaps-001"
+      ],
+      "moduleId": "css-shadow-parts-1",
+      "moduleTitle": "CSS Shadow Parts",
+      "moduleFamily": "miscellaneous",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-shadow-parts/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-break-4",
+      "title": "CSS Fragmentation Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-break-4/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-layout-scroll-001"
+      ],
+      "moduleId": "css-break-4",
+      "moduleTitle": "CSS Fragmentation Level 4",
+      "moduleFamily": "media-and-paged-output",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-break-4/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-nav-1",
+      "title": "CSS Spatial Navigation Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-nav-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "css-nav-1",
+      "moduleTitle": "CSS Spatial Navigation Level 1",
+      "moduleFamily": "ui-and-forms",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-nav-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires focus navigation behavior and event/runtime integration."
+    },
+    {
+      "featureId": "css-module-css-overscroll-1",
+      "title": "CSS Overscroll Behavior Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-overscroll-1/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-layout-scroll-001"
+      ],
+      "moduleId": "css-overscroll-1",
+      "moduleTitle": "CSS Overscroll Behavior Level 1",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-overscroll-1/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-animation-worklet-1",
+      "title": "CSS Animation Worklet API",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-animation-worklet-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "css-animation-worklet-1",
+      "moduleTitle": "CSS Animation Worklet API",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.css-houdini.org/css-animationworklet-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires animation worklet execution."
+    },
+    {
+      "featureId": "css-module-css-scroll-anchoring-1",
+      "title": "CSS Scroll Anchoring Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-scroll-anchoring-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-overflow-scroll-001"
+      ],
+      "moduleId": "css-scroll-anchoring-1",
+      "moduleTitle": "CSS Scroll Anchoring Level 1",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-scroll-anchoring/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-color-5",
+      "title": "CSS Color Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-color-5/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-background-color-001"
+      ],
+      "moduleId": "css-color-5",
+      "moduleTitle": "CSS Color Level 5",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-color-5/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-transforms-2",
+      "title": "CSS Transforms Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-transforms-2"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-effects-transforms-001"
+      ],
+      "moduleId": "css-transforms-2",
+      "moduleTitle": "CSS Transforms Level 2",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-transforms-2/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-box-4",
+      "title": "CSS Box Model Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-box-4"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-breadth-001",
+        "css-module-phase3-layout-core-001"
+      ],
+      "moduleId": "css-box-4",
+      "moduleTitle": "CSS Box Model Level 4",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-box-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-highlight-api-1",
+      "title": "CSS Custom Highlight API Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-highlight-api-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "moduleId": "css-highlight-api-1",
+      "moduleTitle": "CSS Custom Highlight API Level 1",
+      "moduleFamily": "cssom-and-houdini-apis",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-highlight-api-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires custom highlight registry APIs and live range state."
+    },
+    {
+      "featureId": "css-module-css-fonts-5",
+      "title": "CSS Fonts Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-fonts-5/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase5-text-fonts-001",
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "moduleId": "css-fonts-5",
+      "moduleTitle": "CSS Fonts Level 5",
+      "moduleFamily": "text-and-fonts",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-fonts-5/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 5 computed-style/layout/render coverage links this module to executable CSS module oracles for text, fonts, ruby, bidi, and writing-mode behavior."
+    },
+    {
+      "featureId": "css-module-css-nesting-1",
+      "title": "CSS Nesting",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-nesting-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-computed-cascade-selectors-001",
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "moduleId": "css-nesting-1",
+      "moduleTitle": "CSS Nesting",
+      "moduleFamily": "syntax-and-parsing",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-nesting/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-cascade-6",
+      "title": "CSS Cascading and Inheritance Level 6",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-cascade-6"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-computed-cascade-selectors-001",
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "moduleId": "css-cascade-6",
+      "moduleTitle": "CSS Cascading and Inheritance Level 6",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-cascade-6/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-conditional-5",
+      "title": "CSS Conditional Rules Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-conditional-5"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-computed-cascade-selectors-001",
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "moduleId": "css-conditional-5",
+      "moduleTitle": "CSS Conditional Rules Level 5",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-conditional-5/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-contain-3",
+      "title": "CSS Containment Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-contain-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "moduleId": "css-contain-3",
+      "moduleTitle": "CSS Containment Level 3",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-contain-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-scroll-animations-1",
+      "title": "Scroll-driven Animations",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/scroll-animations-1/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "scroll-animations-1",
+      "moduleTitle": "Scroll-driven Animations",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/scroll-animations-1/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires scroll-linked animation timelines."
+    },
+    {
+      "featureId": "css-module-css-animations-2",
+      "title": "CSS Animations Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-animations-2/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "css-animations-2",
+      "moduleTitle": "CSS Animations Level 2",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-animations-2/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires animation timelines and event behavior beyond static rendering."
+    },
+    {
+      "featureId": "css-module-web-animations-2",
+      "title": "Web Animations Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/web-animations-2/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "web-animations-2",
+      "moduleTitle": "Web Animations Level 2",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/web-animations-2/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires the Web Animations runtime API and timelines."
+    },
+    {
+      "featureId": "css-module-css-transitions-2",
+      "title": "CSS Transitions Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-transitions-2/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "css-transitions-2",
+      "moduleTitle": "CSS Transitions Level 2",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-transitions-2/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires style-change timelines beyond a static initial render."
+    },
+    {
+      "featureId": "css-module-css-anchor-position-1",
+      "title": "CSS Anchor Positioning",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-anchor-position-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "moduleId": "css-anchor-position-1",
+      "moduleTitle": "CSS Anchor Positioning",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-anchor-position-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-view-transitions-2",
+      "title": "CSS View Transitions Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-view-transitions-2/"
+      ],
+      "supportLevel": "out-of-scope",
+      "status": "out-of-scope",
+      "tests": [
+        "css-module-phase7-runtime-dynamic-timelines-001"
+      ],
+      "moduleId": "css-view-transitions-2",
+      "moduleTitle": "CSS View Transitions Level 2",
+      "moduleFamily": "dynamic-timelines",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-view-transitions-2/",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "animation-timeline"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "reason": "Requires a live document transition timeline and DOM state changes."
+    },
+    {
+      "featureId": "css-module-css-scroll-snap-2",
+      "title": "CSS Scroll Snap Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-scroll-snap-2/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-layout-scroll-001"
+      ],
+      "moduleId": "css-scroll-snap-2",
+      "moduleTitle": "CSS Scroll Snap Level 2",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-scroll-snap-2/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-easing-2",
+      "title": "CSS Easing Functions Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-easing-2/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "moduleId": "css-easing-2",
+      "moduleTitle": "CSS Easing Functions Level 2",
+      "moduleFamily": "values-and-units",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-easing/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-values-5",
+      "title": "CSS Values and Units Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-values-5/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase2-computed-values-shorthands-001",
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "moduleId": "css-values-5",
+      "moduleTitle": "CSS Values and Units Level 5",
+      "moduleFamily": "values-and-units",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-values/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "featureId": "css-module-css-grid-3",
+      "title": "CSS Grid Layout Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-grid-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-cross-module-001",
+        "css-module-phase4-layout-flex-grid-001"
+      ],
+      "moduleId": "css-grid-3",
+      "moduleTitle": "CSS Grid Layout Level 3",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-grid-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-css-color-hdr-1",
+      "title": "CSS Color HDR Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-color-hdr-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase6-paint-background-color-001",
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "moduleId": "css-color-hdr-1",
+      "moduleTitle": "CSS Color HDR Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-color-hdr-1/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-overflow-5",
+      "title": "CSS Overflow Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-overflow-5/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-layout-scroll-001"
+      ],
+      "moduleId": "css-overflow-5",
+      "moduleTitle": "CSS Overflow Level 5",
+      "moduleFamily": "overflow-and-scrolling",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-overflow-5/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-display-4",
+      "title": "CSS Display Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-display-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "moduleId": "css-display-4",
+      "moduleTitle": "CSS Display Level 4",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-display/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-multicol-2",
+      "title": "CSS Multi-column Layout Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-multicol-2/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-layout-scroll-001"
+      ],
+      "moduleId": "css-multicol-2",
+      "moduleTitle": "CSS Multi-column Layout Level 2",
+      "moduleFamily": "layout-systems",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-multicol-2/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-gaps-1",
+      "title": "CSS Gap Decorations Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-gaps-1/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase6-paint-pseudo-shadow-gaps-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "moduleId": "css-gaps-1",
+      "moduleTitle": "CSS Gap Decorations Level 1",
+      "moduleFamily": "miscellaneous",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-gaps-1",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-mixins-1",
+      "title": "CSS Functions and Mixins",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-mixins-1/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "moduleId": "css-mixins-1",
+      "moduleTitle": "CSS Functions and Mixins",
+      "moduleFamily": "syntax-and-parsing",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-mixins/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-position-4",
+      "title": "CSS Positioned Layout Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-position-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-layout-core-001",
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "moduleId": "css-position-4",
+      "moduleTitle": "CSS Positioned Layout Level 4",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-position-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 3 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for static renderer behavior."
+    },
+    {
+      "featureId": "css-module-css-borders-4",
+      "title": "CSS Borders and Box Decorations Level 4",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-borders-4/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-paint-effects-001",
+        "css-module-phase6-paint-background-color-001",
+        "css-module-phase6-paint-pseudo-shadow-gaps-001"
+      ],
+      "moduleId": "css-borders-4",
+      "moduleTitle": "CSS Borders and Box Decorations Level 4",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-borders-4/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "featureId": "css-module-css-env-1",
+      "title": "CSS Environment Variables Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-env-1"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-draft-values-fonts-001"
+      ],
+      "moduleId": "css-env-1",
+      "moduleTitle": "CSS Environment Variables Level 1",
+      "moduleFamily": "values-and-units",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-env-1/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-anchor-position-2",
+      "title": "CSS Anchor Positioning Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-anchor-position-2"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-draft-layout-position-001"
+      ],
+      "moduleId": "css-anchor-position-2",
+      "moduleTitle": "CSS Anchor Positioning Level 2",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-anchor-position-2/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-selectors-5",
+      "title": "Selectors Level 5",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/selectors-5"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-draft-syntax-cascade-001"
+      ],
+      "moduleId": "selectors-5",
+      "moduleTitle": "Selectors Level 5",
+      "moduleFamily": "cascade-and-selection",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/selectors-5/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-image-animation-1",
+      "title": "CSS Image Animation Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-image-animation-1"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "moduleId": "css-image-animation-1",
+      "moduleTitle": "CSS Image Animation Level 1",
+      "moduleFamily": "paint-and-visual-effects",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-image-animation-1/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-content",
+      "title": "CSS Generated Content Level 3",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-content-3/"
+      ],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "moduleId": "content",
+      "moduleTitle": "CSS Generated Content Level 3",
+      "moduleFamily": "lists-and-generated-content",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-content-3/",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "featureId": "css-module-css22",
+      "title": "Preview of CSS Level 2",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/CSS22/"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [
+        "css-module-phase4-early-paint-color-001"
+      ],
+      "moduleId": "css22",
+      "moduleTitle": "Preview of CSS Level 2",
+      "moduleFamily": "box-and-layout-core",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "NOTE",
+      "editorDraftUrl": "https://drafts.csswg.org/css2/",
+      "implementationStatus": "parser-target-met",
+      "oracleDepth": "parse",
+      "targetOracleDepth": "parse",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    }
+  ]
+}

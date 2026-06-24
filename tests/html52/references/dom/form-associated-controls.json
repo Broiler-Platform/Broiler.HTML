@@ -1,0 +1,297 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "form",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "action": "/submit",
+                "id": "profile",
+                "method": "post"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "label",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "for": "first-name"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "First name",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "input",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "id": "first-name",
+                    "name": "first",
+                    "required": "",
+                    "value": "Ada"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Ada",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "fieldset",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "disabled": ""
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "legend",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "Preferences",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "label",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "element",
+                          "name": "input",
+                          "text": null,
+                          "isSingle": true,
+                          "attributes": {
+                            "checked": "",
+                            "name": "mail",
+                            "type": "checkbox"
+                          },
+                          "children": []
+                        },
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": " Mail updates",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n  ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "button",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {
+                    "formaction": "/save",
+                    "formmethod": "post",
+                    "type": "submit"
+                  },
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Save",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "input",
+              "text": null,
+              "isSingle": true,
+              "attributes": {
+                "form": "profile",
+                "name": "external",
+                "value": "outside"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "outside",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "output",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "for": "first-name external",
+                "form": "profile",
+                "name": "summary"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "Ready",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

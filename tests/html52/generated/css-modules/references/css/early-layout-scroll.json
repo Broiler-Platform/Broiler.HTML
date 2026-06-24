@@ -1,0 +1,88 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase4-break": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "box-decoration-break": "clone",
+            "break-after": "verso",
+            "break-before": "recto",
+            "break-inside": "avoid-region"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-break",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-columns": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "column-fill": "balance-all",
+            "column-span": "all",
+            "column-wrap": "nowrap"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-columns",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-float": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "float-defer": "last",
+            "float-offset": "1em",
+            "float-reference": "page"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-float",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase4-scroll": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "block-ellipsis": "\u0022...\u0022",
+            "continue": "fragments",
+            "line-clamp": "3",
+            "max-lines": "3",
+            "overflow-clip-margin": "content-box 10px",
+            "overscroll-behavior-block": "none",
+            "overscroll-behavior-inline": "contain",
+            "scroll-start-target": "auto",
+            "scroll-target-group": "auto"
+          },
+          "pseudoClass": null,
+          "selector": ".phase4-scroll",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

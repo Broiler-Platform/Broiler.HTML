@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 6 CSS effects, compositing, and transforms paint</title>
+<style>
+html, body { margin: 0; padding: 0; }
+body { font: 16px/20px serif; background: #ffffff; }
+#phase6-effects-root { width: 700px; margin: 8px; padding: 8px; border: 2px solid #212529; }
+#phase6-scene { position: relative; width: 440px; height: 180px; isolation: isolate; background: #edf2ff; border: 4px solid #364fc7; overflow: hidden; }
+.phase6-layer { position: absolute; width: 150px; height: 80px; padding: 8px; color: #212529; }
+#phase6-opacity { left: 18px; top: 22px; opacity: .76; background: #74c0fc; mix-blend-mode: multiply; }
+#phase6-transform { left: 124px; top: 42px; background: #ffd43b; transform: translate(18px, -8px) rotate(7deg) scale(1.08); transform-origin: 20px 18px; filter: brightness(1.08) contrast(.92); will-change: transform, opacity; }
+#phase6-filter { left: 250px; top: 64px; background: #ff8787; filter: saturate(1.2) opacity(.9); mix-blend-mode: screen; }
+#phase6-3d { width: 178px; height: 44px; margin-top: 14px; padding: 8px; border: 4px solid #5c940d; background: #d8f5a2; transform: perspective(240px) rotateX(4deg) translateZ(0); transform-style: preserve-3d; }
+</style>
+</head>
+<body>
+<div id="phase6-effects-root">
+<div id="phase6-scene"><div id="phase6-opacity" class="phase6-layer">Opacity</div><div id="phase6-transform" class="phase6-layer">Transform</div><div id="phase6-filter" class="phase6-layer">Filter</div></div>
+<div id="phase6-3d">3D transform probe</div>
+</div>
+</body>
+</html>

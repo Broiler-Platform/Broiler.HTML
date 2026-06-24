@@ -1,0 +1,56 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase3-effects": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "backdrop-filter": "blur(2px)",
+            "background-blend-mode": "multiply",
+            "background-clip": "text",
+            "background-image": "one.png",
+            "border-bottom-color": "lch(50% 40 20)",
+            "border-bottom-style": "solid",
+            "border-bottom-width": "2px",
+            "border-end-end-radius": "8px",
+            "border-start-start-radius": "12px",
+            "border-top-color": "lch(50% 40 20)",
+            "border-top-style": "solid",
+            "border-top-width": "2px",
+            "box-shadow": "0 0 0 2px color(display-p3 1 0 0)",
+            "color": "color-mix(in srgb, red 40%, blue)",
+            "color-adjust": "exact",
+            "filter": "drop-shadow(1px 1px 1px black) saturate(120%)",
+            "mask-border-source": "linear-gradient(black, white)",
+            "mask-composite": "add",
+            "mask-image": "linear-gradient(black, transparent)",
+            "mask-mode": "alpha",
+            "mask-repeat": "no-repeat",
+            "mask-size": "cover",
+            "mix-blend-mode": "screen",
+            "print-color-adjust": "exact",
+            "rotate": "10deg",
+            "scale": "1.1",
+            "shape-image-threshold": "0.5",
+            "shape-margin": "4px",
+            "shape-outside": "ellipse(40% 50%)",
+            "transform": "translate(2px, 3px) rotate(10deg) scale(1.1)",
+            "transform-box": "border-box",
+            "translate": "2px 3px"
+          },
+          "pseudoClass": null,
+          "selector": ".phase3-effects",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

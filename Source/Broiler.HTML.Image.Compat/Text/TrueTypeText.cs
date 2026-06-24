@@ -202,17 +202,16 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         {
             double width = 0;
             int fit = 0;
-            for (int i = 0; i < length; i++)
+            for (int i = 0; i < length;)
             {
-                int cp = char.ConvertToUtf32(text, i);
-                if (char.IsHighSurrogate(text[i]) && i + 1 < length)
-                    i++;
+                int cp = UnicodeCodepointReader.ReadCodePoint(text, i, out int nextIndex);
 
                 double advance = ttf.GetAdvanceWidth(ttf.GetGlyphIndex(cp)) * scale;
                 if (width + advance > maxWidth)
                     break;
                 width += advance;
-                fit++;
+                fit = nextIndex;
+                i = nextIndex;
             }
 
             charFit = fit;
@@ -292,16 +291,15 @@ internal sealed class TrueTypeTextShaper : ITextShaper
             return;
         }
 
-        for (int i = 0; i < text.Length; i++)
+        for (int i = 0; i < text.Length;)
         {
-            int cp = char.ConvertToUtf32(text, i);
-            if (char.IsHighSurrogate(text[i]) && i + 1 < text.Length)
-                i++;
+            int cp = UnicodeCodepointReader.ReadCodePoint(text, i, out int nextIndex);
 
             int glyph = ttf.GetGlyphIndex(cp);
             DrawGlyphOutline(canvas, ttf, glyph, scale, penX, baselineY, color,
                 rotate ? glyphRotationDeg : 0f, pivotX, pivotY);
             penX += ttf.GetAdvanceWidth(glyph) * scale;
+            i = nextIndex;
         }
     }
 
@@ -358,13 +356,12 @@ internal sealed class TrueTypeTextShaper : ITextShaper
             return width;
         }
 
-        for (int i = 0; i < text.Length; i++)
+        for (int i = 0; i < text.Length;)
         {
-            int cp = char.ConvertToUtf32(text, i);
-            if (char.IsHighSurrogate(text[i]) && i + 1 < text.Length)
-                i++;
+            int cp = UnicodeCodepointReader.ReadCodePoint(text, i, out int nextIndex);
 
             width += ttf.GetAdvanceWidth(ttf.GetGlyphIndex(cp)) * scale;
+            i = nextIndex;
         }
         return width;
     }

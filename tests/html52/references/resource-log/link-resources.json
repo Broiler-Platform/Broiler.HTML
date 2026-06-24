@@ -1,0 +1,72 @@
+{
+  "BaseUrl": "file:link-resource-log.html",
+  "DocumentBaseUrl": "file:link-resource-log.html",
+  "Resources": [
+    {
+      "Index": 0,
+      "Element": "link",
+      "Attribute": "href",
+      "Role": "stylesheet",
+      "Raw": "../../assets/css/phase4-local.css",
+      "Resource": "../../assets/css/phase4-local.css",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/css/phase4-local.css",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "text/css",
+      "LocalPath": "../../assets/css/phase4-local.css",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "loadable-stylesheet"
+    },
+    {
+      "Index": 1,
+      "Element": "link",
+      "Attribute": "href",
+      "Role": "link-resource",
+      "Raw": "../../assets/svg/green-square.svg",
+      "Resource": "../../assets/svg/green-square.svg",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/green-square.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/green-square.svg",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "logged-resource"
+    },
+    {
+      "Index": 2,
+      "Element": "link",
+      "Attribute": "href",
+      "Role": "link-resource",
+      "Raw": "../../assets/svg/blue-rect.svg",
+      "Resource": "../../assets/svg/blue-rect.svg",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/blue-rect.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/blue-rect.svg",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "logged-resource"
+    }
+  ],
+  "Summary": {
+    "Total": 3,
+    "LocalFileExists": 3,
+    "LocalFileMissing": 0,
+    "DataUri": 0,
+    "RemoteNetworkBlocked": 0,
+    "Empty": 0,
+    "Unsupported": 0
+  }
+}

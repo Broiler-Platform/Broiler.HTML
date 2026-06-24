@@ -1,0 +1,28 @@
+@keyframes phase4-image-resolution {
+  from {
+    image-resolution: 1dppx;
+  }
+  to {
+    image-resolution: 2dppx;
+  }
+}
+
+.phase4-paint {
+  background-color: oklch(60% 0.15 40);
+  background-clip: border-area;
+  background-repeat: space round;
+  background-position-x: right 1rem;
+  background-position-y: bottom 2rem;
+  border-color: color(display-p3 1 0 0);
+  fill: context-fill;
+  fill-rule: evenodd;
+  stroke: color-mix(in srgb, red 40%, blue);
+  stroke-width: 2px;
+  stroke-linejoin: round;
+  stroke-dasharray: 4 2;
+  image-orientation: from-image;
+  image-resolution: 2dppx snap;
+  image-rendering: smooth;
+  dynamic-range-limit: standard;
+  animation-name: phase4-image-resolution;
+}

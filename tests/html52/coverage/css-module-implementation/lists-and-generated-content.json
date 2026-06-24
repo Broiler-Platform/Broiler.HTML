@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "lists-and-generated-content",
+  "itemCount": 4,
+  "items": [
+    {
+      "moduleId": "content",
+      "moduleTitle": "CSS Generated Content Level 3",
+      "featureId": "css-module-content",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "counter-styles",
+      "moduleTitle": "CSS Counter Styles Level 3",
+      "featureId": "css-module-counter-styles",
+      "supportLevel": "required",
+      "w3cStatus": "CR",
+      "upcomingStatus": "PR",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-lists-counters-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "gcpm",
+      "moduleTitle": "CSS Generated Content for Paged Media",
+      "featureId": "css-module-gcpm",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    },
+    {
+      "moduleId": "lists",
+      "moduleTitle": "CSS Lists and Counters Level 3",
+      "featureId": "css-module-lists",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "render",
+      "targetOracleDepth": "render",
+      "nextOracle": "section-complete-matrix",
+      "owner": "layout-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase3-text-generated-001",
+        "css-module-phase4-layout-lists-generated-001"
+      ],
+      "reason": "Phase 4 layout/render coverage links this module to executable CSS module layout JSON and render PNG oracles for modern layout, media, paged, list, and generated-content behavior."
+    }
+  ]
+}

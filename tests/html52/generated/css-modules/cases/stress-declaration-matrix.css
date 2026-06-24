@@ -1,0 +1,67 @@
+:root {
+  --phase5-gap: 8px;
+  --phase5-loop-a: var(--phase5-loop-b);
+  --phase5-loop-b: var(--phase5-loop-a);
+  --phase5-fallback-color: #13579b;
+}
+
+@layer reset, theme, overrides;
+
+@layer reset {
+  .phase5-declaration {
+    all: unset;
+    display: block;
+  }
+}
+
+@layer theme {
+  .phase5-declaration {
+    color: #123456;
+    color: rgb(10 20 30 / 0.8);
+    margin: 1px 2px 3px 4px;
+    margin-inline-start: calc(var(--phase5-gap) * 2);
+    padding: 2px 4px;
+    border: 1px solid currentColor;
+    border-block-start-width: 3px;
+    font: italic small-caps 600 14px/1.4 serif;
+    font-size: clamp(12px, 2vw, 18px);
+    list-style: inside decimal-leading-zero;
+    transition: color 120ms ease-in-out, margin 1s steps(4, end);
+    background: linear-gradient(45deg, red, blue) no-repeat border-box;
+    background-color: color-mix(in srgb, #123456 40%, white);
+    outline: 2px solid Highlight;
+    box-shadow: 0 0 2px #000, inset 0 0 3px #fff;
+  }
+}
+
+@layer overrides {
+  .phase5-declaration[data-state="active"] {
+    color: var(--phase5-loop-a, var(--phase5-fallback-color)) !important;
+    width: calc(100% - var(--phase5-missing-length));
+    height: calc(10px + 5deg);
+    background-color: rgb(300 -10 20 / 120%);
+    border-top-left-radius: 6px 2px;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 8px;
+    border-bottom-left-radius: 10px;
+    text-decoration-line: underline overline;
+    text-decoration-style: wavy;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 0.2em;
+  }
+}
+
+@supports (color: lab(50% 20 30)) {
+  .phase5-declaration {
+    color: lab(50% 20 30);
+    accent-color: color(display-p3 0.2 0.5 0.7);
+  }
+}
+
+.phase5-inheritance {
+  font-family: serif;
+  line-height: 1.5;
+  color: inherit;
+  border-color: currentColor;
+  margin: revert-layer;
+}

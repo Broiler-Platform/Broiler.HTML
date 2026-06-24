@@ -1,0 +1,316 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "table",
+              "text": null,
+              "isSingle": false,
+              "attributes": {},
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "caption",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "Inventory",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "colgroup",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "element",
+                      "name": "col",
+                      "text": null,
+                      "isSingle": true,
+                      "attributes": {
+                        "span": "1"
+                      },
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "col",
+                      "text": null,
+                      "isSingle": true,
+                      "attributes": {
+                        "span": "2"
+                      },
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "thead",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "element",
+                      "name": "tr",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "element",
+                          "name": "th",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {
+                            "scope": "col"
+                          },
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "Name",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "element",
+                          "name": "th",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {
+                            "scope": "col"
+                          },
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "Count",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "tbody",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "element",
+                      "name": "tr",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "element",
+                          "name": "td",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {
+                            "headers": "name"
+                          },
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "Widget",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "element",
+                          "name": "td",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "3",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "tfoot",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "element",
+                      "name": "tr",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": [
+                        {
+                          "kind": "element",
+                          "name": "td",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "Total",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "element",
+                          "name": "td",
+                          "text": null,
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": [
+                            {
+                              "kind": "text",
+                              "name": null,
+                              "text": "3",
+                              "isSingle": false,
+                              "attributes": {},
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+@counter-style phase2-decimal {
+  system: numeric;
+  symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+  suffix: ". ";
+}
+
+ol.phase2-counter {
+  list-style-type: phase2-decimal;
+  counter-reset: phase2-item;
+}
+
+ol.phase2-counter > li::before {
+  content: counter(phase2-item) ". ";
+  counter-increment: phase2-item;
+}

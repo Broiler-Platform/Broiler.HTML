@@ -1,0 +1,204 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    },
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {
+        "xmlns": "http://www.w3.org/1999/xhtml"
+      },
+      "children": [
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "svg",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "height": "50",
+                "width": "120",
+                "xmlns": "http://www.w3.org/2000/svg"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n    ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "rect",
+                  "text": null,
+                  "isSingle": true,
+                  "attributes": {
+                    "fill": "#d0ebff",
+                    "height": "50",
+                    "width": "120"
+                  },
+                  "children": []
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n  ",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            },
+            {
+              "kind": "element",
+              "name": "math",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "xmlns": "http://www.w3.org/1998/Math/MathML"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n    ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "mi",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "x",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "element",
+                  "name": "mo",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "=",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "element",
+                  "name": "mn",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "1",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        },
+        {
+          "kind": "text",
+          "name": null,
+          "text": "\n",
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "text",
+      "name": null,
+      "text": "\n",
+      "isSingle": false,
+      "attributes": {},
+      "children": []
+    }
+  ]
+}

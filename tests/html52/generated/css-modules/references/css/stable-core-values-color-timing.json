@@ -1,0 +1,113 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "(color)": {
+      ".phase2-color4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "color(display-p3 1 0 0)",
+            "outline-color": "lab(50% 40 30)"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-color4",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ]
+    },
+    "(min-resolution:": {
+      ".phase2-color4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "color(display-p3 1 0 0)",
+            "outline-color": "lab(50% 40 30)"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-color4",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ]
+    },
+    "1dppx)": {
+      ".phase2-color4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "color(display-p3 1 0 0)",
+            "outline-color": "lab(50% 40 30)"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-color4",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1000
+        }
+      ]
+    },
+    "all": {
+      ".phase2-values": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "background-color": "hsl(120, 100%, 25%)",
+            "border-bottom-color": "currentcolor",
+            "border-left-color": "currentcolor",
+            "border-right-color": "currentcolor",
+            "border-top-color": "currentcolor",
+            "color": "rgba(10, 20, 30, 0.5)",
+            "margin-bottom": "3px",
+            "margin-left": "4%",
+            "margin-right": "2rem",
+            "margin-top": "1em",
+            "transform-origin": "10px 20px",
+            "transition-timing-function": "cubic-bezier(0.1, 0.7, 1, 0.1)",
+            "width": "calc(50% \u002B 10px)"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-values",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    },
+    "and": {
+      ".phase2-color4": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "color": "color(display-p3 1 0 0)",
+            "outline-color": "lab(50% 40 30)"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-color4",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

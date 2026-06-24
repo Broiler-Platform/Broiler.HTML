@@ -1,0 +1,328 @@
+{
+  "kind": "root",
+  "name": null,
+  "text": null,
+  "isSingle": false,
+  "attributes": {},
+  "children": [
+    {
+      "kind": "element",
+      "name": "html",
+      "text": null,
+      "isSingle": false,
+      "attributes": {},
+      "children": [
+        {
+          "kind": "element",
+          "name": "head",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": []
+        },
+        {
+          "kind": "element",
+          "name": "body",
+          "text": null,
+          "isSingle": false,
+          "attributes": {},
+          "children": [
+            {
+              "kind": "element",
+              "name": "table",
+              "text": null,
+              "isSingle": false,
+              "attributes": {
+                "id": "spans"
+              },
+              "children": [
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "tr",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "th",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "id": "group",
+                        "rowspan": "2"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "Group",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "th",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "colspan": "2",
+                        "id": "values"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "Values",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n  ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "tr",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "th",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "id": "left"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "Left",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "th",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "id": "right"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "Right",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n  ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n  ",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                },
+                {
+                  "kind": "element",
+                  "name": "tr",
+                  "text": null,
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": [
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "td",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "headers": "group"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "A",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "td",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "headers": "values left"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "10",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n    ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    },
+                    {
+                      "kind": "element",
+                      "name": "td",
+                      "text": null,
+                      "isSingle": false,
+                      "attributes": {
+                        "headers": "values right"
+                      },
+                      "children": [
+                        {
+                          "kind": "text",
+                          "name": null,
+                          "text": "20",
+                          "isSingle": false,
+                          "attributes": {},
+                          "children": []
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "text",
+                      "name": null,
+                      "text": "\n  ",
+                      "isSingle": false,
+                      "attributes": {},
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "text",
+                  "name": null,
+                  "text": "\n",
+                  "isSingle": false,
+                  "attributes": {},
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "text",
+              "name": null,
+              "text": "\n",
+              "isSingle": false,
+              "attributes": {},
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

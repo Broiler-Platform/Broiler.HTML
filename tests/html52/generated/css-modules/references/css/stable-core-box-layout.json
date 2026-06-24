@@ -1,0 +1,131 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase2-box": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "black",
+            "border-bottom-style": "solid",
+            "border-bottom-width": "3px",
+            "border-left-color": "black",
+            "border-left-style": "solid",
+            "border-left-width": "3px",
+            "border-right-color": "black",
+            "border-right-style": "solid",
+            "border-right-width": "3px",
+            "border-top-color": "black",
+            "border-top-style": "solid",
+            "border-top-width": "3px",
+            "box-sizing": "border-box",
+            "contain": "layout paint",
+            "display": "block",
+            "left": "5px",
+            "margin-bottom": "4px",
+            "margin-left": "4px",
+            "margin-right": "4px",
+            "margin-top": "4px",
+            "max-width": "100px",
+            "min-width": "10px",
+            "overflow": "hidden",
+            "padding-bottom": "1px",
+            "padding-left": "2px",
+            "padding-right": "2px",
+            "padding-top": "1px",
+            "position": "absolute",
+            "top": "6px",
+            "width": "20ch"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-box",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ],
+      ".phase2-flex": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "align-items": "flex-end",
+            "display": "flex",
+            "flex-direction": "column",
+            "gap": "2px",
+            "justify-content": "center"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-flex",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      ".phase2-grid": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "display": "grid",
+            "grid-auto-flow": "column",
+            "grid-template-columns": "1fr 2fr",
+            "grid-template-rows": "minmax(10px, auto)"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-grid",
+          "selectors": null,
+          "sourceOrder": 2,
+          "specificity": 1000
+        }
+      ],
+      ".phase2-multicol": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "break-inside": "avoid",
+            "column-count": "2",
+            "column-gap": "12px",
+            "page-break-inside": "avoid"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-multicol",
+          "selectors": null,
+          "sourceOrder": 3,
+          "specificity": 1000
+        }
+      ],
+      ".phase2-scroll": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "scroll-snap-align": "start",
+            "scroll-snap-type": "x mandatory",
+            "scrollbar-color": "red blue",
+            "scrollbar-width": "thin"
+          },
+          "pseudoClass": null,
+          "selector": ".phase2-scroll",
+          "selectors": null,
+          "sourceOrder": 4,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

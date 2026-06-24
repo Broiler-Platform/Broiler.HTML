@@ -1,0 +1,86 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {
+    "phase7-fade": [
+      {
+        "offset": 0,
+        "properties": {
+          "offset-distance": "0%",
+          "opacity": "0",
+          "transform": "translatex(0)"
+        }
+      },
+      {
+        "offset": 0.5,
+        "properties": {
+          "offset-distance": "45%",
+          "opacity": ".65",
+          "transform": "translatex(12px)"
+        }
+      },
+      {
+        "offset": 1,
+        "properties": {
+          "offset-distance": "100%",
+          "opacity": "1",
+          "transform": "translatex(24px)"
+        }
+      }
+    ]
+  },
+  "mediaBlocks": {
+    "all": {
+      ".phase7-animation": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "animation-composition": "accumulate",
+            "animation-delay": "50ms",
+            "animation-direction": "alternate",
+            "animation-duration": "200ms",
+            "animation-fill-mode": "both",
+            "animation-iteration-count": "2",
+            "animation-name": "phase7-fade",
+            "animation-play-state": "paused",
+            "animation-range": "entry 10% exit 90%",
+            "animation-timeline": "phase7-scroll",
+            "animation-timing-function": "ease-in-out",
+            "offset-distance": "25%",
+            "offset-path": "path(\u0022m 0 0 l 40 20 l 80 0\u0022)",
+            "offset-position": "normal",
+            "offset-rotate": "auto 45deg",
+            "transition": "opacity 150ms linear, transform 250ms steps(4, end)",
+            "transition-behavior": "allow-discrete",
+            "view-transition-name": "phase7-card"
+          },
+          "pseudoClass": null,
+          "selector": ".phase7-animation",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      "::view-transition-group(phase7-card)": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "animation-duration": "180ms",
+            "animation-timing-function": "ease-in-out"
+          },
+          "pseudoClass": null,
+          "selector": "::view-transition-group(phase7-card)",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 2
+        }
+      ]
+    }
+  }
+}

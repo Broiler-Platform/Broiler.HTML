@@ -1,0 +1,54 @@
+{
+  "fontFaces": [],
+  "fontFeatureValues": {},
+  "keyframes": {},
+  "mediaBlocks": {
+    "all": {
+      ".phase5-inheritance": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "border-bottom-color": "currentcolor",
+            "border-left-color": "currentcolor",
+            "border-right-color": "currentcolor",
+            "border-top-color": "currentcolor",
+            "color": "inherit",
+            "font-family": "serif",
+            "line-height": "1.5",
+            "margin-bottom": "revert-layer",
+            "margin-left": "revert-layer",
+            "margin-right": "revert-layer",
+            "margin-top": "revert-layer"
+          },
+          "pseudoClass": null,
+          "selector": ".phase5-inheritance",
+          "selectors": null,
+          "sourceOrder": 1,
+          "specificity": 1000
+        }
+      ],
+      "html": [
+        {
+          "attributeConditions": null,
+          "hover": false,
+          "importantProperties": [],
+          "isUserAgent": false,
+          "properties": {
+            "--phase5-fallback-color": "#13579b",
+            "--phase5-gap": "8px",
+            "--phase5-loop-a": "var(--phase5-loop-b)",
+            "--phase5-loop-b": "var(--phase5-loop-a)"
+          },
+          "pseudoClass": "root",
+          "selector": "html",
+          "selectors": null,
+          "sourceOrder": 0,
+          "specificity": 1000
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,48 @@
+@font-face {
+  font-family: Phase7RuntimeFont;
+  src: local("Phase7RuntimeFont");
+  font-display: swap;
+}
+
+@property --phase7-runtime-length {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 12px;
+}
+
+@supports (background: paint(phase7-checker)) {
+  .phase7-paint-worklet {
+    --phase7-runtime-length: 18px;
+    background-image: paint(phase7-checker);
+    background-size: var(--phase7-runtime-length) var(--phase7-runtime-length);
+  }
+}
+
+.phase7-layout-worklet {
+  display: layout(phase7-masonry);
+  layout-name: phase7-masonry;
+  contain: layout paint;
+}
+
+::highlight(phase7-search-match) {
+  background-color: rgb(255 230 120 / .72);
+  color: CanvasText;
+  text-decoration: underline;
+}
+
+.phase7-cssom-query-target {
+  width: calc(10px + var(--phase7-runtime-length));
+  min-height: max(1lh, 20px);
+  scroll-margin-top: 12px;
+  scroll-padding-inline: 8px;
+  resize: both;
+}
+
+.phase7-spatial-navigation {
+  nav-up: auto;
+  nav-right: #phase7-next;
+  nav-down: auto;
+  nav-left: auto;
+  spatial-navigation-action: focus;
+  spatial-navigation-contain: contain;
+}

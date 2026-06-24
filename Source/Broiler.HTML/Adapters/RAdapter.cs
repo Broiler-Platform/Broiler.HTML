@@ -1,7 +1,6 @@
-using Broiler.HTML.Adapters.Adapters;
-using Broiler.HTML.Core.Core;
-using Broiler.HTML.CSS.Core;
-using Broiler.HTML.Rendering.Core.Handlers;
+using Broiler.HTML.Core;
+using Broiler.HTML.CSS;
+using Broiler.HTML.Rendering.Handlers;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

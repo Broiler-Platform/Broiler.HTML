@@ -1,0 +1,134 @@
+{
+  "x": 0,
+  "y": 0,
+  "width": 800,
+  "height": 84,
+  "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+  "stackLevel": 0,
+  "createsStackingContext": false,
+  "lines": [],
+  "children": [
+    {
+      "x": 0,
+      "y": 0,
+      "width": 800,
+      "height": 84,
+      "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+      "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+      "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+      "stackLevel": 0,
+      "createsStackingContext": false,
+      "lines": [],
+      "children": [
+        {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "stackLevel": 0,
+          "createsStackingContext": false,
+          "lines": [],
+          "children": [
+            {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+              "stackLevel": 0,
+              "createsStackingContext": false,
+              "lines": [],
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "x": 20,
+          "y": 24,
+          "width": 760,
+          "height": 60,
+          "margin": { "top": 20, "right": 20, "bottom": 20, "left": 20 },
+          "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+          "stackLevel": 0,
+          "createsStackingContext": false,
+          "lines": [],
+          "children": [
+            {
+              "x": 20,
+              "y": 24,
+              "width": 98,
+              "height": 60,
+              "margin": { "top": 24, "right": 0, "bottom": 24, "left": 0 },
+              "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+              "padding": { "top": 10, "right": 10, "bottom": 10, "left": 10 },
+              "stackLevel": 0,
+              "createsStackingContext": false,
+              "lines": [
+                {
+                  "x": 33,
+                  "y": 37,
+                  "width": 26.3,
+                  "height": 27.84,
+                  "baseline": 0,
+                  "inlines": [
+                    {
+                      "x": 33,
+                      "y": 37,
+                      "width": 10.64,
+                      "height": 27.84,
+                      "text": "😀"
+                    },
+                    {
+                      "x": 43.64,
+                      "y": 37,
+                      "width": 15.66,
+                      "height": 27.84,
+                      "text": "A"
+                    }
+                  ]
+                }
+              ],
+              "children": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "width": 0,
+                  "height": 0,
+                  "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
+                  "stackLevel": 0,
+                  "createsStackingContext": false,
+                  "lines": [],
+                  "children": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

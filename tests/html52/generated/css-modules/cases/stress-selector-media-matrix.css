@@ -1,0 +1,116 @@
+.phase5-list-00,
+.phase5-list-01,
+.phase5-list-02,
+.phase5-list-03,
+.phase5-list-04,
+.phase5-list-05,
+.phase5-list-06,
+.phase5-list-07,
+.phase5-list-08,
+.phase5-list-09,
+.phase5-list-10,
+.phase5-list-11,
+.phase5-list-12,
+.phase5-list-13,
+.phase5-list-14,
+.phase5-list-15,
+.phase5-list-16,
+.phase5-list-17,
+.phase5-list-18,
+.phase5-list-19,
+.phase5-list-20,
+.phase5-list-21,
+.phase5-list-22,
+.phase5-list-23,
+.phase5-list-24,
+.phase5-list-25,
+.phase5-list-26,
+.phase5-list-27,
+.phase5-list-28,
+.phase5-list-29,
+.phase5-list-30,
+.phase5-list-31,
+.phase5-list-32,
+.phase5-list-33,
+.phase5-list-34,
+.phase5-list-35,
+.phase5-list-36,
+.phase5-list-37,
+.phase5-list-38,
+.phase5-list-39,
+.phase5-list-40,
+.phase5-list-41,
+.phase5-list-42,
+.phase5-list-43,
+.phase5-list-44,
+.phase5-list-45,
+.phase5-list-46,
+.phase5-list-47 {
+  color: #224466;
+  background-color: #f6f8fa;
+}
+
+#phase5-root .item.item[data-state~="active"]:not(.disabled)::before {
+  content: "phase5";
+  display: inline;
+  color: rebeccapurple;
+}
+
+section:has(> .phase5-card),
+.phase5-card:is(article, aside, nav) > :where(h2, p) {
+  border-inline-start: 4px solid currentColor;
+  padding-inline-start: 1rem;
+}
+
+@media screen and (min-width: 320px) {
+  .phase5-media-0 {
+    order: 0;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    color: rgb(30 50 80);
+  }
+}
+
+@media (width >= 40rem) {
+  .phase5-media-1 {
+    order: 1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    color: rgb(50 62 88);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .phase5-media-2 {
+    order: 2;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    color: rgb(70 74 96);
+  }
+}
+
+@media (update: fast) and (hover: hover) {
+  .phase5-media-3 {
+    order: 3;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    color: rgb(90 86 104);
+  }
+}
+
+@media print and (resolution >= 150dpi) {
+  .phase5-media-4 {
+    order: 4;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    color: rgb(110 98 112);
+  }
+}
+
+@supports selector(:has(*)) {
+  main:has(.phase5-card:nth-child(2n + 1)) {
+    outline: 1px solid currentColor;
+  }
+}
+
+@container phase5-size (inline-size > 20rem) {
+  .phase5-container-child {
+    display: grid;
+    gap: 1rem;
+  }
+}

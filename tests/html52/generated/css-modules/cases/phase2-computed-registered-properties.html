@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Phase 2 computed registered properties</title>
+<style>
+@property --phase2-registered-color {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #495057;
+}
+#phase2-registered {
+  --phase2-registered-color: #e67700;
+  color: var(--phase2-registered-color);
+  background-color: #fff4e6;
+  border: 2px solid currentColor;
+}
+</style>
+</head>
+<body><div id="phase2-registered"></div></body>
+</html>

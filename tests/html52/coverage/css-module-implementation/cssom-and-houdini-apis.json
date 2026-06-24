@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "generatedFrom": {
+    "registry": "tests/html52/generated/css-modules/registry.json",
+    "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
+    "snapshotDate": "2026-06-21"
+  },
+  "moduleFamily": "cssom-and-houdini-apis",
+  "itemCount": 7,
+  "items": [
+    {
+      "moduleId": "css-highlight-api-1",
+      "moduleTitle": "CSS Custom Highlight API Level 1",
+      "featureId": "css-module-css-highlight-api-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "reason": "Requires custom highlight registry APIs and live range state."
+    },
+    {
+      "moduleId": "css-layout-api-1",
+      "moduleTitle": "CSS Layout API Level 1",
+      "featureId": "css-module-css-layout-api-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "reason": "Requires Houdini layout worklet execution."
+    },
+    {
+      "moduleId": "css-properties-values-api-1",
+      "moduleTitle": "CSS Properties and Values API Level 1",
+      "featureId": "css-module-css-properties-values-api-1",
+      "supportLevel": "recommended",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "target-oracle-smoke",
+      "oracleDepth": "computedStyle",
+      "targetOracleDepth": "computedStyle",
+      "nextOracle": "section-complete-matrix",
+      "owner": "css-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [
+        "css-module-phase2-computed-registered-properties-001",
+        "css-module-phase4-draft-properties-values-001"
+      ],
+      "reason": "Phase 2 computed-style coverage links this module to executable cascade, selector, value, custom property, or registered-property assertions."
+    },
+    {
+      "moduleId": "css-typed-om-1",
+      "moduleTitle": "CSS Typed OM Level 1",
+      "featureId": "css-module-css-typed-om-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "reason": "Requires CSS Typed OM script-visible value objects and mutation/query APIs."
+    },
+    {
+      "moduleId": "cssom",
+      "moduleTitle": "CSS Object Model (CSSOM)",
+      "featureId": "css-module-cssom",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "reason": "Requires CSS object model APIs and script-visible mutation/query behavior."
+    },
+    {
+      "moduleId": "cssom-view",
+      "moduleTitle": "CSSOM View",
+      "featureId": "css-module-cssom-view",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "WD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "reason": "Requires browser viewport, scrolling, and geometry APIs."
+    },
+    {
+      "moduleId": "resize-observer-1",
+      "moduleTitle": "Resize Observer",
+      "featureId": "css-module-resize-observer-1",
+      "supportLevel": "out-of-scope",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "out-of-scope-static-renderer",
+      "oracleDepth": "out-of-scope",
+      "targetOracleDepth": "out-of-scope",
+      "nextOracle": "scope-decision",
+      "owner": "browser-runtime",
+      "blockedBy": [
+        "browser-runtime",
+        "script-visible-css-api"
+      ],
+      "scopeDecision": "static-renderer-out-of-scope",
+      "outOfScopeDecision": "out-of-scope-unless-browser-runtime-is-added",
+      "tests": [
+        "css-module-phase7-runtime-cssom-houdini-001"
+      ],
+      "reason": "Requires observer callback delivery from a live layout engine."
+    }
+  ]
+}

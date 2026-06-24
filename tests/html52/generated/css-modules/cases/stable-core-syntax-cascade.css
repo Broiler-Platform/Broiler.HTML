@@ -1,0 +1,23 @@
+@namespace svg url("http://www.w3.org/2000/svg");
+
+:root {
+  --phase2-accent: #123456;
+}
+
+@media screen and (min-width: 300px) and (orientation: landscape) {
+  .phase2-card > .title + .body[data-state~="active"] {
+    color: green;
+  }
+}
+
+@supports (display: grid) {
+  #phase2-id.phase2-card {
+    color: blue !important;
+  }
+}
+
+svg|rect,
+.phase2-card[data-kind="demo"]:not(.disabled) .body:first-child {
+  color: var(--phase2-accent);
+  background-color: white !important;
+}

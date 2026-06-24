@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "featureId": "attributes-global-core",
+      "title": "Core global attributes",
+      "cluster": "elements",
+      "specSections": ["3.2.5"],
+      "supportLevel": "required",
+      "status": "planned",
+      "attributes": ["id", "class", "style", "title", "lang", "xml:lang", "translate", "dir", "hidden", "data-*"],
+      "tests": []
+    },
+    {
+      "featureId": "attributes-global-interaction",
+      "title": "Interaction global attributes in static metadata",
+      "cluster": "user-interaction",
+      "specSections": ["5"],
+      "supportLevel": "recommended",
+      "status": "planned",
+      "attributes": ["accesskey", "contenteditable", "draggable", "spellcheck", "tabindex"],
+      "tests": []
+    },
+    {
+      "featureId": "attributes-resource-url",
+      "title": "Resource and hyperlink URL attributes",
+      "cluster": "resources",
+      "specSections": ["2.5", "4.2", "4.6", "4.7"],
+      "supportLevel": "required",
+      "status": "planned",
+      "attributes": ["href", "src", "srcset", "sizes", "poster", "cite", "action", "formaction"],
+      "tests": []
+    },
+    {
+      "featureId": "attributes-forms",
+      "title": "Form control attributes",
+      "cluster": "forms",
+      "specSections": ["4.10"],
+      "supportLevel": "required",
+      "status": "planned",
+      "attributes": ["type", "value", "checked", "selected", "disabled", "readonly", "placeholder", "multiple", "required", "min", "max", "step", "pattern", "maxlength", "minlength", "size", "form", "name"],
+      "tests": []
+    },
+    {
+      "featureId": "attributes-table-legacy-presentational",
+      "title": "Table and legacy presentational attributes",
+      "cluster": "obsolete",
+      "specSections": ["10.2", "11"],
+      "supportLevel": "legacy",
+      "status": "planned",
+      "attributes": ["align", "valign", "bgcolor", "border", "cellpadding", "cellspacing", "width", "height"],
+      "tests": []
+    }
+  ]
+}

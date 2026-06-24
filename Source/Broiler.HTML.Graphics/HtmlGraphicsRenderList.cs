@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.HTML.Core.Core.IR;
+using Broiler.HTML.Core.IR;
 using BroilerGraphics = Broiler.Graphics;
 
 namespace Broiler.HTML.Graphics;

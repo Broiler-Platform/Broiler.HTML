@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Phase 5 resource isolation</title>
+  <link rel="stylesheet" href="https://example.invalid/phase5.css">
+  <link rel="preload" as="font" href="https://example.invalid/phase5.woff2" type="font/woff2">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2216%22%20height=%2216%22%3E%3Crect%20width=%2216%22%20height=%2216%22%20fill=%22%2300a36c%22/%3E%3C/svg%3E">
+  <style>
+    @import url("https://example.invalid/imported.css");
+    @font-face {
+      font-family: phase5;
+      src: url("https://example.invalid/font.woff2") format("woff2"), url("data:font/woff2;base64,AAAA") format("woff2");
+    }
+    .phase5-cursor { cursor: url("https://example.invalid/cursor.cur"), auto; }
+  </style>
+</head>
+<body>
+  <main class="phase5-cursor">
+    <img alt="data image" src="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%2216%22%20height=%2216%22%3E%3Crect%20width=%2216%22%20height=%2216%22%20fill=%22%2300a36c%22/%3E%3C/svg%3E">
+    <img alt="remote image" src="https://example.invalid/image.png">
+    <picture>
+      <source srcset="https://example.invalid/one.png 1x, ../../../assets/svg/blue-rect.svg 2x" type="image/png">
+      <img alt="local image" src="../../../assets/svg/green-square.svg">
+    </picture>
+    <video poster="https://example.invalid/poster.png" src="data:video/mp4,phase5"></video>
+    <audio src="https://example.invalid/audio.mp3"></audio>
+    <track src="https://example.invalid/captions.vtt" kind="captions">
+    <object data="https://example.invalid/object.svg"></object>
+    <embed src="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20width=%228%22%20height=%228%22%3E%3Ccircle%20cx=%224%22%20cy=%224%22%20r=%224%22%20fill=%22%232b6cb0%22/%3E%3C/svg%3E">
+    <iframe src="https://example.invalid/frame.html"></iframe>
+    <input type="image" alt="submit" src="https://example.invalid/submit.png">
+    <script src="https://example.invalid/script.js"></script>
+  </main>
+</body>
+</html>

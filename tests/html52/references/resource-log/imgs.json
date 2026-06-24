@@ -1,0 +1,72 @@
+{
+  "BaseUrl": "file:resource-log-imgs.html",
+  "DocumentBaseUrl": "file:resource-log-imgs.html",
+  "Resources": [
+    {
+      "Index": 0,
+      "Element": "img",
+      "Attribute": "src",
+      "Role": "image",
+      "Raw": "../../assets/svg/green-square.svg",
+      "Resource": "../../assets/svg/green-square.svg",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/green-square.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-exists",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/green-square.svg",
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "loadable-image"
+    },
+    {
+      "Index": 1,
+      "Element": "img",
+      "Attribute": "src",
+      "Role": "image",
+      "Raw": "data:image/svg\u002Bxml,%3Csvg%20xmlns=\u0027http://www.w3.org/2000/svg\u0027%20width=\u002740\u0027%20height=\u002730\u0027%3E%3Crect%20width=\u002740\u0027%20height=\u002730\u0027%20fill=\u0027%232f9e44\u0027/%3E%3C/svg%3E",
+      "Resource": "data:image/svg\u002Bxml,%3Csvg%20xmlns=\u0027http://www.w3.org/2000/svg\u0027%20width=\u002740\u0027%20height=\u002730\u0027%3E%3Crect%20width=\u002740\u0027%20height=\u002730\u0027%20fill=\u0027%232f9e44\u0027/%3E%3C/svg%3E",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "data:image/svg\u002Bxml,%3Csvg%20xmlns=\u0027http://www.w3.org/2000/svg\u0027%20width=\u002740\u0027%20height=\u002730\u0027%3E%3Crect%20width=\u002740\u0027%20height=\u002730\u0027%20fill=\u0027%232f9e44\u0027/%3E%3C/svg%3E",
+      "UrlKind": "data",
+      "Classification": "data-uri",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": null,
+      "Exists": true,
+      "LoadsNetwork": false,
+      "RendererDisposition": "loadable-image"
+    },
+    {
+      "Index": 2,
+      "Element": "img",
+      "Attribute": "src",
+      "Role": "image",
+      "Raw": "../../assets/svg/missing.svg",
+      "Resource": "../../assets/svg/missing.svg",
+      "Descriptor": null,
+      "Type": null,
+      "Media": null,
+      "ResolvedUrl": "file:../../assets/svg/missing.svg",
+      "UrlKind": "file",
+      "Classification": "local-file-missing",
+      "MimeGuess": "image/svg\u002Bxml",
+      "LocalPath": "../../assets/svg/missing.svg",
+      "Exists": false,
+      "LoadsNetwork": false,
+      "RendererDisposition": "unavailable"
+    }
+  ],
+  "Summary": {
+    "Total": 3,
+    "LocalFileExists": 1,
+    "LocalFileMissing": 1,
+    "DataUri": 1,
+    "RemoteNetworkBlocked": 0,
+    "Empty": 0,
+    "Unsupported": 0
+  }
+}
