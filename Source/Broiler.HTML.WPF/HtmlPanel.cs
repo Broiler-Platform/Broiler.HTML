@@ -4,7 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using Broiler.HTML.Core.Core.Entities;
+using Broiler.HTML.Core.Entities;
+
 
 namespace Broiler.HTML.WPF;
 

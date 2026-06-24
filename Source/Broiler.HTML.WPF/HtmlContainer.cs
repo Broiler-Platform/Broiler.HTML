@@ -1,7 +1,7 @@
 ﻿using Broiler.HTML.Adapters;
-using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Core.Entities;
-using Broiler.HTML.Orchestration.Core;
+using Broiler.HTML.Core;
+using Broiler.HTML.Core.Entities;
+using Broiler.HTML.Orchestration;
 using Broiler.HTML.Primitives.Adapters.Entities;
 using Broiler.HTML.WPF.Adapters;
 using System;

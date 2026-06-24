@@ -1,5 +1,5 @@
-﻿using Broiler.HTML.Core.Core;
-using Broiler.HTML.Core.Core.Entities;
+﻿using Broiler.HTML.Core;
+using Broiler.HTML.Core.Entities;
 using System;
 using System.ComponentModel;
 using System.Windows;

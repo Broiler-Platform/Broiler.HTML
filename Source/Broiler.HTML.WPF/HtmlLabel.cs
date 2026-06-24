@@ -1,4 +1,4 @@
-﻿using Broiler.HTML.Orchestration.Core;
+﻿using Broiler.HTML.Orchestration;
 using Broiler.HTML.WPF.Adapters;
 using System.ComponentModel;
 using System.Windows;

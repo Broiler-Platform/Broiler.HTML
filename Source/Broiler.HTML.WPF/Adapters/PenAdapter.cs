@@ -1,6 +1,6 @@
 ﻿using DashStyle = Broiler.Graphics.DashStyle;
 using System.Windows.Media;
-using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.WPF.Adapters;
 

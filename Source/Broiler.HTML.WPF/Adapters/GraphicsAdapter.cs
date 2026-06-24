@@ -7,7 +7,7 @@ using Color = System.Drawing.Color;
 using PointF = System.Drawing.PointF;
 using SizeF = System.Drawing.SizeF;
 using RectangleF = System.Drawing.RectangleF;
-using Broiler.HTML.Adapters.Adapters;
+using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.WPF.Adapters;
 

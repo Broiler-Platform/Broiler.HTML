@@ -1,5 +1,4 @@
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Adapters.Adapters;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,7 +34,7 @@ internal sealed class ControlAdapter : RControl
 
     public override void MeasureString(string str, RFont font, double maxWidth, out int charFit, out double charFitWidth)
     {
-        using var g = new GraphicsAdapter();
+        var g = new GraphicsAdapter();
         g.MeasureString(str, font, maxWidth, out charFit, out charFitWidth);
     }
 

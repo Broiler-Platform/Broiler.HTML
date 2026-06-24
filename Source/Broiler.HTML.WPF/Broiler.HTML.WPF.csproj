@@ -14,6 +14,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Broiler.HTML.Adapters\Broiler.HTML.Adapters.csproj" />
     <ProjectReference Include="..\Broiler.HTML\Broiler.HTML.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
     <ProjectReference Include="..\Broiler.HTML.CSS\Broiler.HTML.CSS.csproj" />
@@ -24,6 +25,6 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <None Include="README.md" Pack="true" PackagePath="\"/>
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>

@@ -11,10 +11,9 @@ using Color = System.Drawing.Color;
 using Microsoft.Win32;
 using RectangleF = System.Drawing.RectangleF;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Adapters.Adapters;
-using Broiler.HTML.Core.Core;
 using Broiler.HTML.Image;
 using Broiler.HTML.WPF.Utilities;
+using Broiler.HTML.Core;
 
 namespace Broiler.HTML.WPF.Adapters;
 

@@ -1,4 +1,4 @@
-﻿using Broiler.HTML.Adapters.Adapters;
+﻿using Broiler.HTML.Adapters;
 using System.Windows.Media.Imaging;
 
 namespace Broiler.HTML.WPF.Adapters;
