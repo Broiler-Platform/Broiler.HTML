@@ -38,19 +38,7 @@ internal sealed class DomParser
     public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
     {
         var root = HtmlParser.ParseDocument(document, baseUrl);
-        var prepared = PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
-
-        // Phase 5 dual-run (default off): additionally project shared-engine computed
-        // styles onto the box tree from the canonical document. The legacy
-        // CascadeApplyStyles in PrepareCssTree remains the observable rendering path
-        // until pixel parity is verified (roadmap decision #10).
-        if (SharedRendererCascade.UseSharedRendererCascade && prepared != null)
-        {
-            var viewport = htmlContainer?.ViewportSize ?? default;
-            SharedRendererCascade.Apply(prepared, document, (int)viewport.Width, (int)viewport.Height);
-        }
-
-        return prepared;
+        return PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
     }
 
     private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
@@ -62,7 +50,23 @@ internal sealed class DomParser
 
         bool cssDataChanged = false;
         CascadeParseStyles(root, htmlContainer, ref cssData, ref cssDataChanged);
-        CascadeApplyStyles(root, cssData, baseUrl);
+
+        // Phase 5 (default off): resolve each element box's cascade through the shared
+        // Broiler.CSS.Dom engine instead of the legacy selector matching in
+        // CascadeApplyStyles. The engine runs over the canonical DomDocument behind the
+        // box tree; cssData is still built above and still drives pseudo-elements,
+        // animations, and ::selection. Legacy stays observable until the flag is flipped.
+        Broiler.CSS.Dom.CssStyleEngine engine = null;
+        if (SharedRendererCascade.UseSharedRendererCascade)
+        {
+            var viewport = htmlContainer?.ViewportSize ?? default;
+            engine = SharedRendererCascade.BuildEngine(
+                SharedRendererCascade.FindCanonicalDocument(root),
+                (int)viewport.Width,
+                (int)viewport.Height);
+        }
+
+        CascadeApplyStyles(root, cssData, baseUrl, engine);
         SetTextSelectionStyle(htmlContainer, cssData);
         CorrectTextBoxes(root);
         CorrectImgBoxes(root, baseUrl);
@@ -109,12 +113,21 @@ internal sealed class DomParser
     }
 
 
-    private void CascadeApplyStyles(CssBox box, CssData cssData, Uri baseUrl)
+    private void CascadeApplyStyles(CssBox box, CssData cssData, Uri baseUrl, Broiler.CSS.Dom.CssStyleEngine engine)
     {
         box.InheritStyle();
 
         if (box.HtmlTag != null)
         {
+            if (engine != null && box.SourceElement != null)
+            {
+                // Phase 5: project the shared engine's cascaded style in place of the
+                // legacy selector matching below. InheritStyle (above), presentational
+                // attributes, inline style, and all renderer adjustments still run.
+                SharedRendererCascade.ProjectCascadedStyle(box, engine);
+            }
+            else
+            {
             // CSS2.1 §6.4.3 specificity: Apply rules in increasing specificity.
             // Bare '*' = (0,0,0), tag = (0,0,1), and standalone universal
             // selectors with pseudo-classes / attributes (e.g. ':open',
@@ -174,6 +187,8 @@ internal sealed class DomParser
                         }
                     }
                 }
+            }
+
             }
 
             TranslateAttributes(box.HtmlTag, box);
@@ -287,7 +302,7 @@ internal sealed class DomParser
         CssAnimationResolver.ResolveAnimations(box, cssData);
 
         foreach (var childBox in box.Boxes)
-            CascadeApplyStyles(childBox, cssData, baseUrl);
+            CascadeApplyStyles(childBox, cssData, baseUrl, engine);
 
         if (box.HtmlTag != null)
             ApplyClosedDetailsVisibility(box);
