@@ -10,7 +10,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Broiler.CSS\Broiler.CSS.csproj" />
+    <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS\Broiler.CSS.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Primitives\Broiler.HTML.Primitives.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Utils\Broiler.HTML.Utils.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
