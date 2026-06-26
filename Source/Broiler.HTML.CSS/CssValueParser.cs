@@ -5,6 +5,7 @@ using System.Globalization;
 using Broiler.HTML.Utils;
 using Broiler.HTML.Core;
 
+using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.CSS;
 
 internal sealed class CssValueParser

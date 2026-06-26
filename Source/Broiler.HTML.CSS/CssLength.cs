@@ -3,6 +3,7 @@ using Broiler.HTML.Utils;
 using System;
 using System.Globalization;
 
+using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.CSS;
 
 internal sealed class CssLength

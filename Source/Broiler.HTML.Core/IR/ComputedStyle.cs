@@ -1,5 +1,6 @@
 using System.Drawing;
 
+using Broiler.Layout;
 namespace Broiler.HTML.Core.IR;
 
 /// <summary>

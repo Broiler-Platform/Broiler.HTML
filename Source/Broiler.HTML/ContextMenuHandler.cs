@@ -4,6 +4,7 @@ using System.IO;
 using System.Diagnostics;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Dom;
+using Broiler.Layout;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
@@ -304,7 +305,7 @@ internal sealed class ContextMenuHandler : IDisposable
         try
         {
             var imageSrc = _currentRect.OwnerBox.GetAttribute("src");
-            _adapter.SaveToFile(_currentRect.Image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
+            _adapter.SaveToFile((RImage)_currentRect.Image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
         }
         catch (Exception ex)
         {
@@ -336,7 +337,7 @@ internal sealed class ContextMenuHandler : IDisposable
     {
         try
         {
-            _adapter.SetToClipboard(_currentRect.Image);
+            _adapter.SetToClipboard((RImage)_currentRect.Image);
         }
         catch (Exception ex)
         {

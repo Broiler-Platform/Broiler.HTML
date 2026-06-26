@@ -1,5 +1,6 @@
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Dom;
+using Broiler.Layout;
 using Broiler.HTML.Utils;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,8 @@ using System.Drawing;
 using System.IO;
 using System.Text;
 
+using HtmlTag = Broiler.Layout.HtmlTag;
+using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Orchestration.Core.IR;
 
 /// <summary>

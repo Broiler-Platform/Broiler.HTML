@@ -5,6 +5,9 @@ using Broiler.HTML.Core.IR;
 using Broiler.HTML.CSS;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom;
+using Broiler.Layout;
+using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
+using CommonUtils = Broiler.HTML.Utils.CommonUtils;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Orchestration.Core.IR;
 using Broiler.HTML.Orchestration.Handlers;
@@ -19,6 +22,7 @@ using System.Drawing;
 using System.IO;
 using System.Net.Http;
 
+using HtmlTag = Broiler.Layout.HtmlTag;
 namespace Broiler.HTML.Orchestration;
 
 public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
@@ -600,6 +604,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         float vpW = MaxSize.Width > 0 ? Math.Min(MaxSize.Width, PageSize.Width) : PageSize.Width;
         float vpH = MaxSize.Height > 0 ? Math.Min(MaxSize.Height, PageSize.Height) : PageSize.Height;
         CssValueParser.SetViewportSize(vpW, vpH);
+        // Phase 3.2 dual-run: layout now resolves lengths via the Broiler.CSS port,
+        // which keeps its own viewport ThreadStatic — sync it from the same source.
+        Broiler.CSS.CssLengthParser.SetViewportSize(vpW, vpH);
 
         // if width is not restricted we set it to large value to get the actual later
         // CSS2.1 §10.5: Percentage heights on the root element resolve against
@@ -609,14 +616,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         float rootH = MaxSize.Height > 0 ? vpH : 0;
         Root.Size = new SizeF(MaxSize.Width > 0 ? MaxSize.Width : 99999, rootH);
         Root.Location = Location;
-        Root.PerformLayout(g);
+        // Reuse the container-owned environment bound when the root was created
+        // (so font/colour resolve through it even before this pass); just refresh
+        // the per-pass graphics surface used by text measurement.
+        var layoutEnvironment = Root.LayoutEnvironment as HtmlLayoutEnvironment ?? new HtmlLayoutEnvironment(this);
+        layoutEnvironment.SetGraphics(g);
+        Root.LayoutEnvironment = layoutEnvironment;
+        Root.PerformLayout(layoutEnvironment);
 
         if (MaxSize.Width <= 0.1)
         {
             // in case the width is not restricted we need to double layout, first will find the width so second can layout by it (center alignment)
             Root.Size = new SizeF((int)Math.Ceiling(ActualSize.Width), 0);
             ActualSize = SizeF.Empty;
-            Root.PerformLayout(g);
+            Root.PerformLayout(layoutEnvironment);
         }
 
         if (!_loadComplete)
@@ -863,7 +876,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         EventHandler<HtmlLinkClickedEventArgs> clickHandler = LinkClicked;
         if (clickHandler != null)
         {
-            var args = new HtmlLinkClickedEventArgs(ResolveHref(targetUrl ?? string.Empty), link.HtmlTag.Attributes);
+            var args = new HtmlLinkClickedEventArgs(ResolveHref(targetUrl ?? string.Empty), (Dictionary<string, string>)link.HtmlTag.Attributes);
             try
             {
                 clickHandler(this, args);

@@ -1,5 +1,6 @@
 using Broiler.HTML.Core.Entities;
 
+using Broiler.Layout;
 namespace Broiler.HTML.Dom;
 
 internal sealed class HoverBoxBlock(CssBox cssBox, CssBlock cssBlock)
