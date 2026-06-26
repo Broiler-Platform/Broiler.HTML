@@ -1,0 +1,113 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using Broiler.Graphics;
+using Broiler.HTML.Adapters;
+using Broiler.HTML.Core;
+using Broiler.HTML.Core.Entities;
+using Broiler.Layout;
+
+namespace Broiler.HTML.Dom;
+
+/// <summary>
+/// Renderer-side <see cref="ILayoutEnvironment"/> adapter for the layout
+/// extraction (see <c>docs/roadmap/broiler-layout-component.md</c> §4, §6). It
+/// forwards layout's metric, font, colour, refresh and initial-containing-block
+/// requests to the owning <see cref="IHtmlContainerInt"/> and the active
+/// <see cref="RGraphics"/> surface, so the layout code depends only on the
+/// backend-neutral environment interface.
+/// </summary>
+/// <remarks>
+/// The instance is owned by the container and created when the root box is bound
+/// (so it is available before the first layout pass, e.g. for pre-layout font/colour
+/// resolution). The graphics surface changes per layout pass and is supplied via
+/// <see cref="SetGraphics"/>; only the text-measurement members require it.
+/// </remarks>
+internal sealed class HtmlLayoutEnvironment : ILayoutEnvironment
+{
+    private readonly IHtmlContainerInt _container;
+    private RGraphics _graphics;
+
+    public HtmlLayoutEnvironment(IHtmlContainerInt container)
+    {
+        _container = container;
+    }
+
+    /// <summary>Sets the graphics surface for the current layout pass (used by text measurement).</summary>
+    public void SetGraphics(RGraphics graphics) => _graphics = graphics;
+
+    public ILayoutFont GetFont(string family, double size, LayoutFontStyle style, string? fontFeatures = null)
+        => _container.GetFont(family, size, (FontStyle)(int)style, fontFeatures);
+
+    public SizeF MeasureText(ILayoutFont font, string text)
+        => _graphics.MeasureString(text, (RFont)font);
+
+    public void MeasureText(ILayoutFont font, string text, double maxWidth, out int charFit, out double charFitWidth)
+        => _graphics.MeasureString(text, (RFont)font, maxWidth, out charFit, out charFitWidth);
+
+    public double GetWhitespaceWidth(ILayoutFont font)
+        => ((RFont)font).GetWhitespaceWidth(_graphics);
+
+    public ImageIntrinsics GetImageIntrinsics(object imageHandle)
+    {
+        var image = (RImage)imageHandle;
+        return new ImageIntrinsics(image.Width, image.Height, image.HasIntrinsicRatio);
+    }
+
+    public Color ParseColor(string value) => _container.ParseColor(value);
+
+    public void RequestRefresh(bool relayout) => _container.RequestRefresh(relayout);
+
+    public SizeF ViewportSize => _container.ViewportSize;
+
+    public PointF RootLocation => _container.RootLocation;
+
+    public SizeF ActualSize
+    {
+        get => _container.ActualSize;
+        set => _container.ActualSize = value;
+    }
+
+    public bool AvoidGeometryAntialias => _container.AvoidGeometryAntialias;
+
+    public SizeF PageSize => _container.PageSize;
+
+    public int MarginTop => _container.MarginTop;
+
+    public void ReportLayoutError(string message, Exception? exception = null)
+        => _container.ReportError(HtmlRenderErrorType.Layout, message, exception);
+
+    public bool AvoidAsyncImagesLoading => _container.AvoidAsyncImagesLoading;
+
+    public bool AvoidImagesLateLoading => _container.AvoidImagesLateLoading;
+
+    public ILayoutImageLoader CreateImageLoader(Action<object?, RectangleF, bool> onComplete)
+        => new LayoutImageLoader(_container.CreateImageLoadHandler((image, rect, async) => onComplete(image, rect, async)));
+
+    public string FormatListMarker(int number, string style)
+        => Broiler.HTML.Utils.CommonUtils.ConvertToAlphaNumber(number, style);
+
+    /// <summary>
+    /// Wraps the renderer's <see cref="IImageLoadHandler"/> as a backend-neutral
+    /// <see cref="ILayoutImageLoader"/> for the layout code (Phase 4 prep).
+    /// </summary>
+    private sealed class LayoutImageLoader : ILayoutImageLoader
+    {
+        private readonly IImageLoadHandler _handler;
+
+        public LayoutImageLoader(IImageLoadHandler handler) => _handler = handler;
+
+        public object? Image => _handler.Image;
+
+        public RectangleF Rectangle => _handler.Rectangle;
+
+        public void LoadImage(string src, IReadOnlyDictionary<string, string>? attributes, Uri baseUrl)
+            => _handler.LoadImage(
+                src,
+                attributes as Dictionary<string, string>
+                    ?? (attributes is null ? null : new Dictionary<string, string>(attributes)),
+                baseUrl);
+
+        public void Dispose() => _handler.Dispose();
+    }
+}

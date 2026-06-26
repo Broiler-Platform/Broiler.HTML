@@ -7,12 +7,18 @@ using Broiler.HTML.Dom.Parse;
 using Broiler.Dom.Html;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Dom;
+using Broiler.Layout;
+using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
+using CommonUtils = Broiler.HTML.Utils.CommonUtils;
 using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
 using Broiler.HTML.CSS;
 
+using HtmlTag = Broiler.Layout.HtmlTag;
+using BoxKind = Broiler.Layout.BoxKind;
+using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Orchestration.Parse;
 
 internal sealed class DomParser
@@ -47,6 +53,9 @@ internal sealed class DomParser
             return root;
 
         root.ContainerInt = htmlContainer;
+        // Bind the layout environment at construction so font/colour and the
+        // initial-containing-block inputs resolve through it (roadmap §4, Phase 4 prep).
+        root.LayoutEnvironment = new HtmlLayoutEnvironment(htmlContainer);
 
         bool cssDataChanged = false;
         CascadeParseStyles(root, htmlContainer, ref cssData, ref cssDataChanged);
@@ -92,7 +101,7 @@ internal sealed class DomParser
                 ContainsStylesheetRel(box.GetAttribute("rel", string.Empty)))
             {
                 CloneCssData(ref cssData, ref cssDataChanged);
-                _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), box.HtmlTag.Attributes, out string stylesheet, out CssData stylesheetData);
+                _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), (Dictionary<string, string>)box.HtmlTag.Attributes, out string stylesheet, out CssData stylesheetData);
                 if (stylesheet != null)
                     _cssParser.ParseStyleSheet(cssData, stylesheet);
                 else if (stylesheetData != null)
@@ -484,7 +493,7 @@ internal sealed class DomParser
 
         if (assignable && block.Hover)
         {
-            box.ContainerInt.AddHoverBox(box, block);
+            ((IHtmlContainerInt)box.ContainerInt).AddHoverBox(box, block);
             assignable = false;
         }
 
@@ -1594,14 +1603,14 @@ internal sealed class DomParser
                 return;
             }
 
-            if (DomUtils.ContainsInlinesOnly(box) && !ContainsInlinesOnlyDeep(box))
+            if (LayoutBoxUtils.ContainsInlinesOnly(box) && !ContainsInlinesOnlyDeep(box))
             {
                 var tempRightBox = CorrectBlockInsideInlineImp(box, baseUrl);
                 while (tempRightBox != null)
                 {
                     // loop on the created temp right box for the fixed box until no more need (optimization remove recursion)
                     CssBox newTempRightBox = null;
-                    if (DomUtils.ContainsInlinesOnly(tempRightBox) && !ContainsInlinesOnlyDeep(tempRightBox))
+                    if (LayoutBoxUtils.ContainsInlinesOnly(tempRightBox) && !ContainsInlinesOnlyDeep(tempRightBox))
                         newTempRightBox = CorrectBlockInsideInlineImp(tempRightBox, baseUrl);
 
                     tempRightBox.ParentBox.SetAllBoxes(tempRightBox);
@@ -1610,7 +1619,7 @@ internal sealed class DomParser
                 }
             }
 
-            if (!DomUtils.ContainsInlinesOnly(box))
+            if (!LayoutBoxUtils.ContainsInlinesOnly(box))
             {
                 foreach (var childBox in box.Boxes)
                     CorrectBlockInsideInline(childBox, baseUrl);
@@ -1618,7 +1627,7 @@ internal sealed class DomParser
         }
         catch (Exception ex)
         {
-            box.ContainerInt.ReportError(HtmlRenderErrorType.HtmlParsing, "Failed in block inside inline box correction", ex);
+            ((IHtmlContainerInt)box.ContainerInt).ReportError(HtmlRenderErrorType.HtmlParsing, "Failed in block inside inline box correction", ex);
         }
     }
 
@@ -1832,7 +1841,7 @@ internal sealed class DomParser
             }
         }
 
-        if (!DomUtils.ContainsInlinesOnly(box))
+        if (!LayoutBoxUtils.ContainsInlinesOnly(box))
         {
             foreach (var childBox in box.Boxes)
                 CorrectInlineBoxesParent(childBox, baseUrl);

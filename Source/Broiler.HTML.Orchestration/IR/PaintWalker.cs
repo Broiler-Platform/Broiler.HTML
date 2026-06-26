@@ -6,6 +6,7 @@ using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.CSS;
 
+using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Orchestration.Core.IR;
 
 /// <summary>

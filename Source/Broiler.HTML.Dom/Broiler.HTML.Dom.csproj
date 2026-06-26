@@ -6,6 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Broiler.DOM\Broiler.Dom.Html\Broiler.Dom.Html.csproj" />
+    <ProjectReference Include="..\..\..\Broiler.Layout\Broiler.Layout\Broiler.Layout.csproj" />
+    <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS\Broiler.CSS.csproj" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>

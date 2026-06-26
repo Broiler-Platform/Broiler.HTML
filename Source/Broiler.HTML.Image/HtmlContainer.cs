@@ -5,11 +5,13 @@ using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Primitives.Adapters.Entities;
 using Broiler.HTML.Dom;
+using Broiler.Layout;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
 
+using HtmlTag = Broiler.Layout.HtmlTag;
 namespace Broiler.HTML.Image;
 
 public sealed class HtmlContainer : IDisposable

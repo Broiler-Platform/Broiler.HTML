@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Drawing;
 
+using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Utils;
 
 internal delegate void ActionInt<in T>(T obj);

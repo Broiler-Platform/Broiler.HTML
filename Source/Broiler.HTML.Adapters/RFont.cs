@@ -1,6 +1,8 @@
+using Broiler.Layout;
+
 namespace Broiler.HTML.Adapters;
 
-public abstract class RFont
+public abstract class RFont : ILayoutFont
 {
     public abstract double Size { get; }
     public abstract double Height { get; }

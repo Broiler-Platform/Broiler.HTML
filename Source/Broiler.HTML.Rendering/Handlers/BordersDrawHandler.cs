@@ -5,6 +5,7 @@ using Broiler.HTML.Adapters;
 using Broiler.HTML.Utils;
 using Broiler.HTML.Core;
 
+using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Rendering.Handlers;
 
 internal sealed class BordersDrawHandler : IBordersDrawHandler

@@ -3,6 +3,7 @@ using System.Drawing;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Dom;
+using Broiler.Layout;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 
@@ -405,7 +406,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         else if (offset > 0)
         {
             var maxWidth = offset + (inclusive ? 0 : 1.5f * word.LeftGlyphPadding);
-            control.MeasureString(word.Text, word.OwnerBox.ActualFont, maxWidth, out int charFit, out double charFitWidth);
+            control.MeasureString(word.Text, (RFont)word.OwnerBox.ActualFont, maxWidth, out int charFit, out double charFitWidth);
 
             selectionIndex = charFit;
             selectionOffset = charFitWidth;
