@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom.Parse;
+using Broiler.Dom.Html;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Dom;
 using Broiler.HTML.Utils;
@@ -31,6 +32,17 @@ internal sealed class DomParser
     public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
     {
         var root = HtmlParser.ParseDocument(html, baseUrl);
+        return PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
+    }
+
+    public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
+    {
+        var root = HtmlParser.ParseDocument(document, baseUrl);
+        return PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
+    }
+
+    private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
+    {
         if (root == null)
             return root;
 

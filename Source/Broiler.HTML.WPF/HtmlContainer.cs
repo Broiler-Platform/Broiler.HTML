@@ -130,6 +130,8 @@ public sealed class HtmlContainer : IDisposable
     }
 
     public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null) => HtmlContainerInt.SetHtml(htmlSource, baseCssData, baseUrl);
+    public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null) =>
+        HtmlContainerInt.SetDocument(document, baseCssData, baseUrl);
     public void Clear() => HtmlContainerInt.Clear();
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => HtmlContainerInt.GetHtml(styleGen);
     public string GetAttributeAt(Point location, string attribute) => HtmlContainerInt.GetAttributeAt(Utilities.Utils.Convert(location), attribute);

@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Text.Json;
 using Broiler.HTML.Image;
 using Broiler.HTML.Dom.Parse;
+using Broiler.Dom.Html;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 

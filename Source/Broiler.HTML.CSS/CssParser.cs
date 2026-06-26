@@ -49,15 +49,86 @@ internal sealed partial class CssParser
             return;
 
         _sourceOrder = 0;
-        stylesheet = RemoveStylesheetComments(stylesheet);
+        var sharedStyleSheet = new global::Broiler.CSS.CssParser().ParseStyleSheet(stylesheet);
 
-        // Parse @font-face first so that font-family declarations in the
-        // style blocks can recognise custom (web-font) family names.
-        ParseFontFaceBlocks(cssData, stylesheet);
-        ParseFontFeatureValuesBlocks(cssData, stylesheet);
-        ParseStyleBlocks(cssData, StripAtRules(stylesheet));
-        ParseMediaStyleBlocks(cssData, stylesheet);
-        ParseKeyframeBlocks(cssData, stylesheet);
+        // Preserve the renderer's existing normalization and CssData model,
+        // but use Broiler.CSS as the sole authority for rule boundaries,
+        // comments, nested blocks, declarations, and at-rule structure.
+        ParseSharedFontMetadata(cssData, sharedStyleSheet.Rules);
+        ParseSharedStyleRules(cssData, sharedStyleSheet.Rules);
+        ParseSharedMediaRules(cssData, sharedStyleSheet.Rules);
+        ParseSharedKeyframes(cssData, sharedStyleSheet.Rules);
+    }
+
+    private void ParseSharedFontMetadata(
+        CssData cssData,
+        IReadOnlyList<global::Broiler.CSS.CssRule> rules)
+    {
+        foreach (var rule in rules)
+        {
+            if (rule is not global::Broiler.CSS.CssAtRule atRule)
+                continue;
+
+            var serialized = global::Broiler.CSS.CssSerializer.Serialize(atRule)
+                + "\n.broiler-phase2-sentinel {}";
+            if (atRule.Name.Equals("font-face", StringComparison.OrdinalIgnoreCase))
+                ParseFontFaceBlocks(cssData, serialized);
+            else if (atRule.Name.Equals("font-feature-values", StringComparison.OrdinalIgnoreCase))
+                ParseFontFeatureValuesBlocks(cssData, serialized);
+        }
+    }
+
+    private void ParseSharedStyleRules(
+        CssData cssData,
+        IReadOnlyList<global::Broiler.CSS.CssRule> rules)
+    {
+        foreach (var styleRule in rules.OfType<global::Broiler.CSS.CssStyleRule>())
+            FeedStyleBlock(cssData, global::Broiler.CSS.CssSerializer.Serialize(styleRule));
+    }
+
+    private void ParseSharedMediaRules(
+        CssData cssData,
+        IReadOnlyList<global::Broiler.CSS.CssRule> rules)
+    {
+        foreach (var atRule in rules.OfType<global::Broiler.CSS.CssAtRule>())
+        {
+            if (!atRule.Name.Equals("media", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            foreach (var mediaToken in atRule.Prelude.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var media = mediaToken.Trim();
+                if (media.Length == 0)
+                    continue;
+
+                var targetMedia = media.Equals("screen", StringComparison.OrdinalIgnoreCase)
+                    ? "all"
+                    : media;
+                foreach (var styleRule in atRule.Rules.OfType<global::Broiler.CSS.CssStyleRule>())
+                {
+                    FeedStyleBlock(
+                        cssData,
+                        global::Broiler.CSS.CssSerializer.Serialize(styleRule),
+                        targetMedia);
+                }
+            }
+        }
+    }
+
+    private void ParseSharedKeyframes(
+        CssData cssData,
+        IReadOnlyList<global::Broiler.CSS.CssRule> rules)
+    {
+        foreach (var atRule in rules.OfType<global::Broiler.CSS.CssAtRule>())
+        {
+            if (!atRule.Name.Equals("keyframes", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            ParseKeyframeBlocks(
+                cssData,
+                global::Broiler.CSS.CssSerializer.Serialize(atRule)
+                + "\n.broiler-phase2-sentinel {}");
+        }
     }
 
     public CssBlock ParseCssBlock(string className, string blockSource) => ParseCssBlockImp(className, blockSource);

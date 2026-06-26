@@ -140,6 +140,13 @@ public sealed class HtmlContainer : IDisposable
 
     public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null) => HtmlContainerInt.SetHtml(htmlSource, baseCssData, baseUrl);
 
+    /// <summary>
+    /// Binds a canonical DOM document directly to the renderer. The CSS-box
+    /// snapshot is rebuilt lazily when the document version changes.
+    /// </summary>
+    public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null) =>
+        HtmlContainerInt.SetDocument(document, baseCssData, baseUrl);
+
     public void Clear() => HtmlContainerInt.Clear();
 
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => HtmlContainerInt.GetHtml(styleGen);

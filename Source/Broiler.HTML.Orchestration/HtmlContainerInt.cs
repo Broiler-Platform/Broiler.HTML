@@ -33,6 +33,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private int _marginLeft;
     private int _marginRight;
     private readonly IHandlerFactory _handlerFactory;
+    private Broiler.Dom.DomDocument _boundDocument;
+    private ulong _boundDocumentVersion;
+    private CssData _boundBaseCssData;
 
     /// <summary>
     /// The most recent fragment tree snapshot, built after layout completes.
@@ -160,6 +163,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null)
     {
         Clear();
+        _boundDocument = null;
 
         if (baseUrl != null)
             BaseUrl = baseUrl;
@@ -167,12 +171,39 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (string.IsNullOrEmpty(htmlSource))
             return;
 
-        _loadComplete = false;
-        _cssData = baseCssData ?? Adapter.DefaultCssData;
-
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
         DomParser parser = new(CssParser, new StylesheetLoadHandler(this));
-        Root = parser.GenerateCssTree(htmlSource, this, ref _cssData, baseUri);
+        InitialiseRoot(
+            baseCssData,
+            baseUrl,
+            (ref CssData cssData) => parser.GenerateCssTree(htmlSource, this, ref cssData, baseUri));
+    }
+
+    public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        Clear();
+        _boundDocument = document;
+        _boundDocumentVersion = document.Version;
+        _boundBaseCssData = baseCssData;
+
+        if (baseUrl != null)
+            BaseUrl = baseUrl;
+
+        BuildBoundDocument();
+    }
+
+    private delegate CssBox CssTreeFactory(ref CssData cssData);
+
+    private void InitialiseRoot(
+        CssData baseCssData,
+        string baseUrl,
+        CssTreeFactory createTree)
+    {
+        _loadComplete = false;
+        _cssData = baseCssData ?? Adapter.DefaultCssData;
+        Root = createTree(ref _cssData);
 
         if (Root == null)
             return;
@@ -186,6 +217,27 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         _selectionHandler = _handlerFactory.CreateSelectionHandler(Root);
         _imageDownloader = new ImageDownloader();
+    }
+
+    private void BuildBoundDocument()
+    {
+        if (_boundDocument == null)
+            return;
+
+        DisposeRenderTree();
+        var baseUri = new Uri(BaseUrl ?? "/", UriKind.RelativeOrAbsolute);
+        DomParser parser = new(CssParser, new StylesheetLoadHandler(this));
+        InitialiseRoot(
+            _boundBaseCssData,
+            BaseUrl,
+            (ref CssData cssData) => parser.GenerateCssTree(_boundDocument, this, ref cssData, baseUri));
+        _boundDocumentVersion = _boundDocument.Version;
+    }
+
+    private void EnsureBoundDocumentCurrent()
+    {
+        if (_boundDocument != null && _boundDocumentVersion != _boundDocument.Version)
+            BuildBoundDocument();
     }
 
     /// <summary>
@@ -460,6 +512,13 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     public void Clear()
     {
+        _boundDocument = null;
+        _boundBaseCssData = null;
+        DisposeRenderTree();
+    }
+
+    private void DisposeRenderTree()
+    {
         if (Root == null)
             return;
 
@@ -484,7 +543,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         RequestRefresh(false);
     }
 
-    public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => DomUtils.GenerateHtml(Root, styleGen);
+    public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline)
+    {
+        EnsureBoundDocumentCurrent();
+        return DomUtils.GenerateHtml(Root, styleGen);
+    }
 
     public string GetAttributeAt(PointF location, string attribute)
     {
@@ -516,6 +579,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public RectangleF? GetElementRectangle(string elementId)
     {
         ArgumentException.ThrowIfNullOrEmpty(elementId);
+        EnsureBoundDocumentCurrent();
 
         var box = DomUtils.GetBoxById(Root, elementId.ToLower());
         return box != null ? CommonUtils.GetFirstValueOrDefault(box.Rectangles, box.Bounds) : null;
@@ -524,6 +588,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public void PerformLayout(RGraphics g)
     {
         ArgumentNullException.ThrowIfNull(g);
+        EnsureBoundDocumentCurrent();
 
         ActualSize = SizeF.Empty;
         if (Root == null)

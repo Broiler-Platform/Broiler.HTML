@@ -43,6 +43,19 @@ public class HtmlControl : Control
         _htmlContainer.ImageLoad += OnImageLoad;
     }
 
+    /// <summary>
+    /// Binds a canonical DOM document directly to this control and invalidates
+    /// layout. Existing <see cref="Text"/> behavior remains available as the
+    /// serialized compatibility path.
+    /// </summary>
+    public void SetDocument(Broiler.Dom.DomDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        _htmlContainer.SetDocument(document, _baseCssData, BaseUrl);
+        InvalidateMeasure();
+        InvalidateVisual();
+    }
+
     public event RoutedEventHandler LoadComplete
     {
         add { AddHandler(LoadCompleteEvent, value); }

@@ -128,6 +128,9 @@ public sealed class HtmlContainer : IDisposable
     public void SetHtml(string htmlSource, CssData? baseCssData = null, string? baseUrl = null) =>
         _inner.SetHtml(htmlSource, baseCssData, baseUrl);
 
+    public void SetDocument(Broiler.Dom.DomDocument document, CssData? baseCssData = null, string? baseUrl = null) =>
+        _inner.SetDocument(document, baseCssData, baseUrl);
+
     public void Clear() => _inner.Clear();
 
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => _inner.GetHtml(styleGen);
