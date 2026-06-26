@@ -20,6 +20,15 @@ internal class CssBox : CssBoxProperties, IDisposable
     internal bool _tableFixed;
 
     /// <summary>
+    /// The canonical <see cref="Broiler.Dom.DomElement"/> this box was built from,
+    /// when the box tree was generated from a <see cref="Broiler.Dom.DomDocument"/>
+    /// (the <c>SetDocument</c> path). <c>null</c> on the legacy HTML-string parse path.
+    /// Phase 5 uses this to run the shared <c>Broiler.CSS.Dom</c> cascade on the
+    /// canonical element and project the result onto this box.
+    /// </summary>
+    internal Broiler.Dom.DomElement SourceElement { get; set; }
+
+    /// <summary>
     /// When the block-inside-inline correction (CSS2.1 §9.2.1.1) splits a
     /// positioned inline element into sibling anonymous blocks, the hoisted
     /// blocks lose their parent–child relationship with the positioned

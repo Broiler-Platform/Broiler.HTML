@@ -38,7 +38,19 @@ internal sealed class DomParser
     public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
     {
         var root = HtmlParser.ParseDocument(document, baseUrl);
-        return PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
+        var prepared = PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
+
+        // Phase 5 dual-run (default off): additionally project shared-engine computed
+        // styles onto the box tree from the canonical document. The legacy
+        // CascadeApplyStyles in PrepareCssTree remains the observable rendering path
+        // until pixel parity is verified (roadmap decision #10).
+        if (SharedRendererCascade.UseSharedRendererCascade && prepared != null)
+        {
+            var viewport = htmlContainer?.ViewportSize ?? default;
+            SharedRendererCascade.Apply(prepared, document, (int)viewport.Width, (int)viewport.Height);
+        }
+
+        return prepared;
     }
 
     private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)

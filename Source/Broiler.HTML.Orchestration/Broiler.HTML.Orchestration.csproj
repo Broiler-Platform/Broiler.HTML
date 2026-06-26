@@ -11,6 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Broiler.DOM\Broiler.Dom\Broiler.Dom.csproj" />
+    <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS.Dom\Broiler.CSS.Dom.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Primitives\Broiler.HTML.Primitives.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Utils\Broiler.HTML.Utils.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Adapters\Broiler.HTML.Adapters.csproj" />
