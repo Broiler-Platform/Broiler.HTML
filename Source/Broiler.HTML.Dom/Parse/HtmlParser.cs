@@ -72,6 +72,9 @@ internal static class HtmlParser
         var isSingle = HtmlUtils.IsSingleTag(element.LocalName);
         var tag = new HtmlTag(element.LocalName, isSingle, attrs);
         var box = CssBoxHelper.CreateBox(tag, baseUrl, parent);
+        // Keep the link back to the canonical element so the shared Broiler.CSS.Dom
+        // cascade can compute this box's style from the real DOM tree (Phase 5).
+        box.SourceElement = element;
         if (element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase))
             AppendInputValueText(box, tag, baseUrl);
 
