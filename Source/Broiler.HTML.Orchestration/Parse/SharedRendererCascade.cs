@@ -10,10 +10,9 @@ namespace Broiler.HTML.Orchestration.Parse;
 /// <summary>
 /// Phase 5 renderer cutover: drives the renderer's element cascade through the shared
 /// <see cref="Broiler.CSS.Dom.CssStyleEngine"/> on the canonical
-/// <see cref="Broiler.Dom.DomDocument"/>, in place of <see cref="DomParser"/>'s legacy
-/// selector matching. Gated behind <see cref="UseSharedRendererCascade"/> (default
-/// <c>false</c>) — the legacy cascade remains the observable rendering path until pixel
-/// parity is verified (roadmap decision #10).
+/// <see cref="Broiler.Dom.DomDocument"/>. This is the sole renderer cascade path; the legacy
+/// per-element selector matching in <see cref="DomParser"/> was retired in Phase 7 cleanup
+/// (RF-CSS-1) after the 2026-06-26 cutover verified Acid3 + WPT pixel parity.
 /// </summary>
 /// <remarks>
 /// The engine supplies only cascade-resolved <em>declared</em> longhands
@@ -25,16 +24,6 @@ namespace Broiler.HTML.Orchestration.Parse;
 /// </remarks>
 internal static class SharedRendererCascade
 {
-    /// <summary>
-    /// When <c>true</c>, <see cref="DomParser"/> resolves each element box's cascaded
-    /// style through the shared engine instead of its legacy selector matching.
-    /// **Default <c>true</c> as of the Phase 5 cutover (2026-06-26)** — verified against the
-    /// Acid3 + WPT pixel gates (no pass/fail regressions; fixes several important/border
-    /// cascade tests). Set to <c>false</c> to roll back to the legacy
-    /// <see cref="DomParser"/> selector matching if a regression surfaces.
-    /// </summary>
-    internal static bool UseSharedRendererCascade { get; set; } = true;
-
     /// <summary>
     /// The user-agent default stylesheet, parsed once. Registering it under
     /// <see cref="Broiler.CSS.Dom.CssOrigin.UserAgent"/> gives the engine the same UA
