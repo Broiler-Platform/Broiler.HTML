@@ -3,7 +3,6 @@ using Broiler.HTML.CSS;
 using Broiler.HTML.Rendering.Handlers;
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
@@ -36,15 +35,9 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
         return GetColorInt(colorName);
     }
 
-    public RPen GetPen(Color color)
-    {
-        return _penCache.GetOrAdd(color, c => CreatePen(c));
-    }
+    public RPen GetPen(Color color) => _penCache.GetOrAdd(color, CreatePen);
 
-    public RBrush GetSolidBrush(Color color)
-    {
-        return _brushesCache.GetOrAdd(color, c => CreateSolidBrush(c));
-    }
+    public RBrush GetSolidBrush(Color color) => _brushesCache.GetOrAdd(color, CreateSolidBrush);
 
     public RBrush GetLinearGradientBrush(RectangleF rect, Color color1, Color color2, double angle) => CreateLinearGradientBrush(rect, color1, color2, angle);
 
