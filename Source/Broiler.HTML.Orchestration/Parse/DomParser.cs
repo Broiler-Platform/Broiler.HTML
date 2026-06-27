@@ -60,20 +60,14 @@ internal sealed class DomParser
         bool cssDataChanged = false;
         CascadeParseStyles(root, htmlContainer, ref cssData, ref cssDataChanged);
 
-        // Phase 5 (default off): resolve each element box's cascade through the shared
-        // Broiler.CSS.Dom engine instead of the legacy selector matching in
-        // CascadeApplyStyles. The engine runs over the canonical DomDocument behind the
-        // box tree; cssData is still built above and still drives pseudo-elements,
-        // animations, and ::selection. Legacy stays observable until the flag is flipped.
-        Broiler.CSS.Dom.CssStyleEngine engine = null;
-        if (SharedRendererCascade.UseSharedRendererCascade)
-        {
-            var viewport = htmlContainer?.ViewportSize ?? default;
-            engine = SharedRendererCascade.BuildEngine(
-                SharedRendererCascade.FindCanonicalDocument(root),
-                (int)viewport.Width,
-                (int)viewport.Height);
-        }
+        // Resolve each element box's cascade through the shared Broiler.CSS.Dom engine over
+        // the canonical DomDocument behind the box tree (Phase 5 cutover). cssData is still
+        // built above and still drives pseudo-elements, animations, and ::selection.
+        var viewport = htmlContainer?.ViewportSize ?? default;
+        Broiler.CSS.Dom.CssStyleEngine engine = SharedRendererCascade.BuildEngine(
+            SharedRendererCascade.FindCanonicalDocument(root),
+            (int)viewport.Width,
+            (int)viewport.Height);
 
         CascadeApplyStyles(root, cssData, baseUrl, engine);
         SetTextSelectionStyle(htmlContainer, cssData);
@@ -128,77 +122,13 @@ internal sealed class DomParser
 
         if (box.HtmlTag != null)
         {
+            // Project the shared engine's cascade-resolved style. InheritStyle (above),
+            // presentational attributes, inline style, and all renderer adjustments still
+            // run. Every element box carries a SourceElement (HtmlParser.AppendCanonicalNode)
+            // and the engine is non-null whenever the document has element boxes, so this is
+            // the cascade for all author/UA rules.
             if (engine != null && box.SourceElement != null)
-            {
-                // Phase 5: project the shared engine's cascaded style in place of the
-                // legacy selector matching below. InheritStyle (above), presentational
-                // attributes, inline style, and all renderer adjustments still run.
                 SharedRendererCascade.ProjectCascadedStyle(box, engine);
-            }
-            else
-            {
-            // CSS2.1 §6.4.3 specificity: Apply rules in increasing specificity.
-            // Bare '*' = (0,0,0), tag = (0,0,1), and standalone universal
-            // selectors with pseudo-classes / attributes (e.g. ':open',
-            // ':lang(fr)', '[hidden]') are class-level specificity and must not
-            // be lumped in with the bare universal pass.
-            AssignCssBlocks(box, cssData, "*", filter: static block =>
-                block.Selectors == null
-                && (block.AttributeConditions == null || block.AttributeConditions.Count == 0)
-                && block.PseudoClass == null);
-            AssignCssBlocks(box, cssData, box.HtmlTag.Name);
-            AssignCssBlocks(box, cssData, "*", qualifiedOnly: true);
-
-            if (box.HtmlTag.HasAttribute("class"))
-                AssignClassCssBlocks(box, cssData);
-
-            AssignCssBlocks(box, cssData, "*", filter: static block =>
-                block.Selectors == null
-                && ((block.AttributeConditions != null && block.AttributeConditions.Count > 0)
-                    || block.PseudoClass != null));
-
-            if (box.HtmlTag.HasAttribute("id"))
-            {
-                var id = box.HtmlTag.TryGetAttribute("id");
-                AssignCssBlocks(box, cssData, "#" + id);
-                AssignCssBlocks(box, cssData, box.HtmlTag.Name + "#" + id);
-
-                // CSS2.1 §5.8.3: compound selectors like #id.class must
-                // match elements that have the given ID AND all specified classes.
-                if (box.HtmlTag.HasAttribute("class"))
-                {
-                    var classes = box.HtmlTag.TryGetAttribute("class");
-                    var idPrefix = "#" + id;
-                    var classWords = classes.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    var classList = new List<string>(classWords.Length);
-                    foreach (var w in classWords)
-                        classList.Add("." + w);
-
-                    foreach (var cls in classList)
-                    {
-                        AssignCssBlocks(box, cssData, idPrefix + cls);
-                        AssignCssBlocks(box, cssData, box.HtmlTag.Name + idPrefix + cls);
-                    }
-
-                    // Try all 2-class permutations — mirrors the existing
-                    // compound class logic in AssignClassCssBlocks which
-                    // handles order-independent matching (CSS selectors
-                    // #id.a.b and #id.b.a are equivalent).
-                    if (classList.Count >= 2)
-                    {
-                        for (int i = 0; i < classList.Count; i++)
-                        {
-                            for (int j = 0; j < classList.Count; j++)
-                            {
-                                if (i == j) continue;
-                                AssignCssBlocks(box, cssData, idPrefix + classList[i] + classList[j]);
-                            }
-                        }
-                    }
-                }
-            }
-
-            }
 
             TranslateAttributes(box.HtmlTag, box);
 
@@ -397,109 +327,6 @@ internal sealed class DomParser
         }
     }
 
-    private static void AssignClassCssBlocks(CssBox box, CssData cssData)
-    {
-        var classes = box.HtmlTag.TryGetAttribute("class");
-        var classList = new List<string>();
-        var startIdx = 0;
-
-        while (startIdx < classes.Length)
-        {
-            while (startIdx < classes.Length && classes[startIdx] == ' ')
-                startIdx++;
-
-            if (startIdx >= classes.Length)
-                continue;
-
-            var endIdx = classes.IndexOf(' ', startIdx);
-
-            if (endIdx < 0)
-                endIdx = classes.Length;
-
-            var cls = "." + classes.Substring(startIdx, endIdx - startIdx);
-            classList.Add(cls);
-            AssignCssBlocks(box, cssData, cls);
-            AssignCssBlocks(box, cssData, box.HtmlTag.Name + cls);
-
-            startIdx = endIdx + 1;
-        }
-
-        // CSS2.1 §5.8.3: compound class selectors like .first.one must
-        // match elements that have ALL specified classes.  Generate lookup
-        // keys for all 2-class combinations so that rules stored under
-        // compound keys are found.
-        if (classList.Count < 2)
-            return;
-
-        for (int i = 0; i < classList.Count; i++)
-        {
-            for (int j = 0; j < classList.Count; j++)
-            {
-                if (i == j) continue;
-                var compound = classList[i] + classList[j];
-                AssignCssBlocks(box, cssData, compound);
-                AssignCssBlocks(box, cssData, box.HtmlTag.Name + compound);
-            }
-        }
-    }
-
-    private static void AssignCssBlocks(CssBox box, CssData cssData, string className, bool? qualifiedOnly = null, Func<CssBlock, bool> filter = null)
-    {
-        var blocks = cssData.GetCssBlock(className);
-        foreach (var block in blocks)
-        {
-            // When qualifiedOnly is specified, filter by whether the block has
-            // ancestor/sibling selectors (which increase specificity).
-            if (qualifiedOnly.HasValue)
-            {
-                bool hasSelectors = block.Selectors != null;
-                if (qualifiedOnly.Value != hasSelectors)
-                    continue;
-            }
-
-            if (filter != null && !filter(block))
-                continue;
-
-            if (IsBlockAssignableToBox(box, block))
-                AssignCssBlock(box, block);
-        }
-    }
-
-    private static bool IsBlockAssignableToBox(CssBox box, CssBlock block)
-    {
-        bool assignable = true;
-        if (block.Selectors != null)
-        {
-            assignable = IsBlockAssignableToBoxWithSelector(box, block);
-        }
-        else if (box.HtmlTag.Name.Equals("a", StringComparison.OrdinalIgnoreCase) && block.Class.Equals("a", StringComparison.OrdinalIgnoreCase) && !box.HtmlTag.HasAttribute("href"))
-        {
-            assignable = false;
-        }
-
-        // Check attribute conditions (from CSS attribute selectors)
-        if (assignable && block.AttributeConditions != null && block.AttributeConditions.Count > 0)
-        {
-            if (box.HtmlTag == null || !MatchesAttributeConditions(box.HtmlTag, block.AttributeConditions))
-                assignable = false;
-        }
-
-        // CSS2.1 §5.11: Check structural pseudo-class on the terminal selector.
-        if (assignable && block.PseudoClass != null)
-        {
-            if (!MatchesPseudoClass(box, block.PseudoClass))
-                assignable = false;
-        }
-
-        if (assignable && block.Hover)
-        {
-            ((IHtmlContainerInt)box.ContainerInt).AddHoverBox(box, block);
-            assignable = false;
-        }
-
-        return assignable;
-    }
-
     private static bool IsBlockAssignableToBoxWithSelector(CssBox box, CssBlock block)
     {
         foreach (var selector in block.Selectors)
@@ -543,63 +370,6 @@ internal sealed class DomParser
             }
         }
 
-        return true;
-    }
-
-    /// <summary>
-    /// Returns <c>true</c> when the given HTML tag satisfies all attribute
-    /// selector conditions (e.g. [type="text"], [hidden]).
-    /// </summary>
-    private static bool MatchesAttributeConditions(HtmlTag tag, List<CssAttributeCondition> conditions)
-    {
-        foreach (var cond in conditions)
-        {
-            if (cond.Op == null)
-            {
-                // Presence check: [hidden]
-                if (!tag.HasAttribute(cond.Name))
-                    return false;
-            }
-            else
-            {
-                var attrVal = tag.TryGetAttribute(cond.Name);
-                if (attrVal == null)
-                    return false;
-
-                switch (cond.Op)
-                {
-                    case "=":
-                        if (!string.Equals(attrVal, cond.Value, StringComparison.OrdinalIgnoreCase))
-                            return false;
-                        break;
-                    case "~=":
-                        if (!(" " + attrVal + " ").Contains(" " + cond.Value + " ", StringComparison.OrdinalIgnoreCase))
-                            return false;
-                        break;
-                    case "|=":
-                        if (!string.Equals(attrVal, cond.Value, StringComparison.OrdinalIgnoreCase) &&
-                            !attrVal.StartsWith(cond.Value + "-", StringComparison.OrdinalIgnoreCase))
-                            return false;
-                        break;
-                    case "^=":
-                        if (!attrVal.StartsWith(cond.Value, StringComparison.OrdinalIgnoreCase))
-                            return false;
-                        break;
-                    case "$=":
-                        if (!attrVal.EndsWith(cond.Value, StringComparison.OrdinalIgnoreCase))
-                            return false;
-                        break;
-                    case "*=":
-                        if (!attrVal.Contains(cond.Value, StringComparison.OrdinalIgnoreCase))
-                            return false;
-                        break;
-                    default:
-                        if (!string.Equals(attrVal, cond.Value, StringComparison.OrdinalIgnoreCase))
-                            return false;
-                        break;
-                }
-            }
-        }
         return true;
     }
 
