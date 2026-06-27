@@ -29,6 +29,12 @@ public static class HtmlRender
 
     public static CssData ParseStyleSheet(string stylesheet, bool combineWithDefault = true) => CssDataParser.Parse(WpfAdapter.Instance, stylesheet, combineWithDefault ? WpfAdapter.Instance.DefaultCssData : null);
 
+    /// <summary>Parses CSS into the canonical shared stylesheet model.</summary>
+    public static Broiler.CSS.CssStyleSheet ParseStyleSheetModel(
+        string stylesheet,
+        bool combineWithDefault = true) =>
+        ParseStyleSheet(stylesheet, combineWithDefault).StyleSheet;
+
     public static Size Measure(string html, double maxWidth = 0, CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null, EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
     {

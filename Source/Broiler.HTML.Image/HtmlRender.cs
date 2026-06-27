@@ -31,6 +31,15 @@ public static class HtmlRender
             stylesheet,
             combineWithDefault ? CompatProvider.ImageAdapter.DefaultCssData : null);
 
+    /// <summary>
+    /// Parses CSS into the canonical shared model without exposing the legacy
+    /// renderer block indexes.
+    /// </summary>
+    public static Broiler.CSS.CssStyleSheet ParseStyleSheetModel(
+        string stylesheet,
+        bool combineWithDefault = true) =>
+        ParseStyleSheet(stylesheet, combineWithDefault).StyleSheet;
+
     public static SizeF Measure(string html, float maxWidth = 0, CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
         EventHandler<HtmlImageLoadEventArgs> imageLoad = null,

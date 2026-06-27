@@ -11,12 +11,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Broiler.DOM\Broiler.Dom\Broiler.Dom.csproj" />
+    <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS\Broiler.CSS.csproj" />
     <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS.Dom\Broiler.CSS.Dom.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Primitives\Broiler.HTML.Primitives.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Utils\Broiler.HTML.Utils.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Adapters\Broiler.HTML.Adapters.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
-    <ProjectReference Include="..\Broiler.HTML.CSS\Broiler.HTML.CSS.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Rendering\Broiler.HTML.Rendering.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Dom\Broiler.HTML.Dom.csproj" />
   </ItemGroup>

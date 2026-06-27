@@ -18,7 +18,6 @@
     <ProjectReference Include="..\Broiler.HTML.Adapters\Broiler.HTML.Adapters.csproj" />
     <ProjectReference Include="..\Broiler.HTML\Broiler.HTML.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
-    <ProjectReference Include="..\Broiler.HTML.CSS\Broiler.HTML.CSS.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Image.Compat\Broiler.HTML.Image.Compat.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Image\Broiler.HTML.Image.csproj" />
   </ItemGroup>

@@ -38,6 +38,7 @@ internal static class CompatProvider
     private const string CompatBootstrapperMethodName = "EnsureRegistered";
 
     private static readonly AsyncLocal<ICompatProvider?> ProviderOverride = new();
+    private static readonly object DefaultProviderSync = new();
     private static ICompatProvider? _defaultProvider;
     private static int _defaultLoadAttempted;
 
@@ -95,17 +96,24 @@ internal static class CompatProvider
 
     private static void TryLoadDefaultProvider()
     {
-        if (Interlocked.Exchange(ref _defaultLoadAttempted, 1) != 0)
+        if (_defaultProvider is not null)
             return;
 
-        var assembly = Assembly.Load(CompatAssemblyName);
-        var bootstrapperType = assembly.GetType(CompatBootstrapperTypeName, throwOnError: true)
-            ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName} in {CompatAssemblyName}.");
-        var method = bootstrapperType.GetMethod(
-            CompatBootstrapperMethodName,
-            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-            ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName}.{CompatBootstrapperMethodName}.");
-        method.Invoke(null, null);
+        lock (DefaultProviderSync)
+        {
+            if (_defaultProvider is not null || _defaultLoadAttempted != 0)
+                return;
+
+            _defaultLoadAttempted = 1;
+            var assembly = Assembly.Load(CompatAssemblyName);
+            var bootstrapperType = assembly.GetType(CompatBootstrapperTypeName, throwOnError: true)
+                ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName} in {CompatAssemblyName}.");
+            var method = bootstrapperType.GetMethod(
+                CompatBootstrapperMethodName,
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+                ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName}.{CompatBootstrapperMethodName}.");
+            method.Invoke(null, null);
+        }
     }
 
     private sealed class ProviderOverrideScope(ICompatProvider? previous) : IDisposable

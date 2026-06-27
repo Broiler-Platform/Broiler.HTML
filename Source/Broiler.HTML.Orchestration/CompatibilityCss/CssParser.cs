@@ -52,6 +52,7 @@ internal sealed partial class CssParser
 
         _sourceOrder = 0;
         var sharedStyleSheet = new global::Broiler.CSS.CssParser().ParseStyleSheet(stylesheet);
+        cssData.AppendStyleSheet(sharedStyleSheet);
 
         // Preserve the renderer's existing normalization and CssData model,
         // but use Broiler.CSS as the sole authority for rule boundaries,

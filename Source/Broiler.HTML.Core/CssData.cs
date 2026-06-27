@@ -5,12 +5,27 @@ using System.Linq;
 
 namespace Broiler.HTML.Core;
 
+/// <summary>
+/// One-release compatibility adapter for the historical renderer CSS model.
+/// New callers should consume <see cref="StyleSheet"/> and the <c>Broiler.CSS</c>
+/// model directly; the legacy block indexes remain only for renderer features
+/// that have not completed their Phase 7 projection migration.
+/// </summary>
 public sealed class CssData
 {
     private static readonly List<CssBlock> _emptyArray = [];
     private readonly Dictionary<string, Dictionary<string, List<CssBlock>>> _mediaBlocks = new(StringComparer.InvariantCultureIgnoreCase);
 
-    internal CssData() => _mediaBlocks.Add("all", new Dictionary<string, List<CssBlock>>(StringComparer.InvariantCultureIgnoreCase));
+    internal CssData()
+    {
+        _mediaBlocks.Add("all", new Dictionary<string, List<CssBlock>>(StringComparer.InvariantCultureIgnoreCase));
+        StyleSheet = new Broiler.CSS.CssStyleSheet([], []);
+    }
+
+    /// <summary>
+    /// Gets the canonical shared stylesheet represented by this compatibility adapter.
+    /// </summary>
+    public Broiler.CSS.CssStyleSheet StyleSheet { get; private set; }
 
     /// <summary>Parsed @font-face rules from the stylesheet.</summary>
     public List<CssFontFace> FontFaces { get; } = [];
@@ -116,6 +131,8 @@ public sealed class CssData
 
         foreach (var ffv in other.FontFeatureValues)
             FontFeatureValues[ffv.Key] = ffv.Value;
+
+        AppendStyleSheet(other.StyleSheet);
     }
 
     public CssData Clone()
@@ -141,7 +158,20 @@ public sealed class CssData
         foreach (var ffv in FontFeatureValues)
             clone.FontFeatureValues[ffv.Key] = ffv.Value;
 
+        clone.StyleSheet = StyleSheet;
+
         return clone;
+    }
+
+    internal void AppendStyleSheet(Broiler.CSS.CssStyleSheet styleSheet)
+    {
+        ArgumentNullException.ThrowIfNull(styleSheet);
+        if (styleSheet.Rules.Count == 0 && styleSheet.Diagnostics.Count == 0)
+            return;
+
+        StyleSheet = new Broiler.CSS.CssStyleSheet(
+            StyleSheet.Rules.Concat(styleSheet.Rules),
+            StyleSheet.Diagnostics.Concat(styleSheet.Diagnostics));
     }
 
     /// <summary>

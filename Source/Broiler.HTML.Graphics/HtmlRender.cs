@@ -26,6 +26,11 @@ public static class HtmlRender
     public static CssData ParseStyleSheet(string stylesheet, bool combineWithDefault = true) =>
         Broiler.HTML.Image.HtmlRender.ParseStyleSheet(stylesheet, combineWithDefault);
 
+    public static Broiler.CSS.CssStyleSheet ParseStyleSheetModel(
+        string stylesheet,
+        bool combineWithDefault = true) =>
+        Broiler.HTML.Image.HtmlRender.ParseStyleSheetModel(stylesheet, combineWithDefault);
+
     public static string? LoadFontFromFile(string path, string? cssName = null) =>
         Broiler.HTML.Image.HtmlRender.LoadFontFromFile(path, cssName);
 
