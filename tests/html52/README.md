@@ -4,6 +4,11 @@ This directory contains the repository-owned HTML 5.2 test suite for
 Broiler.HTML. The suite is designed for a static HTML renderer and does not use
 WPT fixtures or JavaScript execution.
 
+It is part of the unstable, AI-assisted Broiler.HTML preview and is covered by the
+repository [human review](../../HUMAN_REVIEW.md), [Apache-2.0 license](../../LICENSE),
+and [HTML Renderer provenance notice](../../THIRD_PARTY_NOTICES.md). Test results do not
+by themselves constitute a safety approval.
+
 The detailed design lives in
 [`docs/html52-test-suite-plan.md`](../../docs/html52-test-suite-plan.md).
 The planned CSS modules expansion lives in

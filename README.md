@@ -2,6 +2,28 @@
 
 Broiler.HTML is a modular .NET HTML renderer split into focused assemblies for parsing, CSS processing, layout, painting, image generation, and WPF hosting.
 
+> **Preview status:** APIs, rendering behavior, and platform support are unstable.
+> Substantial implementation work was AI-assisted. This component is **not
+> human-approved for preview use** while [HUMAN_REVIEW.md](HUMAN_REVIEW.md) remains
+> `PENDING`.
+
+## Origin, independence, and development
+
+Broiler.HTML is derived in part from
+[HTML Renderer](https://github.com/ArthurHub/HTML-Renderer), created by José Manuel
+Menéndez Poo and developed by Arthur Teplitzki and other contributors. That project
+provided the original renderer architecture and implementation from which Broiler.HTML
+evolved. Inherited material remains subject to the BSD 3-Clause License and retained
+copyright notices.
+
+Broiler.HTML has since been reorganized into separate parsing, CSS, layout, graphics,
+image, orchestration, and platform assemblies, with substantial new and modified code.
+Much of that later work was created with AI coding tools under maintainer direction.
+
+Broiler.HTML is maintained independently. It is not an official version, continuation, or
+release of HTML Renderer, and the upstream authors have not reviewed or endorsed it. See
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for provenance and license details.
+
 ## Repository goals
 
 - keep the renderer modular and maintainable
@@ -197,3 +219,16 @@ When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configure
 ## Compliance status
 
 Broiler.HTML already contains deterministic render and pixel-diff primitives that can be used to benchmark output against public suites. The tracked suites, current status, and explicit skip reasons are documented in [docs/compliance.md](docs/compliance.md).
+
+Passing tests or compliance cases does not replace source-level human review and is not a
+security guarantee. The scoped review record for a release must name the exact reviewed
+commit in [HUMAN_REVIEW.md](HUMAN_REVIEW.md).
+
+## License
+
+Broiler.HTML's current project work is licensed under the
+[Apache License 2.0](LICENSE). Inherited HTML Renderer material remains subject to the
+BSD 3-Clause License included in
+[LICENSES/HTML-Renderer-BSD-3-Clause.txt](LICENSES/HTML-Renderer-BSD-3-Clause.txt).
+Other dependencies and test data retain their own terms. Redistributors must preserve
+the applicable notices. All included licenses disclaim warranties.

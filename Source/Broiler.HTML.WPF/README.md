@@ -1,4 +1,12 @@
-# Welcome to the HTML Renderer WPF library!
+# Broiler.HTML.WPF
+
+> This WPF assembly is part of the independent Broiler.HTML derivative, not an official
+> HTML Renderer release. The original HTML Renderer project is credited below. Broiler's
+> current work is Apache-2.0; inherited HTML Renderer material remains BSD-3-Clause. See
+> the repository [license](../../LICENSE), [third-party notices](../../THIRD_PARTY_NOTICES.md),
+> and [pending human review](../../HUMAN_REVIEW.md). No upstream endorsement is implied.
+
+# Historical HTML Renderer WPF documentation
 
 This library provides the rich formatting power of HTML in your WPF .NET applications using
 simple controls or static rendering code.
