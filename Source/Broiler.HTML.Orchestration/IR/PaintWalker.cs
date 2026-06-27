@@ -1394,6 +1394,7 @@ internal static class PaintWalker
         // position:fixed with z-index:auto are painted BEFORE step-3 blocks
         // so that in-flow content covers them (CSS2.1 §9.9, §9.6.1).
         List<Fragment>? positioned = null;
+        List<Fragment>? negativeZ = null;
         List<Fragment>? fixedNoZIndex = null;
         List<Fragment>? blocks = null;
         List<Fragment>? floats = null;
@@ -1411,9 +1412,23 @@ internal static class PaintWalker
             }
             else if (child.CreatesStackingContext || child.Style.Position is "relative" or "absolute")
             {
-                // Steps 6–7: positioned descendants (CSS2.1 App. E)
-                positioned ??= new List<Fragment>();
-                positioned.Add(child);
+                // CSS2.1 Appendix E: a positioned descendant with a NEGATIVE
+                // stack level paints in Step 2 (beneath the in-flow content);
+                // z-index ≥ 0 (and auto) paint in Steps 6–7 above it. Splitting
+                // them here is what lets a `z-index:-1` overlay sit BEHIND the
+                // page's in-flow content — a ubiquitous WPT reftest pattern
+                // ("…passes if green, no red", where red is a z-index:-1 box the
+                // correctly-placed content must cover) — instead of on top of it.
+                if (child.StackLevel < 0)
+                {
+                    negativeZ ??= new List<Fragment>();
+                    negativeZ.Add(child);
+                }
+                else
+                {
+                    positioned ??= new List<Fragment>();
+                    positioned.Add(child);
+                }
             }
             else if (child.Style.Float is "left" or "right")
             {
@@ -1448,6 +1463,39 @@ internal static class PaintWalker
                     PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
                 }
             }
+        }
+
+        // Paints a positioned child, applying the fixed-position viewport
+        // offset (CSS2.1 §9.6.1) when rendering a scrolled region. Shared by
+        // Step 2 (negative z-index) and Steps 6–7 (z-index ≥ 0).
+        void PaintPositionedChild(Fragment child)
+        {
+            if (child.Style.Position == "fixed" && viewport.Width > 0 && viewport.Height > 0)
+            {
+                int startIdx = items.Count;
+                PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
+                OffsetDisplayItems(items, startIdx, viewport.X, viewport.Y);
+            }
+            else
+            {
+                PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
+            }
+        }
+
+        // Step 2: Positioned descendants with a negative z-index paint beneath
+        // the in-flow content (CSS2.1 Appendix E), most-negative first.
+        //
+        // Only when this is the STANDALONE painter (skipBlockBackgrounds == false,
+        // i.e. step-3 block backgrounds are painted below). In the two-phase path
+        // (skipBlockBackgrounds == true) the negative-z elements were already
+        // painted by the matching PaintChildrenBackgroundPhase call, beneath the
+        // block descendant backgrounds — painting them again here would put them
+        // back on top.
+        if (negativeZ != null && !skipBlockBackgrounds)
+        {
+            negativeZ.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
+            foreach (var child in negativeZ)
+                PaintPositionedChild(child);
         }
 
         // CSS2.1 Appendix E three-phase painting:
@@ -1485,27 +1533,13 @@ internal static class PaintWalker
                 PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
         }
 
-        // Steps 6–7: Positioned children sorted by StackLevel
+        // Steps 6–7: Positioned children (z-index ≥ 0) sorted by StackLevel,
+        // painted above the in-flow content.
         if (positioned != null)
         {
             positioned.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
             foreach (var child in positioned)
-            {
-                // CSS2.1 §9.6.1: Fixed-position elements are positioned relative
-                // to the viewport.  When rendering a scrolled region, offset the
-                // fragment's coordinates so it paints at the viewport-relative
-                // position instead of its document-origin layout position.
-                if (child.Style.Position == "fixed" && viewport.Width > 0 && viewport.Height > 0)
-                {
-                    int startIdx = items.Count;
-                    PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
-                    OffsetDisplayItems(items, startIdx, viewport.X, viewport.Y);
-                }
-                else
-                {
-                    PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
-                }
-            }
+                PaintPositionedChild(child);
         }
     }
 
@@ -1611,6 +1645,41 @@ internal static class PaintWalker
     /// </summary>
     private static void PaintChildrenBackgroundPhase(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom, RectangleF viewport)
     {
+        // CSS2.1 Appendix E Step 2: positioned descendants with a NEGATIVE
+        // z-index paint here in the background phase — after this stacking
+        // context's own background (already emitted by the caller) but BEFORE
+        // any in-flow block descendant backgrounds below — so a `z-index:-1`
+        // overlay sits behind the page content. They are painted as full
+        // stacking contexts (most-negative first); the matching foreground
+        // PaintChildren(skipBlockBackgrounds:true) call skips them.
+        List<Fragment>? negativeZ = null;
+        foreach (var child in fragment.Children)
+        {
+            if (child.StackLevel < 0
+                && (child.CreatesStackingContext || child.Style.Position is "relative" or "absolute" or "fixed"))
+            {
+                negativeZ ??= new List<Fragment>();
+                negativeZ.Add(child);
+            }
+        }
+        if (negativeZ != null)
+        {
+            negativeZ.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
+            foreach (var child in negativeZ)
+            {
+                if (child.Style.Position == "fixed" && viewport.Width > 0 && viewport.Height > 0)
+                {
+                    int startIdx = items.Count;
+                    PaintFragment(child, items, propagatedFrom, viewport);
+                    OffsetDisplayItems(items, startIdx, viewport.X, viewport.Y);
+                }
+                else
+                {
+                    PaintFragment(child, items, propagatedFrom, viewport);
+                }
+            }
+        }
+
         foreach (var child in fragment.Children)
         {
             // Skip fixed / positioned / stacking-context — handled in Steps 0, 6–7
