@@ -12,7 +12,7 @@ namespace Broiler.HTML.WPF;
 public class HtmlControl : Control
 {
     protected readonly HtmlContainer _htmlContainer;
-    protected CssData _baseCssData;
+    protected HtmlStyleSet _baseStyleSet;
     protected Point _lastScrollOffset;
 
     public static readonly DependencyProperty AvoidImagesLateLoadingProperty = DependencyProperty.Register("AvoidImagesLateLoading", typeof(bool), typeof(HtmlControl), new PropertyMetadata(false, OnDependencyProperty_valueChanged));
@@ -51,7 +51,7 @@ public class HtmlControl : Control
     public void SetDocument(Broiler.Dom.DomDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
-        _htmlContainer.SetDocument(document, _baseCssData, BaseUrl);
+        _htmlContainer.SetDocumentWithStyleSet(document, _baseStyleSet, BaseUrl);
         InvalidateMeasure();
         InvalidateVisual();
     }
@@ -316,9 +316,9 @@ public class HtmlControl : Control
         }
         else if (e.Property == BaseStylesheetProperty)
         {
-            var baseCssData = HtmlRender.ParseStyleSheet((string)e.NewValue);
-            control._baseCssData = baseCssData;
-            htmlContainer.SetHtml(control.Text, baseCssData);
+            var baseStyleSet = HtmlRender.ParseStyleSet((string)e.NewValue);
+            control._baseStyleSet = baseStyleSet;
+            htmlContainer.SetHtmlWithStyleSet(control.Text, baseStyleSet);
         }
         else if (e.Property == BaseUrlProperty)
         {
@@ -327,7 +327,7 @@ public class HtmlControl : Control
         else if (e.Property == TextProperty)
         {
             htmlContainer.ScrollOffset = new Point(0, 0);
-            htmlContainer.SetHtml((string)e.NewValue, control._baseCssData, htmlContainer.BaseUrl);
+            htmlContainer.SetHtmlWithStyleSet((string)e.NewValue, control._baseStyleSet, htmlContainer.BaseUrl);
             control.InvalidateMeasure();
             control.InvalidateVisual();
             control.InvokeMouseMove();

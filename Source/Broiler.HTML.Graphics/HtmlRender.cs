@@ -2,7 +2,6 @@ using System;
 using System.Drawing;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
-using Broiler.HTML.CSS.Core;
 using GraphicsBitmap = Broiler.Graphics.BBitmap;
 using GraphicsColor = Broiler.Graphics.BColor;
 using GraphicsFormat = Broiler.Graphics.BImageEncodeFormat;
@@ -23,8 +22,12 @@ public static class HtmlRender
     public static void AddFontFamilyMapping(string fromFamily, string toFamily) =>
         Broiler.HTML.Image.HtmlRender.AddFontFamilyMapping(fromFamily, toFamily);
 
+    [Obsolete("Use ParseStyleSet or ParseStyleSheetModel.")]
     public static CssData ParseStyleSheet(string stylesheet, bool combineWithDefault = true) =>
         Broiler.HTML.Image.HtmlRender.ParseStyleSheet(stylesheet, combineWithDefault);
+
+    public static HtmlStyleSet ParseStyleSet(string stylesheet, bool combineWithDefault = true) =>
+        Broiler.HTML.Image.HtmlRender.ParseStyleSet(stylesheet, combineWithDefault);
 
     public static Broiler.CSS.CssStyleSheet ParseStyleSheetModel(
         string stylesheet,
@@ -34,6 +37,75 @@ public static class HtmlRender
     public static string? LoadFontFromFile(string path, string? cssName = null) =>
         Broiler.HTML.Image.HtmlRender.LoadFontFromFile(path, cssName);
 
+    public static SizeF MeasureWithStyleSet(
+        string html,
+        HtmlStyleSet? styleSet = null,
+        float maxWidth = 0,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        using var container = CreateContainer(stylesheetLoad, imageLoad);
+        container.MaxSize = new SizeF(maxWidth, 0);
+        container.SetHtmlWithStyleSet(html, styleSet, baseUrl);
+        container.PerformLayout(new RectangleF(0, 0, maxWidth > 0 ? maxWidth : 99999, 99999));
+        return container.ActualSize;
+    }
+
+    public static SizeF RenderWithStyleSet(
+        GraphicsBitmap bitmap,
+        string html,
+        HtmlStyleSet? styleSet = null,
+        PointF location = default,
+        SizeF maxSize = default,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        ArgumentNullException.ThrowIfNull(bitmap);
+        using ImageBitmap image = ToImageBitmap(bitmap);
+        var actualSize = Broiler.HTML.Image.HtmlRender.RenderWithStyleSet(
+            image, html, styleSet, location, maxSize, stylesheetLoad, imageLoad, baseUrl);
+        CopyToGraphicsBitmap(image, bitmap);
+        return actualSize;
+    }
+
+    public static GraphicsBitmap RenderToImageWithStyleSet(
+        string html,
+        int width,
+        int height,
+        HtmlStyleSet? styleSet = null,
+        GraphicsColor? backgroundColor = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        ValidateDimensions(width, height);
+        using var image = Broiler.HTML.Image.HtmlRender.RenderToImageWithStyleSet(
+            html, width, height, styleSet,
+            backgroundColor.HasValue ? ToImageColor(backgroundColor.Value) : default,
+            stylesheetLoad, imageLoad, baseUrl);
+        return ToGraphicsBitmap(image);
+    }
+
+    public static GraphicsBitmap RenderToImageAutoSizedWithStyleSet(
+        string html,
+        HtmlStyleSet? styleSet = null,
+        int maxWidth = 0,
+        int maxHeight = 0,
+        GraphicsColor? backgroundColor = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
+    {
+        using var image = Broiler.HTML.Image.HtmlRender.RenderToImageAutoSizedWithStyleSet(
+            html, styleSet, maxWidth, maxHeight,
+            backgroundColor.HasValue ? ToImageColor(backgroundColor.Value) : default,
+            stylesheetLoad, imageLoad, baseUrl);
+        return ToGraphicsBitmap(image);
+    }
+
+    [Obsolete("Use MeasureWithStyleSet.")]
     public static SizeF Measure(
         string html,
         float maxWidth = 0,
@@ -52,6 +124,7 @@ public static class HtmlRender
         return container.ActualSize;
     }
 
+    [Obsolete("Use RenderWithStyleSet.")]
     public static SizeF Render(
         GraphicsBitmap bitmap,
         string html,
@@ -67,6 +140,7 @@ public static class HtmlRender
         return Render(bitmap, html, new PointF(left, top), new SizeF(maxWidth, 0), cssData, stylesheetLoad, imageLoad, baseUrl);
     }
 
+    [Obsolete("Use RenderWithStyleSet.")]
     public static SizeF Render(
         GraphicsBitmap bitmap,
         string html,
@@ -93,6 +167,7 @@ public static class HtmlRender
         return actualSize;
     }
 
+    [Obsolete("Use RenderToImageWithStyleSet.")]
     public static GraphicsBitmap RenderToImage(
         string html,
         Size size,
@@ -109,6 +184,7 @@ public static class HtmlRender
         return RenderToImage(html, size.Width, size.Height, null, cssData, stylesheetLoad, imageLoad, baseUrl);
     }
 
+    [Obsolete("Use RenderToImageWithStyleSet.")]
     public static GraphicsBitmap RenderToImage(
         string html,
         int width,
@@ -133,6 +209,7 @@ public static class HtmlRender
         return ToGraphicsBitmap(image);
     }
 
+    [Obsolete("Use RenderToImageAutoSizedWithStyleSet.")]
     public static GraphicsBitmap RenderToImageAutoSized(
         string html,
         int maxWidth = 0,

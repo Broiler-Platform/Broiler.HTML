@@ -133,26 +133,9 @@ internal interface IHtmlContainerInt
     /// </remarks>
     IImageLoadHandler CreateImageLoadHandler(ActionInt<RImage, RectangleF, bool> loadCompleteCallback);
 
-    /// <summary>
-    /// Registers a hover box/block pair for hover-state CSS handling.
-    /// </summary>
-    /// <remarks>
-    /// See ADR-008, Phase 2 prerequisites, item 2.
-    /// </remarks>
-    void AddHoverBox(object box, CssBlock block);
+    /// <summary>The current origin-aware style set.</summary>
+    HtmlStyleSet StyleSet { get; }
 
-    /// <summary>
-    /// The current CSS data for the rendered document.
-    /// </summary>
-    CssData CssData { get; }
-
-    /// <summary>
-    /// The default CSS data from the adapter.
-    /// </summary>
-    CssData DefaultCssData { get; }
-
-    /// <summary>
-    /// Parses a CSS block from inline style text.
-    /// </summary>
-    CssBlock ParseCssBlock(string className, string blockSource);
+    /// <summary>The default origin-aware style set.</summary>
+    HtmlStyleSet DefaultStyleSet { get; }
 }

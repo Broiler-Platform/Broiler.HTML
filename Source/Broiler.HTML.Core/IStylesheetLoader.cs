@@ -15,6 +15,6 @@ internal interface IStylesheetLoader
     /// <param name="src">The stylesheet source (URL or path).</param>
     /// <param name="attributes">The HTML attributes of the link element.</param>
     /// <param name="stylesheet">The loaded stylesheet text, or null.</param>
-    /// <param name="stylesheetData">The loaded stylesheet data, or null.</param>
-    void LoadStylesheet(string src, Dictionary<string, string> attributes, out string stylesheet, out CssData stylesheetData);
+    /// <param name="styleSheet">The loaded shared stylesheet model, or null.</param>
+    void LoadStylesheet(string src, Dictionary<string, string> attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet styleSheet);
 }

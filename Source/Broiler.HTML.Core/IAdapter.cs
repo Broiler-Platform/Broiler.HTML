@@ -10,7 +10,7 @@ namespace Broiler.HTML.Core;
 /// </summary>
 internal interface IAdapter : IColorResolver
 {
-    CssData DefaultCssData { get; }
+    HtmlStyleSet DefaultStyleSet { get; }
 
     /// <summary>
     /// Gets a cached font for the specified family, size, and style.

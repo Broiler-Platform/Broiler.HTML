@@ -61,6 +61,9 @@ public sealed class HtmlContainer : IDisposable
 
     public Fragment? LatestFragmentTree => _inner.LatestFragmentTree;
 
+    public HtmlStyleSet StyleSet => _inner.StyleSet;
+
+    [Obsolete("Use StyleSet.")]
     public CssData CssData => _inner.CssData;
 
     public bool AvoidAsyncImagesLoading
@@ -125,11 +128,19 @@ public sealed class HtmlContainer : IDisposable
         _inner.AvoidImagesLateLoading = true;
     }
 
+    [Obsolete("Use SetHtmlWithStyleSet.")]
     public void SetHtml(string htmlSource, CssData? baseCssData = null, string? baseUrl = null) =>
         _inner.SetHtml(htmlSource, baseCssData, baseUrl);
 
+    public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
+        _inner.SetHtmlWithStyleSet(htmlSource, baseStyleSet, baseUrl);
+
+    [Obsolete("Use SetDocumentWithStyleSet.")]
     public void SetDocument(Broiler.Dom.DomDocument document, CssData? baseCssData = null, string? baseUrl = null) =>
         _inner.SetDocument(document, baseCssData, baseUrl);
+
+    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
+        _inner.SetDocumentWithStyleSet(document, baseStyleSet, baseUrl);
 
     public void Clear() => _inner.Clear();
 

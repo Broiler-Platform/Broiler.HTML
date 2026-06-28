@@ -67,6 +67,9 @@ public sealed class HtmlContainer : IDisposable
 
     internal HtmlContainerInt HtmlContainerInt { get; }
 
+    public HtmlStyleSet StyleSet => HtmlContainerInt.StyleSet;
+
+    [Obsolete("Use StyleSet.")]
     public CssData CssData => HtmlContainerInt.CssData;
 
     /// <summary>
@@ -140,14 +143,22 @@ public sealed class HtmlContainer : IDisposable
         set => HtmlContainerInt.BaseUrl = value;
     }
 
+    [Obsolete("Use SetHtmlWithStyleSet.")]
     public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null) => HtmlContainerInt.SetHtml(htmlSource, baseCssData, baseUrl);
+
+    public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet baseStyleSet = null, string baseUrl = null) =>
+        HtmlContainerInt.SetHtmlWithStyleSet(htmlSource, baseStyleSet, baseUrl);
 
     /// <summary>
     /// Binds a canonical DOM document directly to the renderer. The CSS-box
     /// snapshot is rebuilt lazily when the document version changes.
     /// </summary>
+    [Obsolete("Use SetDocumentWithStyleSet.")]
     public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null) =>
         HtmlContainerInt.SetDocument(document, baseCssData, baseUrl);
+
+    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet baseStyleSet = null, string baseUrl = null) =>
+        HtmlContainerInt.SetDocumentWithStyleSet(document, baseStyleSet, baseUrl);
 
     public void Clear() => HtmlContainerInt.Clear();
 

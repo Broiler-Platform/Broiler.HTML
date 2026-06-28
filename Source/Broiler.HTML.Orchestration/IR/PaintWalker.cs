@@ -4,7 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Core.IR;
-using Broiler.HTML.CSS;
+using CssValueParser = Broiler.CSS.CssLengthParser;
 
 using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Orchestration.Core.IR;

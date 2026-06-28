@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Broiler.CSS;
 using Broiler.HTML.Core;
-using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Dom;
 using Broiler.Layout;
 using Broiler.HTML.Dom.Utils;
@@ -18,20 +20,25 @@ namespace Broiler.HTML.Orchestration.Parse;
 internal static class CssAnimationResolver
 {
     private const double WptSnapshotFrameRateHz = 60.0;
+    private static readonly ConditionalWeakTable<CssStyleSheet, IReadOnlyDictionary<string, AnimationRule>> RuleCache = new();
+
+    private sealed record AnimationStop(double Offset, Dictionary<string, string> Properties);
+    private sealed record AnimationRule(IReadOnlyList<AnimationStop> Stops);
 
     /// <summary>
     /// If the box has an <c>animation-name</c> that maps to a known
     /// <c>@keyframes</c> rule in the CSS data, compute the animated property
     /// values and apply them to the box.
     /// </summary>
-    public static void ResolveAnimations(CssBox box, CssData cssData)
+    public static void ResolveAnimations(CssBox box, CssStyleSheet styleSheet)
     {
         string animName = box.AnimationName;
         if (string.IsNullOrEmpty(animName) ||
             animName.Equals("none", StringComparison.OrdinalIgnoreCase))
             return;
 
-        if (!cssData.Keyframes.TryGetValue(animName, out var rule) || rule.Stops.Count == 0)
+        var rules = RuleCache.GetValue(styleSheet, BuildAnimationRules);
+        if (!rules.TryGetValue(animName, out var rule) || rule.Stops.Count == 0)
             return;
 
         // Compute animation progress for static rendering.
@@ -66,6 +73,67 @@ internal static class CssAnimationResolver
         // Interpolate and apply animated properties
         ApplyInterpolatedProperties(box, rule, easedProgress);
     }
+
+    private static IReadOnlyDictionary<string, AnimationRule> BuildAnimationRules(CssStyleSheet styleSheet)
+    {
+        var result = new Dictionary<string, AnimationRule>(StringComparer.OrdinalIgnoreCase);
+        foreach (var atRule in styleSheet.Rules.OfType<CssAtRule>())
+        {
+            if (atRule.Name is not ("keyframes" or "-webkit-keyframes") ||
+                string.IsNullOrWhiteSpace(atRule.Prelude))
+            {
+                continue;
+            }
+
+            var stops = new List<AnimationStop>();
+            foreach (var styleRule in atRule.Rules.OfType<CssStyleRule>())
+            {
+                var properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var declaration in styleRule.Declarations.Declarations)
+                    properties[declaration.Name] = declaration.Value.Text;
+
+                foreach (var selector in styleRule.Selectors.Selectors)
+                {
+                    if (TryParseKeyframeOffset(selector.Text, out var offset))
+                        stops.Add(new AnimationStop(offset, new Dictionary<string, string>(properties, StringComparer.OrdinalIgnoreCase)));
+                }
+            }
+
+            result[Unquote(atRule.Prelude.Trim())] = new AnimationRule(
+                stops.OrderBy(static stop => stop.Offset).ToArray());
+        }
+
+        return result;
+    }
+
+    private static bool TryParseKeyframeOffset(string value, out double offset)
+    {
+        value = value.Trim();
+        if (value.Equals("from", StringComparison.OrdinalIgnoreCase))
+        {
+            offset = 0;
+            return true;
+        }
+        if (value.Equals("to", StringComparison.OrdinalIgnoreCase))
+        {
+            offset = 1;
+            return true;
+        }
+        if (value.EndsWith('%') &&
+            double.TryParse(value.AsSpan(0, value.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out var percent))
+        {
+            offset = Math.Clamp(percent / 100d, 0, 1);
+            return true;
+        }
+
+        offset = 0;
+        return false;
+    }
+
+    private static string Unquote(string value) =>
+        value.Length >= 2 && ((value[0] == '"' && value[^1] == '"') || (value[0] == '\'' && value[^1] == '\''))
+            ? value[1..^1]
+            : value;
 
     /// <summary>
     /// Parses a CSS time value (e.g. "500ms", "1.5s", "-500000s") into seconds.
@@ -200,7 +268,7 @@ internal static class CssAnimationResolver
     /// <summary>
     /// Applies interpolated property values from keyframe stops to the box.
     /// </summary>
-    private static void ApplyInterpolatedProperties(CssBox box, CssKeyframeRule rule, double progress)
+    private static void ApplyInterpolatedProperties(CssBox box, AnimationRule rule, double progress)
     {
         // Collect all animatable property names across all stops
         var propertyNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
@@ -211,8 +279,8 @@ internal static class CssAnimationResolver
         foreach (var propName in propertyNames)
         {
             // Find the two surrounding keyframe stops for this property
-            CssKeyframeStop before = null;
-            CssKeyframeStop after = null;
+            AnimationStop before = null;
+            AnimationStop after = null;
 
             for (int i = 0; i < rule.Stops.Count; i++)
             {

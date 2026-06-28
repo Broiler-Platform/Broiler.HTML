@@ -1,5 +1,4 @@
 using Broiler.HTML.Core;
-using Broiler.HTML.CSS;
 using Broiler.HTML.Rendering.Handlers;
 using System;
 using System.Collections.Concurrent;
@@ -14,20 +13,12 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
     private readonly ConcurrentDictionary<Color, RPen> _penCache = new();
     private readonly FontsHandler _fontsHandler;
 
-    private CssData _defaultCssData;
     private RImage _loadImage;
     private RImage _errorImage;
 
     protected RAdapter() => _fontsHandler = new FontsHandler(this);
 
-    public CssData DefaultCssData => _defaultCssData ??= CreateDefaultCssData();
-
-    private CssData CreateDefaultCssData()
-    {
-        var data = CssDataParser.Parse(this, CssDefaults.DefaultStyleSheet);
-        data.MarkAllBlocksAsUserAgent();
-        return data;
-    }
+    public HtmlStyleSet DefaultStyleSet => HtmlStyleSet.Default;
 
     public Color GetColor(string colorName)
     {

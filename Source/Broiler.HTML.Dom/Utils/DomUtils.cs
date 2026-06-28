@@ -440,10 +440,10 @@ internal sealed class DomUtils
                     sb.Append("<!--StartFragment-->");
             }
 
-            if (styleGen == HtmlGenerationStyle.InHeader && box.HtmlTag.Name == "html" && ((IHtmlContainerInt)box.ContainerInt).CssData != null)
+            if (styleGen == HtmlGenerationStyle.InHeader && box.HtmlTag.Name == "html")
             {
                 sb.AppendLine("<head>");
-                WriteStylesheet(sb, ((IHtmlContainerInt)box.ContainerInt).CssData);
+                WriteStylesheet(sb, ((IHtmlContainerInt)box.ContainerInt).StyleSet);
                 sb.AppendLine("</head>");
             }
         }
@@ -475,16 +475,10 @@ internal sealed class DomUtils
     {
         sb.AppendFormat($"<{box.HtmlTag.Name}");
 
-        // collect all element style properties including from stylesheet
+        // Preserve authored inline declarations. Stylesheet rules remain represented by
+        // their class/id attributes; the renderer no longer maintains a second selector
+        // index solely for HTML serialization.
         var tagStyles = new Dictionary<string, string>();
-        var tagCssBlock = ((IHtmlContainerInt)box.ContainerInt).CssData.GetCssBlock(box.HtmlTag.Name);
-        if (tagCssBlock != null)
-        {
-            // TODO:a handle selectors
-            foreach (var cssBlock in tagCssBlock)
-                foreach (var prop in cssBlock.Properties)
-                    tagStyles[prop.Key] = prop.Value;
-        }
 
         if (box.HtmlTag.HasAttributes())
         {
@@ -494,22 +488,9 @@ internal sealed class DomUtils
                 // handle image tags by inserting the image using base64 data
                 if (styleGen == HtmlGenerationStyle.Inline && att.Key == HtmlConstants.Style)
                 {
-                    // if inline style add the styles to the collection
-                    var block = ((IHtmlContainerInt)box.ContainerInt).ParseCssBlock(box.HtmlTag.Name, box.HtmlTag.TryGetAttribute("style"));
-                    foreach (var prop in block.Properties)
-                        tagStyles[prop.Key] = prop.Value;
-                }
-                else if (styleGen == HtmlGenerationStyle.Inline && att.Key == HtmlConstants.Class)
-                {
-                    // if inline style convert the style class to actual properties and add to collection
-                    var cssBlocks = ((IHtmlContainerInt)box.ContainerInt).CssData.GetCssBlock("." + att.Value);
-                    if (cssBlocks != null)
-                    {
-                        // TODO:a handle selectors
-                        foreach (var cssBlock in cssBlocks)
-                            foreach (var prop in cssBlock.Properties)
-                                tagStyles[prop.Key] = prop.Value;
-                    }
+                    var declarations = new Broiler.CSS.CssParser().ParseDeclarations(att.Value);
+                    foreach (var declaration in declarations.Declarations)
+                        tagStyles[declaration.Name] = declaration.Value.Text;
                 }
                 else
                 {
@@ -523,11 +504,10 @@ internal sealed class DomUtils
         // if inline style insert the style tag with all collected style properties
         if (styleGen == HtmlGenerationStyle.Inline && tagStyles.Count > 0)
         {
-            var cleanTagStyles = StripDefaultStyles(box, tagStyles);
-            if (cleanTagStyles.Count > 0)
+            if (tagStyles.Count > 0)
             {
                 sb.Append(" style=\"");
-                foreach (var style in cleanTagStyles)
+                foreach (var style in tagStyles)
                     sb.AppendFormat($"{style.Key}: {style.Value}; ");
                 sb.Remove(sb.Length - 1, 1);
                 sb.Append('"');
@@ -537,48 +517,10 @@ internal sealed class DomUtils
         sb.AppendFormat($"{(box.HtmlTag.IsSingle ? "/" : "")}>");
     }
 
-    private static Dictionary<string, string> StripDefaultStyles(CssBox box, Dictionary<string, string> tagStyles)
-    {
-        var cleanTagStyles = new Dictionary<string, string>();
-        var defaultBlocks = ((IHtmlContainerInt)box.ContainerInt).DefaultCssData.GetCssBlock(box.HtmlTag.Name);
-
-        foreach (var style in tagStyles)
-        {
-            bool isDefault = false;
-
-            foreach (var defaultBlock in defaultBlocks)
-            {
-                if (defaultBlock.Properties.TryGetValue(style.Key, out string value) && value.Equals(style.Value, StringComparison.OrdinalIgnoreCase))
-                {
-                    isDefault = true;
-                    break;
-                }
-            }
-
-            if (!isDefault)
-                cleanTagStyles[style.Key] = style.Value;
-        }
-        return cleanTagStyles;
-    }
-
-    private static void WriteStylesheet(StringBuilder sb, CssData cssData)
+    private static void WriteStylesheet(StringBuilder sb, HtmlStyleSet styleSet)
     {
         sb.AppendLine("<style type=\"text/css\">");
-        foreach (var cssBlocks in cssData.MediaBlocks["all"])
-        {
-            sb.Append(cssBlocks.Key);
-            sb.Append(" { ");
-            foreach (var cssBlock in cssBlocks.Value)
-            {
-                foreach (var property in cssBlock.Properties)
-                {
-                    // TODO:a handle selectors
-                    sb.AppendFormat($"{property.Key}: {property.Value};");
-                }
-            }
-            sb.Append(" }");
-            sb.AppendLine();
-        }
+        sb.AppendLine(Broiler.CSS.CssSerializer.Serialize(styleSet.StyleSheet));
         sb.AppendLine("</style>");
     }
 

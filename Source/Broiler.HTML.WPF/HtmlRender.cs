@@ -1,6 +1,5 @@
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
-using Broiler.HTML.CSS;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.WPF.Adapters;
 using System;
@@ -27,14 +26,75 @@ public static class HtmlRender
         WpfAdapter.Instance.AddFontFamilyMapping(fromFamily, toFamily);
     }
 
-    public static CssData ParseStyleSheet(string stylesheet, bool combineWithDefault = true) => CssDataParser.Parse(WpfAdapter.Instance, stylesheet, combineWithDefault ? WpfAdapter.Instance.DefaultCssData : null);
+    [Obsolete("Use ParseStyleSet or ParseStyleSheetModel.")]
+    public static CssData ParseStyleSheet(string stylesheet, bool combineWithDefault = true) =>
+        new(HtmlStyleSet.Parse(stylesheet, combineWithDefault));
+
+    public static HtmlStyleSet ParseStyleSet(string stylesheet, bool combineWithDefault = true) =>
+        HtmlStyleSet.Parse(stylesheet, combineWithDefault);
 
     /// <summary>Parses CSS into the canonical shared stylesheet model.</summary>
     public static Broiler.CSS.CssStyleSheet ParseStyleSheetModel(
         string stylesheet,
         bool combineWithDefault = true) =>
-        ParseStyleSheet(stylesheet, combineWithDefault).StyleSheet;
+        ParseStyleSet(stylesheet, combineWithDefault).StyleSheet;
 
+    public static Size MeasureWithStyleSet(
+        string html,
+        HtmlStyleSet styleSet = null,
+        double maxWidth = 0,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
+    {
+        if (string.IsNullOrEmpty(html))
+            return Size.Empty;
+        using var container = new HtmlContainer
+        {
+            MaxSize = new Size(maxWidth, 0),
+            AvoidAsyncImagesLoading = true,
+            AvoidImagesLateLoading = true
+        };
+        if (stylesheetLoad != null)
+            container.StylesheetLoad += stylesheetLoad;
+        if (imageLoad != null)
+            container.ImageLoad += imageLoad;
+        container.SetHtmlWithStyleSet(html, styleSet);
+        container.PerformLayout();
+        return container.ActualSize;
+    }
+
+    public static Size RenderWithStyleSet(
+        DrawingContext drawingContext,
+        string html,
+        HtmlStyleSet styleSet = null,
+        Point location = default,
+        Size maxSize = default,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
+    {
+        ArgumentNullException.ThrowIfNull(drawingContext);
+        return RenderClip(drawingContext, html, location, maxSize, styleSet, stylesheetLoad, imageLoad);
+    }
+
+    public static BitmapFrame RenderToImageWithStyleSet(
+        string html,
+        Size size,
+        HtmlStyleSet styleSet = null,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
+    {
+        var renderTarget = new RenderTargetBitmap((int)size.Width, (int)size.Height, 96, 96, PixelFormats.Pbgra32);
+        if (!string.IsNullOrEmpty(html))
+        {
+            var visual = new DrawingVisual();
+            using var drawingContext = visual.RenderOpen();
+            RenderHtml(drawingContext, html, new Point(), size, styleSet, stylesheetLoad, imageLoad);
+            renderTarget.Render(visual);
+        }
+        return BitmapFrame.Create(renderTarget);
+    }
+
+    [Obsolete("Use MeasureWithStyleSet.")]
     public static Size Measure(string html, double maxWidth = 0, CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null, EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
     {
@@ -52,27 +112,30 @@ public static class HtmlRender
         if (imageLoad != null)
             container.ImageLoad += imageLoad;
 
-        container.SetHtml(html, cssData);
+        container.SetHtmlWithStyleSet(html, GetStyleSet(cssData));
         container.PerformLayout();
 
         actualSize = container.ActualSize;
         return actualSize;
     }
 
+    [Obsolete("Use RenderWithStyleSet.")]
     public static Size Render(DrawingContext g, string html, double left = 0, double top = 0, double maxWidth = 0, CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null, EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
     {
         ArgumentNullException.ThrowIfNull(g);
-        return RenderClip(g, html, new Point(left, top), new Size(maxWidth, 0), cssData, stylesheetLoad, imageLoad);
+        return RenderClip(g, html, new Point(left, top), new Size(maxWidth, 0), GetStyleSet(cssData), stylesheetLoad, imageLoad);
     }
 
+    [Obsolete("Use RenderWithStyleSet.")]
     public static Size Render(DrawingContext g, string html, Point location, Size maxSize, CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null, EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
     {
         ArgumentNullException.ThrowIfNull(g);
-        return RenderClip(g, html, location, maxSize, cssData, stylesheetLoad, imageLoad);
+        return RenderClip(g, html, location, maxSize, GetStyleSet(cssData), stylesheetLoad, imageLoad);
     }
 
+    [Obsolete("Use RenderToImageWithStyleSet.")]
     public static BitmapFrame RenderToImage(string html, Size size, CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null, EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
     {
@@ -85,7 +148,7 @@ public static class HtmlRender
         DrawingVisual drawingVisual = new();
         using (DrawingContext g = drawingVisual.RenderOpen())
         {
-            RenderHtml(g, html, new Point(), size, cssData, stylesheetLoad, imageLoad);
+            RenderHtml(g, html, new Point(), size, GetStyleSet(cssData), stylesheetLoad, imageLoad);
         }
 
         // render visual into target bitmap
@@ -94,9 +157,11 @@ public static class HtmlRender
         return BitmapFrame.Create(renderTarget);
     }
 
+    [Obsolete("Use RenderToImageWithStyleSet.")]
     public static BitmapFrame RenderToImage(string html, int maxWidth = 0, int maxHeight = 0, Color backgroundColor = new Color(), CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null, EventHandler<HtmlImageLoadEventArgs> imageLoad = null) => RenderToImage(html, Size.Empty, new Size(maxWidth, maxHeight), backgroundColor, cssData, stylesheetLoad, imageLoad);
 
+    [Obsolete("Use RenderToImageWithStyleSet.")]
     public static BitmapFrame RenderToImage(string html, Size minSize, Size maxSize, Color backgroundColor = new Color(), CssData cssData = null,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null, EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
     {
@@ -111,7 +176,7 @@ public static class HtmlRender
                 container.StylesheetLoad += stylesheetLoad;
             if (imageLoad != null)
                 container.ImageLoad += imageLoad;
-            container.SetHtml(html, cssData);
+            container.SetHtmlWithStyleSet(html, GetStyleSet(cssData));
 
             var finalSize = MeasureHtmlByRestrictions(container, minSize, maxSize);
             container.MaxSize = finalSize;
@@ -136,6 +201,10 @@ public static class HtmlRender
         return BitmapFrame.Create(renderTarget);
     }
 
+#pragma warning disable CS0618
+    private static HtmlStyleSet GetStyleSet(CssData cssData) => cssData?.StyleSet;
+#pragma warning restore CS0618
+
     private static Size MeasureHtmlByRestrictions(HtmlContainer htmlContainer, Size minSize, Size maxSize)
     {
         // use desktop created graphics to measure the HTML
@@ -148,12 +217,12 @@ public static class HtmlRender
         return Utilities.Utils.ConvertRound(sizeInt);
     }
 
-    private static Size RenderClip(DrawingContext g, string html, Point location, Size maxSize, CssData cssData, EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad, EventHandler<HtmlImageLoadEventArgs> imageLoad)
+    private static Size RenderClip(DrawingContext g, string html, Point location, Size maxSize, HtmlStyleSet styleSet, EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad, EventHandler<HtmlImageLoadEventArgs> imageLoad)
     {
         if (maxSize.Height > 0)
             g.PushClip(new RectangleGeometry(new Rect(location, maxSize)));
 
-        var actualSize = RenderHtml(g, html, location, maxSize, cssData, stylesheetLoad, imageLoad);
+        var actualSize = RenderHtml(g, html, location, maxSize, styleSet, stylesheetLoad, imageLoad);
 
         if (maxSize.Height > 0)
             g.Pop();
@@ -161,7 +230,7 @@ public static class HtmlRender
         return actualSize;
     }
 
-    private static Size RenderHtml(DrawingContext g, string html, Point location, Size maxSize, CssData cssData, EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad, EventHandler<HtmlImageLoadEventArgs> imageLoad)
+    private static Size RenderHtml(DrawingContext g, string html, Point location, Size maxSize, HtmlStyleSet styleSet, EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad, EventHandler<HtmlImageLoadEventArgs> imageLoad)
     {
         Size actualSize = Size.Empty;
 
@@ -179,7 +248,7 @@ public static class HtmlRender
         if (imageLoad != null)
             container.ImageLoad += imageLoad;
 
-        container.SetHtml(html, cssData);
+        container.SetHtmlWithStyleSet(html, styleSet);
         container.PerformLayout();
         container.PerformPaint(g, new Rect(0, 0, double.MaxValue, double.MaxValue));
 

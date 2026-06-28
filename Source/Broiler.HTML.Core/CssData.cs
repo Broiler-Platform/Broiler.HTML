@@ -1,189 +1,28 @@
-using Broiler.HTML.Core.Entities;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Broiler.HTML.Core;
 
 /// <summary>
-/// One-release compatibility adapter for the historical renderer CSS model.
-/// New callers should consume <see cref="StyleSheet"/> and the <c>Broiler.CSS</c>
-/// model directly; the legacy block indexes remain only for renderer features
-/// that have not completed their Phase 7 projection migration.
+/// One-release compatibility wrapper for <see cref="HtmlStyleSet"/>.
 /// </summary>
+[Obsolete("Use HtmlStyleSet and Broiler.CSS.CssStyleSheet. CssData will be removed after the compatibility window.")]
 public sealed class CssData
 {
-    private static readonly List<CssBlock> _emptyArray = [];
-    private readonly Dictionary<string, Dictionary<string, List<CssBlock>>> _mediaBlocks = new(StringComparer.InvariantCultureIgnoreCase);
+    internal CssData(HtmlStyleSet? styleSet = null) => StyleSet = styleSet ?? HtmlStyleSet.Empty;
 
-    internal CssData()
-    {
-        _mediaBlocks.Add("all", new Dictionary<string, List<CssBlock>>(StringComparer.InvariantCultureIgnoreCase));
-        StyleSheet = new Broiler.CSS.CssStyleSheet([], []);
-    }
+    /// <summary>Gets the origin-aware renderer style set.</summary>
+    public HtmlStyleSet StyleSet { get; private set; }
 
-    /// <summary>
-    /// Gets the canonical shared stylesheet represented by this compatibility adapter.
-    /// </summary>
-    public Broiler.CSS.CssStyleSheet StyleSheet { get; private set; }
+    /// <summary>Gets the combined shared stylesheet model.</summary>
+    public Broiler.CSS.CssStyleSheet StyleSheet => StyleSet.StyleSheet;
 
-    /// <summary>Parsed @font-face rules from the stylesheet.</summary>
-    public List<CssFontFace> FontFaces { get; } = [];
-
-    /// <summary>Parsed @keyframes rules from the stylesheet, keyed by animation name.</summary>
-    public Dictionary<string, CssKeyframeRule> Keyframes { get; } = new(StringComparer.OrdinalIgnoreCase);
-
-    /// <summary>
-    /// Parsed <c>@font-feature-values</c> rules: family name (case-insensitive)
-    /// → feature type (<c>styleset</c>, <c>stylistic</c>, <c>character-variant</c>, …)
-    /// → value name (CASE-SENSITIVE per CSS Fonts) → the integer value(s).
-    /// </summary>
-    public Dictionary<string, Dictionary<string, Dictionary<string, int[]>>> FontFeatureValues { get; }
-        = new(StringComparer.InvariantCultureIgnoreCase);
-
-    internal IDictionary<string, Dictionary<string, List<CssBlock>>> MediaBlocks => _mediaBlocks;
-
-    public bool ContainsCssBlock(string className, string media = "all") => _mediaBlocks.TryGetValue(media, out Dictionary<string, List<CssBlock>> mid) && mid.ContainsKey(className);
-
-    public IEnumerable<CssBlock> GetCssBlock(string className, string media = "all")
-    {
-        List<CssBlock> block = null;
-
-        if (_mediaBlocks.TryGetValue(media, out Dictionary<string, List<CssBlock>> mid))
-            mid.TryGetValue(className, out block);
-
-        return block == null
-            ? _emptyArray
-            : block.OrderBy(static x => x.Specificity).ThenBy(static x => x.SourceOrder);
-    }
-
-    public void AddCssBlock(string media, CssBlock cssBlock)
-    {
-        if (!_mediaBlocks.TryGetValue(media, out Dictionary<string, List<CssBlock>> mid))
-        {
-            mid = new Dictionary<string, List<CssBlock>>(StringComparer.InvariantCultureIgnoreCase);
-            _mediaBlocks.Add(media, mid);
-        }
-
-        if (!mid.TryGetValue(cssBlock.Class, out List<CssBlock> list))
-        {
-            var list2 = new List<CssBlock> { cssBlock };
-            mid[cssBlock.Class] = list2;
-        }
-        else
-        {
-            bool merged = false;
-            foreach (var block in list)
-            {
-                // CSS2.1 §6.4.1: Do not merge blocks from different
-                // cascade origins (UA vs author) so that per-property
-                // origin tracking is preserved.
-                if (!block.EqualsSelector(cssBlock) || block.IsUserAgent != cssBlock.IsUserAgent)
-                    continue;
-
-                merged = true;
-                block.Merge(cssBlock);
-                break;
-            }
-
-            if (!merged)
-            {
-                // General blocks (no ancestor/sibling selectors, no
-                // attribute conditions, and no pseudo-class) are low
-                // specificity — insert first.  Blocks with selectors,
-                // attribute conditions, or pseudo-classes have higher
-                // specificity and must come later so they override
-                // general rules.
-                bool isGeneral = cssBlock.Selectors == null
-                    && (cssBlock.AttributeConditions == null || cssBlock.AttributeConditions.Count == 0)
-                    && cssBlock.PseudoClass == null;
-                if (isGeneral)
-                    list.Insert(0, cssBlock);
-                else
-                    list.Add(cssBlock);
-            }
-        }
-    }
-
+    /// <summary>Combines another compatibility wrapper while preserving origins.</summary>
     public void Combine(CssData other)
     {
         ArgumentNullException.ThrowIfNull(other);
-
-        // for each media block
-        foreach (var mediaBlock in other.MediaBlocks)
-        {
-            // for each css class in the media block
-            foreach (var bla in mediaBlock.Value)
-            {
-                // for each css block of the css class
-                foreach (var cssBlock in bla.Value)
-                {
-                    // combine with this
-                    AddCssBlock(mediaBlock.Key, cssBlock);
-                }
-            }
-        }
-
-        FontFaces.AddRange(other.FontFaces);
-
-        foreach (var kf in other.Keyframes)
-            Keyframes[kf.Key] = kf.Value;
-
-        foreach (var ffv in other.FontFeatureValues)
-            FontFeatureValues[ffv.Key] = ffv.Value;
-
-        AppendStyleSheet(other.StyleSheet);
+        StyleSet = StyleSet.Combine(other.StyleSet);
     }
 
-    public CssData Clone()
-    {
-        var clone = new CssData();
-        foreach (var mid in _mediaBlocks)
-        {
-            var cloneMid = new Dictionary<string, List<CssBlock>>(StringComparer.InvariantCultureIgnoreCase);
-            foreach (var blocks in mid.Value)
-            {
-                var cloneList = new List<CssBlock>();
-                foreach (var cssBlock in blocks.Value)
-                {
-                    cloneList.Add(cssBlock.Clone());
-                }
-                cloneMid[blocks.Key] = cloneList;
-            }
-            clone._mediaBlocks[mid.Key] = cloneMid;
-        }
-        clone.FontFaces.AddRange(FontFaces);
-        foreach (var kf in Keyframes)
-            clone.Keyframes[kf.Key] = kf.Value;
-        foreach (var ffv in FontFeatureValues)
-            clone.FontFeatureValues[ffv.Key] = ffv.Value;
-
-        clone.StyleSheet = StyleSheet;
-
-        return clone;
-    }
-
-    internal void AppendStyleSheet(Broiler.CSS.CssStyleSheet styleSheet)
-    {
-        ArgumentNullException.ThrowIfNull(styleSheet);
-        if (styleSheet.Rules.Count == 0 && styleSheet.Diagnostics.Count == 0)
-            return;
-
-        StyleSheet = new Broiler.CSS.CssStyleSheet(
-            StyleSheet.Rules.Concat(styleSheet.Rules),
-            StyleSheet.Diagnostics.Concat(styleSheet.Diagnostics));
-    }
-
-    /// <summary>
-    /// Marks every block in this <see cref="CssData"/> as originating from
-    /// the user-agent default stylesheet.  CSS2.1 §6.4.1: Author-origin
-    /// declarations override UA declarations regardless of specificity.
-    /// </summary>
-    internal void MarkAllBlocksAsUserAgent()
-    {
-        foreach (var mid in _mediaBlocks.Values)
-            foreach (var blocks in mid.Values)
-                foreach (var block in blocks)
-                    block.IsUserAgent = true;
-    }
+    /// <summary>Clones this compatibility wrapper.</summary>
+    public CssData Clone() => new(StyleSet);
 }

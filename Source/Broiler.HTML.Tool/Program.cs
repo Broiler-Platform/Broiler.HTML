@@ -113,26 +113,26 @@ internal static class HtmlImageRendererCli
         }
         else if (options.AutoSize)
         {
-            HtmlRender.RenderToFileAutoSized(
+            HtmlRender.RenderToFileAutoSizedWithStyleSet(
                 html!,
                 outputPath,
-                options.MaxWidth,
-                options.MaxHeight,
-                format,
-                options.Quality,
+                maxWidth: options.MaxWidth,
+                maxHeight: options.MaxHeight,
+                format: format,
+                quality: options.Quality,
                 stylesheetLoad: stylesheetLoad,
                 imageLoad: imageLoad,
                 baseUrl: baseUrl);
         }
         else
         {
-            HtmlRender.RenderToFile(
+            HtmlRender.RenderToFileWithStyleSet(
                 html!,
                 options.Width ?? DefaultWidth,
                 options.Height ?? DefaultHeight,
                 outputPath,
                 format,
-                options.Quality,
+                quality: options.Quality,
                 stylesheetLoad: stylesheetLoad,
                 imageLoad: imageLoad,
                 baseUrl: baseUrl);
@@ -443,8 +443,8 @@ internal static class HtmlImageRendererCli
         }
 
         var css = ReadHtmlInput(parseResult.Options!, out _);
-        var cssData = HtmlRender.ParseStyleSheet(css, combineWithDefault: false);
-        WriteDumpOutput(parseResult.Options!, CssDataJsonDumper.ToJson(cssData));
+        var styleSheet = HtmlRender.ParseStyleSheetModel(css, combineWithDefault: false);
+        WriteDumpOutput(parseResult.Options!, CssStyleSheetJsonDumper.ToJson(styleSheet));
         return 0;
     }
 
@@ -751,7 +751,7 @@ internal static class HtmlImageRendererCli
         if (imageLoad != null)
             container.ImageLoad += imageLoad;
 
-        container.SetHtml(html, baseUrl: baseUrl);
+        container.SetHtmlWithStyleSet(html, baseUrl: baseUrl);
         container.PerformLayout(new RectangleF(0, 0, width, height));
         return container;
     }

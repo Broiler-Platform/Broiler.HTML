@@ -4,6 +4,8 @@
     <OutputType>Library</OutputType>
     <Nullable>enable</Nullable>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- This facade intentionally retains obsolete CssData overloads for one release. -->
+    <NoWarn>$(NoWarn);CS0618</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>

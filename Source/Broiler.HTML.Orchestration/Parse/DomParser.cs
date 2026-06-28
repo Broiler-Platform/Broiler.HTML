@@ -2,7 +2,6 @@ using System.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Broiler.HTML.CSS.Core.Parse;
 using Broiler.HTML.Dom.Parse;
 using Broiler.Dom.Html;
 using Broiler.HTML.Dom.Utils;
@@ -14,7 +13,6 @@ using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
-using Broiler.HTML.CSS;
 
 using HtmlTag = Broiler.Layout.HtmlTag;
 using BoxKind = Broiler.Layout.BoxKind;
@@ -23,31 +21,27 @@ namespace Broiler.HTML.Orchestration.Parse;
 
 internal sealed class DomParser
 {
-    private readonly CssParser _cssParser;
     private readonly IStylesheetLoader _stylesheetLoader;
 
-    public DomParser(CssParser cssParser, IStylesheetLoader stylesheetLoader)
+    public DomParser(IStylesheetLoader stylesheetLoader)
     {
-        ArgumentNullException.ThrowIfNull(cssParser);
         ArgumentNullException.ThrowIfNull(stylesheetLoader);
-
-        _cssParser = cssParser;
         _stylesheetLoader = stylesheetLoader;
     }
 
-    public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
+    public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         var root = HtmlParser.ParseDocument(html, baseUrl);
-        return PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
+        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
     }
 
-    public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
+    public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         var root = HtmlParser.ParseDocument(document, baseUrl);
-        return PrepareCssTree(root, htmlContainer, ref cssData, baseUrl);
+        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
     }
 
-    private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref CssData cssData, Uri baseUrl)
+    private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         if (root == null)
             return root;
@@ -57,20 +51,26 @@ internal sealed class DomParser
         // initial-containing-block inputs resolve through it (roadmap §4, Phase 4 prep).
         root.LayoutEnvironment = new HtmlLayoutEnvironment(htmlContainer);
 
-        bool cssDataChanged = false;
-        CascadeParseStyles(root, htmlContainer, ref cssData, ref cssDataChanged);
+        CascadeParseStyles(root, ref styleSet);
 
-        // Resolve each element box's cascade through the shared Broiler.CSS.Dom engine over
-        // the canonical DomDocument behind the box tree (Phase 5 cutover). cssData is still
-        // built above and still drives pseudo-elements, animations, and ::selection.
+        // Resolve every stylesheet, inline declaration, generated pseudo-element,
+        // animation, and ::selection rule through the shared model and style engine.
         var viewport = htmlContainer?.ViewportSize ?? default;
         Broiler.CSS.Dom.CssStyleEngine engine = SharedRendererCascade.BuildEngine(
             SharedRendererCascade.FindCanonicalDocument(root),
+            styleSet,
             (int)viewport.Width,
             (int)viewport.Height);
 
-        CascadeApplyStyles(root, cssData, baseUrl, engine);
-        SetTextSelectionStyle(htmlContainer, cssData);
+        var combinedStyleSheet = styleSet.StyleSheet;
+        CascadeApplyStyles(
+            root,
+            styleSet,
+            baseUrl,
+            engine,
+            RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: true),
+            RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: false));
+        SetTextSelectionStyle(htmlContainer, root, engine);
         CorrectTextBoxes(root);
         CorrectImgBoxes(root, baseUrl);
         CorrectObjectBoxes(root);
@@ -84,7 +84,7 @@ internal sealed class DomParser
         return root;
     }
 
-    private void CascadeParseStyles(CssBox box, HtmlContainerInt htmlContainer, ref CssData cssData, ref bool cssDataChanged)
+    private void CascadeParseStyles(CssBox box, ref HtmlStyleSet styleSet)
     {
         if (box.HtmlTag != null)
         {
@@ -94,50 +94,45 @@ internal sealed class DomParser
             if (box.HtmlTag.Name.Equals("link", StringComparison.CurrentCultureIgnoreCase) &&
                 ContainsStylesheetRel(box.GetAttribute("rel", string.Empty)))
             {
-                CloneCssData(ref cssData, ref cssDataChanged);
-                _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), (Dictionary<string, string>)box.HtmlTag.Attributes, out string stylesheet, out CssData stylesheetData);
+                _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), (Dictionary<string, string>)box.HtmlTag.Attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet stylesheetModel);
                 if (stylesheet != null)
-                    _cssParser.ParseStyleSheet(cssData, stylesheet);
-                else if (stylesheetData != null)
-                    cssData.Combine(stylesheetData);
+                    styleSet = styleSet.AppendAuthorStyleSheet(new Broiler.CSS.CssParser().ParseStyleSheet(stylesheet));
+                else if (stylesheetModel != null)
+                    styleSet = styleSet.AppendAuthorStyleSheet(stylesheetModel);
             }
 
             // Check for the <style> tag
             if (box.HtmlTag.Name.Equals("style", StringComparison.CurrentCultureIgnoreCase) && box.Boxes.Count > 0)
             {
-                CloneCssData(ref cssData, ref cssDataChanged);
                 foreach (var child in box.Boxes)
-                    _cssParser.ParseStyleSheet(cssData, child.Text.ToString());
+                    styleSet = styleSet.AppendAuthorStyleSheet(new Broiler.CSS.CssParser().ParseStyleSheet(child.Text.ToString()));
             }
         }
 
         foreach (var childBox in box.Boxes)
-            CascadeParseStyles(childBox, htmlContainer, ref cssData, ref cssDataChanged);
+            CascadeParseStyles(childBox, ref styleSet);
     }
 
 
-    private void CascadeApplyStyles(CssBox box, CssData cssData, Uri baseUrl, Broiler.CSS.Dom.CssStyleEngine engine)
+    private void CascadeApplyStyles(
+        CssBox box,
+        HtmlStyleSet styleSet,
+        Uri baseUrl,
+        Broiler.CSS.Dom.CssStyleEngine engine,
+        bool hasBeforeRules,
+        bool hasAfterRules)
     {
         box.InheritStyle();
 
         if (box.HtmlTag != null)
         {
-            // Project the shared engine's cascade-resolved style. InheritStyle (above),
-            // presentational attributes, inline style, and all renderer adjustments still
-            // run. Every element box carries a SourceElement (HtmlParser.AppendCanonicalNode)
-            // and the engine is non-null whenever the document has element boxes, so this is
-            // the cascade for all author/UA rules.
-            if (engine != null && box.SourceElement != null)
-                SharedRendererCascade.ProjectCascadedStyle(box, engine);
-
+            // Presentation attributes are low-priority author hints. Project the shared
+            // origin-aware stylesheet + inline cascade over them. Every element box carries
+            // a SourceElement, so this is the only author/UA cascade path.
             TranslateAttributes(box.HtmlTag, box);
 
-            if (box.HtmlTag.HasAttribute("style"))
-            {
-                var block = _cssParser.ParseCssBlock(box.HtmlTag.Name, box.HtmlTag.TryGetAttribute("style"));
-                if (block != null)
-                    AssignCssBlock(box, block);
-            }
+            if (engine != null && box.SourceElement != null)
+                SharedRendererCascade.ProjectCascadedStyle(box, engine);
 
             // Phase 2: Populate BoxKind and DOM-attribute properties on the box
             // so layout code can use these instead of accessing HtmlTag directly.
@@ -238,10 +233,10 @@ internal sealed class DomParser
         // rendering.  After all CSS rules and inline styles are applied,
         // check if the box has an animation-name that references a known
         // @keyframes rule and apply the computed animated values.
-        CssAnimationResolver.ResolveAnimations(box, cssData);
+        CssAnimationResolver.ResolveAnimations(box, styleSet.AuthorStyleSheet);
 
         foreach (var childBox in box.Boxes)
-            CascadeApplyStyles(childBox, cssData, baseUrl, engine);
+            CascadeApplyStyles(childBox, styleSet, baseUrl, engine, hasBeforeRules, hasAfterRules);
 
         if (box.HtmlTag != null)
             ApplyClosedDetailsVisibility(box);
@@ -252,8 +247,8 @@ internal sealed class DomParser
         // CSS2.1 §12.1: Generate ::before and ::after pseudo-element boxes
         // after child style cascading to avoid modifying the child list
         // during iteration.
-        if (box.HtmlTag != null)
-            ApplyPseudoElementBoxes(box, cssData, baseUrl);
+        if (box.HtmlTag != null && (hasBeforeRules || hasAfterRules))
+            ApplyPseudoElementBoxes(box, engine, baseUrl, hasBeforeRules, hasAfterRules);
     }
 
     private static void ApplyClosedDetailsVisibility(CssBox box)
@@ -308,577 +303,68 @@ internal sealed class DomParser
         markerBox.Text = markerText.AsMemory();
     }
 
-    private void SetTextSelectionStyle(HtmlContainerInt htmlContainer, CssData cssData)
+    private static void SetTextSelectionStyle(
+        HtmlContainerInt htmlContainer,
+        CssBox root,
+        Broiler.CSS.Dom.CssStyleEngine engine)
     {
         htmlContainer.SelectionForeColor = Color.Empty;
         htmlContainer.SelectionBackColor = Color.Empty;
 
-        if (!cssData.ContainsCssBlock("::selection"))
+        if (engine == null || SharedRendererCascade.FindCanonicalDocument(root)?.DocumentElement is not { } element)
             return;
 
-        var blocks = cssData.GetCssBlock("::selection");
-        foreach (var block in blocks)
-        {
-            if (block.Properties.TryGetValue("color", out string value))
-                htmlContainer.SelectionForeColor = _cssParser.ParseColor(value);
+        var style = engine.GetCascadedStyle(element, "::selection");
+        if (style.TryGetValue("color", out var foreground))
+            htmlContainer.SelectionForeColor = htmlContainer.ParseCssColor(foreground);
 
-            if (block.Properties.TryGetValue("background-color", out string value1))
-                htmlContainer.SelectionBackColor = _cssParser.ParseColor(value1);
-        }
-    }
-
-    private static bool IsBlockAssignableToBoxWithSelector(CssBox box, CssBlock block)
-    {
-        foreach (var selector in block.Selectors)
-        {
-            if (selector.AdjacentSibling)
-            {
-                // Adjacent sibling combinator: the immediately preceding element
-                // sibling of the current box must match the selector.
-                box = GetPreviousElementSibling(box);
-                if (box == null)
-                    return false;
-
-                if (!MatchesSelectorItem(box, selector.Class))
-                    return false;
-
-                // CSS2.1 §5.11: Check structural pseudo-class on this selector item.
-                if (selector.PseudoClass != null && !MatchesPseudoClass(box, selector.PseudoClass))
-                    return false;
-            }
-            else
-            {
-                bool matched = false;
-                while (!matched)
-                {
-                    box = box.ParentBox;
-                    while (box != null && box.HtmlTag == null)
-                        box = box.ParentBox;
-
-                    if (box == null)
-                        return false;
-
-                    matched = MatchesSelectorItem(box, selector.Class);
-
-                    // CSS2.1 §5.11: Also verify structural pseudo-class.
-                    if (matched && selector.PseudoClass != null && !MatchesPseudoClass(box, selector.PseudoClass))
-                        matched = false;
-
-                    if (!matched && selector.DirectParent)
-                        return false;
-                }
-            }
-        }
-
-        return true;
+        if (style.TryGetValue("background-color", out var background))
+            htmlContainer.SelectionBackColor = htmlContainer.ParseCssColor(background);
     }
 
     /// <summary>
-    /// Returns <c>true</c> when <paramref name="box"/> matches
-    /// the given CSS selector item (tag name, .class, #id, or compound .c1.c2).
+    /// Creates generated-content boxes from the shared pseudo-element cascade.
     /// </summary>
-    private static bool MatchesSelectorItem(CssBox box, string selectorClass)
+    private static void ApplyPseudoElementBoxes(
+        CssBox box,
+        Broiler.CSS.Dom.CssStyleEngine engine,
+        Uri baseUrl,
+        bool hasBeforeRules,
+        bool hasAfterRules)
     {
-        if (box.HtmlTag == null)
-            return false;
+        if (engine == null || box.SourceElement == null)
+            return;
 
-        // CSS2.1 §5.3: The universal selector '*' matches any element type.
-        if (selectorClass == "*")
-            return true;
-
-        // CSS Selectors §3: type selectors in HTML are ASCII case-insensitive.
-        // Use OrdinalIgnoreCase to avoid Unicode case-folding (e.g. U+212A ≠ 'k').
-        if (box.HtmlTag.Name.Equals(selectorClass, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        if (box.HtmlTag.HasAttribute("class"))
+        if (hasBeforeRules)
         {
-            var className = box.HtmlTag.TryGetAttribute("class");
-
-            // Single class match: ".foo" matches class="foo"
-            if (selectorClass.Equals("." + className, StringComparison.InvariantCultureIgnoreCase)
-                || selectorClass.Equals(box.HtmlTag.Name + "." + className, StringComparison.InvariantCultureIgnoreCase))
-                return true;
-
-            // Compound class match: ".foo.bar" matches class="foo bar" or "bar foo"
-            if (selectorClass.StartsWith(".") && selectorClass.IndexOf('.', 1) > 0)
-            {
-                var parts = selectorClass.Split('.');
-                var classWords = (" " + className + " ").ToLower();
-                bool allMatch = true;
-                for (int i = 1; i < parts.Length; i++) // skip first empty part from leading "."
-                {
-                    if (string.IsNullOrEmpty(parts[i])) continue;
-                    if (!classWords.Contains(" " + parts[i] + " "))
-                    {
-                        allMatch = false;
-                        break;
-                    }
-                }
-                if (allMatch) return true;
-            }
+            var before = engine.GetCascadedStyle(box.SourceElement, "::before");
+            if (before.ContainsKey("content"))
+                CreatePseudoElementBox(box, before, isBefore: true, baseUrl);
         }
 
-        if (box.HtmlTag.HasAttribute("id"))
+        if (hasAfterRules)
         {
-            var id = box.HtmlTag.TryGetAttribute("id");
-            if (selectorClass.Equals("#" + id, StringComparison.InvariantCultureIgnoreCase))
-                return true;
-
-            // Compound #id.class selector: "#foo.bar" matches id="foo" class="bar"
-            var idStr = "#" + id;
-            if (selectorClass.StartsWith(idStr, StringComparison.InvariantCultureIgnoreCase))
-            {
-                var rest = selectorClass.Substring(idStr.Length);
-                if (rest.Length > 0 && rest[0] == '.')
-                {
-                    if (!box.HtmlTag.HasAttribute("class"))
-                        return false;
-
-                    var className = box.HtmlTag.TryGetAttribute("class");
-                    var classParts = rest.Split('.');
-                    var classWords = (" " + className + " ").ToLower();
-                    bool allMatch = true;
-                    for (int i = 1; i < classParts.Length; i++)
-                    {
-                        if (string.IsNullOrEmpty(classParts[i])) continue;
-                        if (!classWords.Contains(" " + classParts[i].ToLower() + " "))
-                        {
-                            allMatch = false;
-                            break;
-                        }
-                    }
-                    if (allMatch) return true;
-                }
-            }
+            var after = engine.GetCascadedStyle(box.SourceElement, "::after");
+            if (after.ContainsKey("content"))
+                CreatePseudoElementBox(box, after, isBefore: false, baseUrl);
         }
-
-        return false;
-    }
-
-    /// <summary>
-    /// Returns the immediately preceding element sibling (a box with a
-    /// non-null <see cref="CssBox.HtmlTag"/>) in the document tree,
-    /// or <c>null</c> if there is none. Text-only and anonymous boxes
-    /// are skipped.
-    /// </summary>
-    private static CssBox GetPreviousElementSibling(CssBox box)
-    {
-        if (box.ParentBox == null)
-            return null;
-
-        int index = box.ParentBox.Boxes.IndexOf(box);
-        for (int i = index - 1; i >= 0; i--)
-        {
-            var sib = box.ParentBox.Boxes[i];
-            if (sib.HtmlTag != null)
-                return sib;
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// CSS2.1 §5.11.1: Checks whether <paramref name="box"/> satisfies a
-    /// structural pseudo-class condition.
-    /// </summary>
-    /// <remarks>
-    /// Implements TODO-25 and TODO-27 (acid3-compliance.md §11.5):
-    /// <c>:first-child</c> matching is used by both the <c>:first-child + *</c>
-    /// complex selector (TODO-25) and the <c>h1:first-child</c> attached
-    /// pseudo-class (TODO-27).  Tests: <c>Acid3Todo24_28Tests.cs</c>.
-    /// </remarks>
-    private static bool MatchesPseudoClass(CssBox box, string pseudoClass)
-    {
-        if (box.HtmlTag == null)
-            return false;
-
-        // CSS2.1 §5.11.4: :lang(xx) matches elements whose language is
-        // determined by the 'lang' attribute (or xml:lang) on the element
-        // or any ancestor.
-        if (pseudoClass.StartsWith("lang(", StringComparison.OrdinalIgnoreCase)
-            && pseudoClass.EndsWith(")"))
-        {
-            string langArg = pseudoClass.Substring(5, pseudoClass.Length - 6).Trim();
-            return MatchesLangPseudoClass(box, langArg);
-        }
-
-        // :root needs no parent — handle it before the ParentBox null check.
-        if (pseudoClass == "root")
-            return string.Equals(box.HtmlTag.Name, "html", StringComparison.OrdinalIgnoreCase);
-
-        if (box.ParentBox == null)
-            return false;
-
-        switch (pseudoClass)
-        {
-            case "open":
-                return MatchesOpenPseudoClass(box);
-
-            case "first-child":
-                // CSS2.1 §5.11.1: :first-child matches an element that is the
-                // first child element of its parent.
-                foreach (var child in box.ParentBox.Boxes)
-                {
-                    if (child.HtmlTag != null)
-                        return ReferenceEquals(child, box);
-                }
-                return false;
-
-            case "last-child":
-                // CSS3 §6.6.5.7: :last-child matches an element that is the
-                // last child element of its parent.
-                for (int i = box.ParentBox.Boxes.Count - 1; i >= 0; i--)
-                {
-                    var child = box.ParentBox.Boxes[i];
-                    if (child.HtmlTag != null)
-                        return ReferenceEquals(child, box);
-                }
-                return false;
-
-            case "only-child":
-                // CSS3 §6.6.5.9: :only-child matches when the element is
-                // both first-child and last-child.
-                int elementChildCount = 0;
-                foreach (var child in box.ParentBox.Boxes)
-                {
-                    if (child.HtmlTag != null)
-                    {
-                        elementChildCount++;
-                        if (elementChildCount > 1)
-                            return false;
-                    }
-                }
-                return elementChildCount == 1;
-
-            default:
-                return false;
-        }
-    }
-
-    /// <summary>
-    /// CSS2.1 §5.11.4: Determines whether the given box matches the
-    /// <c>:lang(xx)</c> pseudo-class.  Walks ancestor elements looking
-    /// for a <c>lang</c> (or <c>xml:lang</c>) attribute whose value
-    /// equals or is a hyphen-separated sub-tag prefix of <paramref name="lang"/>.
-    /// </summary>
-    private static bool MatchesLangPseudoClass(CssBox box, string lang)
-    {
-        if (!TryGetElementLanguage(box, out var elementLanguage))
-            return false;
-
-        if (!TryGetValidLangPseudoArguments(lang, out var ranges))
-            return false;
-
-        foreach (var range in ranges)
-            if (MatchesLanguageRange(elementLanguage, range))
-                return true;
-
-        return false;
-    }
-
-    private static string NormalizeLangPseudoArgument(string lang)
-    {
-        lang = lang.Trim();
-        if (lang.Length >= 2)
-        {
-            char first = lang[0];
-            char last = lang[^1];
-            if ((first == '"' && last == '"') || (first == '\'' && last == '\''))
-                lang = lang.Substring(1, lang.Length - 2).Trim();
-        }
-
-        return lang;
-    }
-
-    private static bool TryGetElementLanguage(CssBox box, out string language)
-    {
-        for (var current = box; current != null; current = current.ParentBox)
-        {
-            if (current.HtmlTag == null)
-                continue;
-
-            var attrLang = current.HtmlTag.TryGetAttribute("lang")
-                        ?? current.HtmlTag.TryGetAttribute("xml:lang");
-            if (!string.IsNullOrWhiteSpace(attrLang))
-            {
-                language = attrLang.Trim();
-                return true;
-            }
-        }
-
-        language = string.Empty;
-        return false;
-    }
-
-    private static bool TryGetValidLangPseudoArguments(string lang, out List<string> ranges)
-    {
-        ranges = [];
-        foreach (var part in lang.Split(','))
-        {
-            var normalized = NormalizeLangPseudoArgument(part);
-            if (string.IsNullOrWhiteSpace(normalized))
-                return false;
-
-            if (!IsValidLanguageRange(normalized))
-                return false;
-
-            ranges.Add(normalized);
-        }
-
-        return ranges.Count > 0;
-    }
-
-    private static bool MatchesLanguageRange(string elementLanguage, string languageRange)
-    {
-        var tagSubtags = SplitLanguageSubtags(elementLanguage);
-        var rangeSubtags = SplitLanguageSubtags(languageRange);
-        if (tagSubtags.Length == 0 || rangeSubtags.Length == 0)
-            return false;
-
-        if (!rangeSubtags.Contains("*", StringComparer.Ordinal))
-            return MatchesLanguagePrefix(tagSubtags, rangeSubtags);
-
-        return MatchesExtendedLanguageRange(tagSubtags, rangeSubtags);
-    }
-
-    private static string[] SplitLanguageSubtags(string language)
-    {
-        return language
-            .Split(['-'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(part => part.ToLowerInvariant())
-            .ToArray();
-    }
-
-    private static bool MatchesLanguagePrefix(string[] tagSubtags, string[] rangeSubtags)
-    {
-        if (rangeSubtags.Length > tagSubtags.Length)
-            return false;
-
-        for (int i = 0; i < rangeSubtags.Length; i++)
-        {
-            if (!string.Equals(tagSubtags[i], rangeSubtags[i], StringComparison.Ordinal))
-                return false;
-        }
-
-        return true;
-    }
-
-    private static bool MatchesExtendedLanguageRange(string[] tagSubtags, string[] rangeSubtags)
-    {
-        int tagIndex = 0;
-        int rangeIndex = 0;
-
-        while (rangeIndex < rangeSubtags.Length)
-        {
-            var rangeSubtag = rangeSubtags[rangeIndex];
-            if (rangeSubtag == "*")
-            {
-                rangeIndex++;
-                if (rangeIndex >= rangeSubtags.Length)
-                    return true;
-
-                var nextRangeSubtag = rangeSubtags[rangeIndex];
-                while (tagIndex < tagSubtags.Length &&
-                       !string.Equals(tagSubtags[tagIndex], nextRangeSubtag, StringComparison.Ordinal))
-                {
-                    tagIndex++;
-                }
-
-                if (tagIndex >= tagSubtags.Length)
-                    return false;
-
-                continue;
-            }
-
-            if (tagIndex >= tagSubtags.Length ||
-                !string.Equals(tagSubtags[tagIndex], rangeSubtag, StringComparison.Ordinal))
-            {
-                return false;
-            }
-
-            tagIndex++;
-            rangeIndex++;
-        }
-
-        return true;
-    }
-
-    private static bool IsValidLanguageRange(string languageRange)
-    {
-        var subtags = languageRange.Split(['-'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
-        if (subtags.Length == 0)
-            return false;
-
-        for (var i = 0; i < subtags.Length; i++)
-        {
-            var subtag = subtags[i];
-            if (subtag == "*")
-                continue;
-
-            if (subtag.Length is < 1 or > 8)
-                return false;
-
-            if (i == 0 && !subtag.All(IsAsciiLetter))
-                return false;
-
-            if (!subtag.All(IsAsciiLetterOrDigit))
-                return false;
-        }
-
-        return true;
-    }
-
-    private static bool IsAsciiLetter(char c) =>
-        (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-
-    private static bool IsAsciiLetterOrDigit(char c) =>
-        IsAsciiLetter(c) || (c >= '0' && c <= '9');
-
-    private static bool MatchesOpenPseudoClass(CssBox box)
-    {
-        if (box.HtmlTag == null)
-            return false;
-
-        if (!box.HtmlTag.Name.Equals("details", StringComparison.OrdinalIgnoreCase)
-            && !box.HtmlTag.Name.Equals("dialog", StringComparison.OrdinalIgnoreCase))
-            return false;
-
-        return box.HtmlTag.TryGetAttribute("open") != null;
-    }
-
-    private static void AssignCssBlock(CssBox box, CssBlock block)
-    {
-        foreach (var prop in block.Properties)
-        {
-            var value = prop.Value;
-
-            if (prop.Value == CssConstants.Inherit
-                && box.ParentBox != null
-                && prop.Key is not ("width" or "height" or "min-width" or "max-width" or "min-height" or "max-height"))
-                value = CssUtils.GetPropertyValue(box.ParentBox, prop.Key);
-
-            bool newIsImportant = block.ImportantProperties.Contains(prop.Key);
-
-            // CSS2.1 §6.4.2: A property previously set with !important
-            // can only be overridden by another !important declaration.
-            if (box.ImportantProperties != null
-                && box.ImportantProperties.Contains(prop.Key)
-                && !newIsImportant)
-                continue;
-
-            // CSS2.1 §6.4.1: Author-origin declarations override
-            // user-agent declarations regardless of specificity.
-            // Check after !important but before IsStyleOnElementAllowed
-            // so that a failed author IsStyleOnElementAllowed check does
-            // not leave a gap that lets a later UA rule through.
-            if (block.IsUserAgent
-                && box.AuthorProperties != null
-                && box.AuthorProperties.Contains(prop.Key))
-                continue;
-
-            if (IsStyleOnElementAllowed(box, prop.Key, value))
-            {
-                CssUtils.SetPropertyValue(box, prop.Key, value);
-
-                if (newIsImportant)
-                    box.MarkPropertyImportant(prop.Key);
-
-                // Track author-origin properties so UA rules at higher
-                // specificity cannot overwrite them.
-                if (!block.IsUserAgent)
-                    box.MarkPropertyAuthor(prop.Key);
-            }
-        }
-    }
-
-    // ── CSS2.1 §12.1: ::before / ::after pseudo-element generation ──
-
-    /// <summary>
-    /// Creates <c>::before</c> and <c>::after</c> pseudo-element child
-    /// boxes when the CSS data contains matching pseudo-element blocks.
-    /// </summary>
-    private static void ApplyPseudoElementBoxes(CssBox box, CssData cssData, Uri baseUrl)
-    {
-        var beforeBlock = FindPseudoElementBlock(box, cssData, "::before");
-        if (beforeBlock != null)
-            CreatePseudoElementBox(box, beforeBlock, isBefore: true, baseUrl);
-
-        var afterBlock = FindPseudoElementBlock(box, cssData, "::after");
-        if (afterBlock != null)
-            CreatePseudoElementBox(box, afterBlock, isBefore: false, baseUrl);
-    }
-
-    /// <summary>
-    /// Searches <paramref name="cssData"/> for a pseudo-element block
-    /// matching <paramref name="box"/> and <paramref name="pseudoElement"/>
-    /// (e.g. <c>"::before"</c>).
-    /// </summary>
-    private static CssBlock FindPseudoElementBlock(CssBox box, CssData cssData, string pseudoElement)
-    {
-        CssBlock? merged = null;
-
-        void MergeMatchingBlocks(string key)
-        {
-            foreach (var block in cssData.GetCssBlock(key))
-            {
-                if (block.Selectors != null && !IsBlockAssignableToBoxWithSelector(box, block))
-                    continue;
-
-                if (merged == null)
-                    merged = block.Clone();
-                else
-                    merged.Merge(block);
-            }
-        }
-
-        // General-to-specific merge order so later, more specific matching
-        // pseudo-element rules override earlier ones like the normal cascade.
-        MergeMatchingBlocks("*" + pseudoElement);
-        MergeMatchingBlocks(box.HtmlTag.Name + pseudoElement);
-
-        // Class-level: e.g. ".nose::before", "p.nose::before"
-        if (box.HtmlTag.HasAttribute("class"))
-        {
-            var classes = box.HtmlTag.TryGetAttribute("class");
-            var startIdx = 0;
-
-            while (startIdx < classes.Length)
-            {
-                while (startIdx < classes.Length && classes[startIdx] == ' ')
-                    startIdx++;
-                if (startIdx >= classes.Length) break;
-
-                var endIdx = classes.IndexOf(' ', startIdx);
-                if (endIdx < 0) endIdx = classes.Length;
-
-                var cls = classes.Substring(startIdx, endIdx - startIdx);
-                MergeMatchingBlocks("." + cls + pseudoElement);
-                MergeMatchingBlocks(box.HtmlTag.Name + "." + cls + pseudoElement);
-                startIdx = endIdx + 1;
-            }
-        }
-
-        // ID-level: e.g. "#myid::before"
-        if (box.HtmlTag.HasAttribute("id"))
-        {
-            var id = box.HtmlTag.TryGetAttribute("id");
-            MergeMatchingBlocks("#" + id + pseudoElement);
-        }
-
-        return merged;
     }
 
     /// <summary>
     /// Creates a pseudo-element <see cref="CssBox"/> as a child of
-    /// <paramref name="parentBox"/> with styles from <paramref name="block"/>.
+    /// <paramref name="parentBox"/> with styles from <paramref name="properties"/>.
     /// For <c>::before</c>, the box is inserted as the first child;
     /// for <c>::after</c>, it is appended as the last child.
     /// </summary>
-    private static void CreatePseudoElementBox(CssBox parentBox, CssBlock block, bool isBefore, Uri baseUrl)
+    private static void CreatePseudoElementBox(
+        CssBox parentBox,
+        IReadOnlyDictionary<string, string> properties,
+        bool isBefore,
+        Uri baseUrl)
     {
         // Determine content value — skip generation for "none" and "normal".
         string contentValue = null;
-        if (block.Properties.TryGetValue("content", out string cv))
+        if (properties.TryGetValue("content", out string cv))
             contentValue = cv;
 
         if (contentValue == null || contentValue == "none" || contentValue == "normal")
@@ -897,7 +383,7 @@ internal sealed class DomParser
         }
 
         // Apply pseudo-element CSS declarations.
-        foreach (var prop in block.Properties)
+        foreach (var prop in properties)
         {
             var value = prop.Value;
             if (value == CssConstants.Inherit)
@@ -983,15 +469,6 @@ internal sealed class DomParser
             HtmlConstants.Caption => value == CssConstants.TableCaption,
             _ => true,
         };
-    }
-
-    private static void CloneCssData(ref CssData cssData, ref bool cssDataChanged)
-    {
-        if (cssDataChanged)
-            return;
-
-        cssDataChanged = true;
-        cssData = cssData.Clone();
     }
 
     /// <summary>
@@ -1114,7 +591,8 @@ internal sealed class DomParser
                     box.Direction = value.ToLower();
                     break;
                 case HtmlConstants.Face:
-                    box.FontFamily = _cssParser.ParseFontFamily(value);
+                    box.FontFamily = RendererStyleQueries.UnescapeIdentifier(
+                        value.Split(',')[0].Trim().Trim('"', '\''));
                     break;
                 case HtmlConstants.Height:
                     box.Height = TranslateLength(value);
@@ -1158,12 +636,9 @@ internal sealed class DomParser
 
     private static string TranslateLength(string htmlLength)
     {
-        CssLength len = new(htmlLength);
-
-        if (len.HasError)
-            return $"{htmlLength}px";
-
-        return htmlLength;
+        return Broiler.CSS.CssLengthParser.IsValidLength(htmlLength)
+            ? htmlLength
+            : $"{htmlLength}px";
     }
 
     private static void ApplyTableBorder(CssBox table, string border) => SetForAllCells(table, cell =>

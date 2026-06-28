@@ -18,10 +18,10 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         _htmlContainer = htmlContainer;
     }
 
-    public void LoadStylesheet(string src, Dictionary<string, string> attributes, out string stylesheet, out CssData stylesheetData)
+    public void LoadStylesheet(string src, Dictionary<string, string> attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet styleSheet)
     {
         stylesheet = null;
-        stylesheetData = null;
+        styleSheet = null;
 
         try
         {
@@ -32,10 +32,16 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
             {
                 stylesheet = args.SetStyleSheet;
             }
+            else if (args.SetStyleSheetModel != null)
+            {
+                styleSheet = args.SetStyleSheetModel;
+            }
+#pragma warning disable CS0618
             else if (args.SetStyleSheetData != null)
             {
-                stylesheetData = args.SetStyleSheetData;
+                styleSheet = args.SetStyleSheetData.StyleSheet;
             }
+#pragma warning restore CS0618
             else if (args.SetSrc != null)
             {
                 stylesheet = LoadStylesheet(args.SetSrc);

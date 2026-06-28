@@ -2,8 +2,7 @@ using Broiler.HTML.Adapters;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
-using Broiler.HTML.CSS;
-using Broiler.HTML.CSS.Core.Parse;
+using Broiler.CSS;
 using Broiler.HTML.Dom;
 using Broiler.Layout;
 using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
@@ -27,10 +26,9 @@ namespace Broiler.HTML.Orchestration;
 
 public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 {
-    private List<HoverBoxBlock> _hoverBoxes;
     private HTML.Core.Core.ISelectionHandler _selectionHandler;
     private ImageDownloader _imageDownloader;
-    private CssData _cssData;
+    private HtmlStyleSet _styleSet;
     private bool _loadComplete;
     private int _marginTop;
     private int _marginBottom;
@@ -39,7 +37,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private readonly IHandlerFactory _handlerFactory;
     private Broiler.Dom.DomDocument _boundDocument;
     private ulong _boundDocumentVersion;
-    private CssData _boundBaseCssData;
+    private HtmlStyleSet _boundBaseStyleSet;
 
     /// <summary>
     /// The most recent fragment tree snapshot, built after layout completes.
@@ -59,12 +57,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         Adapter = adapter;
         _handlerFactory = handlerFactory;
-        CssParser = new CssParser(adapter);
     }
 
     internal IAdapter Adapter { get; }
-
-    internal CssParser CssParser { get; }
 
     public event EventHandler LoadComplete;
     public event EventHandler<HtmlLinkClickedEventArgs> LinkClicked;
@@ -74,7 +69,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public event EventHandler<HtmlStylesheetLoadEventArgs> StylesheetLoad;
     public event EventHandler<HtmlImageLoadEventArgs> ImageLoad;
 
-    public CssData CssData => _cssData;
+    public HtmlStyleSet StyleSet => _styleSet;
+
+    [Obsolete("Use StyleSet.")]
+    public CssData CssData => new(_styleSet);
 
     public bool AvoidGeometryAntialias { get; set; }
 
@@ -164,7 +162,24 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     internal CssBox Root { get; private set; }
     internal Color SelectionForeColor { get; set; }
     internal Color SelectionBackColor { get; set; }
+
+    internal Color ParseCssColor(string value)
+    {
+        if (Broiler.CSS.CssValueParser.TryParseColor(value, out var color))
+            return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+
+        return Adapter.GetColor(value);
+    }
+
+    [Obsolete("Use SetHtmlWithStyleSet.")]
     public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null)
+    {
+#pragma warning disable CS0618
+        SetHtmlWithStyleSet(htmlSource, baseCssData?.StyleSet, baseUrl);
+#pragma warning restore CS0618
+    }
+
+    public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet baseStyleSet = null, string baseUrl = null)
     {
         Clear();
         _boundDocument = null;
@@ -176,21 +191,29 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             return;
 
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
-        DomParser parser = new(CssParser, new StylesheetLoadHandler(this));
+        DomParser parser = new(new StylesheetLoadHandler(this));
         InitialiseRoot(
-            baseCssData,
+            baseStyleSet,
             baseUrl,
-            (ref CssData cssData) => parser.GenerateCssTree(htmlSource, this, ref cssData, baseUri));
+            (ref HtmlStyleSet styleSet) => parser.GenerateCssTree(htmlSource, this, ref styleSet, baseUri));
     }
 
+    [Obsolete("Use SetDocumentWithStyleSet.")]
     public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null)
+    {
+#pragma warning disable CS0618
+        SetDocumentWithStyleSet(document, baseCssData?.StyleSet, baseUrl);
+#pragma warning restore CS0618
+    }
+
+    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet baseStyleSet = null, string baseUrl = null)
     {
         ArgumentNullException.ThrowIfNull(document);
 
         Clear();
         _boundDocument = document;
         _boundDocumentVersion = document.Version;
-        _boundBaseCssData = baseCssData;
+        _boundBaseStyleSet = baseStyleSet;
 
         if (baseUrl != null)
             BaseUrl = baseUrl;
@@ -198,22 +221,22 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         BuildBoundDocument();
     }
 
-    private delegate CssBox CssTreeFactory(ref CssData cssData);
+    private delegate CssBox CssTreeFactory(ref HtmlStyleSet styleSet);
 
     private void InitialiseRoot(
-        CssData baseCssData,
+        HtmlStyleSet baseStyleSet,
         string baseUrl,
         CssTreeFactory createTree)
     {
         _loadComplete = false;
-        _cssData = baseCssData ?? Adapter.DefaultCssData;
-        Root = createTree(ref _cssData);
+        _styleSet = baseStyleSet ?? Adapter.DefaultStyleSet;
+        Root = createTree(ref _styleSet);
 
         if (Root == null)
             return;
 
         // Load @font-face fonts before layout so custom families are available.
-        LoadFontFacesFromCssData(baseUrl);
+        LoadFontFacesFromStyleSet(baseUrl);
 
         // Resolve font-variant-alternates + @font-feature-values + @font-face
         // feature defaults into each box's effective font-feature-settings.
@@ -230,11 +253,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         DisposeRenderTree();
         var baseUri = new Uri(BaseUrl ?? "/", UriKind.RelativeOrAbsolute);
-        DomParser parser = new(CssParser, new StylesheetLoadHandler(this));
+        DomParser parser = new(new StylesheetLoadHandler(this));
         InitialiseRoot(
-            _boundBaseCssData,
+            _boundBaseStyleSet,
             BaseUrl,
-            (ref CssData cssData) => parser.GenerateCssTree(_boundDocument, this, ref cssData, baseUri));
+            (ref HtmlStyleSet styleSet) => parser.GenerateCssTree(_boundDocument, this, ref styleSet, baseUri));
         _boundDocumentVersion = _boundDocument.Version;
     }
 
@@ -245,23 +268,24 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     }
 
     /// <summary>
-    /// Iterates parsed <c>@font-face</c> rules from <see cref="_cssData"/> and
+    /// Iterates shared-model <c>@font-face</c> rules and
     /// loads each font (TrueType/OpenType or WOFF) via the platform adapter.
     /// <c>src</c> URLs are resolved against <paramref name="baseUrl"/> and may be
     /// local files or HTTP(S) resources (e.g. the WPT server serves fonts over
     /// http); remote sources are fetched with a short timeout.
     /// </summary>
-    private void LoadFontFacesFromCssData(string baseUrl)
+    private void LoadFontFacesFromStyleSet(string baseUrl)
     {
-        if (_cssData?.FontFaces == null || _cssData.FontFaces.Count == 0)
+        var fontFaces = RendererStyleQueries.GetFontFaces(_styleSet.StyleSheet);
+        if (fontFaces.Count == 0)
             return;
 
-        foreach (var face in _cssData.FontFaces)
+        foreach (var face in fontFaces)
         {
-            if (string.IsNullOrEmpty(face.Src) || string.IsNullOrEmpty(face.Family))
+            if (string.IsNullOrEmpty(face.Source) || string.IsNullOrEmpty(face.Family))
                 continue;
 
-            var src = face.Src.Trim('\'', '"');
+            var src = face.Source.Trim('\'', '"');
 
             string resolvedFile = ResolveLocalFontPath(src, baseUrl);
             if (!string.IsNullOrEmpty(resolvedFile) && File.Exists(resolvedFile))
@@ -391,12 +415,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         int comma = family.IndexOf(',');
         if (comma >= 0)
             family = family.Substring(0, comma);
-        family = CssParser.UnescapeIdentifier(family.Trim().Trim('"', '\''));
+        family = RendererStyleQueries.UnescapeIdentifier(family.Trim().Trim('"', '\''));
 
         // @font-face feature defaults declared for this family.
         string faceFeatures = null;
-        if (_cssData?.FontFaces != null)
-            foreach (var face in _cssData.FontFaces)
+        foreach (var face in RendererStyleQueries.GetFontFaces(_styleSet.StyleSheet))
                 if (!string.IsNullOrEmpty(face.FeatureSettings)
                     && string.Equals(face.Family, family, StringComparison.OrdinalIgnoreCase))
                     faceFeatures = face.FeatureSettings;
@@ -465,8 +488,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     private void ApplyFontVariantAlternates(Dictionary<string, bool> enabled, string value, string family)
     {
-        if (_cssData?.FontFeatureValues == null
-            || !_cssData.FontFeatureValues.TryGetValue(family, out var typeMap))
+        var featureValues = RendererStyleQueries.GetFontFeatureValues(_styleSet.StyleSheet);
+        if (!featureValues.TryGetValue(family, out var typeMap))
             return;
 
         int i = 0;
@@ -503,7 +526,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
             foreach (var rawName in args.Split(','))
             {
-                string name = CssParser.UnescapeIdentifier(rawName.Trim());
+                string name = RendererStyleQueries.UnescapeIdentifier(rawName.Trim());
                 if (name.Length == 0)
                     continue;
                 // Value names are case-sensitive (nameMap uses ordinal comparison).
@@ -517,7 +540,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public void Clear()
     {
         _boundDocument = null;
-        _boundBaseCssData = null;
+        _boundBaseStyleSet = null;
         DisposeRenderTree();
     }
 
@@ -535,7 +558,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         _imageDownloader?.Dispose();
         _imageDownloader = null;
 
-        _hoverBoxes = null;
     }
 
     public void ClearSelection()
@@ -603,10 +625,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // fallback (may be 99999 in auto-size scenarios).
         float vpW = MaxSize.Width > 0 ? Math.Min(MaxSize.Width, PageSize.Width) : PageSize.Width;
         float vpH = MaxSize.Height > 0 ? Math.Min(MaxSize.Height, PageSize.Height) : PageSize.Height;
-        CssValueParser.SetViewportSize(vpW, vpH);
         // Phase 3.2 dual-run: layout now resolves lengths via the Broiler.CSS port,
         // which keeps its own viewport ThreadStatic — sync it from the same source.
-        Broiler.CSS.CssLengthParser.SetViewportSize(vpW, vpH);
+        CssLengthParser.SetViewportSize(vpW, vpH);
 
         // if width is not restricted we set it to large value to get the actual later
         // CSS2.1 §10.5: Percentage heights on the root element resolve against
@@ -961,15 +982,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return null;
     }
 
-    internal void AddHoverBox(CssBox box, CssBlock block)
-    {
-        ArgumentNullException.ThrowIfNull(box);
-        ArgumentNullException.ThrowIfNull(block);
-
-        _hoverBoxes ??= [];
-        _hoverBoxes.Add(new HoverBoxBlock(box, block));
-    }
-
     /// <summary>
     /// Resolves an href value against <see cref="BaseUrl"/> when the href is a
     /// relative path. If <see cref="BaseUrl"/> is not set or the href is already
@@ -1008,7 +1020,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     RFont IHtmlContainerInt.GetFont(string family, double size, FontStyle style, string fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
 
-    Color IHtmlContainerInt.ParseColor(string colorStr) => CssParser.ParseColor(colorStr);
+    Color IHtmlContainerInt.ParseColor(string colorStr) => ParseCssColor(colorStr);
 
     RImage IHtmlContainerInt.ConvertImage(object image) => Adapter.ConvertImage(image);
 
@@ -1024,15 +1036,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     IImageLoadHandler IHtmlContainerInt.CreateImageLoadHandler(ActionInt<RImage, RectangleF, bool> loadCompleteCallback)
         => new ImageLoadHandler(this, loadCompleteCallback);
 
-    void IHtmlContainerInt.AddHoverBox(object box, CssBlock block)
-        => AddHoverBox((CssBox)box, block);
+    HtmlStyleSet IHtmlContainerInt.StyleSet => _styleSet;
 
-    CssData IHtmlContainerInt.CssData => _cssData;
-
-    CssData IHtmlContainerInt.DefaultCssData => Adapter.DefaultCssData;
-
-    CssBlock IHtmlContainerInt.ParseCssBlock(string className, string blockSource)
-        => CssParser.ParseCssBlock(className, blockSource);
+    HtmlStyleSet IHtmlContainerInt.DefaultStyleSet => Adapter.DefaultStyleSet;
 
     #endregion
 
@@ -1062,7 +1068,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 ImageLoad = null;
             }
 
-            _cssData = null;
+            _styleSet = null;
 
             Root?.Dispose();
             Root = null;
