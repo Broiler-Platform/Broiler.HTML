@@ -160,6 +160,104 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public string SelectedText => _selectionHandler.GetSelectedText();
     public string SelectedHtml => _selectionHandler.GetSelectedHtml();
     internal CssBox Root { get; private set; }
+
+    /// <summary>
+    /// Returns the canvas background propagated from the root or body box.
+    /// Keeping this traversal beside the owned box tree prevents facade
+    /// assemblies from depending on layout internals.
+    /// </summary>
+    public Color GetRootBackgroundColor()
+    {
+        if (Root == null)
+            return Color.Empty;
+
+        // Root is an anonymous wrapper; inspect it before the html/body boxes.
+        var background = Root.ActualBackgroundColor;
+        if (!background.IsEmpty && background.A > 0)
+            return background;
+
+        CssBox? htmlBox = null;
+        foreach (var child in Root.Boxes)
+        {
+            if (!string.Equals(child.HtmlTag?.Name, "html", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            htmlBox = child;
+            if (SuppressesCanvasBackgroundPropagation(child))
+                return Color.Empty;
+
+            background = child.ActualBackgroundColor;
+            if (!background.IsEmpty && background.A > 0)
+                return background;
+            break;
+        }
+
+        if (htmlBox == null)
+            return Color.Empty;
+
+        foreach (var child in htmlBox.Boxes)
+        {
+            if (!string.Equals(child.HtmlTag?.Name, "body", StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (SuppressesCanvasBackgroundPropagation(child))
+                return Color.Empty;
+
+            background = child.ActualBackgroundColor;
+            if (!background.IsEmpty && background.A > 0)
+                return background;
+            break;
+        }
+
+        // An inline body may be nested under anonymous block wrappers.
+        if (background.IsEmpty || background.A == 0)
+        {
+            var bodyBox = FindBodyBox(htmlBox);
+            if (bodyBox != null)
+            {
+                if (SuppressesCanvasBackgroundPropagation(bodyBox))
+                    return Color.Empty;
+
+                background = bodyBox.ActualBackgroundColor;
+                if (!background.IsEmpty && background.A > 0)
+                    return background;
+            }
+        }
+
+        return Color.Empty;
+    }
+
+    private static CssBox? FindBodyBox(CssBox parent, int depth = 0)
+    {
+        if (depth > 3)
+            return null;
+
+        foreach (var child in parent.Boxes)
+        {
+            if (string.Equals(child.HtmlTag?.Name, "body", StringComparison.OrdinalIgnoreCase))
+                return child;
+
+            if (child.HtmlTag == null && FindBodyBox(child, depth + 1) is { } nestedBody)
+                return nestedBody;
+        }
+
+        return null;
+    }
+
+    private static bool SuppressesCanvasBackgroundPropagation(CssBox box)
+    {
+        if (string.Equals(box.Display, "none", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(box.Display, "contents", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var contain = box.Contain;
+        return !string.IsNullOrEmpty(contain) &&
+               (contain.Contains("paint", StringComparison.OrdinalIgnoreCase) ||
+                contain.Contains("strict", StringComparison.OrdinalIgnoreCase) ||
+                contain.Contains("content", StringComparison.OrdinalIgnoreCase));
+    }
     internal Color SelectionForeColor { get; set; }
     internal Color SelectionBackColor { get; set; }
 

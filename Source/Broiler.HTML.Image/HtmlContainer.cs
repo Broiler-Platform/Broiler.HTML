@@ -4,14 +4,11 @@ using System.Drawing;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Primitives.Adapters.Entities;
-using Broiler.HTML.Dom;
-using Broiler.Layout;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
 
-using HtmlTag = Broiler.Layout.HtmlTag;
 namespace Broiler.HTML.Image;
 
 public sealed class HtmlContainer : IDisposable
@@ -288,135 +285,7 @@ public sealed class HtmlContainer : IDisposable
     /// is taken from the root element; if that is transparent, the body
     /// element's background is used instead.
     /// </summary>
-    public Color GetRootBackgroundColor()
-    {
-        var root = HtmlContainerInt.Root;
-        if (root == null)
-            return Color.Empty;
-
-        // The Root CssBox is an anonymous wrapper; the actual <html> element
-        // is typically its first child.  Check the wrapper first, then walk
-        // into children to find <html> and, per CSS 2.1, <body> as fallback.
-        var bg = root.ActualBackgroundColor;
-        if (!bg.IsEmpty && bg.A > 0)
-            return bg;
-
-        CssBox? htmlBox = null;
-        foreach (var child in root.Boxes)
-        {
-            if (string.Equals(child.HtmlTag?.Name, "html", StringComparison.OrdinalIgnoreCase))
-            {
-                htmlBox = child;
-
-                // CSS Backgrounds §2.11.1: display:none / display:contents
-                // and CSS Containment §4.2: contain:paint on the root
-                // element suppress propagation to the canvas.
-                if (SuppressesCanvasPropagation(child))
-                    return Color.Empty;
-
-                bg = child.ActualBackgroundColor;
-                if (!bg.IsEmpty && bg.A > 0)
-                    return bg;
-                break;
-            }
-        }
-
-        // CSS 2.1 §14.2: if the root element's background is transparent,
-        // use the <body> element's background for the canvas.
-        if (htmlBox != null)
-        {
-            // First try direct children (most common case).
-            foreach (var child in htmlBox.Boxes)
-            {
-                if (string.Equals(child.HtmlTag?.Name, "body", StringComparison.OrdinalIgnoreCase))
-                {
-                    // CSS Backgrounds §2.11.1 / Containment §4.2:
-                    // body with display:none/contents or contain:paint
-                    // does not propagate to the canvas.
-                    if (SuppressesCanvasPropagation(child))
-                        return Color.Empty;
-
-                    bg = child.ActualBackgroundColor;
-                    if (!bg.IsEmpty && bg.A > 0)
-                        return bg;
-                    break;
-                }
-            }
-
-            // When body has display:inline, the CSS box model may wrap it
-            // inside anonymous block boxes.  Search recursively for the
-            // body CssBox so that its background still propagates per
-            // CSS 2.1 §14.2.
-            if (bg.IsEmpty || bg.A == 0)
-            {
-                var bodyBox = FindBodyBoxRecursive(htmlBox);
-                if (bodyBox != null)
-                {
-                    if (SuppressesCanvasPropagation(bodyBox))
-                        return Color.Empty;
-
-                    bg = bodyBox.ActualBackgroundColor;
-                    if (!bg.IsEmpty && bg.A > 0)
-                        return bg;
-                }
-            }
-        }
-
-        return Color.Empty;
-    }
-
-    /// <summary>
-    /// Recursively searches for the <c>&lt;body&gt;</c> CssBox within the
-    /// given parent.  When <c>body</c> has <c>display:inline</c>, the CSS box
-    /// model wraps it inside anonymous block boxes, so a direct-child search
-    /// may fail.  This method walks up to 3 levels deep to find the body element.
-    /// </summary>
-    private static CssBox? FindBodyBoxRecursive(
-        CssBox parent, int depth = 0)
-    {
-        if (depth > 3) return null;
-
-        foreach (var child in parent.Boxes)
-        {
-            if (string.Equals(child.HtmlTag?.Name, "body", StringComparison.OrdinalIgnoreCase))
-                return child;
-
-            // Only recurse into anonymous boxes (no tag) that might wrap
-            // the body element.
-            if (child.HtmlTag == null)
-            {
-                var found = FindBodyBoxRecursive(child, depth + 1);
-                if (found != null)
-                    return found;
-            }
-        }
-
-        return null;
-    }
-
-    /// <summary>
-    /// Returns <c>true</c> if the given CssBox has properties that suppress
-    /// background propagation to the canvas (display:none, display:contents,
-    /// contain:paint/strict/content).
-    /// </summary>
-    private static bool SuppressesCanvasPropagation(CssBox box)
-    {
-        var display = box.Display;
-        if (string.Equals(display, "none", StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (string.Equals(display, "contents", StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        var contain = box.Contain;
-        if (!string.IsNullOrEmpty(contain))
-        {
-            var lower = contain.ToLowerInvariant();
-            if (lower.Contains("paint") || lower.Contains("strict") || lower.Contains("content"))
-                return true;
-        }
-
-        return false;
-    }
+    public Color GetRootBackgroundColor() => HtmlContainerInt.GetRootBackgroundColor();
 
     public void Dispose() => HtmlContainerInt.Dispose();
 
