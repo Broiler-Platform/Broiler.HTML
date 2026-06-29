@@ -219,6 +219,21 @@ public sealed class HtmlContainer : IDisposable
     /// </summary>
     public RectangleF? GetElementRectangle(string elementId) => HtmlContainerInt.GetElementRectangle(elementId);
 
+    /// <summary>
+    /// Lays out the bound document headlessly at <paramref name="viewport"/> (using an
+    /// internal temporary surface for text measurement — no paint backend required) and
+    /// returns per-element box geometry from the real layout tree, keyed by the canonical
+    /// <see cref="Broiler.Dom.DomElement"/>. Intended for consumers (for example the script
+    /// bridge) that need accurate element geometry without constructing a graphics backend.
+    /// Requires the document to have been bound via <see cref="SetDocument"/>/<see cref="SetDocumentWithStyleSet"/>.
+    /// </summary>
+    public IReadOnlyDictionary<Broiler.Dom.DomElement, Broiler.HTML.Orchestration.BoxGeometry> GetLayoutGeometry(SizeF viewport)
+    {
+        MaxSize = viewport;
+        PerformLayout(new RectangleF(0, 0, viewport.Width, viewport.Height));
+        return HtmlContainerInt.CollectLayoutGeometry();
+    }
+
     public void ScrollToElement(string elementId)
     {
         ArgumentException.ThrowIfNullOrEmpty(elementId);

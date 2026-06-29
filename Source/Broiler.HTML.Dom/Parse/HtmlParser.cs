@@ -52,9 +52,15 @@ internal static class HtmlParser
 
     private static void AppendCanonicalNode(Broiler.Dom.DomNode node, CssBox parent, Uri baseUrl)
     {
-        if (node is Broiler.Dom.DomText text)
+        // Match text by canonical node type, not concrete class, and read it through
+        // DomNode.NodeValue. The renderer's own parse path produces Broiler.Dom.DomText,
+        // but the script bridge models text as its own DomElement subtype with
+        // NodeType==Text; both expose their content via NodeValue, so this handles the
+        // typed hand-off from either source (RF-BRIDGE-1b).
+        if (node.NodeType == Broiler.Dom.DomNodeType.Text)
         {
-            if (text.Data.Length > 0)
+            var text = node.NodeValue ?? string.Empty;
+            if (text.Length > 0)
             {
                 // Coalesce consecutive text nodes into a single text box. The DOM
                 // keeps text split into separate nodes when a non-rendered node —
@@ -72,12 +78,12 @@ internal static class HtmlParser
                     && parent.Boxes[^1] is { HtmlTag: null } prevText
                     && !prevText.Text.IsEmpty)
                 {
-                    prevText.Text = string.Concat(prevText.Text.Span, text.Data.AsSpan()).AsMemory();
+                    prevText.Text = string.Concat(prevText.Text.Span, text.AsSpan()).AsMemory();
                 }
                 else
                 {
                     var textBox = CssBoxHelper.CreateBox(parent, baseUrl);
-                    textBox.Text = text.Data.AsMemory();
+                    textBox.Text = text.AsMemory();
                 }
             }
             return;
