@@ -781,7 +781,15 @@ internal sealed class DomParser
             }
 
             CorrectLineBreaksBlocks(childBox, ref followingBlock);
-            followingBlock = childBox.Words.Count == 0 && (followingBlock || childBox.IsBlock);
+            // CSS2.1 §9.2.1/§10.8: An atomic inline-level box (inline-block,
+            // inline-flex, inline-grid) is *inline* content even though it
+            // carries no text words — it sits on the current line, so a
+            // following <br> merely ends that line rather than producing a
+            // spurious empty line.  Treat it like text (clears followingBlock)
+            // so it is not mistaken for block-level content below.
+            followingBlock = !IsAtomicInlineLevel(childBox)
+                && childBox.Words.Count == 0
+                && (followingBlock || childBox.IsBlock);
         }
 
         int lastBr = -1;
@@ -801,7 +809,7 @@ internal sealed class DomParser
                 {
                     // Out-of-flow: transparent to the in-flow block/inline run.
                 }
-                else if (box.Boxes[i].Words.Count > 0)
+                else if (box.Boxes[i].Words.Count > 0 || IsAtomicInlineLevel(box.Boxes[i]))
                 {
                     followingBlock = false;
                 }
@@ -819,6 +827,18 @@ internal sealed class DomParser
             }
         } while (brBox != null);
     }
+
+    /// <summary>
+    /// Returns whether <paramref name="box"/> is an atomic inline-level box
+    /// (<c>inline-block</c>, <c>inline-flex</c>, or <c>inline-grid</c>).  Such a
+    /// box participates in the inline formatting context — it occupies the
+    /// current line — so for <c>&lt;br&gt;</c> empty-line accounting it counts
+    /// as inline content, not as a preceding block.
+    /// </summary>
+    private static bool IsAtomicInlineLevel(CssBox box)
+        => box.Display == CssConstants.InlineBlock
+           || box.Display == "inline-flex"
+           || box.Display == "inline-grid";
 
     private static void CorrectBlockInsideInline(CssBox box, Uri baseUrl)
     {
