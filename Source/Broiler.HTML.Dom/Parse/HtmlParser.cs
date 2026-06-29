@@ -45,7 +45,20 @@ internal static class HtmlParser
 
         var root = CssBoxHelper.CreateBlock(baseUrl);
         if (document.DocumentElement is { } documentElement)
-            AppendCanonicalNode(documentElement, root, baseUrl);
+        {
+            // The script-bridge typed hand-off (RF-BRIDGE-1b) exposes a synthetic
+            // "#document" wrapper element as DocumentElement, whereas the renderer's own
+            // parse exposes <html>. "#document" is not a rendered element; appending it as
+            // a box would make it an inline (unknown-tag default) box of zero width,
+            // collapsing block-width propagation to <body> so every descendant lays out at
+            // 0×0. Descend into its children so they attach directly to the block document
+            // root, matching the <html>-rooted structure the string parse produces.
+            if (documentElement.LocalName == "#document")
+                foreach (var child in documentElement.ChildNodes)
+                    AppendCanonicalNode(child, root, baseUrl);
+            else
+                AppendCanonicalNode(documentElement, root, baseUrl);
+        }
 
         return root;
     }
