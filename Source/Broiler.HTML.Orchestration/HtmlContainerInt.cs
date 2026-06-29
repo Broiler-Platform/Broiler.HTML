@@ -266,6 +266,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (Broiler.CSS.CssValueParser.TryParseColor(value, out var color))
             return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
 
+        // An empty/whitespace value reaches here when a color property resolves to
+        // nothing (e.g. a `var()` reference with no fallback that substitutes to the
+        // empty string). RAdapter.GetColor rejects empty input with an
+        // ArgumentException, which aborts rendering for the whole document
+        // (RenderingError, signature RAdapter.GetColor). Treat it as an unresolved
+        // color, mirroring the static PaintWalker.ParseCssColor guard.
+        if (string.IsNullOrWhiteSpace(value))
+            return Color.Empty;
+
         return Adapter.GetColor(value);
     }
 
