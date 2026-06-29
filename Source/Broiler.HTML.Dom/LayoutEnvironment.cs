@@ -28,6 +28,11 @@ internal sealed class HtmlLayoutEnvironment : ILayoutEnvironment
     private readonly IHtmlContainerInt _container;
     private RGraphics _graphics;
 
+    // CSS default object size for a replaced element with no intrinsic size
+    // (CSS Images §5.3 / CSS2 §10.3.2).
+    private const double DefaultObjectWidth = 300;
+    private const double DefaultObjectHeight = 150;
+
     public HtmlLayoutEnvironment(IHtmlContainerInt container)
     {
         _container = container;
@@ -51,7 +56,22 @@ internal sealed class HtmlLayoutEnvironment : ILayoutEnvironment
     public ImageIntrinsics GetImageIntrinsics(object imageHandle)
     {
         var image = (RImage)imageHandle;
-        return new ImageIntrinsics(image.Width, image.Height, image.HasIntrinsicRatio);
+
+        // Replaced-element sizing must use the image's *intrinsic* CSS size, not
+        // its backing-bitmap size.  They differ for SVGs: the rasterizer may
+        // supersample (both-dimension SVGs) or render partial-/ratio-only SVGs
+        // at an inflated working resolution, so RImage.Width/Height (the bitmap
+        // size) is not the CSS intrinsic size.
+        //
+        // An <img> only has true intrinsic dimensions when both are known; when
+        // either is missing the used object size is the 300×150 default (the
+        // partial dimension and any viewBox ratio are ignored for replaced
+        // sizing, matching Chromium).  Raster images always report both, so they
+        // continue to use their bitmap size unchanged.
+        bool bothIntrinsic = image.HasIntrinsicWidth && image.HasIntrinsicHeight;
+        double width = bothIntrinsic ? image.IntrinsicWidth : DefaultObjectWidth;
+        double height = bothIntrinsic ? image.IntrinsicHeight : DefaultObjectHeight;
+        return new ImageIntrinsics(width, height, image.HasIntrinsicRatio);
     }
 
     public Color ParseColor(string value) => _container.ParseColor(value);
