@@ -56,8 +56,29 @@ internal static class HtmlParser
         {
             if (text.Data.Length > 0)
             {
-                var textBox = CssBoxHelper.CreateBox(parent, baseUrl);
-                textBox.Text = text.Data.AsMemory();
+                // Coalesce consecutive text nodes into a single text box. The DOM
+                // keeps text split into separate nodes when a non-rendered node —
+                // most commonly an HTML comment — sits between two runs of text
+                // (e.g. "\n<!-- c -->\n" between block siblings). Comments are not
+                // appended as boxes, so without coalescing each surrounding run
+                // becomes its own whitespace text box and CSS white-space
+                // processing collapses them independently, yielding a spurious
+                // extra space between elements (and an uncollapsed leading space at
+                // the start of a block) that shifts all following content — a major
+                // cause of the WPT "MissingContent" pixel mismatches in
+                // comment-heavy tests. Joining them reconstructs the single inline
+                // white-space run the spec collapses.
+                if (parent.Boxes.Count > 0
+                    && parent.Boxes[^1] is { HtmlTag: null } prevText
+                    && !prevText.Text.IsEmpty)
+                {
+                    prevText.Text = string.Concat(prevText.Text.Span, text.Data.AsSpan()).AsMemory();
+                }
+                else
+                {
+                    var textBox = CssBoxHelper.CreateBox(parent, baseUrl);
+                    textBox.Text = text.Data.AsMemory();
+                }
             }
             return;
         }
