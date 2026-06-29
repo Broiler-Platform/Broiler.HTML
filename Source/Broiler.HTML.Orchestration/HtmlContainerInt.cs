@@ -709,6 +709,39 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return box != null ? CommonUtils.GetFirstValueOrDefault(box.Rectangles, box.Bounds) : null;
     }
 
+    /// <summary>
+    /// Returns box geometry for every laid-out box that originated from a canonical
+    /// <see cref="Broiler.Dom.DomElement"/> (the <c>SetDocument</c> path), keyed by
+    /// that element. Call after <see cref="PerformLayout(RGraphics)"/>. Anonymous
+    /// boxes and boxes from the legacy HTML-string parse path (no
+    /// <c>SourceElement</c>) are skipped; when an element maps to several boxes the
+    /// first encountered in document order wins.
+    /// </summary>
+    public IReadOnlyDictionary<Broiler.Dom.DomElement, BoxGeometry> CollectLayoutGeometry()
+    {
+        var result = new Dictionary<Broiler.Dom.DomElement, BoxGeometry>();
+        if (Root != null)
+            CollectLayoutGeometry(Root, result);
+        return result;
+    }
+
+    private static void CollectLayoutGeometry(
+        CssBox box, Dictionary<Broiler.Dom.DomElement, BoxGeometry> result)
+    {
+        if (box.SourceElement is { } element && !result.ContainsKey(element))
+        {
+            var paddingBox = RectangleF.FromLTRB(
+                (float)(box.Location.X + box.ActualBorderLeftWidth),
+                (float)(box.Location.Y + box.ActualBorderTopWidth),
+                (float)(box.ActualRight - box.ActualBorderRightWidth),
+                (float)(box.ActualBottom - box.ActualBorderBottomWidth));
+            result[element] = new BoxGeometry(box.Bounds, paddingBox, box.ClientRectangle);
+        }
+
+        foreach (var child in box.Boxes)
+            CollectLayoutGeometry(child, result);
+    }
+
     public void PerformLayout(RGraphics g)
     {
         ArgumentNullException.ThrowIfNull(g);
