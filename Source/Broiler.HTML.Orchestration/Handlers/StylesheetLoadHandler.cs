@@ -147,7 +147,14 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         return string.Empty;
     }
 
-    private static readonly HttpClient SharedHttpClient = new();
+    // Synchronous external stylesheet fetch on the render path.  The default
+    // HttpClient timeout is 100 s, so a single unreachable http(s) <link> (the
+    // norm in the sandboxed WPT/headless environment) blocks the render far past
+    // any per-test budget — a hang, not a render.  Cap it short so an
+    // unreachable sheet fails fast and the page renders without it (WPT #1147
+    // Timeout cluster, e.g. CSS2/cascade-import-* linking delayed-file CGI URLs).
+    private static readonly HttpClient SharedHttpClient =
+        new() { Timeout = TimeSpan.FromSeconds(5) };
 
     private string LoadStylesheetFromUri(Uri uri)
     {
