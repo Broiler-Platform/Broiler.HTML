@@ -474,7 +474,7 @@ internal static class PaintWalker
         return null;
     }
 
-    private static void PaintFragment(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom = null, RectangleF viewport = default, bool isRoot = false, Color? bgClipTextColor = null)
+    private static void PaintFragment(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom = null, RectangleF viewport = default, bool isRoot = false, Color? bgClipTextColor = null, bool asInlineContent = false)
     {
         var style = fragment.Style;
 
@@ -593,8 +593,13 @@ internal static class PaintWalker
         // CSS Backgrounds Level 3 §3.3: When border-radius is set, the
         // entire border-box (background + borders) is clipped to the
         // rounded shape.
+        // When this fragment is a display:inline box painted as inline content
+        // (Step 5), its background and borders were already emitted by the
+        // containing block's EmitInlineLevelBoxDecorations pass — BEFORE the
+        // block's text — so they sit behind the line's glyphs (CSS2.1 App. E).
+        // Re-emitting them here would paint over the text. See the helper.
         bool bgClippedRounded = false;
-        if (!ReferenceEquals(fragment, propagatedFrom))
+        if (!asInlineContent && !ReferenceEquals(fragment, propagatedFrom))
         {
             bool hasCornerRadius = style.ActualCornerNw > 0 || style.ActualCornerNe > 0
                 || style.ActualCornerSe > 0 || style.ActualCornerSw > 0;
@@ -621,7 +626,8 @@ internal static class PaintWalker
         }
 
         // Borders (clipped to the rounded border-box when border-radius is set)
-        EmitBorders(fragment, items);
+        if (!asInlineContent)
+            EmitBorders(fragment, items);
 
         // Restore the rounded clip after borders are drawn
         if (bgClippedRounded)
@@ -646,6 +652,12 @@ internal static class PaintWalker
 
         // Replaced image (e.g. <img> elements)
         EmitReplacedImage(fragment, items);
+
+        // CSS2.1 Appendix E: backgrounds/borders of in-flow display:inline
+        // descendants paint behind this block's line text. Emit them before the
+        // text; the Step-5 inline paint suppresses re-emission (asInlineContent).
+        if (!asInlineContent)
+            EmitInlineLevelBoxDecorations(fragment, items, viewport);
 
         // Selection highlights (before text so highlight is behind text)
         EmitSelection(fragment, items);
@@ -680,6 +692,84 @@ internal static class PaintWalker
         // Restore transform layer (outermost layer)
         if (hasTransform)
             items.Add(new RestoreTransformItem { Bounds = bounds });
+    }
+
+    /// <summary>
+    /// CSS2.1 Appendix E: the background and borders of a non-replaced inline
+    /// box (<c>display:inline</c>) paint <em>behind</em> the line's text. The
+    /// text of every inline box on a line is emitted in one pass from the
+    /// containing block's line boxes (<see cref="EmitText"/>); each
+    /// <c>display:inline</c> child fragment carries only its own
+    /// background/border (its glyphs live in the block's lines). Painted in the
+    /// normal child phase (Step 5) those backgrounds land <em>on top of</em> the
+    /// already-emitted text, hiding it — visible on any coloured inline span over
+    /// a background. This pass emits them first, just before the block's text;
+    /// the Step-5 inline paint then suppresses re-emission via
+    /// <c>asInlineContent</c>. Positioned / stacking-context inline boxes are
+    /// left to their own (later) phase.
+    /// </summary>
+    private static void EmitInlineLevelBoxDecorations(Fragment fragment, List<DisplayItem> items, RectangleF viewport)
+    {
+        if (fragment.Children.Count == 0)
+            return;
+
+        foreach (var child in fragment.Children)
+        {
+            if (!string.Equals(child.Style.Display, "inline", StringComparison.Ordinal))
+                continue;
+            if (child.Style.Position is "relative" or "absolute" or "fixed")
+                continue;
+            if (child.CreatesStackingContext)
+                continue;
+
+            if (child.Style.Visibility == "visible")
+                EmitInlineBoxBackgroundAndBorder(child, items, viewport);
+
+            // Recurse into nested inline boxes (their text is also in the
+            // owning block's line boxes), even through a non-visible box whose
+            // descendants may be visible.
+            EmitInlineLevelBoxDecorations(child, items, viewport);
+        }
+    }
+
+    /// <summary>
+    /// Emits one inline box's background, background image, and borders — the
+    /// same sequence (and rounded-corner clipping) <see cref="PaintFragment"/>
+    /// uses for an element's own decorations, factored out so the inline
+    /// pre-text pass and the Step-5 paint stay in sync.
+    /// </summary>
+    private static void EmitInlineBoxBackgroundAndBorder(Fragment fragment, List<DisplayItem> items, RectangleF viewport)
+    {
+        var style = fragment.Style;
+        var bounds = fragment.Bounds;
+
+        bool bgClippedRounded = false;
+        bool hasCornerRadius = style.ActualCornerNw > 0 || style.ActualCornerNe > 0
+            || style.ActualCornerSe > 0 || style.ActualCornerSw > 0;
+        if (hasCornerRadius)
+        {
+            items.Add(new ClipItem
+            {
+                Bounds = bounds,
+                ClipRect = bounds,
+                CornerNw = style.ActualCornerNw,
+                CornerNwY = GetEffectiveCornerRadiusY(style.CornerNwRadiusRaw, style.ActualCornerNw, bounds),
+                CornerNe = style.ActualCornerNe,
+                CornerNeY = GetEffectiveCornerRadiusY(style.CornerNeRadiusRaw, style.ActualCornerNe, bounds),
+                CornerSe = style.ActualCornerSe,
+                CornerSeY = GetEffectiveCornerRadiusY(style.CornerSeRadiusRaw, style.ActualCornerSe, bounds),
+                CornerSw = style.ActualCornerSw,
+                CornerSwY = GetEffectiveCornerRadiusY(style.CornerSwRadiusRaw, style.ActualCornerSw, bounds),
+            });
+            bgClippedRounded = true;
+        }
+
+        EmitBackground(fragment, items);
+        EmitBackgroundImage(fragment, items, viewport);
+        EmitBorders(fragment, items);
+
+        if (bgClippedRounded)
+            items.Add(new RestoreItem { Bounds = bounds });
     }
 
     private static void EmitBackground(Fragment fragment, List<DisplayItem> items)
@@ -1534,7 +1624,13 @@ internal static class PaintWalker
         if (inlineLevel != null)
         {
             foreach (var child in inlineLevel)
-                PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
+                // display:inline boxes had their background/border emitted before
+                // the block's text (EmitInlineLevelBoxDecorations); suppress
+                // re-emission here so they stay behind the glyphs. Atomic
+                // inline-level boxes (inline-block/inline-table) own their own
+                // text and paint their background normally.
+                PaintFragment(child, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor,
+                    asInlineContent: string.Equals(child.Style.Display, "inline", StringComparison.Ordinal));
         }
 
         // Steps 6–7: Positioned children (z-index ≥ 0) sorted by StackLevel,
@@ -1747,7 +1843,11 @@ internal static class PaintWalker
             clipped = true;
         }
 
-        // Foreground content: selection, text, text-decoration
+        // Foreground content: selection, text, text-decoration.
+        // CSS2.1 Appendix E: in-flow display:inline descendants' backgrounds/
+        // borders paint behind this block's text — emit them first (Step-5 inline
+        // paint suppresses re-emission via asInlineContent).
+        EmitInlineLevelBoxDecorations(fragment, items, viewport);
         EmitSelection(fragment, items);
         EmitText(fragment, items, currentBgClipTextColor);
         EmitTextDecoration(fragment, items, currentBgClipTextColor);
