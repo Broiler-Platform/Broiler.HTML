@@ -113,10 +113,17 @@ internal sealed class DomParser
     {
         if (box.HtmlTag != null)
         {
+            // CSSOM §2.3 / HTML §4.2.6: a disabled stylesheet does not apply.
+            // `HTMLLinkElement.disabled` / `HTMLStyleElement.disabled` (set from
+            // script) are reflected onto the element as a `disabled` attribute, so
+            // skip collecting rules from a <link>/<style> that carries it.
+            bool sheetDisabled = box.GetAttribute("disabled", null) != null;
+
             // Check for the <link rel=stylesheet> tag
             // Per CSS2.1 §6.4.1, the rel attribute is a space-separated list;
             // match if any token equals "stylesheet" (e.g. rel="appendix stylesheet").
-            if (box.HtmlTag.Name.Equals("link", StringComparison.CurrentCultureIgnoreCase) &&
+            if (!sheetDisabled &&
+                box.HtmlTag.Name.Equals("link", StringComparison.CurrentCultureIgnoreCase) &&
                 ContainsStylesheetRel(box.GetAttribute("rel", string.Empty)))
             {
                 _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), (Dictionary<string, string>)box.HtmlTag.Attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet stylesheetModel);
@@ -127,7 +134,8 @@ internal sealed class DomParser
             }
 
             // Check for the <style> tag
-            if (box.HtmlTag.Name.Equals("style", StringComparison.CurrentCultureIgnoreCase) && box.Boxes.Count > 0)
+            if (!sheetDisabled &&
+                box.HtmlTag.Name.Equals("style", StringComparison.CurrentCultureIgnoreCase) && box.Boxes.Count > 0)
             {
                 foreach (var child in box.Boxes)
                     styleSet = styleSet.AppendAuthorStyleSheet(
