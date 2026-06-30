@@ -105,7 +105,8 @@ internal sealed class DomParser
             if (box.HtmlTag.Name.Equals("style", StringComparison.CurrentCultureIgnoreCase) && box.Boxes.Count > 0)
             {
                 foreach (var child in box.Boxes)
-                    styleSet = styleSet.AppendAuthorStyleSheet(new Broiler.CSS.CssParser().ParseStyleSheet(child.Text.ToString()));
+                    styleSet = styleSet.AppendAuthorStyleSheet(
+                        new Broiler.CSS.CssParser().ParseStyleSheet(StripCdataSection(child.Text.ToString())));
             }
         }
 
@@ -641,10 +642,31 @@ internal sealed class DomParser
             : $"{htmlLength}px";
     }
 
+    // XHTML wraps inline <style> CSS in a CDATA section
+    // (<![CDATA[ ... ]]>) so the markup validates as XML. When such a document
+    // is parsed by the HTML tree builder the markers stay as literal text inside
+    // the style element, and the CSS parser cannot tokenize "<![CDATA[" / "]]>"
+    // — it drops the rules, so the whole stylesheet is silently lost (every
+    // CDATA-wrapped CSS2 .xht reftest, WPT issue #1143). The markers are never
+    // valid CSS, so strip them before parsing.
+    private static string StripCdataSection(string css)
+    {
+        if (string.IsNullOrEmpty(css) || css.IndexOf("CDATA", StringComparison.Ordinal) < 0)
+            return css;
+        return css.Replace("<![CDATA[", string.Empty, StringComparison.Ordinal)
+                  .Replace("]]>", string.Empty, StringComparison.Ordinal);
+    }
+
     private static void ApplyTableBorder(CssBox table, string border) => SetForAllCells(table, cell =>
     {
         cell.BorderLeftStyle = cell.BorderTopStyle = cell.BorderRightStyle = cell.BorderBottomStyle = CssConstants.Solid;
         cell.BorderLeftWidth = cell.BorderTopWidth = cell.BorderRightWidth = cell.BorderBottomWidth = border;
+        // Legacy `<table border>` cells render with the UA grey border color.
+        // Previously this came from a blanket `td, th { border-color:#dfdfdf }`
+        // UA rule, which was removed because it blocked author `border`
+        // shorthands (CssDefaults.cs); set the grey here so the attribute path
+        // keeps its default while author CSS on cells is unaffected.
+        cell.BorderLeftColor = cell.BorderTopColor = cell.BorderRightColor = cell.BorderBottomColor = "#dfdfdf";
     });
 
     private static void ApplyTablePadding(CssBox table, string padding)

@@ -107,7 +107,14 @@ internal static class CssDefaults
         /* Not in the specification but necessary */
         a               { color: #0055BB; text-decoration:underline }
         table           { border-color:#dfdfdf; }
-        td, th          { border-color:#dfdfdf; }
+        /* NOTE: no blanket `td, th { border-color }` rule — real UA stylesheets
+           (e.g. Chromium) set a default border-color on `table` only, not on
+           cells. A cell rule here is a UA *longhand* that the post-cascade
+           shorthand expansion cannot override, so an author `td{border:1px solid
+           green}` shorthand kept its UA grey border-color and rendered grey
+           instead of green (every author-bordered table cell — WPT issue #1143
+           css/CSS2/tables/border-conflict-*). Legacy `<table border>` cells get
+           their grey from DomParser.ApplyTableBorder, not from here. */
         /* Replaced inline elements — WHATWG default rendering */
         iframe          { border: 2px inset; display: inline-block }
         object          { display: inline-block }
