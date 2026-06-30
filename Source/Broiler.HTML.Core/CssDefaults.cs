@@ -106,15 +106,16 @@ internal static class CssDefaults
 
         /* Not in the specification but necessary */
         a               { color: #0055BB; text-decoration:underline }
-        table           { border-color:#dfdfdf; }
-        /* NOTE: no blanket `td, th { border-color }` rule — real UA stylesheets
-           (e.g. Chromium) set a default border-color on `table` only, not on
-           cells. A cell rule here is a UA *longhand* that the post-cascade
-           shorthand expansion cannot override, so an author `td{border:1px solid
-           green}` shorthand kept its UA grey border-color and rendered grey
-           instead of green (every author-bordered table cell — WPT issue #1143
-           css/CSS2/tables/border-conflict-*). Legacy `<table border>` cells get
-           their grey from DomParser.ApplyTableBorder, not from here. */
+        /* NOTE: no blanket `table`/`td`/`th` { border-color } UA rule. Such a
+           rule is a *longhand* that the post-cascade `border`-shorthand expansion
+           cannot override, so an author `table{border:1px solid green}` (or
+           `td{...}`) kept the UA grey border-color and rendered grey instead of
+           green — every author-bordered table/cell (WPT issue #1143,
+           css/CSS2/tables/border-conflict-*). Browsers default a border-color on
+           the *table* only; Broiler's cascade can't honour that without breaking
+           the author shorthand, so the legacy `<table border>` grey is applied
+           directly in DomParser (TranslateAttributes / ApplyTableBorder), not
+           here, and author CSS is left to win normally. */
         /* Replaced inline elements — WHATWG default rendering */
         iframe          { border: 2px inset; display: inline-block }
         object          { display: inline-block }

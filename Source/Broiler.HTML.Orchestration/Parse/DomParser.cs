@@ -563,7 +563,15 @@ internal sealed class DomParser
                     break;
                 case HtmlConstants.Border:
                     if (!string.IsNullOrEmpty(value) && value != "0")
+                    {
                         box.BorderLeftStyle = box.BorderTopStyle = box.BorderRightStyle = box.BorderBottomStyle = CssConstants.Solid;
+                        // Legacy `<table border>` paints grey borders by default;
+                        // previously supplied by a UA `table { border-color }`
+                        // rule, removed because it blocked author shorthands
+                        // (CssDefaults.cs). Apply the grey directly on the
+                        // attribute path so author CSS is unaffected.
+                        box.BorderLeftColor = box.BorderTopColor = box.BorderRightColor = box.BorderBottomColor = "#dfdfdf";
+                    }
                     box.BorderLeftWidth = box.BorderTopWidth = box.BorderRightWidth = box.BorderBottomWidth = TranslateLength(value);
 
                     if (tag.Name == HtmlConstants.Table)
