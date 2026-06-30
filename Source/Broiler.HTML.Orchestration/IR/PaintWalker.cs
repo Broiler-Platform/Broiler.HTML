@@ -677,6 +677,12 @@ internal static class PaintWalker
         if (clipPathClipped)
             items.Add(new RestoreItem { Bounds = bounds });
 
+        // CSS UI §2: the outline is painted just outside the border edge, over the
+        // element's own content and in-flow descendants, and is not clipped by the
+        // element's own overflow — so emit it after children and the clip restore.
+        if (!asInlineContent)
+            EmitOutline(fragment, items);
+
         // Restore blend mode layer (must come after clip restore, before opacity restore)
         if (hasBlendMode)
             items.Add(new RestoreBlendModeItem { Bounds = bounds });
@@ -1290,6 +1296,52 @@ internal static class PaintWalker
         }
     }
 
+    /// <summary>
+    /// CSS UI §2: paints the element's outline just outside the border edge,
+    /// separated by <c>outline-offset</c>. The outline takes no layout space, so it
+    /// is drawn as a uniform border on the border-box inflated by
+    /// <c>outline-offset + outline-width</c> (the band between that rect's edge and
+    /// the offset gap is exactly the outline).
+    /// </summary>
+    private static void EmitOutline(Fragment fragment, List<DisplayItem> items)
+    {
+        var style = fragment.Style;
+        double ow = style.OutlineWidth;
+        string os = style.OutlineStyle;
+        if (ow <= 0 || string.IsNullOrEmpty(os)
+            || os.Equals("none", StringComparison.OrdinalIgnoreCase)
+            || os.Equals("hidden", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        // 'auto' (focus ring) has no defined appearance here; render it solid.
+        string drawStyle = os.Equals("auto", StringComparison.OrdinalIgnoreCase) ? "solid" : os;
+        var color = style.ActualOutlineColor;
+        var widths = new BoxEdges(ow, ow, ow, ow);
+        float inflate = (float)(style.OutlineOffset + ow);
+
+        foreach (var r in GetPaintRects(fragment))
+        {
+            if (r.Width <= 0 || r.Height <= 0)
+                continue;
+
+            var outlineRect = RectangleF.Inflate(r, inflate, inflate);
+            items.Add(new DrawBorderItem
+            {
+                Bounds = outlineRect,
+                Widths = widths,
+                TopColor = color,
+                RightColor = color,
+                BottomColor = color,
+                LeftColor = color,
+                Style = drawStyle,
+                TopStyle = drawStyle,
+                RightStyle = drawStyle,
+                BottomStyle = drawStyle,
+                LeftStyle = drawStyle,
+            });
+        }
+    }
+
     private static void EmitText(Fragment fragment, List<DisplayItem> items, Color? bgClipTextColor = null)
     {
         if (fragment.Lines == null || fragment.Lines.Count == 0)
@@ -1861,6 +1913,11 @@ internal static class PaintWalker
             items.Add(new RestoreItem { Bounds = bounds });
         if (clipPathClipped)
             items.Add(new RestoreItem { Bounds = bounds });
+
+        // CSS UI §2: the outline paints just outside the border edge, over the
+        // element's content and in-flow descendants, and is not clipped by the
+        // element's own overflow — emitted after children and the clip restore.
+        EmitOutline(fragment, items);
     }
 
     /// <summary>
