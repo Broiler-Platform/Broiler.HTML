@@ -23,10 +23,29 @@ internal sealed class DomParser
 {
     private readonly IStylesheetLoader _stylesheetLoader;
 
+    // HTML presentation attributes (cellspacing/cellpadding) are projected as
+    // low-priority hints that, per the CSS cascade, outrank the UA origin but lose
+    // to author/inline declarations. We record which CSS longhands each box took
+    // from such a hint so the cascade projection can preserve them when the only
+    // competing declaration is a user-agent rule (e.g. `td { padding: 1px }`).
+    private readonly Dictionary<CssBox, HashSet<string>> _presentationalHints = new();
+
+    // Author-origin-only cascade (stylesheets + inline), used to detect whether a
+    // presentation-hint property is also claimed by an author declaration.
+    private Broiler.CSS.Dom.CssStyleEngine? _authorEngine;
+
     public DomParser(IStylesheetLoader stylesheetLoader)
     {
         ArgumentNullException.ThrowIfNull(stylesheetLoader);
         _stylesheetLoader = stylesheetLoader;
+    }
+
+    private void RecordPresentationalHint(CssBox box, params string[] cssLonghands)
+    {
+        if (!_presentationalHints.TryGetValue(box, out var set))
+            _presentationalHints[box] = set = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var longhand in cssLonghands)
+            set.Add(longhand);
     }
 
     public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
@@ -56,8 +75,14 @@ internal sealed class DomParser
         // Resolve every stylesheet, inline declaration, generated pseudo-element,
         // animation, and ::selection rule through the shared model and style engine.
         var viewport = htmlContainer?.ViewportSize ?? default;
+        var canonicalDocument = SharedRendererCascade.FindCanonicalDocument(root);
         Broiler.CSS.Dom.CssStyleEngine engine = SharedRendererCascade.BuildEngine(
-            SharedRendererCascade.FindCanonicalDocument(root),
+            canonicalDocument,
+            styleSet,
+            (int)viewport.Width,
+            (int)viewport.Height);
+        _authorEngine = SharedRendererCascade.BuildAuthorEngine(
+            canonicalDocument,
             styleSet,
             (int)viewport.Width,
             (int)viewport.Height);
@@ -133,7 +158,10 @@ internal sealed class DomParser
             TranslateAttributes(box.HtmlTag, box);
 
             if (engine != null && box.SourceElement != null)
-                SharedRendererCascade.ProjectCascadedStyle(box, engine);
+            {
+                _presentationalHints.TryGetValue(box, out var hintKeys);
+                SharedRendererCascade.ProjectCascadedStyle(box, engine, _authorEngine, hintKeys);
+            }
 
             // Phase 2: Populate BoxKind and DOM-attribute properties on the box
             // so layout code can use these instead of accessing HtmlTag directly.
@@ -589,6 +617,7 @@ internal sealed class DomParser
                     break;
                 case HtmlConstants.Cellspacing:
                     box.BorderSpacing = TranslateLength(value);
+                    RecordPresentationalHint(box, "border-spacing");
                     break;
                 case HtmlConstants.Cellpadding:
                     ApplyTablePadding(box, value);
@@ -677,10 +706,14 @@ internal sealed class DomParser
         cell.BorderLeftColor = cell.BorderTopColor = cell.BorderRightColor = cell.BorderBottomColor = "#dfdfdf";
     });
 
-    private static void ApplyTablePadding(CssBox table, string padding)
+    private void ApplyTablePadding(CssBox table, string padding)
     {
         var length = TranslateLength(padding);
-        SetForAllCells(table, cell => cell.PaddingLeft = cell.PaddingTop = cell.PaddingRight = cell.PaddingBottom = length);
+        SetForAllCells(table, cell =>
+        {
+            cell.PaddingLeft = cell.PaddingTop = cell.PaddingRight = cell.PaddingBottom = length;
+            RecordPresentationalHint(cell, "padding-left", "padding-top", "padding-right", "padding-bottom");
+        });
     }
 
     private static void SetForAllCells(CssBox table, ActionInt<CssBox> action)
