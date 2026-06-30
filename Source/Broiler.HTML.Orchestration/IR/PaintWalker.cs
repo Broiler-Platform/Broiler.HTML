@@ -131,56 +131,54 @@ internal static class PaintWalker
             if (needsOpacity)
                 items.Add(new OpacityItem { Bounds = viewport, Opacity = rootOpacity });
 
-            var repeat = imgSource.Style.BackgroundRepeat;
-            var posStr = imgSource.Style.BackgroundPosition;
+            // A multi-layer background (e.g. `background: url(a), url(b), red`)
+            // stores its per-layer handles as an object?[]; the canvas
+            // propagation must draw every image layer, not pass the array as a
+            // single handle (which the rasterizer can't draw -> the image
+            // silently vanishes and the canvas colour shows through).
+            int layerCount = imgSource.BackgroundImageHandle is object?[] arr
+                ? arr.Length
+                : 1;
+            var handles = NormalizeBackgroundImageHandles(imgSource.BackgroundImageHandle, layerCount);
+            var repeats = SplitOnTopLevelCommas(imgSource.Style.BackgroundRepeat ?? "repeat");
+            var positions = SplitOnTopLevelCommas(imgSource.Style.BackgroundPosition ?? "0% 0%");
+            float emSize = GetPositionEmSize(imgSource.Style);
 
-            var tileOrigin = new PointF(viewport.X, viewport.Y);
-
-            // Apply background-position offset.
-            if (!string.IsNullOrEmpty(posStr))
+            // Paint from the bottom-most layer (last in source order) up, so
+            // earlier layers composite on top, matching normal layer ordering.
+            for (int i = handles.Length - 1; i >= 0; i--)
             {
-                float imgW = 0, imgH = 0;
-                if (imgSource.BackgroundImageHandle is RImage bgImg)
-                {
-                    imgW = (float)bgImg.Width;
-                    imgH = (float)bgImg.Height;
-                }
+                if (handles[i] is not RImage layerImage)
+                    continue;
 
-                var parts = posStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                string xVal = null, yVal = null;
-                foreach (var p in parts)
-                {
-                    if (IsHorizontalKeyword(p))
-                        xVal = p;
-                    else if (IsVerticalKeyword(p))
-                        yVal = p;
-                    else if (p.Equals("center", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (xVal == null) xVal = p;
-                        else if (yVal == null) yVal = p;
-                    }
-                    else
-                    {
-                        if (xVal == null) xVal = p;
-                        else if (yVal == null) yVal = p;
-                    }
-                }
+                var repeat = repeats.Count > 0
+                    ? repeats[i % repeats.Count].Trim()
+                    : "repeat";
+                var posStr = positions.Count > 0
+                    ? positions[i % positions.Count].Trim()
+                    : "0% 0%";
 
-                float emSize = GetPositionEmSize(imgSource.Style);
-                tileOrigin.X += ParsePositionValue(xVal, viewport.Width, imgW, emSize);
-                tileOrigin.Y += ParsePositionValue(yVal, viewport.Height, imgH, emSize);
+                var tileOrigin = new PointF(viewport.X, viewport.Y);
+                ApplyBackgroundPositionOffset(
+                    ref tileOrigin,
+                    posStr,
+                    viewport.Width,
+                    viewport.Height,
+                    (float)layerImage.Width,
+                    (float)layerImage.Height,
+                    emSize);
+
+                items.Add(new DrawTiledImageItem
+                {
+                    Bounds = viewport,
+                    ImageHandle = layerImage,
+                    SourceRect = RectangleF.Empty,
+                    FillRect = viewport,
+                    PositioningArea = viewport,
+                    TileOrigin = tileOrigin,
+                    Repeat = repeat,
+                });
             }
-
-            items.Add(new DrawTiledImageItem
-            {
-                Bounds = viewport,
-                ImageHandle = imgSource.BackgroundImageHandle,
-                SourceRect = RectangleF.Empty,
-                FillRect = viewport,
-                PositioningArea = viewport,
-                TileOrigin = tileOrigin,
-                Repeat = repeat,
-            });
 
             if (needsOpacity)
                 items.Add(new RestoreOpacityItem { Bounds = viewport });
