@@ -3184,12 +3184,52 @@ internal static class PaintWalker
         for (int i = colorStartIdx; i < tokens.Count; i++)
         {
             string stopStr = tokens[i].Trim();
-            var stop = ParseGradientStop(stopStr, i - colorStartIdx, stopCount);
-            if (stop != null)
-                info.Stops.Add(stop);
+            // CSS Images 4 §3.4.1: a colour stop may carry two positions
+            // (`<color> a b`), which is shorthand for two stops of that colour at
+            // each position. Expand them so the run between the positions renders
+            // as a solid band rather than dropping the stop.
+            foreach (string single in ExpandDoublePositionStop(stopStr))
+            {
+                var stop = ParseGradientStop(single, i - colorStartIdx, stopCount);
+                if (stop != null)
+                    info.Stops.Add(stop);
+            }
         }
 
         return info;
+    }
+
+    /// <summary>
+    /// CSS Images 4 §3.4.1: expands a double-position colour stop
+    /// (<c>&lt;color&gt; &lt;pos&gt; &lt;pos&gt;</c>) into two single-position stop
+    /// strings of the same colour. Other stops pass through unchanged.
+    /// </summary>
+    private static IEnumerable<string> ExpandDoublePositionStop(string stopStr)
+    {
+        var parts = SplitOnTopLevelSpaces(stopStr);
+        if (parts.Count >= 3
+            && IsGradientPositionToken(parts[^1])
+            && IsGradientPositionToken(parts[^2]))
+        {
+            string color = string.Join(" ", parts.GetRange(0, parts.Count - 2));
+            yield return $"{color} {parts[^2]}";
+            yield return $"{color} {parts[^1]}";
+        }
+        else
+        {
+            yield return stopStr;
+        }
+    }
+
+    private static bool IsGradientPositionToken(string token)
+    {
+        token = token.Trim();
+        ReadOnlySpan<char> num =
+            token.EndsWith("%", StringComparison.Ordinal) ? token.AsSpan(0, token.Length - 1)
+            : token.EndsWith("px", StringComparison.OrdinalIgnoreCase) ? token.AsSpan(0, token.Length - 2)
+            : default;
+        return !num.IsEmpty
+            && float.TryParse(num, NumberStyles.Float, CultureInfo.InvariantCulture, out _);
     }
 
     /// <summary>
