@@ -96,6 +96,13 @@ public sealed class ComputedStyle
     public string BorderBottomStyle { get; init; } = "none";
     public string BorderLeftStyle { get; init; } = "none";
 
+    // --- Outline (CSS UI §2) — painted outside the border edge, no layout effect ---
+
+    public string OutlineStyle { get; init; } = "none";
+    public double OutlineWidth { get; init; }
+    public double OutlineOffset { get; init; }
+    public Color ActualOutlineColor { get; init; }
+
     // --- Background ---
 
     public string BackgroundImage { get; init; } = "none";

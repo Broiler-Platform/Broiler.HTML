@@ -103,6 +103,12 @@ internal static class ComputedStyleBuilder
             BorderBottomStyle = box.BorderBottomStyle,
             BorderLeftStyle = box.BorderLeftStyle,
 
+            // Outline (CSS UI §2)
+            OutlineStyle = box.OutlineStyle,
+            OutlineWidth = box.ActualOutlineWidth,
+            OutlineOffset = box.ActualOutlineOffset,
+            ActualOutlineColor = box.ActualOutlineColor,
+
             // Background
             BackgroundImage = box.BackgroundImage,
             BackgroundPosition = box.BackgroundPosition,

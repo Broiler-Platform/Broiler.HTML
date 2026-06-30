@@ -677,6 +677,12 @@ internal static class PaintWalker
         if (clipPathClipped)
             items.Add(new RestoreItem { Bounds = bounds });
 
+        // CSS UI §2: the outline is painted just outside the border edge, over the
+        // element's own content and in-flow descendants, and is not clipped by the
+        // element's own overflow — so emit it after children and the clip restore.
+        if (!asInlineContent)
+            EmitOutline(fragment, items);
+
         // Restore blend mode layer (must come after clip restore, before opacity restore)
         if (hasBlendMode)
             items.Add(new RestoreBlendModeItem { Bounds = bounds });
@@ -1290,6 +1296,52 @@ internal static class PaintWalker
         }
     }
 
+    /// <summary>
+    /// CSS UI §2: paints the element's outline just outside the border edge,
+    /// separated by <c>outline-offset</c>. The outline takes no layout space, so it
+    /// is drawn as a uniform border on the border-box inflated by
+    /// <c>outline-offset + outline-width</c> (the band between that rect's edge and
+    /// the offset gap is exactly the outline).
+    /// </summary>
+    private static void EmitOutline(Fragment fragment, List<DisplayItem> items)
+    {
+        var style = fragment.Style;
+        double ow = style.OutlineWidth;
+        string os = style.OutlineStyle;
+        if (ow <= 0 || string.IsNullOrEmpty(os)
+            || os.Equals("none", StringComparison.OrdinalIgnoreCase)
+            || os.Equals("hidden", StringComparison.OrdinalIgnoreCase))
+            return;
+
+        // 'auto' (focus ring) has no defined appearance here; render it solid.
+        string drawStyle = os.Equals("auto", StringComparison.OrdinalIgnoreCase) ? "solid" : os;
+        var color = style.ActualOutlineColor;
+        var widths = new BoxEdges(ow, ow, ow, ow);
+        float inflate = (float)(style.OutlineOffset + ow);
+
+        foreach (var r in GetPaintRects(fragment))
+        {
+            if (r.Width <= 0 || r.Height <= 0)
+                continue;
+
+            var outlineRect = RectangleF.Inflate(r, inflate, inflate);
+            items.Add(new DrawBorderItem
+            {
+                Bounds = outlineRect,
+                Widths = widths,
+                TopColor = color,
+                RightColor = color,
+                BottomColor = color,
+                LeftColor = color,
+                Style = drawStyle,
+                TopStyle = drawStyle,
+                RightStyle = drawStyle,
+                BottomStyle = drawStyle,
+                LeftStyle = drawStyle,
+            });
+        }
+    }
+
     private static void EmitText(Fragment fragment, List<DisplayItem> items, Color? bgClipTextColor = null)
     {
         if (fragment.Lines == null || fragment.Lines.Count == 0)
@@ -1861,6 +1913,11 @@ internal static class PaintWalker
             items.Add(new RestoreItem { Bounds = bounds });
         if (clipPathClipped)
             items.Add(new RestoreItem { Bounds = bounds });
+
+        // CSS UI §2: the outline paints just outside the border edge, over the
+        // element's content and in-flow descendants, and is not clipped by the
+        // element's own overflow — emitted after children and the clip restore.
+        EmitOutline(fragment, items);
     }
 
     /// <summary>
@@ -3184,12 +3241,52 @@ internal static class PaintWalker
         for (int i = colorStartIdx; i < tokens.Count; i++)
         {
             string stopStr = tokens[i].Trim();
-            var stop = ParseGradientStop(stopStr, i - colorStartIdx, stopCount);
-            if (stop != null)
-                info.Stops.Add(stop);
+            // CSS Images 4 §3.4.1: a colour stop may carry two positions
+            // (`<color> a b`), which is shorthand for two stops of that colour at
+            // each position. Expand them so the run between the positions renders
+            // as a solid band rather than dropping the stop.
+            foreach (string single in ExpandDoublePositionStop(stopStr))
+            {
+                var stop = ParseGradientStop(single, i - colorStartIdx, stopCount);
+                if (stop != null)
+                    info.Stops.Add(stop);
+            }
         }
 
         return info;
+    }
+
+    /// <summary>
+    /// CSS Images 4 §3.4.1: expands a double-position colour stop
+    /// (<c>&lt;color&gt; &lt;pos&gt; &lt;pos&gt;</c>) into two single-position stop
+    /// strings of the same colour. Other stops pass through unchanged.
+    /// </summary>
+    private static IEnumerable<string> ExpandDoublePositionStop(string stopStr)
+    {
+        var parts = SplitOnTopLevelSpaces(stopStr);
+        if (parts.Count >= 3
+            && IsGradientPositionToken(parts[^1])
+            && IsGradientPositionToken(parts[^2]))
+        {
+            string color = string.Join(" ", parts.GetRange(0, parts.Count - 2));
+            yield return $"{color} {parts[^2]}";
+            yield return $"{color} {parts[^1]}";
+        }
+        else
+        {
+            yield return stopStr;
+        }
+    }
+
+    private static bool IsGradientPositionToken(string token)
+    {
+        token = token.Trim();
+        ReadOnlySpan<char> num =
+            token.EndsWith("%", StringComparison.Ordinal) ? token.AsSpan(0, token.Length - 1)
+            : token.EndsWith("px", StringComparison.OrdinalIgnoreCase) ? token.AsSpan(0, token.Length - 2)
+            : default;
+        return !num.IsEmpty
+            && float.TryParse(num, NumberStyles.Float, CultureInfo.InvariantCulture, out _);
     }
 
     /// <summary>
