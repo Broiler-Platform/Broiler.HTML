@@ -690,6 +690,34 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return cssBox != null ? DomUtils.GetAttribute(cssBox, attribute) : null;
     }
 
+    public FormInputElementData<RectangleF> GetEditableInputAt(PointF location) =>
+        GetEditableInputAtDocumentPoint(OffsetByScroll(location));
+
+    public FormInputElementData<RectangleF> GetEditableInputAtDocumentPoint(PointF documentLocation)
+    {
+        EnsureBoundDocumentCurrent();
+
+        var input = GetEditableInputBoxAt(documentLocation);
+        if (input == null)
+            return null;
+
+        var rect = CommonUtils.GetFirstValueOrDefault(input.Rectangles, input.Bounds);
+        return CreateFormInputElementData(input, rect);
+    }
+
+    public bool SetEditableInputValueAtDocumentPoint(PointF documentLocation, string value)
+    {
+        EnsureBoundDocumentCurrent();
+
+        var input = GetEditableInputBoxAt(documentLocation);
+        if (input == null)
+            return false;
+
+        SetEditableInputValue(input, value);
+        RequestRefresh(true);
+        return true;
+    }
+
     public List<LinkElementData<RectangleF>> GetLinks()
     {
         var linkBoxes = new List<CssBox>();
@@ -1088,6 +1116,61 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// Returns <c>true</c> if the given box represents a form submit control
     /// (<c>&lt;input type="submit"&gt;</c>, <c>&lt;button&gt;</c>, etc.).
     /// </summary>
+    private CssBox GetEditableInputBoxAt(PointF documentLocation)
+    {
+        return GetEditableInputBoxAt(Root, documentLocation);
+    }
+
+    private static CssBox GetEditableInputBoxAt(CssBox box, PointF documentLocation)
+    {
+        if (box == null || box.Visibility != CssConstants.Visible)
+            return null;
+
+        for (int i = box.Boxes.Count - 1; i >= 0; i--)
+        {
+            var found = GetEditableInputBoxAt(box.Boxes[i], documentLocation);
+            if (found != null)
+                return found;
+        }
+
+        return IsEditableInputControl(box) && IsPointInBox(box, documentLocation)
+            ? box
+            : null;
+    }
+
+    private static bool IsPointInBox(CssBox box, PointF documentLocation)
+    {
+        var rect = CommonUtils.GetFirstValueOrDefault(box.Rectangles, box.Bounds);
+        return rect.Contains(documentLocation) || DomUtils.IsInBox(box, documentLocation);
+    }
+
+    private static bool IsEditableInputControl(CssBox box)
+    {
+        if (box.HtmlTag == null || !box.HtmlTag.Name.Equals("input", StringComparison.OrdinalIgnoreCase))
+            return false;
+
+        var inputType = box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
+        return inputType is "text" or "search" or "email" or "url" or "tel" or "number" or "password";
+    }
+
+    private static FormInputElementData<RectangleF> CreateFormInputElementData(CssBox box, RectangleF rect)
+    {
+        var type = box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
+        return new FormInputElementData<RectangleF>(
+            box.HtmlTag.TryGetAttribute("id") ?? string.Empty,
+            box.HtmlTag.TryGetAttribute("name") ?? string.Empty,
+            type,
+            box.HtmlTag.TryGetAttribute("value") ?? string.Empty,
+            rect);
+    }
+
+    private static void SetEditableInputValue(CssBox box, string value)
+    {
+        value ??= string.Empty;
+        box.HtmlTag.SetAttribute("value", value);
+        box.SetGeneratedTextContent(value);
+    }
+
     private static bool IsFormSubmitControl(CssBox box)
     {
         if (box.HtmlTag == null) return false;

@@ -148,6 +148,15 @@ public sealed class HtmlContainer : IDisposable
 
     public string GetAttributeAt(PointF location, string attribute) => _inner.GetAttributeAt(location, attribute);
 
+    public FormInputElementData<RectangleF> GetEditableInputAt(PointF location) =>
+        _inner.GetEditableInputAt(location);
+
+    public FormInputElementData<RectangleF> GetEditableInputAtDocumentPoint(PointF documentLocation) =>
+        _inner.GetEditableInputAtDocumentPoint(documentLocation);
+
+    public bool SetEditableInputValueAtDocumentPoint(PointF documentLocation, string value) =>
+        _inner.SetEditableInputValueAtDocumentPoint(documentLocation, value);
+
     public string GetLinkAt(PointF location) => _inner.GetLinkAt(location);
 
     public void PerformLayout(GraphicsBitmap bitmap, RectangleF clip)
