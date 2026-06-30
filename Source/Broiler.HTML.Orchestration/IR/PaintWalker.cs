@@ -105,7 +105,13 @@ internal static class PaintWalker
                 gradientSource.Bounds,
                 gradientSource,
                 gradientSource.Style.BackgroundClip);
-            EmitGradientLayers(gradientSource, gradientClipRect, viewport, items);
+            // CSS2.1 §14.2: the root element's background is propagated to the
+            // canvas and paints over the entire viewport, not just the source
+            // element's box. Scroll-attached layers stay anchored to the
+            // source's background positioning area (gradientClipRect); fixed
+            // layers anchor to the viewport (handled inside EmitGradientLayers).
+            EmitGradientLayers(gradientSource, viewport, viewport, items,
+                scrollPositioningArea: gradientClipRect);
 
             if (needsOpacity)
                 items.Add(new RestoreOpacityItem { Bounds = viewport });
@@ -2444,7 +2450,7 @@ internal static class PaintWalker
     /// layer in the fragment's <c>background-image</c>.  Layers are painted
     /// bottom-most first (last in the comma list) to top-most (first in the list).
     /// </summary>
-    private static void EmitGradientLayers(Fragment fragment, RectangleF fillRect, RectangleF viewport, List<DisplayItem> items)
+    private static void EmitGradientLayers(Fragment fragment, RectangleF fillRect, RectangleF viewport, List<DisplayItem> items, RectangleF? scrollPositioningArea = null)
     {
         var style = fragment.Style;
         var gradientFunctions = SplitGradientLayers(style.BackgroundImage);
@@ -2487,7 +2493,10 @@ internal static class PaintWalker
                 && !fragment.HasTransformAncestor
                 && viewport.Width > 0
                 && viewport.Height > 0;
-            var positioningArea = isFixed ? viewport : fillRect;
+            // Scroll-attached layers anchor to the supplied positioning area when
+            // one is given (canvas propagation: the source element's box), else to
+            // the fill rect (ordinary element backgrounds — unchanged behaviour).
+            var positioningArea = isFixed ? viewport : (scrollPositioningArea ?? fillRect);
             var tileOrigin = new PointF(positioningArea.X, positioningArea.Y);
 
             // Apply background-position offset.
