@@ -837,6 +837,16 @@ internal sealed class DomParser
     {
         followingBlock = followingBlock || box.IsBlock;
 
+        // The <br> scan below recomputes followingBlock from the siblings that
+        // precede each <br>, but a <br> at index 0 has no preceding sibling, so
+        // it must fall back to this box's content-start context — a <br> at the
+        // very start of a block generates a full empty line. Capture that value
+        // now, before the recursive child walk mutates followingBlock to the
+        // trailing-content state (which otherwise leaks in and suppresses the
+        // empty line of a *leading* <br>, collapsing consecutive <br><br> to a
+        // single line advance).
+        bool entryFollowingBlock = followingBlock;
+
         foreach (var childBox in box.Boxes)
         {
             // CSS2.1 §9.6: Out-of-flow positioned elements do not participate
@@ -868,6 +878,11 @@ internal sealed class DomParser
 
         do
         {
+            // Re-scan from the block's content-start context each pass so the
+            // run preceding *this* <br> is measured fresh; otherwise the value
+            // left over from the previous <br> (or the child walk) misclassifies
+            // a leading <br>.
+            followingBlock = entryFollowingBlock;
             brBox = null;
             for (int i = 0; i < box.Boxes.Count && brBox == null; i++)
             {
@@ -1237,6 +1252,11 @@ internal sealed class DomParser
             // mixed inline/block situation that requires anonymous block
             // wrapping.
             if (box.Boxes[i].Float != CssConstants.None)
+                continue;
+            // CSS2.1 §9.2.4: A 'display:none' box generates no box, so it does
+            // not create a mixed inline/block situation and must not trigger
+            // anonymous-block wrapping of surrounding inline siblings.
+            if (box.Boxes[i].Display == CssConstants.None)
                 continue;
             var isBlock = !box.Boxes[i].IsInline;
             hasBlock = hasBlock || isBlock;
