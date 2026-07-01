@@ -1238,6 +1238,11 @@ internal sealed class DomParser
             // wrapping.
             if (box.Boxes[i].Float != CssConstants.None)
                 continue;
+            // CSS2.1 §9.2.4: A 'display:none' box generates no box, so it does
+            // not create a mixed inline/block situation and must not trigger
+            // anonymous-block wrapping of surrounding inline siblings.
+            if (box.Boxes[i].Display == CssConstants.None)
+                continue;
             var isBlock = !box.Boxes[i].IsInline;
             hasBlock = hasBlock || isBlock;
             hasInline = hasInline || !isBlock;
