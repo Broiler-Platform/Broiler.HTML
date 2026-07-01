@@ -1248,6 +1248,16 @@ internal sealed class DomParser
 
         for (int i = 0; i < box.Boxes.Count && (!hasBlock || !hasInline); i++)
         {
+            // CSS2.1 §9.2.4: A 'display:none' box generates no box at all, so it
+            // is transparent to the mixed-content test.  An invisible <style>,
+            // <script>, or display:none <span> between inline-level siblings is
+            // neither inline nor block ('none') and must not be counted as a
+            // block — otherwise a run of inline-blocks separated by such hidden
+            // boxes looks "mixed" and gets torn into stacked anonymous blocks
+            // (mirrors the skip already in LayoutBoxUtils.ContainsInlinesOnly).
+            if (box.Boxes[i].Display == CssConstants.None)
+                continue;
+
             // CSS2.1 §9.5: Floats are out-of-flow — they do not create a
             // mixed inline/block situation that requires anonymous block
             // wrapping.
