@@ -767,16 +767,56 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         if (box.SourceElement is { } element && !result.ContainsKey(element))
         {
-            var paddingBox = RectangleF.FromLTRB(
-                (float)(box.Location.X + box.ActualBorderLeftWidth),
-                (float)(box.Location.Y + box.ActualBorderTopWidth),
-                (float)(box.ActualRight - box.ActualBorderRightWidth),
-                (float)(box.ActualBottom - box.ActualBorderBottomWidth));
-            result[element] = new BoxGeometry(box.Bounds, paddingBox, box.ClientRectangle);
+            var borderBox = box.Bounds;
+
+            // Inline boxes (display:inline) lay out as one rectangle per line box
+            // rather than a single border box, so box.Location/Size — and hence
+            // box.Bounds — are unset (empty). Reconstruct the border box from the
+            // union of the per-line rectangles so an inline element (e.g. an inline
+            // anchor, or any inline queried via getBoundingClientRect) reports its
+            // real geometry instead of a zero-size box at the origin.
+            if (borderBox is { Width: 0, Height: 0 } && box.Rectangles.Count > 0)
+            {
+                borderBox = UnionLineRectangles(box.Rectangles.Values);
+                // Inline boxes contribute no box-model padding/border to line
+                // geometry in this engine, so all three levels coincide.
+                result[element] = new BoxGeometry(borderBox, borderBox, borderBox);
+            }
+            else
+            {
+                var paddingBox = RectangleF.FromLTRB(
+                    (float)(box.Location.X + box.ActualBorderLeftWidth),
+                    (float)(box.Location.Y + box.ActualBorderTopWidth),
+                    (float)(box.ActualRight - box.ActualBorderRightWidth),
+                    (float)(box.ActualBottom - box.ActualBorderBottomWidth));
+                result[element] = new BoxGeometry(borderBox, paddingBox, box.ClientRectangle);
+            }
         }
 
         foreach (var child in box.Boxes)
             CollectLayoutGeometry(child, result);
+    }
+
+    /// <summary>
+    /// Returns the smallest rectangle enclosing every per-line rectangle of an
+    /// inline box — its rendered border box across the lines it spans.
+    /// </summary>
+    private static RectangleF UnionLineRectangles(IEnumerable<RectangleF> rectangles)
+    {
+        float left = float.MaxValue, top = float.MaxValue;
+        float right = float.MinValue, bottom = float.MinValue;
+        foreach (var r in rectangles)
+        {
+            if (r.Width == 0 && r.Height == 0)
+                continue;
+            if (r.Left < left) left = r.Left;
+            if (r.Top < top) top = r.Top;
+            if (r.Right > right) right = r.Right;
+            if (r.Bottom > bottom) bottom = r.Bottom;
+        }
+        return right < left || bottom < top
+            ? RectangleF.Empty
+            : RectangleF.FromLTRB(left, top, right, bottom);
     }
 
     public void PerformLayout(RGraphics g)
