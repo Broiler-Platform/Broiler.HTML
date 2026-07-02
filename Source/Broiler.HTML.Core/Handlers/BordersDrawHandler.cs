@@ -2,8 +2,9 @@ using System.Drawing;
 using System;
 using Broiler.Graphics;
 using Broiler.HTML.Core;
+using Broiler.CSS;
 
-using CssConstants = Broiler.CSS.CssConstants;
+
 namespace Broiler.HTML.Rendering.Handlers;
 
 internal sealed class BordersDrawHandler : IBordersDrawHandler

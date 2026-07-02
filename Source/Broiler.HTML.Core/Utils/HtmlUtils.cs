@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Net;
 
 namespace Broiler.HTML.Utils;
 
@@ -15,8 +14,4 @@ internal static class HtmlUtils
         );
 
     public static bool IsSingleTag(string tagName) => _list.Contains(tagName);
-
-    public static string DecodeHtml(string str) => WebUtility.HtmlDecode(str);
-
-    public static string EncodeHtml(string str) => WebUtility.HtmlEncode(str);
 }

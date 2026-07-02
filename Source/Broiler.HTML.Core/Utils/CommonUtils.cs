@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using Broiler.CSS;
 
-using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Utils;
 
 internal delegate void ActionInt<in T>(T obj);
@@ -75,7 +75,7 @@ internal static class CommonUtils
         return null;
     }
 
-    public static TValue GetFirstValueOrDefault<TKey, TValue>(IDictionary<TKey, TValue> dic, TValue defaultValue = default(TValue))
+    public static TValue GetFirstValueOrDefault<TKey, TValue>(IDictionary<TKey, TValue> dic, TValue defaultValue = default)
     {
         if (dic != null)
         {
@@ -109,11 +109,11 @@ internal static class CommonUtils
         if (lastSlash == -1)
             return null;
 
-        string uriUntilSlash = absoluteUri.Substring(0, lastSlash);
-        fileNameBuilder.Append(uriUntilSlash.GetHashCode().ToString());
+        string uriUntilSlash = absoluteUri[..lastSlash];
+        fileNameBuilder.Append(uriUntilSlash.GetHashCode());
         fileNameBuilder.Append('_');
 
-        string restOfUri = absoluteUri.Substring(lastSlash + 1);
+        string restOfUri = absoluteUri[(lastSlash + 1)..];
         int indexOfParams = restOfUri.IndexOf('?');
 
         if (indexOfParams == -1)
@@ -122,8 +122,8 @@ internal static class CommonUtils
             int indexOfDot = restOfUri.IndexOf('.');
             if (indexOfDot > -1)
             {
-                ext = restOfUri.Substring(indexOfDot);
-                restOfUri = restOfUri.Substring(0, indexOfDot);
+                ext = restOfUri[indexOfDot..];
+                restOfUri = restOfUri[..indexOfDot];
             }
 
             fileNameBuilder.Append(restOfUri);
@@ -151,7 +151,7 @@ internal static class CommonUtils
 
         var validFileName = GetValidFileName(fileNameBuilder.ToString());
         if (validFileName.Length > 25)
-            validFileName = validFileName.Substring(0, 24) + validFileName.Substring(24).GetHashCode() + Path.GetExtension(validFileName);
+            validFileName = validFileName[..24] + validFileName[24..].GetHashCode() + Path.GetExtension(validFileName);
 
         if (_tempPath == null)
         {
@@ -229,7 +229,7 @@ internal static class CommonUtils
             if (n >= 0)
             {
                 sb = (char)(alphStart + n) + sb;
-                number = number / 26;
+                number /= 26;
             }
             else
             {
@@ -252,7 +252,7 @@ internal static class CommonUtils
             if (n >= 0)
             {
                 sb = (char)(945 + n) + sb;
-                number = number / 24;
+                number /= 24;
             }
             else
             {

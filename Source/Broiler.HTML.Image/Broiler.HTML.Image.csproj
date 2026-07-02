@@ -12,6 +12,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Broiler.HTML\Broiler.HTML.csproj" />
+    <ProjectReference Include="..\Broiler.HTML.Orchestration\Broiler.HTML.Orchestration.csproj" />
   </ItemGroup>
 </Project>

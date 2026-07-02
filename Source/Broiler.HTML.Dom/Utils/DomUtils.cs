@@ -4,11 +4,12 @@ using System.Text;
 using System.Drawing;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
-using HtmlUtils = Broiler.HTML.Utils.HtmlUtils;
-using CommonUtils = Broiler.HTML.Utils.CommonUtils;
-using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
-using CssConstants = Broiler.CSS.CssConstants;
 using Broiler.Layout.Engine;
+using System.Net;
+using Broiler.CSS;
+using Broiler.HTML.Utils;
+
+
 namespace Broiler.HTML.Dom.Utils;
 
 internal sealed class DomUtils
@@ -29,27 +30,6 @@ internal sealed class DomUtils
 
         return false;
     }
-
-
-    public static CssBox FindParent(CssBox root, string tagName, CssBox box)
-    {
-        if (box == null)
-        {
-            return root;
-        }
-        else if (box.HtmlTag != null && box.HtmlTag.Name.Equals(tagName, StringComparison.CurrentCultureIgnoreCase))
-        {
-            return box.ParentBox ?? root;
-        }
-        else
-        {
-            return FindParent(root, tagName, box.ParentBox);
-        }
-    }
-
-
-
-
 
     public static string GetAttribute(CssBox box, string attribute)
     {
@@ -280,7 +260,7 @@ internal sealed class DomUtils
         // convert hr to line of dashes
         if (box.HtmlTag != null && box.HtmlTag.Name == "hr")
         {
-            if (sb.Length > 1 && sb[sb.Length - 1] != '\n')
+            if (sb.Length > 1 && sb[^1] != '\n')
                 sb.AppendLine();
 
             sb.AppendLine(new string('-', 80));
@@ -289,7 +269,7 @@ internal sealed class DomUtils
         // new line for css block
         if (box.Display == CssConstants.Block || box.Display == CssConstants.ListItem || box.Display == CssConstants.TableRow)
         {
-            if (!(box.IsBrElement && sb.Length > 1 && sb[sb.Length - 1] == '\n'))
+            if (!(box.IsBrElement && sb.Length > 1 && sb[^1] == '\n'))
                 sb.AppendLine();
         }
 
@@ -445,7 +425,7 @@ internal sealed class DomUtils
                 if (selectedBoxes == null || word.Selected)
                 {
                     var wordText = GetSelectedWord(word, selectedBoxes != null);
-                    sb.Append(HtmlUtils.EncodeHtml(wordText));
+                    sb.Append(WebUtility.HtmlEncode(wordText));
                 }
             }
         }
@@ -478,7 +458,7 @@ internal sealed class DomUtils
                 // handle image tags by inserting the image using base64 data
                 if (styleGen == HtmlGenerationStyle.Inline && att.Key == HtmlConstants.Style)
                 {
-                    var declarations = new Broiler.CSS.CssParser().ParseDeclarations(att.Value);
+                    var declarations = new CssParser().ParseDeclarations(att.Value);
                     foreach (var declaration in declarations.Declarations)
                         tagStyles[declaration.Name] = declaration.Value.Text;
                 }
@@ -510,7 +490,7 @@ internal sealed class DomUtils
     private static void WriteStylesheet(StringBuilder sb, HtmlStyleSet styleSet)
     {
         sb.AppendLine("<style type=\"text/css\">");
-        sb.AppendLine(Broiler.CSS.CssSerializer.Serialize(styleSet.StyleSheet));
+        sb.AppendLine(CssSerializer.Serialize(styleSet.StyleSheet));
         sb.AppendLine("</style>");
     }
 
@@ -518,41 +498,20 @@ internal sealed class DomUtils
     {
         if (selectedText && rect.SelectedStartIndex > -1 && rect.SelectedEndIndexOffset > -1)
         {
-            return rect.Text.Substring(rect.SelectedStartIndex, rect.SelectedEndIndexOffset - rect.SelectedStartIndex);
+            return rect.Text[rect.SelectedStartIndex..rect.SelectedEndIndexOffset];
         }
         else if (selectedText && rect.SelectedStartIndex > -1)
         {
-            return rect.Text.Substring(rect.SelectedStartIndex) + (rect.HasSpaceAfter ? " " : "");
+            return string.Concat(rect.Text.AsSpan(rect.SelectedStartIndex), rect.HasSpaceAfter ? " " : "");
         }
         else if (selectedText && rect.SelectedEndIndexOffset > -1)
         {
-            return rect.Text.Substring(0, rect.SelectedEndIndexOffset);
+            return rect.Text[..rect.SelectedEndIndexOffset];
         }
         else
         {
             var whitespaceBefore = rect.OwnerBox.Words[0] == rect ? LayoutBoxUtils.IsBoxHasWhitespace(rect.OwnerBox) : rect.HasSpaceBefore;
             return (whitespaceBefore ? " " : "") + rect.Text + (rect.HasSpaceAfter ? " " : "");
-        }
-    }
-
-    private static void GenerateBoxTree(CssBox box, StringBuilder builder, int indent)
-    {
-        builder.AppendFormat($"{new string(' ', 2 * indent)}<{box.Display}");
-
-        if (box.HtmlTag != null)
-            builder.AppendFormat($" element=\"{(box.HtmlTag != null ? box.HtmlTag.Name : string.Empty)}\"");
-
-        if (box.Words.Count > 0)
-            builder.AppendFormat($" words=\"{box.Words.Count}\"");
-
-        builder.AppendFormat($"{(box.Boxes.Count > 0 ? "" : "/")}>\r\n");
-
-        if (box.Boxes.Count > 0)
-        {
-            foreach (var childBox in box.Boxes)
-                GenerateBoxTree(childBox, builder, indent + 1);
-
-            builder.AppendFormat($"{new string(' ', 2 * indent)}</{box.Display}>\r\n");
         }
     }
 }

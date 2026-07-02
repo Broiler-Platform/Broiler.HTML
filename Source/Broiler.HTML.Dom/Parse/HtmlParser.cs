@@ -1,10 +1,12 @@
 using Broiler.Dom.Html;
+using Broiler.Dom;
 using System;
 using System.Collections.Generic;
-
-using HtmlTag = Broiler.Layout.HtmlTag;
-using HtmlUtils = Broiler.HTML.Utils.HtmlUtils;
 using Broiler.Layout.Engine;
+using Broiler.HTML.Utils;
+using Broiler.Layout;
+using System.Net;
+
 namespace Broiler.HTML.Dom.Parse;
 
 /// <summary>
@@ -23,7 +25,7 @@ internal static class HtmlParser
         return ParseDocument(parsed.Document, baseUrl);
     }
 
-    public static CssBox ParseDocument(Broiler.Dom.DomDocument document, Uri baseUrl)
+    public static CssBox ParseDocument(DomDocument document, Uri baseUrl)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -47,7 +49,7 @@ internal static class HtmlParser
         return root;
     }
 
-    private static void AppendCanonicalNode(Broiler.Dom.DomNode node, CssBox parent, Uri baseUrl)
+    private static void AppendCanonicalNode(DomNode node, CssBox parent, Uri baseUrl)
     {
         // Match text by canonical node type, not concrete class, and read it through
         // DomNode.NodeValue. The renderer's own parse path produces Broiler.Dom.DomText,
@@ -86,7 +88,7 @@ internal static class HtmlParser
             return;
         }
 
-        if (node is not Broiler.Dom.DomElement element)
+        if (node is not DomElement element)
             return;
 
         Dictionary<string, string> attrs = null;
@@ -94,7 +96,7 @@ internal static class HtmlParser
         {
             attrs = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
             foreach (var attribute in element.Attributes.Values)
-                attrs[attribute.QualifiedName] = HtmlUtils.DecodeHtml(attribute.Value);
+                attrs[attribute.QualifiedName] = WebUtility.HtmlDecode(attribute.Value);
         }
 
         var isSingle = HtmlUtils.IsSingleTag(element.LocalName);

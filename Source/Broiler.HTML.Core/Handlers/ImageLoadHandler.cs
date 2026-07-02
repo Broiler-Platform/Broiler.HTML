@@ -109,7 +109,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
 
     private RImage GetImageFromData(string src)
     {
-        var s = src.Substring(src.IndexOf(':') + 1).Split([','], 2);
+        var s = src[(src.IndexOf(':') + 1)..].Split([','], 2);
 
         if (s.Length != 2)
             return null;
@@ -139,7 +139,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     {
         var uri = CommonUtils.TryGetUri(path);
 
-        bool isRootRelativePath = path.StartsWith("/", StringComparison.Ordinal)
+        bool isRootRelativePath = path.StartsWith('/')
             && !path.StartsWith("//", StringComparison.Ordinal);
         if (uri != null
             && uri.IsAbsoluteUri == false

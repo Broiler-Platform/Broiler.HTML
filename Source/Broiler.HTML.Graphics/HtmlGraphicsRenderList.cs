@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Layout.IR;
-using Broiler.HTML.Core.IR;
-using BroilerGraphics = Broiler.Graphics;
 using Broiler.Graphics;
 
 namespace Broiler.HTML.Graphics;
@@ -11,23 +9,11 @@ namespace Broiler.HTML.Graphics;
 /// <summary>
 /// A Broiler.Graphics render list plus backend image resources uploaded for that list.
 /// </summary>
-public sealed class HtmlGraphicsRenderList : IDisposable
+public class HtmlGraphicsRenderList(IBroilerRenderer renderer, BRenderList renderList, List<BImageHandle> images) : IDisposable
 {
-    private readonly BroilerGraphics.IBroilerRenderer _renderer;
-    private readonly List<BroilerGraphics.BImageHandle> _images;
     private bool _disposed;
 
-    internal HtmlGraphicsRenderList(
-        BroilerGraphics.IBroilerRenderer renderer,
-        BroilerGraphics.BRenderList renderList,
-        List<BroilerGraphics.BImageHandle> images)
-    {
-        _renderer = renderer;
-        RenderList = renderList;
-        _images = images;
-    }
-
-    public BroilerGraphics.BRenderList RenderList { get; }
+    public BRenderList RenderList { get; } = renderList;
 
     public void Dispose()
     {
@@ -35,29 +21,26 @@ public sealed class HtmlGraphicsRenderList : IDisposable
             return;
 
         _disposed = true;
-        foreach (var image in _images)
+        foreach (var image in images)
         {
             if (image.IsValid)
-                _renderer.ReleaseImage(image);
+                renderer.ReleaseImage(image);
         }
 
-        _images.Clear();
+        images.Clear();
     }
 }
 
-internal static class HtmlGraphicsRenderListBuilder
+public static class HtmlGraphicsRenderListBuilder
 {
-    public static HtmlGraphicsRenderList Build(
-        BroilerGraphics.IBroilerRenderer renderer,
-        DisplayList displayList,
-        RectangleF clip)
+    public static HtmlGraphicsRenderList Build(IBroilerRenderer renderer, DisplayList displayList, RectangleF clip)
     {
         ArgumentNullException.ThrowIfNull(renderer);
         ArgumentNullException.ThrowIfNull(displayList);
 
-        var list = new BroilerGraphics.BRenderList(displayList.Items.Count + 2);
-        var images = new List<BroilerGraphics.BImageHandle>();
-        var imageCache = new Dictionary<object, BroilerGraphics.BImageHandle>();
+        var list = new BRenderList(displayList.Items.Count + 2);
+        var images = new List<BImageHandle>();
+        var imageCache = new Dictionary<object, BImageHandle>();
         var opacityStack = new Stack<double>();
         var clipStack = new Stack<bool>();
         double opacity = 1.0;
@@ -158,7 +141,7 @@ internal static class HtmlGraphicsRenderListBuilder
         return new HtmlGraphicsRenderList(renderer, list, images);
     }
 
-    private static void FillRect(BroilerGraphics.BRenderList list, RectangleF rect, BColor color, double opacity)
+    private static void FillRect(BRenderList list, RectangleF rect, BColor color, double opacity)
     {
         if (!IsDrawable(rect) || color.A == 0 || opacity <= 0)
             return;
@@ -166,7 +149,7 @@ internal static class HtmlGraphicsRenderListBuilder
         list.FillRect(ToRect(rect), ToColor(color, opacity));
     }
 
-    private static void DrawBorder(BroilerGraphics.BRenderList list, DrawBorderItem item, double opacity)
+    private static void DrawBorder(BRenderList list, DrawBorderItem item, double opacity)
     {
         RectangleF bounds = item.Bounds;
         BoxEdges widths = item.Widths;
@@ -177,13 +160,7 @@ internal static class HtmlGraphicsRenderListBuilder
         DrawBorderSide(list, new RectangleF(bounds.Left, bounds.Top, (float)widths.Left, bounds.Height), item.LeftColor, item.LeftStyle, widths.Left, opacity);
     }
 
-    private static void DrawBorderSide(
-        BroilerGraphics.BRenderList list,
-        RectangleF rect,
-        BColor color,
-        string style,
-        double width,
-        double opacity)
+    private static void DrawBorderSide(BRenderList list, RectangleF rect, BColor color, string style, double width, double opacity)
     {
         if (width <= 0 || color.A == 0 || !IsBorderStyleVisible(style))
             return;
@@ -208,12 +185,12 @@ internal static class HtmlGraphicsRenderListBuilder
         FillRect(list, rect, color, opacity);
     }
 
-    private static void DrawText(BroilerGraphics.BRenderList list, DrawTextItem item, double opacity)
+    private static void DrawText(BRenderList list, DrawTextItem item, double opacity)
     {
         if (string.IsNullOrEmpty(item.Text) || item.FontSize <= 0 || item.Color.A == 0 || opacity <= 0)
             return;
 
-        var font = new BroilerGraphics.BFontStyle(
+        var font = new BFontStyle(
             string.IsNullOrWhiteSpace(item.FontFamily) ? "Segoe UI" : item.FontFamily,
             item.FontSize,
             ToFontWeight(item.FontWeight));
@@ -222,20 +199,20 @@ internal static class HtmlGraphicsRenderListBuilder
             && (item.TextShadowOffsetX != 0 || item.TextShadowOffsetY != 0))
         {
             list.DrawText(
-                new BroilerGraphics.BTextRun(item.Text, font, ToColor(item.TextShadowColor, opacity)),
-                new BroilerGraphics.BPoint(item.Origin.X + item.TextShadowOffsetX, item.Origin.Y + item.TextShadowOffsetY));
+                new BTextRun(item.Text, font, ToColor(item.TextShadowColor, opacity)),
+                new BPoint(item.Origin.X + item.TextShadowOffsetX, item.Origin.Y + item.TextShadowOffsetY));
         }
 
         list.DrawText(
-            new BroilerGraphics.BTextRun(item.Text, font, ToColor(item.Color, opacity)),
-            new BroilerGraphics.BPoint(item.Origin.X, item.Origin.Y));
+            new BTextRun(item.Text, font, ToColor(item.Color, opacity)),
+            new BPoint(item.Origin.X, item.Origin.Y));
     }
 
     private static void DrawImage(
-        BroilerGraphics.BRenderList list,
-        BroilerGraphics.IBroilerRenderer renderer,
-        List<BroilerGraphics.BImageHandle> images,
-        Dictionary<object, BroilerGraphics.BImageHandle> imageCache,
+        BRenderList list,
+        IBroilerRenderer renderer,
+        List<BImageHandle> images,
+        Dictionary<object, BImageHandle> imageCache,
         object? imageHandle,
         RectangleF source,
         RectangleF destination,
@@ -244,7 +221,7 @@ internal static class HtmlGraphicsRenderListBuilder
         if (imageHandle == null || !IsDrawable(destination) || opacity <= 0)
             return;
 
-        BroilerGraphics.BImageHandle image = GetImage(renderer, images, imageCache, imageHandle);
+        BImageHandle image = GetImage(renderer, images, imageCache, imageHandle);
         if (!image.IsValid)
             return;
 
@@ -255,17 +232,17 @@ internal static class HtmlGraphicsRenderListBuilder
     }
 
     private static void DrawTiledImage(
-        BroilerGraphics.BRenderList list,
-        BroilerGraphics.IBroilerRenderer renderer,
-        List<BroilerGraphics.BImageHandle> images,
-        Dictionary<object, BroilerGraphics.BImageHandle> imageCache,
+        BRenderList list,
+        IBroilerRenderer renderer,
+        List<BImageHandle> images,
+        Dictionary<object, BImageHandle> imageCache,
         DrawTiledImageItem item,
         double opacity)
     {
         if (item.ImageHandle == null || !IsDrawable(item.FillRect) || opacity <= 0)
             return;
 
-        BroilerGraphics.BImageHandle image = GetImage(renderer, images, imageCache, item.ImageHandle);
+        BImageHandle image = GetImage(renderer, images, imageCache, item.ImageHandle);
         if (!image.IsValid)
             return;
 
@@ -320,25 +297,25 @@ internal static class HtmlGraphicsRenderListBuilder
         list.PopClip();
     }
 
-    private static BroilerGraphics.BImageHandle GetImage(
-        BroilerGraphics.IBroilerRenderer renderer,
-        List<BroilerGraphics.BImageHandle> images,
-        Dictionary<object, BroilerGraphics.BImageHandle> imageCache,
+    private static BImageHandle GetImage(
+        IBroilerRenderer renderer,
+        List<BImageHandle> images,
+        Dictionary<object, BImageHandle> imageCache,
         object imageHandle)
     {
-        if (imageCache.TryGetValue(imageHandle, out BroilerGraphics.BImageHandle cached))
+        if (imageCache.TryGetValue(imageHandle, out BImageHandle cached))
             return cached;
 
-        if (!Broiler.HTML.Image.HtmlRender.TryCreatePixelBuffer(imageHandle, out BroilerGraphics.BPixelBuffer pixels))
-            return BroilerGraphics.BImageHandle.Invalid;
+        if (!Image.HtmlRender.TryCreatePixelBuffer(imageHandle, out BPixelBuffer pixels))
+            return BImageHandle.Invalid;
 
-        BroilerGraphics.BImageHandle image = renderer.CreateImage(pixels);
+        BImageHandle image = renderer.CreateImage(pixels);
         images.Add(image);
         imageCache[imageHandle] = image;
         return image;
     }
 
-    private static void DrawGradientFallback(BroilerGraphics.BRenderList list, DrawTiledGradientItem item, double opacity)
+    private static void DrawGradientFallback(BRenderList list, DrawTiledGradientItem item, double opacity)
     {
         if (item.Stops == null || item.Stops.Count == 0)
             return;
@@ -346,7 +323,7 @@ internal static class HtmlGraphicsRenderListBuilder
         FillRect(list, item.FillRect, item.Stops[0].Color, opacity);
     }
 
-    private static void DrawLineFallback(BroilerGraphics.BRenderList list, DrawLineItem item, double opacity)
+    private static void DrawLineFallback(BRenderList list, DrawLineItem item, double opacity)
     {
         if (item.Width <= 0 || item.Color.A == 0)
             return;
@@ -367,7 +344,7 @@ internal static class HtmlGraphicsRenderListBuilder
         }
     }
 
-    private static void DrawSvgRect(BroilerGraphics.BRenderList list, DrawSvgRectItem item, double opacity)
+    private static void DrawSvgRect(BRenderList list, DrawSvgRectItem item, double opacity)
     {
         var rect = new RectangleF(item.Bounds.X + item.X, item.Bounds.Y + item.Y, item.Width, item.Height);
         FillRect(list, rect, item.Fill, opacity);
@@ -375,46 +352,45 @@ internal static class HtmlGraphicsRenderListBuilder
             list.StrokeRect(ToRect(rect), ToColor(item.Stroke, opacity), item.StrokeWidth);
     }
 
-    private static BroilerGraphics.BMatrix3x2 ToMatrix(TransformItem item)
+    private static BMatrix3x2 ToMatrix(TransformItem item)
     {
         float[] m = item.Matrix;
         if (m.Length < 6)
-            return BroilerGraphics.BMatrix3x2.Identity;
+            return BMatrix3x2.Identity;
 
-        var matrix = new BroilerGraphics.BMatrix3x2(m[0], m[1], m[2], m[3], m[4], m[5]);
-        return BroilerGraphics.BMatrix3x2.Translation(-item.OriginX, -item.OriginY)
+        var matrix = new BMatrix3x2(m[0], m[1], m[2], m[3], m[4], m[5]);
+        return BMatrix3x2.Translation(-item.OriginX, -item.OriginY)
             * matrix
-            * BroilerGraphics.BMatrix3x2.Translation(item.OriginX, item.OriginY);
+            * BMatrix3x2.Translation(item.OriginX, item.OriginY);
     }
 
-    private static BroilerGraphics.BRect ToRect(RectangleF rect) =>
-        new(rect.X, rect.Y, rect.Width, rect.Height);
+    private static BRect ToRect(RectangleF rect) => new(rect.X, rect.Y, rect.Width, rect.Height);
 
-    private static BroilerGraphics.BColor ToColor(BColor color, double opacity)
+    private static BColor ToColor(BColor color, double opacity)
     {
         byte alpha = (byte)Math.Clamp((int)Math.Round(color.A * opacity), 0, 255);
-        return new BroilerGraphics.BColor(color.R, color.G, color.B, alpha);
+        return new BColor(color.R, color.G, color.B, alpha);
     }
 
-    private static BroilerGraphics.BFontWeight ToFontWeight(string value)
+    private static BFontWeight ToFontWeight(string value)
     {
         if (int.TryParse(value, out int numeric))
         {
-            if (numeric >= 800) return BroilerGraphics.BFontWeight.Black;
-            if (numeric >= 700) return BroilerGraphics.BFontWeight.Bold;
-            if (numeric >= 600) return BroilerGraphics.BFontWeight.SemiBold;
-            if (numeric >= 500) return BroilerGraphics.BFontWeight.Medium;
-            if (numeric <= 300) return BroilerGraphics.BFontWeight.Light;
-            return BroilerGraphics.BFontWeight.Normal;
+            if (numeric >= 800) return BFontWeight.Black;
+            if (numeric >= 700) return BFontWeight.Bold;
+            if (numeric >= 600) return BFontWeight.SemiBold;
+            if (numeric >= 500) return BFontWeight.Medium;
+            if (numeric <= 300) return BFontWeight.Light;
+            return BFontWeight.Normal;
         }
 
         return value?.ToLowerInvariant() switch
         {
-            "bold" or "bolder" => BroilerGraphics.BFontWeight.Bold,
-            "600" => BroilerGraphics.BFontWeight.SemiBold,
-            "500" => BroilerGraphics.BFontWeight.Medium,
-            "lighter" or "light" => BroilerGraphics.BFontWeight.Light,
-            _ => BroilerGraphics.BFontWeight.Normal,
+            "bold" or "bolder" => BFontWeight.Bold,
+            "600" => BFontWeight.SemiBold,
+            "500" => BFontWeight.Medium,
+            "lighter" or "light" => BFontWeight.Light,
+            _ => BFontWeight.Normal,
         };
     }
 
