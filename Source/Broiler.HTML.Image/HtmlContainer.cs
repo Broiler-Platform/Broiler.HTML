@@ -1,11 +1,13 @@
+using Broiler.Layout;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
-using Broiler.HTML.Primitives.Adapters.Entities;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
+using Broiler.Layout.IR;
 using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
 
@@ -64,11 +66,6 @@ public sealed class HtmlContainer : IDisposable
 
     internal HtmlContainerInt HtmlContainerInt { get; }
 
-    public HtmlStyleSet StyleSet => HtmlContainerInt.StyleSet;
-
-    [Obsolete("Use StyleSet.")]
-    public CssData CssData => HtmlContainerInt.CssData;
-
     /// <summary>
     /// The most recent <see cref="Fragment"/> tree built after layout.
     /// Available after <see cref="PerformLayout"/> has been called.
@@ -85,18 +82,6 @@ public sealed class HtmlContainer : IDisposable
     {
         get => HtmlContainerInt.AvoidImagesLateLoading;
         set => HtmlContainerInt.AvoidImagesLateLoading = value;
-    }
-
-    public bool IsSelectionEnabled
-    {
-        get => HtmlContainerInt.IsSelectionEnabled;
-        set => HtmlContainerInt.IsSelectionEnabled = value;
-    }
-
-    public bool IsContextMenuEnabled
-    {
-        get => HtmlContainerInt.IsContextMenuEnabled;
-        set => HtmlContainerInt.IsContextMenuEnabled = value;
     }
 
     public PointF ScrollOffset
@@ -116,12 +101,6 @@ public sealed class HtmlContainer : IDisposable
         get => HtmlContainerInt.ActualSize;
         internal set => HtmlContainerInt.ActualSize = value;
     }
-
-    public string SelectedText => HtmlContainerInt.SelectedText;
-
-    public string SelectedHtml => HtmlContainerInt.SelectedHtml;
-
-    public void ClearSelection() => HtmlContainerInt.ClearSelection();
 
     public PointF Location
     {
@@ -156,8 +135,6 @@ public sealed class HtmlContainer : IDisposable
 
     public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet baseStyleSet = null, string baseUrl = null) =>
         HtmlContainerInt.SetDocumentWithStyleSet(document, baseStyleSet, baseUrl);
-
-    public void Clear() => HtmlContainerInt.Clear();
 
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => HtmlContainerInt.GetHtml(styleGen);
 
@@ -236,27 +213,12 @@ public sealed class HtmlContainer : IDisposable
     /// bridge) that need accurate element geometry without constructing a graphics backend.
     /// Requires the document to have been bound via <see cref="SetDocument"/>/<see cref="SetDocumentWithStyleSet"/>.
     /// </summary>
-    public IReadOnlyDictionary<Broiler.Dom.DomElement, Broiler.HTML.Orchestration.BoxGeometry> GetLayoutGeometry(SizeF viewport)
+    public IReadOnlyDictionary<Broiler.Dom.DomElement, Broiler.Layout.BoxGeometry> GetLayoutGeometry(SizeF viewport)
     {
         MaxSize = viewport;
         PerformLayout(new RectangleF(0, 0, viewport.Width, viewport.Height));
         return HtmlContainerInt.CollectLayoutGeometry();
     }
-
-    public void ScrollToElement(string elementId)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(elementId);
-
-        var rect = GetElementRectangle(elementId);
-        if (!rect.HasValue)
-            return;
-
-        ScrollToPoint(rect.Value.Location);
-    }
-
-    public void ScrollToPoint(PointF location) => ScrollToPoint(location.X, location.Y);
-
-    public void ScrollToPoint(float x, float y) => ScrollOffset = new PointF(-x, -y);
 
     /// <summary>
     /// Returns all links found in the parsed HTML document.
@@ -275,12 +237,6 @@ public sealed class HtmlContainer : IDisposable
     {
         var control = CreateControl(location, leftButton, rightButton);
         HtmlContainerInt.HandleMouseUp(control, location, new RMouseEvent(leftButton));
-    }
-
-    public void HandleMouseDoubleClick(PointF location, bool leftButton = true, bool rightButton = false)
-    {
-        var control = CreateControl(location, leftButton, rightButton);
-        HtmlContainerInt.HandleMouseDoubleClick(control, location);
     }
 
     public void HandleMouseMove(PointF mousePos, bool leftButton = false, bool rightButton = false)
@@ -309,7 +265,7 @@ public sealed class HtmlContainer : IDisposable
     /// is taken from the root element; if that is transparent, the body
     /// element's background is used instead.
     /// </summary>
-    public Color GetRootBackgroundColor() => HtmlContainerInt.GetRootBackgroundColor();
+    public BColor GetRootBackgroundColor() => HtmlContainerInt.GetRootBackgroundColor();
 
     public void Dispose() => HtmlContainerInt.Dispose();
 

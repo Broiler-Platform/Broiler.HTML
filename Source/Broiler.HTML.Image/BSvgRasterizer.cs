@@ -6,8 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
-using Broiler.HTML.Image.Adapters;
 
 namespace Broiler.HTML.Image;
 
@@ -169,8 +169,8 @@ public static class BSvgRasterizer
             if (rectWidth <= 0 || rectHeight <= 0)
                 continue;
 
-            var fill = GetColor(attrs, "fill", Color.Black);
-            var stroke = GetColor(attrs, "stroke", Color.Empty);
+            var fill = GetColor(attrs, "fill", BColor.Black);
+            var stroke = GetColor(attrs, "stroke", BColor.Empty);
             float strokeWidth = context.ScaleStroke(ParseLength(attrs, "stroke-width", context.CoordinateWidth, 1));
 
             if (!fill.IsEmpty && fill.A > 0)
@@ -226,8 +226,8 @@ public static class BSvgRasterizer
             return;
 
         var points = CreateEllipsePoints(cx, cy, rx, ry);
-        var fill = GetColor(attrs, "fill", Color.Black);
-        var stroke = GetColor(attrs, "stroke", Color.Empty);
+        var fill = GetColor(attrs, "fill", BColor.Black);
+        var stroke = GetColor(attrs, "stroke", BColor.Empty);
         float strokeWidth = context.ScaleStroke(ParseLength(attrs, "stroke-width", context.CoordinateWidth, 1));
 
         if (!fill.IsEmpty && fill.A > 0)
@@ -242,7 +242,7 @@ public static class BSvgRasterizer
         foreach (Match match in Regex.Matches(svgContent, @"<line\b([^/>]*)/?>", RegexOptions.IgnoreCase))
         {
             var attrs = ParseAttributes(match.Groups[1].Value);
-            var stroke = GetColor(attrs, "stroke", Color.Black);
+            var stroke = GetColor(attrs, "stroke", BColor.Black);
             float strokeWidth = context.ScaleStroke(ParseLength(attrs, "stroke-width", context.CoordinateWidth, 1));
             if (stroke.IsEmpty || stroke.A <= 0 || strokeWidth <= 0)
                 continue;
@@ -271,8 +271,8 @@ public static class BSvgRasterizer
             if (points.Points.Count < 2)
                 continue;
 
-            var fill = GetColor(attrs, "fill", Color.Black);
-            var stroke = GetColor(attrs, "stroke", Color.Empty);
+            var fill = GetColor(attrs, "fill", BColor.Black);
+            var stroke = GetColor(attrs, "stroke", BColor.Empty);
             float strokeWidth = context.ScaleStroke(ParseLength(attrs, "stroke-width", context.CoordinateWidth, 1));
 
             if (points.IsClosed && !fill.IsEmpty && fill.A > 0 && points.Points.Count >= 3)
@@ -292,7 +292,7 @@ public static class BSvgRasterizer
             if (string.IsNullOrEmpty(text))
                 continue;
 
-            var fill = GetColor(attrs, "fill", Color.Black);
+            var fill = GetColor(attrs, "fill", BColor.Black);
             if (fill.IsEmpty || fill.A <= 0)
                 continue;
 
@@ -302,13 +302,13 @@ public static class BSvgRasterizer
             var font = CompatProvider.ImageAdapter.GetFont(
                 attrs.TryGetValue("font-family", out var family) && !string.IsNullOrWhiteSpace(family) ? family : "Arial",
                 Math.Max(fontSize, 1),
-                FontStyle.Regular);
+                Graphics.FontStyle.Regular);
 
             graphics.DrawString(text, font, fill, new PointF(x, y), context.Bounds.Size, false);
         }
     }
 
-    private static void DrawPolygonStroke(BCanvas canvas, IReadOnlyList<PointF> points, Color stroke, float strokeWidth, bool closed)
+    private static void DrawPolygonStroke(BCanvas canvas, IReadOnlyList<PointF> points, BColor stroke, float strokeWidth, bool closed)
     {
         if (points.Count < 2)
             return;
@@ -592,13 +592,13 @@ public static class BSvgRasterizer
             : defaultValue;
     }
 
-    private static Color GetColor(Dictionary<string, string> attrs, string name, Color defaultColor)
+    private static BColor GetColor(Dictionary<string, string> attrs, string name, BColor defaultColor)
     {
         if (!attrs.TryGetValue(name, out var value))
             return defaultColor;
 
         if (string.IsNullOrWhiteSpace(value) || value.Equals("none", StringComparison.OrdinalIgnoreCase))
-            return Color.Empty;
+            return BColor.Empty;
 
         if (value.StartsWith("rgba(", StringComparison.OrdinalIgnoreCase) && value.EndsWith(")", StringComparison.Ordinal))
         {
@@ -609,7 +609,7 @@ public static class BSvgRasterizer
                 && int.TryParse(parts[2].Trim(), out int b)
                 && float.TryParse(parts[3].Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out float a))
             {
-                return Color.FromArgb(
+                return BColor.FromArgb(
                     (int)(Math.Clamp(a, 0f, 1f) * 255),
                     Math.Clamp(r, 0, 255),
                     Math.Clamp(g, 0, 255),
@@ -625,15 +625,16 @@ public static class BSvgRasterizer
                 && int.TryParse(parts[1].Trim(), out int g)
                 && int.TryParse(parts[2].Trim(), out int b))
             {
-                return Color.FromArgb(255, Math.Clamp(r, 0, 255), Math.Clamp(g, 0, 255), Math.Clamp(b, 0, 255));
+                return BColor.FromArgb(255, Math.Clamp(r, 0, 255), Math.Clamp(g, 0, 255), Math.Clamp(b, 0, 255));
             }
         }
 
         try
         {
-            return value.StartsWith("#", StringComparison.Ordinal)
-                ? ColorTranslator.FromHtml(value)
-                : Color.FromName(value);
+            if (value.StartsWith("#", StringComparison.Ordinal))
+                return TryParseHexColor(value, out var hex) ? hex : defaultColor;
+            var named = BColor.FromName(value);
+            return named.IsEmpty ? defaultColor : named;
         }
         catch
         {
@@ -641,7 +642,28 @@ public static class BSvgRasterizer
         }
     }
 
-    private static BColor ToBColor(Color color) => new(color.R, color.G, color.B, color.A);
+    private static bool TryParseHexColor(string val, out BColor color)
+    {
+        color = default;
+        string hex = val.TrimStart('#');
+        if (hex.Length == 3 || hex.Length == 4)
+        {
+            string expanded = "";
+            foreach (char ch in hex)
+                expanded += new string(ch, 2);
+            hex = expanded;
+        }
+        if (hex.Length != 6 && hex.Length != 8)
+            return false;
+        if (!uint.TryParse(hex, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out uint v))
+            return false;
+        color = hex.Length == 6
+            ? new BColor((byte)((v >> 16) & 0xFF), (byte)((v >> 8) & 0xFF), (byte)(v & 0xFF))
+            : new BColor((byte)((v >> 24) & 0xFF), (byte)((v >> 16) & 0xFF), (byte)((v >> 8) & 0xFF), (byte)(v & 0xFF));
+        return true;
+    }
+
+    private static BColor ToBColor(BColor color) => new(color.R, color.G, color.B, color.A);
 
     private readonly record struct PathPoints(List<PointF> Points, bool IsClosed);
 

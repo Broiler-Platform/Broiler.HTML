@@ -17,7 +17,7 @@ public sealed class HtmlStylesheetLoadEventArgs : EventArgs
     public string SetStyleSheet { get; set; }
 
     /// <summary>Gets or sets a pre-parsed shared author stylesheet.</summary>
-    public Broiler.CSS.CssStyleSheet SetStyleSheetModel { get; set; }
+    public CSS.CssStyleSheet SetStyleSheetModel { get; set; }
 
     [Obsolete("Use SetStyleSheetModel with Broiler.CSS.CssStyleSheet.")]
     public CssData SetStyleSheetData { get; set; }

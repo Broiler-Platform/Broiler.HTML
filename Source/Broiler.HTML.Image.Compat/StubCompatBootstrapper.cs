@@ -7,6 +7,5 @@ namespace Broiler.HTML.Image.Compat;
 /// </summary>
 public static class StubCompatBootstrapper
 {
-    public static void EnsureRegistered() =>
-        Broiler.HTML.Image.CompatProvider.InitializeDefault(new Broiler.HTML.Image.StubCompatProvider());
+    public static void EnsureRegistered() => CompatProvider.InitializeDefault(new StubCompatProvider());
 }

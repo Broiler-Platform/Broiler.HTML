@@ -1,4 +1,4 @@
-using Broiler.HTML.Adapters;
+using Broiler.Graphics;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Utils;
 using System;
@@ -55,12 +55,12 @@ internal interface IHtmlContainerInt
     /// <summary>
     /// The selection foreground colour.
     /// </summary>
-    Color SelectionForeColor { get; }
+    BColor SelectionForeColor { get; }
 
     /// <summary>
     /// The selection background colour.
     /// </summary>
-    Color SelectionBackColor { get; }
+    BColor SelectionBackColor { get; }
 
     /// <summary>
     /// Requests the container to refresh/repaint.
@@ -86,13 +86,13 @@ internal interface IHtmlContainerInt
     /// Gets a cached font for the specified family, size, and style.
     /// Wraps the adapter's font creation/caching.
     /// </summary>
-    RFont GetFont(string family, double size, FontStyle style, string fontFeatures = null);
+    RFont GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures = null);
 
     /// <summary>
     /// Parses a colour string and returns the corresponding <see cref="Color"/>.
     /// Wraps the CSS parser's colour resolution.
     /// </summary>
-    Color ParseColor(string colorStr);
+    BColor ParseColor(string colorStr);
 
     /// <summary>
     /// Raises the image-load event on the container.

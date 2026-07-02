@@ -1,11 +1,11 @@
-using Broiler.HTML.Adapters;
-using Broiler.HTML.Core.Core.Dom;
+using Broiler.Graphics;
+using Broiler.Layout.IR;
 using Broiler.HTML.Core.IR;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace Broiler.HTML.Orchestration.Core.IR;
+namespace Broiler.HTML.Orchestration.IR;
 
 /// <summary>
 /// <see cref="IRasterBackend"/> implementation that replays a <see cref="DisplayList"/>
@@ -176,7 +176,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             && IsRasterCompatibleBorderSide(widths.Left, item.LeftColor, item.LeftStyle);
     }
 
-    private static bool IsRasterCompatibleBorderSide(double width, Color color, string? style) =>
+    private static bool IsRasterCompatibleBorderSide(double width, BColor color, string? style) =>
         width <= 0
         || color.A <= 0
         || string.IsNullOrEmpty(style)
@@ -390,7 +390,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             Border.Right => item.RightColor,
             Border.Bottom => item.BottomColor,
             Border.Left => item.LeftColor,
-            _ => Color.Empty,
+            _ => BColor.Empty,
         });
 
         switch (side)
@@ -760,7 +760,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         g.PopClip();
     }
 
-    private static (Color[] colors, float[] positions) ExpandGradientStops(IReadOnlyList<GradientStop> stops, string interpolationSpace)
+    private static (BColor[] colors, float[] positions) ExpandGradientStops(IReadOnlyList<GradientStop> stops, string interpolationSpace)
     {
         if (stops.Count == 0)
             return ([], []);
@@ -768,7 +768,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         if (!interpolationSpace.Equals("hsl", StringComparison.OrdinalIgnoreCase)
             && !interpolationSpace.Equals("oklch", StringComparison.OrdinalIgnoreCase))
         {
-            var directColors = new Color[stops.Count];
+            var directColors = new BColor[stops.Count];
             var directPositions = new float[stops.Count];
             for (int i = 0; i < stops.Count; i++)
             {
@@ -780,7 +780,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
 
         const int samplesPerSegment = 24;
-        var expandedColors = new List<Color>();
+        var expandedColors = new List<BColor>();
         var expandedPositions = new List<float>();
 
         for (int i = 0; i < stops.Count - 1; i++)
@@ -801,7 +801,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         return (expandedColors.ToArray(), expandedPositions.ToArray());
     }
 
-    private static Color InterpolateColor(Color start, Color end, float t, string interpolationSpace)
+    private static BColor InterpolateColor(BColor start, BColor end, float t, string interpolationSpace)
     {
         if (interpolationSpace.Equals("hsl", StringComparison.OrdinalIgnoreCase))
         {
@@ -823,14 +823,14 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             return OklchToRgb(l, c, h, Lerp(start.A, end.A, t));
         }
 
-        return Color.FromArgb(
+        return BColor.FromArgb(
             ClampByte(Lerp(start.A, end.A, t)),
             ClampByte(Lerp(start.R, end.R, t)),
             ClampByte(Lerp(start.G, end.G, t)),
             ClampByte(Lerp(start.B, end.B, t)));
     }
 
-    private static (double h, double s, double l) RgbToHsl(Color color)
+    private static (double h, double s, double l) RgbToHsl(BColor color)
     {
         double r = color.R / 255d;
         double g = color.G / 255d;
@@ -858,7 +858,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         return (h, s, l);
     }
 
-    private static Color HslToRgb(double h, double s, double l, double alpha)
+    private static BColor HslToRgb(double h, double s, double l, double alpha)
     {
         double c = (1d - Math.Abs(2d * l - 1d)) * s;
         double x = c * (1d - Math.Abs((h / 60d) % 2d - 1d));
@@ -872,14 +872,14 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         else if (h < 300d) (r1, g1, b1) = (x, 0, c);
         else (r1, g1, b1) = (c, 0, x);
 
-        return Color.FromArgb(
+        return BColor.FromArgb(
             ClampByte(alpha),
             ClampByte((r1 + m) * 255d),
             ClampByte((g1 + m) * 255d),
             ClampByte((b1 + m) * 255d));
     }
 
-    private static (double l, double c, double h) RgbToOklch(Color color)
+    private static (double l, double c, double h) RgbToOklch(BColor color)
     {
         double r = SrgbToLinear(color.R / 255d);
         double g = SrgbToLinear(color.G / 255d);
@@ -905,7 +905,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         return (okL, c, h);
     }
 
-    private static Color OklchToRgb(double l, double c, double h, double alpha)
+    private static BColor OklchToRgb(double l, double c, double h, double alpha)
     {
         double radians = h * Math.PI / 180d;
         double okA = c * Math.Cos(radians);
@@ -923,7 +923,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         double g = LinearToSrgb(-1.2684380046 * lLinear + 2.6097574011 * mLinear - 0.3413193965 * sLinear);
         double b = LinearToSrgb(-0.0041960863 * lLinear - 0.7034186147 * mLinear + 1.7076147010 * sLinear);
 
-        return Color.FromArgb(
+        return BColor.FromArgb(
             ClampByte(alpha),
             ClampByte(r * 255d),
             ClampByte(g * 255d),
@@ -956,9 +956,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         pen.Width = item.Width;
         pen.DashStyle = item.DashStyle switch
         {
-            "dotted" => DashStyle.Dot,
-            "dashed" => DashStyle.Dash,
-            _ => DashStyle.Solid,
+            "dotted" => Graphics.DashStyle.Dot,
+            "dashed" => Graphics.DashStyle.Dash,
+            _ => Graphics.DashStyle.Solid,
         };
         g.DrawLine(pen, item.Start.X, item.Start.Y, item.End.X, item.End.Y);
     }
@@ -1072,15 +1072,15 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         return absolute;
     }
 
-    private static RPen CreateBorderPen(RGraphics g, string style, Color color, double width)
+    private static RPen CreateBorderPen(RGraphics g, string style, BColor color, double width)
     {
         var pen = g.GetPen(color);
         pen.Width = width;
         pen.DashStyle = style switch
         {
-            "dotted" => DashStyle.Dot,
-            "dashed" => DashStyle.Dash,
-            _ => DashStyle.Solid,
+            "dotted" => Graphics.DashStyle.Dot,
+            "dashed" => Graphics.DashStyle.Dash,
+            _ => Graphics.DashStyle.Solid,
         };
         return pen;
     }

@@ -6,9 +6,6 @@ namespace Broiler.HTML.Core.IR;
 /// </summary>
 public sealed record DeterministicRenderConfig
 {
-    public int ViewportWidth { get; init; } = 800;
-    public int ViewportHeight { get; init; } = 600;
-
     /// <summary>Pixel-difference threshold as a ratio (0.0–1.0). Default 0.01 = 1%.</summary>
     public double PixelDiffThreshold { get; init; } = 0.01;
 

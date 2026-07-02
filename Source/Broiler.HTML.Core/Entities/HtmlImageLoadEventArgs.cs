@@ -23,41 +23,11 @@ public sealed class HtmlImageLoadEventArgs : EventArgs
     public bool Handled { get; set; }
     public Uri BaseUri { get; set; }
 
-    public void Callback()
-    {
-        Handled = true;
-        _callback(null, null, new RectangleF(), BaseUri);
-    }
-
     public void Callback(string path)
     {
         ArgumentException.ThrowIfNullOrEmpty(path);
 
         Handled = true;
         _callback(path, null, RectangleF.Empty, BaseUri);
-    }
-
-    public void Callback(string path, double x, double y, double width, double height)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(path);
-
-        Handled = true;
-        _callback(path, null, new RectangleF((float)x, (float)y, (float)width, (float)height), BaseUri);
-    }
-
-    public void Callback(object image)
-    {
-        ArgumentNullException.ThrowIfNull(image);
-
-        Handled = true;
-        _callback(null, image, RectangleF.Empty, BaseUri);
-    }
-
-    public void Callback(object image, double x, double y, double width, double height)
-    {
-        ArgumentNullException.ThrowIfNull(image);
-
-        Handled = true;
-        _callback(null, image, new RectangleF((float)x, (float)y, (float)width, (float)height), BaseUri);
     }
 }

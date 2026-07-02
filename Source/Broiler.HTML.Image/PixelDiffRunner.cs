@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using Broiler.Layout.IR;
 using Broiler.HTML.Core.IR;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Image;
 
@@ -121,7 +123,7 @@ public static class PixelDiffRunner
     {
         try
         {
-            return BBitmap.Decode(source.Encode(BImageFormat.Png, 100));
+            return BBitmap.Decode(source.Encode(Graphics.BImageEncodeFormat.Png, 100));
         }
         catch (InvalidOperationException)
         {

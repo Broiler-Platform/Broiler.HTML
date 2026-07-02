@@ -2,16 +2,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
-using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
-
-using HtmlTag = Broiler.Layout.HtmlTag;
-using Broiler.Layout;
 using HtmlUtils = Broiler.HTML.Utils.HtmlUtils;
 using CommonUtils = Broiler.HTML.Utils.CommonUtils;
 using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
 using CssConstants = Broiler.CSS.CssConstants;
+using Broiler.Layout.Engine;
 namespace Broiler.HTML.Dom.Utils;
 
 internal sealed class DomUtils
@@ -247,13 +244,6 @@ internal sealed class DomUtils
             WriteHtml(sb, root, styleGen, selectedBoxes, selectionRoot);
         }
 
-        return sb.ToString();
-    }
-
-    public static string GenerateBoxTree(CssBox root)
-    {
-        var sb = new StringBuilder();
-        GenerateBoxTree(root, sb, 0);
         return sb.ToString();
     }
 

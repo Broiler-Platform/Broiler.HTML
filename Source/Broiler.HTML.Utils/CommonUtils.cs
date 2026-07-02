@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using System.Drawing;
 
 using CssConstants = Broiler.CSS.CssConstants;
 namespace Broiler.HTML.Utils;
@@ -58,27 +57,6 @@ internal static class CommonUtils
     ];
 
     public static string _tempPath;
-
-    public static bool IsAsianCharecter(char ch) => ch >= 0x4e00 && ch <= 0xFA2D;
-
-    public static bool IsDigit(char ch, bool hex = false) => (ch >= '0' && ch <= '9') || (hex && ((ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')));
-
-    public static int ToDigit(char ch, bool hex = false)
-    {
-        if (ch >= '0' && ch <= '9')
-            return ch - '0';
-        else if (hex)
-        {
-            if (ch >= 'a' && ch <= 'f')
-                return ch - 'a' + 10;
-            else if (ch >= 'A' && ch <= 'F')
-                return ch - 'A' + 10;
-        }
-
-        return 0;
-    }
-
-    public static SizeF Max(SizeF size, SizeF other) => new(Math.Max(size.Width, other.Width), Math.Max(size.Height, other.Height));
 
     public static Uri TryGetUri(string path)
     {
@@ -183,38 +161,6 @@ internal static class CommonUtils
         }
 
         return new FileInfo(Path.Combine(_tempPath, validFileName));
-    }
-
-    public static int GetNextSubString(string str, int idx, out int length)
-    {
-        while (idx < str.Length && char.IsWhiteSpace(str[idx]))
-            idx++;
-
-        if (idx < str.Length)
-        {
-            var endIdx = idx + 1;
-            while (endIdx < str.Length && !char.IsWhiteSpace(str[endIdx]))
-                endIdx++;
-            length = endIdx - idx;
-            return idx;
-        }
-
-        length = 0;
-        return -1;
-    }
-
-    public static bool SubStringEquals(string str, int idx, int length, string str2)
-    {
-        if (length != str2.Length || idx + length > str.Length)
-            return false;
-
-        for (int i = 0; i < length; i++)
-        {
-            if (char.ToLowerInvariant(str[idx + i]) != char.ToLowerInvariant(str2[i]))
-                return false;
-        }
-
-        return true;
     }
 
     private static string GetValidFileName(string source)

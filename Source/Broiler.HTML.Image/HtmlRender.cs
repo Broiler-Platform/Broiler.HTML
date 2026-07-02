@@ -4,30 +4,12 @@ using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Image;
 
 public static class HtmlRender
 {
-    public static void AddFontFamily(string fontFamily)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(fontFamily);
-
-        CompatProvider.ImageAdapter.AddFontFamily(new FontFamilyAdapter(fontFamily));
-    }
-
-    public static void AddFontFamilyMapping(string fromFamily, string toFamily)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(fromFamily);
-        ArgumentException.ThrowIfNullOrWhiteSpace(toFamily);
-
-        CompatProvider.ImageAdapter.AddFontFamilyMapping(fromFamily, toFamily);
-    }
-
-    [Obsolete("Use ParseStyleSet or ParseStyleSheetModel.")]
-    public static CssData ParseStyleSheet(string stylesheet, bool combineWithDefault = true) =>
-        new(HtmlStyleSet.Parse(stylesheet, combineWithDefault));
-
     /// <summary>Parses CSS into the supported origin-aware renderer style set.</summary>
     public static HtmlStyleSet ParseStyleSet(string stylesheet, bool combineWithDefault = true) =>
         HtmlStyleSet.Parse(stylesheet, combineWithDefault);
@@ -36,49 +18,10 @@ public static class HtmlRender
     /// Parses CSS into the canonical shared model without exposing the legacy
     /// renderer block indexes.
     /// </summary>
-    public static Broiler.CSS.CssStyleSheet ParseStyleSheetModel(
+    public static CSS.CssStyleSheet ParseStyleSheetModel(
         string stylesheet,
         bool combineWithDefault = true) =>
         ParseStyleSet(stylesheet, combineWithDefault).StyleSheet;
-
-    public static SizeF MeasureWithStyleSet(
-        string html,
-        HtmlStyleSet? styleSet = null,
-        float maxWidth = 0,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
-        string? baseUrl = null)
-    {
-        if (string.IsNullOrEmpty(html))
-            return SizeF.Empty;
-        using var container = new HtmlContainer
-        {
-            MaxSize = new SizeF(maxWidth, 0),
-            AvoidAsyncImagesLoading = true,
-            AvoidImagesLateLoading = true
-        };
-        if (stylesheetLoad != null)
-            container.StylesheetLoad += stylesheetLoad;
-        if (imageLoad != null)
-            container.ImageLoad += imageLoad;
-        container.SetHtmlWithStyleSet(html, styleSet, baseUrl);
-        container.PerformLayout();
-        return container.ActualSize;
-    }
-
-    public static SizeF RenderWithStyleSet(
-        BBitmap bitmap,
-        string html,
-        HtmlStyleSet? styleSet = null,
-        PointF location = default,
-        SizeF maxSize = default,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
-        string? baseUrl = null)
-    {
-        ArgumentNullException.ThrowIfNull(bitmap);
-        return RenderHtml(bitmap, html, location, maxSize, styleSet, stylesheetLoad, imageLoad, baseUrl);
-    }
 
     public static BBitmap RenderToImageWithStyleSet(
         string html,
@@ -132,7 +75,7 @@ public static class HtmlRender
         int width,
         int height,
         string filePath,
-        BImageFormat format,
+        Graphics.BImageEncodeFormat format,
         int quality = 90,
         HtmlStyleSet? styleSet = null,
         BColor backgroundColor = default,
@@ -152,7 +95,7 @@ public static class HtmlRender
         HtmlStyleSet? styleSet = null,
         int maxWidth = 0,
         int maxHeight = 0,
-        BImageFormat format = BImageFormat.Png,
+        Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png,
         int quality = 90,
         BColor backgroundColor = default,
         EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
@@ -163,53 +106,6 @@ public static class HtmlRender
         using var bitmap = RenderToImageAutoSizedWithStyleSet(
             html, styleSet, maxWidth, maxHeight, backgroundColor, stylesheetLoad, imageLoad, baseUrl);
         bitmap.Save(filePath, format, quality);
-    }
-
-    [Obsolete("Use MeasureWithStyleSet.")]
-    public static SizeF Measure(string html, float maxWidth = 0, CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
-        string baseUrl = null)
-    {
-        if (string.IsNullOrEmpty(html))
-            return SizeF.Empty;
-
-        using var container = new HtmlContainer();
-        container.MaxSize = new SizeF(maxWidth, 0);
-        container.AvoidAsyncImagesLoading = true;
-        container.AvoidImagesLateLoading = true;
-
-        if (stylesheetLoad != null)
-            container.StylesheetLoad += stylesheetLoad;
-        if (imageLoad != null)
-            container.ImageLoad += imageLoad;
-
-        container.SetHtmlWithStyleSet(html, GetStyleSet(cssData), baseUrl);
-        container.PerformLayout();
-        return container.ActualSize;
-    }
-
-    [Obsolete("Use RenderWithStyleSet.")]
-    public static SizeF Render(BBitmap bitmap, string html, float left = 0, float top = 0, float maxWidth = 0,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
-        string baseUrl = null)
-    {
-        ArgumentNullException.ThrowIfNull(bitmap);
-        return Render(bitmap, html, new PointF(left, top), new SizeF(maxWidth, 0), cssData, stylesheetLoad, imageLoad, baseUrl);
-    }
-
-    [Obsolete("Use RenderWithStyleSet.")]
-    public static SizeF Render(BBitmap bitmap, string html, PointF location, SizeF maxSize,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
-        string baseUrl = null)
-    {
-        ArgumentNullException.ThrowIfNull(bitmap);
-
-        return RenderHtml(bitmap, html, location, maxSize, GetStyleSet(cssData), stylesheetLoad, imageLoad, baseUrl);
     }
 
     [Obsolete("Use RenderToImageWithStyleSet.")]
@@ -274,7 +170,7 @@ public static class HtmlRender
 
     [Obsolete("Use RenderToFileWithStyleSet.")]
     public static void RenderToFile(string html, int width, int height, string filePath,
-        BImageFormat format,
+        Graphics.BImageEncodeFormat format,
         int quality = 90,
         BColor backgroundColor = default,
         CssData cssData = null,
@@ -299,7 +195,7 @@ public static class HtmlRender
     public static void RenderToFileAutoSized(string html, string filePath,
         int maxWidth = 0,
         int maxHeight = 0,
-        BImageFormat format = BImageFormat.Png,
+        Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png,
         int quality = 90,
         BColor backgroundColor = default,
         CssData cssData = null,
@@ -396,37 +292,6 @@ public static class HtmlRender
         return bitmap;
     }
 
-    private static SizeF RenderHtml(BBitmap bitmap, string html, PointF location, SizeF maxSize,
-        HtmlStyleSet styleSet,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad,
-        string baseUrl)
-    {
-        if (string.IsNullOrEmpty(html))
-            return SizeF.Empty;
-
-        using var container = new HtmlContainer();
-        container.Location = location;
-        container.MaxSize = maxSize;
-        container.AvoidAsyncImagesLoading = true;
-        container.AvoidImagesLateLoading = true;
-
-        if (stylesheetLoad != null)
-            container.StylesheetLoad += stylesheetLoad;
-        if (imageLoad != null)
-            container.ImageLoad += imageLoad;
-
-        container.SetHtmlWithStyleSet(html, styleSet, baseUrl);
-        container.PerformLayout(bitmap, new RectangleF(0, 0, bitmap.Width, bitmap.Height));
-
-        RectangleF clip = maxSize.Height > 0
-            ? new RectangleF(location, maxSize)
-            : new RectangleF(0, 0, bitmap.Width, bitmap.Height);
-        container.PerformPaint(bitmap, clip);
-
-        return container.ActualSize;
-    }
-
     private static BBitmap RenderToImageAutoSizedCore(string html, int maxWidth, int maxHeight,
         BColor? backgroundColor,
         HtmlStyleSet styleSet,
@@ -484,7 +349,7 @@ public static class HtmlRender
         EventHandler<HtmlImageLoadEventArgs> imageLoad)
     {
         using var bitmap = RenderToImageCore(html, width, height, backgroundColor, styleSet, stylesheetLoad, imageLoad, null);
-        return bitmap.Encode(BImageFormat.Png, 100);
+        return bitmap.Encode(Graphics.BImageEncodeFormat.Png, 100);
     }
 
     private static BBitmap? RenderToImageAtAnchorCore(string html, string elementId, int width, int height,

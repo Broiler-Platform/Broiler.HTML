@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Broiler.Graphics\Broiler.Graphics\Broiler.Graphics.csproj" />
     <ProjectReference Include="..\..\..\Broiler.DOM\Broiler.Dom\Broiler.Dom.csproj" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>

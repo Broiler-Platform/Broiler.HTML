@@ -222,7 +222,7 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
         try
         {
             string html = Program.LoadHtml(source, out string baseUrl);
-            _container.SetHtml(html, baseUrl: baseUrl);
+            _container.SetHtmlWithStyleSet(html, baseUrl: baseUrl);
             _hasContent = true;
 
             if (_urlEdit is not null && !string.Equals(_urlEdit.Text, source, StringComparison.Ordinal))
@@ -279,7 +279,7 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
 
     private BColor ResolveClearColor()
     {
-        Color background = _container.GetRootBackgroundColor();
+        BColor background = _container.GetRootBackgroundColor();
         return !background.IsEmpty && background.A > 0
             ? new BColor(background.R, background.G, background.B, background.A)
             : BColor.White;

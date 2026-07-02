@@ -1,9 +1,10 @@
 using System;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
-using Broiler.HTML.Image.Adapters.Text;
+using Broiler.HTML.Image.Compat.Text;
 
-namespace Broiler.HTML.Image;
+namespace Broiler.HTML.Image.Compat;
 
 /// <summary>
 /// OS-free compatibility provider. The resource factory keeps the managed color

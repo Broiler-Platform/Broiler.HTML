@@ -14,15 +14,5 @@ public sealed class CssData
     public HtmlStyleSet StyleSet { get; private set; }
 
     /// <summary>Gets the combined shared stylesheet model.</summary>
-    public Broiler.CSS.CssStyleSheet StyleSheet => StyleSet.StyleSheet;
-
-    /// <summary>Combines another compatibility wrapper while preserving origins.</summary>
-    public void Combine(CssData other)
-    {
-        ArgumentNullException.ThrowIfNull(other);
-        StyleSet = StyleSet.Combine(other.StyleSet);
-    }
-
-    /// <summary>Clones this compatibility wrapper.</summary>
-    public CssData Clone() => new(StyleSet);
+    public CSS.CssStyleSheet StyleSheet => StyleSet.StyleSheet;
 }

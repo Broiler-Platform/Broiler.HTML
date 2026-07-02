@@ -1,5 +1,3 @@
-using System.Drawing;
-
 namespace Broiler.HTML.Image.Adapters;
 
 internal interface ITextMetricsCompat

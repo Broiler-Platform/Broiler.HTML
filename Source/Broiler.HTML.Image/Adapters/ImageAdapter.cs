@@ -1,5 +1,6 @@
 using System.Drawing;
 using System;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
@@ -27,11 +28,11 @@ internal sealed class ImageAdapter(
             ? intrinsicAspectRatio.Value
             : (bitmap.Height > 0 ? (double)bitmap.Width / bitmap.Height : 0);
 
-    public override bool TryGetUniformColor(out Color color)
+    public override bool TryGetUniformColor(out BColor color)
     {
         if (Bitmap.Width <= 0 || Bitmap.Height <= 0)
         {
-            color = Color.Empty;
+            color = BColor.Empty;
             return false;
         }
 
@@ -42,21 +43,21 @@ internal sealed class ImageAdapter(
             {
                 if (Bitmap.GetPixel(x, y) != first)
                 {
-                    color = Color.Empty;
+                    color = BColor.Empty;
                     return false;
                 }
             }
         }
 
-        color = Color.FromArgb(first.A, first.R, first.G, first.B);
+        color = BColor.FromArgb(first.A, first.R, first.G, first.B);
         return true;
     }
 
-    public override bool TryGetSampledColor(RectangleF sourceRect, out Color color)
+    public override bool TryGetSampledColor(RectangleF sourceRect, out BColor color)
     {
         if (Bitmap.Width <= 0 || Bitmap.Height <= 0)
         {
-            color = Color.Empty;
+            color = BColor.Empty;
             return false;
         }
 
@@ -65,7 +66,7 @@ internal sealed class ImageAdapter(
         int x = Math.Clamp((int)Math.Floor(sampleX), 0, Bitmap.Width - 1);
         int y = Math.Clamp((int)Math.Floor(sampleY), 0, Bitmap.Height - 1);
         var pixel = Bitmap.GetPixel(x, y);
-        color = Color.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B);
+        color = BColor.FromArgb(pixel.A, pixel.R, pixel.G, pixel.B);
         return true;
     }
 

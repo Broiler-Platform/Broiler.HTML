@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Broiler.Graphics;
+using Broiler.HTML.Image.Adapters;
 using BGraphicsFontStyle = Broiler.Graphics.FontStyle;
 
-namespace Broiler.HTML.Image.Adapters.Text;
+namespace Broiler.HTML.Image.Compat.Text;
 
 /// <summary>
 /// Managed font store backing the real text backend.  Registered font files
@@ -125,19 +126,10 @@ internal sealed class MissingTypeface
 }
 
 /// <summary>A typeface bound to a concrete size (carried through the font adapter).</summary>
-internal sealed class TrueTypeScaledFont
+internal sealed class TrueTypeScaledFont(float size)
 {
-    public TrueTypeScaledFont(TrueTypeFont font, float size)
-    {
-        Font = font;
-        Size = size;
-    }
-
-    /// <summary>Parsed font, or <c>null</c> when the family was not registered.</summary>
-    public TrueTypeFont Font { get; }
-
     /// <summary>The size this font instance was created with (points for the layout font).</summary>
-    public float Size { get; }
+    public float Size { get; } = size;
 }
 
 /// <summary>
@@ -154,7 +146,7 @@ internal sealed class TrueTypeFontCompatFactory : IFontCompatFactory
     public static TrueTypeFontCompatFactory Instance { get; } = new();
 
     public object CreateFont(object typeface, float size) =>
-        new TrueTypeScaledFont(typeface as TrueTypeFont, size);
+        new TrueTypeScaledFont(size);
 
     public FontCompatMetrics GetMetrics(object font)
     {
@@ -232,7 +224,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         charFitWidth = stubFit * glyphWidth;
     }
 
-    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point, float glyphRotationDeg = 0f)
+    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, BColor color, PointF point, float glyphRotationDeg = 0f)
     {
         if (!string.IsNullOrEmpty(text) && TryGetFont(font, out var ttf, out float scale))
             DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures, glyphRotationDeg);
@@ -243,19 +235,19 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         return true;
     }
 
-    public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, Color[] colors, float[] positions, float angle)
+    public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, BColor[] colors, float[] positions, float angle)
     {
         // Gradient-filled text is not yet rasterised; skip cleanly (no glyphs),
         // matching prior behaviour, rather than drawing a wrong solid colour.
         return true;
     }
 
-    public void DrawString(object canvas, FontAdapter font, string text, Color color, PointF point)
+    public void DrawString(object canvas, FontAdapter font, string text, BColor color, PointF point)
     {
         // Only the raster (BCanvas) path is supported; nothing to do here.
     }
 
-    public void DrawGradientString(object canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, Color[] colors, float[] positions, float angle)
+    public void DrawGradientString(object canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, BColor[] colors, float[] positions, float angle)
     {
     }
 

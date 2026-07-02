@@ -1,10 +1,11 @@
 using System.Drawing;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Image.Adapters;
 
 internal interface ITextCanvasCompat
 {
-    void DrawString(object canvas, FontAdapter font, object renderFont, string text, Color color, PointF point);
+    void DrawString(object canvas, FontAdapter font, object renderFont, string text, BColor color, PointF point);
 
     void DrawGradientString(
         object canvas,
@@ -14,7 +15,7 @@ internal interface ITextCanvasCompat
         RectangleF rect,
         PointF point,
         SizeF size,
-        Color[] colors,
+        BColor[] colors,
         float[] positions,
         float angle);
 }

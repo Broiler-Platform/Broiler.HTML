@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Broiler.HTML.Core;
-using Broiler.HTML.Dom;
-using Broiler.Layout;
-using Broiler.HTML.Dom.Utils;
+using Broiler.Layout.Engine;
+
 
 namespace Broiler.HTML.Orchestration.Parse;
 
@@ -29,7 +28,7 @@ internal static class SharedRendererCascade
     /// from the origin-separated user-agent and author sheets, with the viewport applied.
     /// Returns <c>null</c> when there is no canonical document to cascade over.
     /// </summary>
-    internal static Broiler.CSS.Dom.CssStyleEngine? BuildEngine(
+    internal static CSS.Dom.CssStyleEngine? BuildEngine(
         Broiler.Dom.DomDocument? document,
         HtmlStyleSet styleSet,
         int viewportWidth,
@@ -55,7 +54,7 @@ internal static class SharedRendererCascade
     /// only competing rule is a UA default, and the presentation hint must win.
     /// Returns <c>null</c> when there are no author sheets at all.
     /// </summary>
-    internal static Broiler.CSS.Dom.CssStyleEngine? BuildAuthorEngine(
+    internal static CSS.Dom.CssStyleEngine? BuildAuthorEngine(
         Broiler.Dom.DomDocument? document,
         HtmlStyleSet styleSet,
         int viewportWidth,
@@ -79,8 +78,8 @@ internal static class SharedRendererCascade
     /// </summary>
     internal static void ProjectCascadedStyle(
         CssBox box,
-        Broiler.CSS.Dom.CssStyleEngine engine,
-        Broiler.CSS.Dom.CssStyleEngine? authorEngine = null,
+        CSS.Dom.CssStyleEngine engine,
+        CSS.Dom.CssStyleEngine? authorEngine = null,
         IReadOnlySet<string>? presentationHintKeys = null)
     {
         if (box.SourceElement is not { } element)
@@ -115,7 +114,7 @@ internal static class SharedRendererCascade
     internal static Broiler.Dom.DomDocument? FindCanonicalDocument(CssBox root)
     {
         if (root.SourceElement is { } element)
-            return element.OwnerDocument as Broiler.Dom.DomDocument;
+            return element.OwnerDocument;
 
         foreach (var child in root.Boxes)
         {

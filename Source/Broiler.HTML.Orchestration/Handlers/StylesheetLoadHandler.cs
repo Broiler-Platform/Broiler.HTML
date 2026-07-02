@@ -53,7 +53,7 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Exception in handling stylesheet source", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
         }
     }
 
@@ -136,12 +136,12 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
             }
             else
             {
-                _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "No stylesheet found by path: " + path);
+                _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
             }
         }
         else
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Failed load image, invalid source: " + path);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
         }
 
         return string.Empty;
@@ -171,7 +171,7 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Error in correcting relative URL in loaded stylesheet", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
         }
 
         return stylesheet;

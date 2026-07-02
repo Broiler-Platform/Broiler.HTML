@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
+using Broiler.CSS;
 using Broiler.HTML.Core;
 
 namespace Broiler.HTML.Image.Adapters;
@@ -77,158 +79,158 @@ internal sealed class StubImageAdapter : RAdapter
         return familyName;
     }
 
-    protected override Color GetColorInt(string colorName)
+    protected override BColor GetColorInt(string colorName)
     {
         if (TryParseHexColor(colorName, out var color))
             return color;
 
-        if (CssSystemColors.TryResolve(colorName, out color))
-            return color;
+        if (CssSystemColors.TryResolve(colorName, out CssColor sys))
+            return BColor.FromArgb(sys.Alpha, sys.Red, sys.Green, sys.Blue);
 
         // Fallback: try common color names (CSS 2.1 basic + CSS Color Level 3 extended)
         return colorName.ToLowerInvariant() switch
         {
             // CSS 2.1 §4.3.6 basic color keywords
-            "white" => Color.FromArgb(255, 255, 255, 255),
-            "black" => Color.FromArgb(255, 0, 0, 0),
-            "red" => Color.FromArgb(255, 255, 0, 0),
-            "green" => Color.FromArgb(255, 0, 128, 0),
-            "blue" => Color.FromArgb(255, 0, 0, 255),
-            "yellow" => Color.FromArgb(255, 255, 255, 0),
-            "orange" => Color.FromArgb(255, 255, 165, 0),
-            "purple" => Color.FromArgb(255, 128, 0, 128),
-            "gray" or "grey" => Color.FromArgb(255, 128, 128, 128),
-            "silver" => Color.FromArgb(255, 192, 192, 192),
-            "maroon" => Color.FromArgb(255, 128, 0, 0),
-            "olive" => Color.FromArgb(255, 128, 128, 0),
-            "lime" => Color.FromArgb(255, 0, 255, 0),
-            "aqua" or "cyan" => Color.FromArgb(255, 0, 255, 255),
-            "teal" => Color.FromArgb(255, 0, 128, 128),
-            "navy" => Color.FromArgb(255, 0, 0, 128),
-            "fuchsia" or "magenta" => Color.FromArgb(255, 255, 0, 255),
-            "transparent" => Color.FromArgb(0, 255, 255, 255),
+            "white" => BColor.FromArgb(255, 255, 255, 255),
+            "black" => BColor.FromArgb(255, 0, 0, 0),
+            "red" => BColor.FromArgb(255, 255, 0, 0),
+            "green" => BColor.FromArgb(255, 0, 128, 0),
+            "blue" => BColor.FromArgb(255, 0, 0, 255),
+            "yellow" => BColor.FromArgb(255, 255, 255, 0),
+            "orange" => BColor.FromArgb(255, 255, 165, 0),
+            "purple" => BColor.FromArgb(255, 128, 0, 128),
+            "gray" or "grey" => BColor.FromArgb(255, 128, 128, 128),
+            "silver" => BColor.FromArgb(255, 192, 192, 192),
+            "maroon" => BColor.FromArgb(255, 128, 0, 0),
+            "olive" => BColor.FromArgb(255, 128, 128, 0),
+            "lime" => BColor.FromArgb(255, 0, 255, 0),
+            "aqua" or "cyan" => BColor.FromArgb(255, 0, 255, 255),
+            "teal" => BColor.FromArgb(255, 0, 128, 128),
+            "navy" => BColor.FromArgb(255, 0, 0, 128),
+            "fuchsia" or "magenta" => BColor.FromArgb(255, 255, 0, 255),
+            "transparent" => BColor.FromArgb(0, 255, 255, 255),
 
             // CSS Color Level 3 extended color keywords (used by WPT tests)
-            "lightgray" or "lightgrey" => Color.FromArgb(255, 211, 211, 211),
-            "darkgray" or "darkgrey" => Color.FromArgb(255, 169, 169, 169),
-            "dimgray" or "dimgrey" => Color.FromArgb(255, 105, 105, 105),
-            "lightslategray" or "lightslategrey" => Color.FromArgb(255, 119, 136, 153),
-            "slategray" or "slategrey" => Color.FromArgb(255, 112, 128, 144),
-            "darkslategray" or "darkslategrey" => Color.FromArgb(255, 47, 79, 79),
-            "gainsboro" => Color.FromArgb(255, 220, 220, 220),
-            "whitesmoke" => Color.FromArgb(255, 245, 245, 245),
-            "aliceblue" => Color.FromArgb(255, 240, 248, 255),
-            "ghostwhite" => Color.FromArgb(255, 248, 248, 255),
-            "snow" => Color.FromArgb(255, 255, 250, 250),
-            "seashell" => Color.FromArgb(255, 255, 245, 238),
-            "floralwhite" => Color.FromArgb(255, 255, 250, 240),
-            "linen" => Color.FromArgb(255, 250, 240, 230),
-            "antiquewhite" => Color.FromArgb(255, 250, 235, 215),
-            "oldlace" => Color.FromArgb(255, 253, 245, 230),
-            "papayawhip" => Color.FromArgb(255, 255, 239, 213),
-            "blanchedalmond" => Color.FromArgb(255, 255, 235, 205),
-            "bisque" => Color.FromArgb(255, 255, 228, 196),
-            "peachpuff" => Color.FromArgb(255, 255, 218, 185),
-            "navajowhite" => Color.FromArgb(255, 255, 222, 173),
-            "moccasin" => Color.FromArgb(255, 255, 228, 181),
-            "cornsilk" => Color.FromArgb(255, 255, 248, 220),
-            "ivory" => Color.FromArgb(255, 255, 255, 240),
-            "lemonchiffon" => Color.FromArgb(255, 255, 250, 205),
-            "lightyellow" => Color.FromArgb(255, 255, 255, 224),
-            "lightgoldenrodyellow" => Color.FromArgb(255, 250, 250, 210),
-            "beige" => Color.FromArgb(255, 245, 245, 220),
-            "wheat" => Color.FromArgb(255, 245, 222, 179),
-            "sandybrown" => Color.FromArgb(255, 244, 164, 96),
-            "goldenrod" => Color.FromArgb(255, 218, 165, 32),
-            "darkgoldenrod" => Color.FromArgb(255, 184, 134, 11),
-            "gold" => Color.FromArgb(255, 255, 215, 0),
-            "khaki" => Color.FromArgb(255, 240, 230, 140),
-            "darkkhaki" => Color.FromArgb(255, 189, 183, 107),
-            "tan" => Color.FromArgb(255, 210, 180, 140),
-            "burlywood" => Color.FromArgb(255, 222, 184, 135),
-            "peru" => Color.FromArgb(255, 205, 133, 63),
-            "chocolate" => Color.FromArgb(255, 210, 105, 30),
-            "sienna" => Color.FromArgb(255, 160, 82, 45),
-            "saddlebrown" => Color.FromArgb(255, 139, 69, 19),
-            "brown" => Color.FromArgb(255, 165, 42, 42),
-            "firebrick" => Color.FromArgb(255, 178, 34, 34),
-            "darkred" => Color.FromArgb(255, 139, 0, 0),
-            "indianred" => Color.FromArgb(255, 205, 92, 92),
-            "rosybrown" => Color.FromArgb(255, 188, 143, 143),
-            "lightcoral" => Color.FromArgb(255, 240, 128, 128),
-            "salmon" => Color.FromArgb(255, 250, 128, 114),
-            "darksalmon" => Color.FromArgb(255, 233, 150, 122),
-            "lightsalmon" => Color.FromArgb(255, 255, 160, 122),
-            "coral" => Color.FromArgb(255, 255, 127, 80),
-            "tomato" => Color.FromArgb(255, 255, 99, 71),
-            "orangered" => Color.FromArgb(255, 255, 69, 0),
-            "darkorange" => Color.FromArgb(255, 255, 140, 0),
-            "crimson" => Color.FromArgb(255, 220, 20, 60),
-            "deeppink" => Color.FromArgb(255, 255, 20, 147),
-            "hotpink" => Color.FromArgb(255, 255, 105, 180),
-            "lightpink" => Color.FromArgb(255, 255, 182, 193),
-            "pink" => Color.FromArgb(255, 255, 192, 203),
-            "palevioletred" => Color.FromArgb(255, 219, 112, 147),
-            "mediumvioletred" => Color.FromArgb(255, 199, 21, 133),
-            "orchid" => Color.FromArgb(255, 218, 112, 214),
-            "plum" => Color.FromArgb(255, 221, 160, 221),
-            "violet" => Color.FromArgb(255, 238, 130, 238),
-            "mediumpurple" => Color.FromArgb(255, 147, 112, 219),
-            "darkorchid" => Color.FromArgb(255, 153, 50, 204),
-            "darkviolet" => Color.FromArgb(255, 148, 0, 211),
-            "darkmagenta" => Color.FromArgb(255, 139, 0, 139),
-            "blueviolet" => Color.FromArgb(255, 138, 43, 226),
-            "indigo" => Color.FromArgb(255, 75, 0, 130),
-            "rebeccapurple" => Color.FromArgb(255, 102, 51, 153),
-            "slateblue" => Color.FromArgb(255, 106, 90, 205),
-            "darkslateblue" => Color.FromArgb(255, 72, 61, 139),
-            "mediumslateblue" => Color.FromArgb(255, 123, 104, 238),
-            "lavender" => Color.FromArgb(255, 230, 230, 250),
-            "thistle" => Color.FromArgb(255, 216, 191, 216),
-            "mistyrose" => Color.FromArgb(255, 255, 228, 225),
-            "lavenderblush" => Color.FromArgb(255, 255, 240, 245),
-            "honeydew" => Color.FromArgb(255, 240, 255, 240),
-            "mintcream" => Color.FromArgb(255, 245, 255, 250),
-            "azure" => Color.FromArgb(255, 240, 255, 255),
-            "lightsteelblue" => Color.FromArgb(255, 176, 196, 222),
-            "powderblue" => Color.FromArgb(255, 176, 224, 230),
-            "lightblue" => Color.FromArgb(255, 173, 216, 230),
-            "skyblue" => Color.FromArgb(255, 135, 206, 235),
-            "lightskyblue" => Color.FromArgb(255, 135, 206, 250),
-            "deepskyblue" => Color.FromArgb(255, 0, 191, 255),
-            "dodgerblue" => Color.FromArgb(255, 30, 144, 255),
-            "cornflowerblue" => Color.FromArgb(255, 100, 149, 237),
-            "steelblue" => Color.FromArgb(255, 70, 130, 180),
-            "royalblue" => Color.FromArgb(255, 65, 105, 225),
-            "mediumblue" => Color.FromArgb(255, 0, 0, 205),
-            "darkblue" => Color.FromArgb(255, 0, 0, 139),
-            "midnightblue" => Color.FromArgb(255, 25, 25, 112),
-            "cadetblue" => Color.FromArgb(255, 95, 158, 160),
-            "paleturquoise" => Color.FromArgb(255, 175, 238, 238),
-            "turquoise" => Color.FromArgb(255, 64, 224, 208),
-            "mediumturquoise" => Color.FromArgb(255, 72, 209, 204),
-            "darkturquoise" => Color.FromArgb(255, 0, 206, 209),
-            "lightcyan" => Color.FromArgb(255, 224, 255, 255),
-            "mediumaquamarine" => Color.FromArgb(255, 102, 205, 170),
-            "aquamarine" => Color.FromArgb(255, 127, 255, 212),
-            "darkseagreen" => Color.FromArgb(255, 143, 188, 143),
-            "mediumseagreen" => Color.FromArgb(255, 60, 179, 113),
-            "seagreen" => Color.FromArgb(255, 46, 139, 87),
-            "darkcyan" => Color.FromArgb(255, 0, 139, 139),
-            "lightseagreen" => Color.FromArgb(255, 32, 178, 170),
-            "lightgreen" => Color.FromArgb(255, 144, 238, 144),
-            "palegreen" => Color.FromArgb(255, 152, 251, 152),
-            "springgreen" => Color.FromArgb(255, 0, 255, 127),
-            "mediumspringgreen" => Color.FromArgb(255, 0, 250, 154),
-            "lawngreen" => Color.FromArgb(255, 124, 252, 0),
-            "chartreuse" => Color.FromArgb(255, 127, 255, 0),
-            "greenyellow" => Color.FromArgb(255, 173, 255, 47),
-            "yellowgreen" => Color.FromArgb(255, 154, 205, 50),
-            "limegreen" => Color.FromArgb(255, 50, 205, 50),
-            "forestgreen" => Color.FromArgb(255, 34, 139, 34),
-            "darkgreen" => Color.FromArgb(255, 0, 100, 0),
-            "olivedrab" => Color.FromArgb(255, 107, 142, 35),
-            "darkolivegreen" => Color.FromArgb(255, 85, 107, 47),
+            "lightgray" or "lightgrey" => BColor.FromArgb(255, 211, 211, 211),
+            "darkgray" or "darkgrey" => BColor.FromArgb(255, 169, 169, 169),
+            "dimgray" or "dimgrey" => BColor.FromArgb(255, 105, 105, 105),
+            "lightslategray" or "lightslategrey" => BColor.FromArgb(255, 119, 136, 153),
+            "slategray" or "slategrey" => BColor.FromArgb(255, 112, 128, 144),
+            "darkslategray" or "darkslategrey" => BColor.FromArgb(255, 47, 79, 79),
+            "gainsboro" => BColor.FromArgb(255, 220, 220, 220),
+            "whitesmoke" => BColor.FromArgb(255, 245, 245, 245),
+            "aliceblue" => BColor.FromArgb(255, 240, 248, 255),
+            "ghostwhite" => BColor.FromArgb(255, 248, 248, 255),
+            "snow" => BColor.FromArgb(255, 255, 250, 250),
+            "seashell" => BColor.FromArgb(255, 255, 245, 238),
+            "floralwhite" => BColor.FromArgb(255, 255, 250, 240),
+            "linen" => BColor.FromArgb(255, 250, 240, 230),
+            "antiquewhite" => BColor.FromArgb(255, 250, 235, 215),
+            "oldlace" => BColor.FromArgb(255, 253, 245, 230),
+            "papayawhip" => BColor.FromArgb(255, 255, 239, 213),
+            "blanchedalmond" => BColor.FromArgb(255, 255, 235, 205),
+            "bisque" => BColor.FromArgb(255, 255, 228, 196),
+            "peachpuff" => BColor.FromArgb(255, 255, 218, 185),
+            "navajowhite" => BColor.FromArgb(255, 255, 222, 173),
+            "moccasin" => BColor.FromArgb(255, 255, 228, 181),
+            "cornsilk" => BColor.FromArgb(255, 255, 248, 220),
+            "ivory" => BColor.FromArgb(255, 255, 255, 240),
+            "lemonchiffon" => BColor.FromArgb(255, 255, 250, 205),
+            "lightyellow" => BColor.FromArgb(255, 255, 255, 224),
+            "lightgoldenrodyellow" => BColor.FromArgb(255, 250, 250, 210),
+            "beige" => BColor.FromArgb(255, 245, 245, 220),
+            "wheat" => BColor.FromArgb(255, 245, 222, 179),
+            "sandybrown" => BColor.FromArgb(255, 244, 164, 96),
+            "goldenrod" => BColor.FromArgb(255, 218, 165, 32),
+            "darkgoldenrod" => BColor.FromArgb(255, 184, 134, 11),
+            "gold" => BColor.FromArgb(255, 255, 215, 0),
+            "khaki" => BColor.FromArgb(255, 240, 230, 140),
+            "darkkhaki" => BColor.FromArgb(255, 189, 183, 107),
+            "tan" => BColor.FromArgb(255, 210, 180, 140),
+            "burlywood" => BColor.FromArgb(255, 222, 184, 135),
+            "peru" => BColor.FromArgb(255, 205, 133, 63),
+            "chocolate" => BColor.FromArgb(255, 210, 105, 30),
+            "sienna" => BColor.FromArgb(255, 160, 82, 45),
+            "saddlebrown" => BColor.FromArgb(255, 139, 69, 19),
+            "brown" => BColor.FromArgb(255, 165, 42, 42),
+            "firebrick" => BColor.FromArgb(255, 178, 34, 34),
+            "darkred" => BColor.FromArgb(255, 139, 0, 0),
+            "indianred" => BColor.FromArgb(255, 205, 92, 92),
+            "rosybrown" => BColor.FromArgb(255, 188, 143, 143),
+            "lightcoral" => BColor.FromArgb(255, 240, 128, 128),
+            "salmon" => BColor.FromArgb(255, 250, 128, 114),
+            "darksalmon" => BColor.FromArgb(255, 233, 150, 122),
+            "lightsalmon" => BColor.FromArgb(255, 255, 160, 122),
+            "coral" => BColor.FromArgb(255, 255, 127, 80),
+            "tomato" => BColor.FromArgb(255, 255, 99, 71),
+            "orangered" => BColor.FromArgb(255, 255, 69, 0),
+            "darkorange" => BColor.FromArgb(255, 255, 140, 0),
+            "crimson" => BColor.FromArgb(255, 220, 20, 60),
+            "deeppink" => BColor.FromArgb(255, 255, 20, 147),
+            "hotpink" => BColor.FromArgb(255, 255, 105, 180),
+            "lightpink" => BColor.FromArgb(255, 255, 182, 193),
+            "pink" => BColor.FromArgb(255, 255, 192, 203),
+            "palevioletred" => BColor.FromArgb(255, 219, 112, 147),
+            "mediumvioletred" => BColor.FromArgb(255, 199, 21, 133),
+            "orchid" => BColor.FromArgb(255, 218, 112, 214),
+            "plum" => BColor.FromArgb(255, 221, 160, 221),
+            "violet" => BColor.FromArgb(255, 238, 130, 238),
+            "mediumpurple" => BColor.FromArgb(255, 147, 112, 219),
+            "darkorchid" => BColor.FromArgb(255, 153, 50, 204),
+            "darkviolet" => BColor.FromArgb(255, 148, 0, 211),
+            "darkmagenta" => BColor.FromArgb(255, 139, 0, 139),
+            "blueviolet" => BColor.FromArgb(255, 138, 43, 226),
+            "indigo" => BColor.FromArgb(255, 75, 0, 130),
+            "rebeccapurple" => BColor.FromArgb(255, 102, 51, 153),
+            "slateblue" => BColor.FromArgb(255, 106, 90, 205),
+            "darkslateblue" => BColor.FromArgb(255, 72, 61, 139),
+            "mediumslateblue" => BColor.FromArgb(255, 123, 104, 238),
+            "lavender" => BColor.FromArgb(255, 230, 230, 250),
+            "thistle" => BColor.FromArgb(255, 216, 191, 216),
+            "mistyrose" => BColor.FromArgb(255, 255, 228, 225),
+            "lavenderblush" => BColor.FromArgb(255, 255, 240, 245),
+            "honeydew" => BColor.FromArgb(255, 240, 255, 240),
+            "mintcream" => BColor.FromArgb(255, 245, 255, 250),
+            "azure" => BColor.FromArgb(255, 240, 255, 255),
+            "lightsteelblue" => BColor.FromArgb(255, 176, 196, 222),
+            "powderblue" => BColor.FromArgb(255, 176, 224, 230),
+            "lightblue" => BColor.FromArgb(255, 173, 216, 230),
+            "skyblue" => BColor.FromArgb(255, 135, 206, 235),
+            "lightskyblue" => BColor.FromArgb(255, 135, 206, 250),
+            "deepskyblue" => BColor.FromArgb(255, 0, 191, 255),
+            "dodgerblue" => BColor.FromArgb(255, 30, 144, 255),
+            "cornflowerblue" => BColor.FromArgb(255, 100, 149, 237),
+            "steelblue" => BColor.FromArgb(255, 70, 130, 180),
+            "royalblue" => BColor.FromArgb(255, 65, 105, 225),
+            "mediumblue" => BColor.FromArgb(255, 0, 0, 205),
+            "darkblue" => BColor.FromArgb(255, 0, 0, 139),
+            "midnightblue" => BColor.FromArgb(255, 25, 25, 112),
+            "cadetblue" => BColor.FromArgb(255, 95, 158, 160),
+            "paleturquoise" => BColor.FromArgb(255, 175, 238, 238),
+            "turquoise" => BColor.FromArgb(255, 64, 224, 208),
+            "mediumturquoise" => BColor.FromArgb(255, 72, 209, 204),
+            "darkturquoise" => BColor.FromArgb(255, 0, 206, 209),
+            "lightcyan" => BColor.FromArgb(255, 224, 255, 255),
+            "mediumaquamarine" => BColor.FromArgb(255, 102, 205, 170),
+            "aquamarine" => BColor.FromArgb(255, 127, 255, 212),
+            "darkseagreen" => BColor.FromArgb(255, 143, 188, 143),
+            "mediumseagreen" => BColor.FromArgb(255, 60, 179, 113),
+            "seagreen" => BColor.FromArgb(255, 46, 139, 87),
+            "darkcyan" => BColor.FromArgb(255, 0, 139, 139),
+            "lightseagreen" => BColor.FromArgb(255, 32, 178, 170),
+            "lightgreen" => BColor.FromArgb(255, 144, 238, 144),
+            "palegreen" => BColor.FromArgb(255, 152, 251, 152),
+            "springgreen" => BColor.FromArgb(255, 0, 255, 127),
+            "mediumspringgreen" => BColor.FromArgb(255, 0, 250, 154),
+            "lawngreen" => BColor.FromArgb(255, 124, 252, 0),
+            "chartreuse" => BColor.FromArgb(255, 127, 255, 0),
+            "greenyellow" => BColor.FromArgb(255, 173, 255, 47),
+            "yellowgreen" => BColor.FromArgb(255, 154, 205, 50),
+            "limegreen" => BColor.FromArgb(255, 50, 205, 50),
+            "forestgreen" => BColor.FromArgb(255, 34, 139, 34),
+            "darkgreen" => BColor.FromArgb(255, 0, 100, 0),
+            "olivedrab" => BColor.FromArgb(255, 107, 142, 35),
+            "darkolivegreen" => BColor.FromArgb(255, 85, 107, 47),
 
             _ => ResolveExtendedColorName(colorName),
         };
@@ -236,20 +238,20 @@ internal sealed class StubImageAdapter : RAdapter
 
     /// <summary>
     /// Fallback for CSS named colors not in the primary switch. Uses
-    /// <see cref="Color.FromName"/> which recognises .NET known colors
+    /// <see cref="BColor.FromName"/> which recognises the CSS/X11 named colors
     /// (case-insensitive). Returns black if the name is unrecognised.
     /// </summary>
-    private static Color ResolveExtendedColorName(string colorName)
+    private static BColor ResolveExtendedColorName(string colorName)
     {
-        var c = Color.FromName(colorName);
-        if (c.IsKnownColor)
-            return Color.FromArgb(c.A, c.R, c.G, c.B);
-        return Color.FromArgb(255, 0, 0, 0);
+        var c = BColor.FromName(colorName);
+        if (!c.IsEmpty)
+            return BColor.FromArgb(c.A, c.R, c.G, c.B);
+        return BColor.FromArgb(255, 0, 0, 0);
     }
 
-    private static bool TryParseHexColor(string colorName, out Color color)
+    private static bool TryParseHexColor(string colorName, out BColor color)
     {
-        color = Color.Empty;
+        color = BColor.Empty;
         if (string.IsNullOrWhiteSpace(colorName) || colorName[0] != '#')
             return false;
 
@@ -263,9 +265,9 @@ internal sealed class StubImageAdapter : RAdapter
         };
     }
 
-    private static bool TryParseHexColor(string colorName, int start, int digitsPerChannel, bool hasAlpha, out Color color)
+    private static bool TryParseHexColor(string colorName, int start, int digitsPerChannel, bool hasAlpha, out BColor color)
     {
-        color = Color.Empty;
+        color = BColor.Empty;
         if (!TryParseHexChannel(colorName, start, digitsPerChannel, out var r)
             || !TryParseHexChannel(colorName, start + digitsPerChannel, digitsPerChannel, out var g)
             || !TryParseHexChannel(colorName, start + (digitsPerChannel * 2), digitsPerChannel, out var b))
@@ -280,7 +282,7 @@ internal sealed class StubImageAdapter : RAdapter
             return false;
         }
 
-        color = Color.FromArgb(alpha, r, g, b);
+        color = BColor.FromArgb(alpha, r, g, b);
         return true;
     }
 
@@ -314,17 +316,17 @@ internal sealed class StubImageAdapter : RAdapter
         return -1;
     }
 
-    protected override RPen CreatePen(Color color)
+    protected override RPen CreatePen(BColor color)
     {
         return new PenAdapter(
             (strokeWidth, dashStyle) => _paintCompatFactory.CreatePenPaint(color, strokeWidth, dashStyle),
-            (paint, strokeWidth, dashStyle) => _paintCompatFactory.UpdatePenPaint(paint, strokeWidth, dashStyle))
+            _paintCompatFactory.UpdatePenPaint)
         {
             SolidColor = new BColor(color.R, color.G, color.B, color.A),
         };
     }
 
-    protected override RBrush CreateSolidBrush(Color color)
+    protected override RBrush CreateSolidBrush(BColor color)
     {
         return new BrushAdapter(
             () => _paintCompatFactory.CreateSolidBrushPaint(color),
@@ -334,7 +336,7 @@ internal sealed class StubImageAdapter : RAdapter
         };
     }
 
-    protected override RBrush CreateLinearGradientBrush(RectangleF rect, Color color1, Color color2, double angle)
+    protected override RBrush CreateLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle)
     {
         return new BrushAdapter(
             () => _paintCompatFactory.CreateLinearGradientBrushPaint(rect, color1, color2, angle),
@@ -781,8 +783,8 @@ internal sealed class StubImageAdapter : RAdapter
             return true;
         }
 
-        var named = Color.FromName(fillValue);
-        if (named.IsKnownColor)
+        var named = BColor.FromName(fillValue);
+        if (!named.IsEmpty)
         {
             color = new BColor(named.R, named.G, named.B, named.A);
             return true;
@@ -791,12 +793,12 @@ internal sealed class StubImageAdapter : RAdapter
         return false;
     }
 
-    protected override RFont CreateFontInt(string family, double size, FontStyle style)
+    protected override RFont CreateFontInt(string family, double size, Graphics.FontStyle style)
     {
         return new FontAdapter(family, size, style, () => _typefaceResolver.ResolveTypeface(family, style));
     }
 
-    protected override RFont CreateFontInt(RFontFamily family, double size, FontStyle style) => CreateFontInt(family.Name, size, style);
+    protected override RFont CreateFontInt(RFontFamily family, double size, Graphics.FontStyle style) => CreateFontInt(family.Name, size, style);
 
     protected override object GetClipboardDataObjectInt(string html, string plainText) =>
         new ClipboardPayload(html, plainText);

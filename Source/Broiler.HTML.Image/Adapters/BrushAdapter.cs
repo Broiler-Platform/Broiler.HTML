@@ -1,5 +1,6 @@
 using System.Drawing;
 using System;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;

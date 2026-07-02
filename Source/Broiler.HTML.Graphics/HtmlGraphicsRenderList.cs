@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Broiler.Layout.IR;
 using Broiler.HTML.Core.IR;
 using BroilerGraphics = Broiler.Graphics;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Graphics;
 
@@ -156,7 +158,7 @@ internal static class HtmlGraphicsRenderListBuilder
         return new HtmlGraphicsRenderList(renderer, list, images);
     }
 
-    private static void FillRect(BroilerGraphics.BRenderList list, RectangleF rect, Color color, double opacity)
+    private static void FillRect(BroilerGraphics.BRenderList list, RectangleF rect, BColor color, double opacity)
     {
         if (!IsDrawable(rect) || color.A == 0 || opacity <= 0)
             return;
@@ -178,7 +180,7 @@ internal static class HtmlGraphicsRenderListBuilder
     private static void DrawBorderSide(
         BroilerGraphics.BRenderList list,
         RectangleF rect,
-        Color color,
+        BColor color,
         string style,
         double width,
         double opacity)
@@ -388,7 +390,7 @@ internal static class HtmlGraphicsRenderListBuilder
     private static BroilerGraphics.BRect ToRect(RectangleF rect) =>
         new(rect.X, rect.Y, rect.Width, rect.Height);
 
-    private static BroilerGraphics.BColor ToColor(Color color, double opacity)
+    private static BroilerGraphics.BColor ToColor(BColor color, double opacity)
     {
         byte alpha = (byte)Math.Clamp((int)Math.Round(color.A * opacity), 0, 255);
         return new BroilerGraphics.BColor(color.R, color.G, color.B, alpha);

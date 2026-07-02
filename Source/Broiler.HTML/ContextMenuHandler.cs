@@ -2,11 +2,12 @@
 using System.Globalization;
 using System.IO;
 using System.Diagnostics;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
-using Broiler.Layout;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
+using Broiler.Layout.Engine;
 
 namespace Broiler.HTML;
 
@@ -240,7 +241,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to show context menu", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
     }
 
@@ -275,7 +276,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to open link", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
         finally
         {
@@ -291,7 +292,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy link url to clipboard", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
         finally
         {
@@ -308,7 +309,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to save image", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
         finally
         {
@@ -324,7 +325,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy image url to clipboard", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
         finally
         {
@@ -340,7 +341,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy image to clipboard", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
         finally
         {
@@ -356,7 +357,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy text to clipboard", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
         finally
         {
@@ -372,7 +373,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
         catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to select all text", ex);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
         finally
         {

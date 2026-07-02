@@ -1,3 +1,5 @@
+using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
 using Broiler.HTML.Core;
 using Broiler.HTML.Rendering.Handlers;
 using System;
@@ -9,8 +11,8 @@ namespace Broiler.HTML.Adapters;
 
 public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator, IAdapter
 {
-    private readonly ConcurrentDictionary<Color, RBrush> _brushesCache = new();
-    private readonly ConcurrentDictionary<Color, RPen> _penCache = new();
+    private readonly ConcurrentDictionary<BColor, RBrush> _brushesCache = new();
+    private readonly ConcurrentDictionary<BColor, RPen> _penCache = new();
     private readonly FontsHandler _fontsHandler;
 
     private RImage _loadImage;
@@ -20,17 +22,17 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public HtmlStyleSet DefaultStyleSet => HtmlStyleSet.Default;
 
-    public Color GetColor(string colorName)
+    public BColor GetColor(string colorName)
     {
         ArgumentException.ThrowIfNullOrEmpty(colorName);
         return GetColorInt(colorName);
     }
 
-    public RPen GetPen(Color color) => _penCache.GetOrAdd(color, CreatePen);
+    public RPen GetPen(BColor color) => _penCache.GetOrAdd(color, CreatePen);
 
-    public RBrush GetSolidBrush(Color color) => _brushesCache.GetOrAdd(color, CreateSolidBrush);
+    public RBrush GetSolidBrush(BColor color) => _brushesCache.GetOrAdd(color, CreateSolidBrush);
 
-    public RBrush GetLinearGradientBrush(RectangleF rect, Color color1, Color color2, double angle) => CreateLinearGradientBrush(rect, color1, color2, angle);
+    public RBrush GetLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle) => CreateLinearGradientBrush(rect, color1, color2, angle);
 
     public RImage ConvertImage(object image) =>
         // TODO:a remove this by creating better API.
@@ -44,7 +46,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public void AddFontFamilyMapping(string fromFamily, string toFamily) => _fontsHandler.AddFontFamilyMapping(fromFamily, toFamily);
 
-    public RFont GetFont(string family, double size, FontStyle style, string fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
+    public RFont GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
 
     public RImage GetLoadingImage()
     {
@@ -84,25 +86,25 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public void SaveToFile(RImage image, string name, string extension, RControl control = null) => SaveToFileInt(image, name, extension, control);
 
-    RFont IFontCreator.CreateFont(string family, double size, FontStyle style) => CreateFontInt(family, size, style);
+    RFont IFontCreator.CreateFont(string family, double size, Graphics.FontStyle style) => CreateFontInt(family, size, style);
 
-    RFont IFontCreator.CreateFont(RFontFamily family, double size, FontStyle style) => CreateFontInt(family, size, style);
+    RFont IFontCreator.CreateFont(RFontFamily family, double size, Graphics.FontStyle style) => CreateFontInt(family, size, style);
 
-    protected abstract Color GetColorInt(string colorName);
+    protected abstract BColor GetColorInt(string colorName);
 
-    protected abstract RPen CreatePen(Color color);
+    protected abstract RPen CreatePen(BColor color);
 
-    protected abstract RBrush CreateSolidBrush(Color color);
+    protected abstract RBrush CreateSolidBrush(BColor color);
 
-    protected abstract RBrush CreateLinearGradientBrush(RectangleF rect, Color color1, Color color2, double angle);
+    protected abstract RBrush CreateLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle);
 
     protected abstract RImage ConvertImageInt(object image);
 
     protected abstract RImage ImageFromStreamInt(Stream memoryStream);
 
-    protected abstract RFont CreateFontInt(string family, double size, FontStyle style);
+    protected abstract RFont CreateFontInt(string family, double size, Graphics.FontStyle style);
 
-    protected abstract RFont CreateFontInt(RFontFamily family, double size, FontStyle style);
+    protected abstract RFont CreateFontInt(RFontFamily family, double size, Graphics.FontStyle style);
 
     protected virtual object GetClipboardDataObjectInt(string html, string plainText) => throw new NotImplementedException();
 

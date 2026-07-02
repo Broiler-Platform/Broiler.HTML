@@ -1,17 +1,15 @@
-using Broiler.HTML.Adapters;
+using Broiler.Graphics;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
+using Broiler.Layout;
+using Broiler.Layout.IR;
 using Broiler.HTML.Core.IR;
 using Broiler.CSS;
 using Broiler.HTML.Dom;
-using Broiler.Layout;
-using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
 using CommonUtils = Broiler.HTML.Utils.CommonUtils;
 using Broiler.HTML.Dom.Utils;
-using Broiler.HTML.Orchestration.Core.IR;
 using Broiler.HTML.Orchestration.Handlers;
 using Broiler.HTML.Orchestration.Parse;
-using Broiler.HTML.Primitives.Adapters.Entities;
 using Broiler.HTML.Rendering.Handlers;
 using Broiler.HTML.Utils;
 using System;
@@ -20,8 +18,9 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
+using Broiler.HTML.Orchestration.IR;
+using Broiler.Layout.Engine;
 
-using HtmlTag = Broiler.Layout.HtmlTag;
 namespace Broiler.HTML.Orchestration;
 
 public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
@@ -68,11 +67,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public event EventHandler<HtmlRenderErrorEventArgs> RenderError;
     public event EventHandler<HtmlStylesheetLoadEventArgs> StylesheetLoad;
     public event EventHandler<HtmlImageLoadEventArgs> ImageLoad;
-
-    public HtmlStyleSet StyleSet => _styleSet;
-
-    [Obsolete("Use StyleSet.")]
-    public CssData CssData => new(_styleSet);
 
     public bool AvoidGeometryAntialias { get; set; }
 
@@ -121,16 +115,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
     }
 
-    public int MarginBottom
-    {
-        get { return _marginBottom; }
-        set
-        {
-            if (value > -1)
-                _marginBottom = value;
-        }
-    }
-
     public int MarginLeft
     {
         get { return _marginLeft; }
@@ -141,24 +125,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
     }
 
-    public int MarginRight
-    {
-        get { return _marginRight; }
-        set
-        {
-            if (value > -1)
-                _marginRight = value;
-        }
-    }
-
     public void SetMargins(int value)
     {
         if (value > -1)
             _marginBottom = _marginLeft = _marginTop = _marginRight = value;
     }
 
-    public string SelectedText => _selectionHandler.GetSelectedText();
-    public string SelectedHtml => _selectionHandler.GetSelectedHtml();
     internal CssBox Root { get; private set; }
 
     /// <summary>
@@ -166,10 +138,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// Keeping this traversal beside the owned box tree prevents facade
     /// assemblies from depending on layout internals.
     /// </summary>
-    public Color GetRootBackgroundColor()
+    public BColor GetRootBackgroundColor()
     {
         if (Root == null)
-            return Color.Empty;
+            return BColor.Empty;
 
         // Root is an anonymous wrapper; inspect it before the html/body boxes.
         var background = Root.ActualBackgroundColor;
@@ -184,7 +156,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
             htmlBox = child;
             if (SuppressesCanvasBackgroundPropagation(child))
-                return Color.Empty;
+                return BColor.Empty;
 
             background = child.ActualBackgroundColor;
             if (!background.IsEmpty && background.A > 0)
@@ -193,7 +165,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
 
         if (htmlBox == null)
-            return Color.Empty;
+            return BColor.Empty;
 
         foreach (var child in htmlBox.Boxes)
         {
@@ -201,7 +173,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 continue;
 
             if (SuppressesCanvasBackgroundPropagation(child))
-                return Color.Empty;
+                return BColor.Empty;
 
             background = child.ActualBackgroundColor;
             if (!background.IsEmpty && background.A > 0)
@@ -216,7 +188,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             if (bodyBox != null)
             {
                 if (SuppressesCanvasBackgroundPropagation(bodyBox))
-                    return Color.Empty;
+                    return BColor.Empty;
 
                 background = bodyBox.ActualBackgroundColor;
                 if (!background.IsEmpty && background.A > 0)
@@ -224,7 +196,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             }
         }
 
-        return Color.Empty;
+        return BColor.Empty;
     }
 
     private static CssBox? FindBodyBox(CssBox parent, int depth = 0)
@@ -258,13 +230,13 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 contain.Contains("strict", StringComparison.OrdinalIgnoreCase) ||
                 contain.Contains("content", StringComparison.OrdinalIgnoreCase));
     }
-    internal Color SelectionForeColor { get; set; }
-    internal Color SelectionBackColor { get; set; }
+    internal BColor SelectionForeColor { get; set; }
+    internal BColor SelectionBackColor { get; set; }
 
-    internal Color ParseCssColor(string value)
+    internal BColor ParseCssColor(string value)
     {
-        if (Broiler.CSS.CssValueParser.TryParseColor(value, out var color))
-            return Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
+        if (CssValueParser.TryParseColor(value, out var color))
+            return BColor.FromArgb(color.Alpha, color.Red, color.Green, color.Blue);
 
         // An empty/whitespace value reaches here when a color property resolves to
         // nothing (e.g. a `var()` reference with no fallback that substitutes to the
@@ -273,7 +245,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // (RenderingError, signature RAdapter.GetColor). Treat it as an unresolved
         // color, mirroring the static PaintWalker.ParseCssColor guard.
         if (string.IsNullOrWhiteSpace(value))
-            return Color.Empty;
+            return BColor.Empty;
 
         return Adapter.GetColor(value);
     }
@@ -281,9 +253,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     [Obsolete("Use SetHtmlWithStyleSet.")]
     public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null)
     {
-#pragma warning disable CS0618
         SetHtmlWithStyleSet(htmlSource, baseCssData?.StyleSet, baseUrl);
-#pragma warning restore CS0618
     }
 
     public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet baseStyleSet = null, string baseUrl = null)
@@ -302,15 +272,13 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         InitialiseRoot(
             baseStyleSet,
             baseUrl,
-            (ref HtmlStyleSet styleSet) => parser.GenerateCssTree(htmlSource, this, ref styleSet, baseUri));
+            (ref styleSet) => parser.GenerateCssTree(htmlSource, this, ref styleSet, baseUri));
     }
 
     [Obsolete("Use SetDocumentWithStyleSet.")]
     public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null)
     {
-#pragma warning disable CS0618
         SetDocumentWithStyleSet(document, baseCssData?.StyleSet, baseUrl);
-#pragma warning restore CS0618
     }
 
     public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet baseStyleSet = null, string baseUrl = null)
@@ -364,7 +332,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         InitialiseRoot(
             _boundBaseStyleSet,
             BaseUrl,
-            (ref HtmlStyleSet styleSet) => parser.GenerateCssTree(_boundDocument, this, ref styleSet, baseUri));
+            (ref styleSet) => parser.GenerateCssTree(_boundDocument, this, ref styleSet, baseUri));
         _boundDocumentVersion = _boundDocument.Version;
     }
 
@@ -521,7 +489,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         string family = box.FontFamily ?? string.Empty;
         int comma = family.IndexOf(',');
         if (comma >= 0)
-            family = family.Substring(0, comma);
+            family = family[..comma];
         family = RendererStyleQueries.UnescapeIdentifier(family.Trim().Trim('"', '\''));
 
         // @font-face feature defaults declared for this family.
@@ -665,15 +633,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         _imageDownloader?.Dispose();
         _imageDownloader = null;
 
-    }
-
-    public void ClearSelection()
-    {
-        if (_selectionHandler == null)
-            return;
-
-        _selectionHandler.ClearSelection();
-        RequestRefresh(false);
     }
 
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline)
@@ -943,9 +902,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             _selectionHandler?.HandleMouseDown(parent, OffsetByScroll(location), IsMouseInContainer(location));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed mouse down handle", ex);
+            ReportError(HtmlRenderErrorType.KeyboardMouse);
         }
     }
 
@@ -971,24 +930,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed mouse up handle", ex);
-        }
-    }
-
-    public void HandleMouseDoubleClick(object parent, PointF location)
-    {
-        ArgumentNullException.ThrowIfNull(parent);
-
-        try
-        {
-            if (_selectionHandler != null && IsMouseInContainer(location))
-                _selectionHandler.SelectWord(parent, OffsetByScroll(location));
-        }
-        catch (Exception ex)
-        {
-            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed mouse double click handle", ex);
+            ReportError(HtmlRenderErrorType.KeyboardMouse);
         }
     }
 
@@ -1002,9 +946,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             if (_selectionHandler != null && IsMouseInContainer(location))
                 _selectionHandler.HandleMouseMove(parent, loc);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed mouse move handle", ex);
+            ReportError(HtmlRenderErrorType.KeyboardMouse);
         }
     }
 
@@ -1016,9 +960,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             _selectionHandler?.HandleMouseLeave(parent);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed mouse leave handle", ex);
+            ReportError(HtmlRenderErrorType.KeyboardMouse);
         }
     }
 
@@ -1040,9 +984,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             if (e.CKeyCode)
                 _selectionHandler.CopySelectedHtml();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed key down handle", ex);
+            ReportError(HtmlRenderErrorType.KeyboardMouse);
         }
     }
 
@@ -1052,9 +996,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             StylesheetLoad?.Invoke(this, args);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.CssParsing, "Failed stylesheet load event", ex);
+            ReportError(HtmlRenderErrorType.CssParsing);
         }
     }
 
@@ -1064,9 +1008,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             ImageLoad?.Invoke(this, args);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.Image, "Failed image load event", ex);
+            ReportError(HtmlRenderErrorType.Image);
         }
     }
 
@@ -1076,17 +1020,17 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             Refresh?.Invoke(this, new HtmlRefreshEventArgs(layout));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            ReportError(HtmlRenderErrorType.General, "Failed refresh request", ex);
+            ReportError(HtmlRenderErrorType.General);
         }
     }
 
-    internal void ReportError(HtmlRenderErrorType type, string message, Exception exception = null)
+    internal void ReportError(HtmlRenderErrorType type)
     {
         try
         {
-            RenderError?.Invoke(this, new HtmlRenderErrorEventArgs(type, message, exception));
+            RenderError?.Invoke(this, new HtmlRenderErrorEventArgs(type));
         }
         catch
         { }
@@ -1130,12 +1074,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 HandleMouseMove(parent, location);
             }
         }
-        else if (targetUrl.StartsWith("#") && targetUrl.Length > 1)
+        else if (targetUrl.StartsWith('#') && targetUrl.Length > 1)
         {
             EventHandler<HtmlScrollEventArgs> scrollHandler = ScrollChange;
             if (scrollHandler != null)
             {
-                var rect = GetElementRectangle(targetUrl.Substring(1));
+                var rect = GetElementRectangle(targetUrl[1..]);
                 if (rect.HasValue)
                 {
                     scrollHandler(this, new HtmlScrollEventArgs(rect.Value.Location));
@@ -1270,20 +1214,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     #region IHtmlContainerInt
 
     void IHtmlContainerInt.ReportError(HtmlRenderErrorType type, string message, Exception exception)
-        => ReportError(type, message, exception);
+        => ReportError(type);
 
-    Color IHtmlContainerInt.SelectionForeColor => SelectionForeColor;
+    BColor IHtmlContainerInt.SelectionForeColor => SelectionForeColor;
 
-    Color IHtmlContainerInt.SelectionBackColor => SelectionBackColor;
+    BColor IHtmlContainerInt.SelectionBackColor => SelectionBackColor;
 
     void IHtmlContainerInt.RaiseHtmlImageLoadEvent(HtmlImageLoadEventArgs args)
         => RaiseHtmlImageLoadEvent(args);
 
     PointF IHtmlContainerInt.RootLocation => Root?.Location ?? PointF.Empty;
 
-    RFont IHtmlContainerInt.GetFont(string family, double size, FontStyle style, string fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
+    RFont IHtmlContainerInt.GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
 
-    Color IHtmlContainerInt.ParseColor(string colorStr) => ParseCssColor(colorStr);
+    BColor IHtmlContainerInt.ParseColor(string colorStr) => ParseCssColor(colorStr);
 
     RImage IHtmlContainerInt.ConvertImage(object image) => Adapter.ConvertImage(image);
 

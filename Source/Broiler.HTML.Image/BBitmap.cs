@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using Broiler.HTML.Image.Adapters;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Image;
 
@@ -65,15 +66,15 @@ public sealed class BBitmap : IDisposable
 
     internal void Erase(BColor color) => Clear(color);
 
-    public byte[] Encode(BImageFormat format = BImageFormat.Png, int quality = 100)
+    public byte[] Encode(Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png, int quality = 100)
     {
         EnsureImageCodec();
         // The codec only reads the buffer; hand it a copy so the live pixels stay owned by this bitmap.
         var buffer = new Broiler.Graphics.BPixelBuffer(Width, Height, (byte[])_pixels.Clone());
-        return Broiler.Graphics.BImageCodec.Encode(buffer, ToEncodeFormat(format), quality);
+        return Broiler.Graphics.BImageCodec.Encode(buffer, format, quality);
     }
 
-    public void Save(string filePath, BImageFormat format = BImageFormat.Png, int quality = 100)
+    public void Save(string filePath, Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png, int quality = 100)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
@@ -141,20 +142,14 @@ public sealed class BBitmap : IDisposable
         return Decode(File.ReadAllBytes(path));
     }
 
-    private static BBitmap FromPixelBuffer(Broiler.Graphics.BPixelBuffer buffer)
+    private static BBitmap FromPixelBuffer(Graphics.BPixelBuffer buffer)
     {
         ArgumentNullException.ThrowIfNull(buffer);
         return new BBitmap(buffer.Width, buffer.Height, buffer.Rgba);
     }
 
-    private static Broiler.Graphics.BImageEncodeFormat ToEncodeFormat(BImageFormat format) => format switch
-    {
-        BImageFormat.Jpeg => Broiler.Graphics.BImageEncodeFormat.Jpeg,
-        _ => Broiler.Graphics.BImageEncodeFormat.Png,
-    };
-
     private static void EnsureImageCodec()
-        => Broiler.Graphics.BImageCodec.UseManagedIfUnset();
+        => Graphics.BImageCodec.UseManagedIfUnset();
 
     internal bool HasMaterializedCompatBitmap => _compatSurface.IsMaterialized;
     internal int CompatSyncInvocationCount { get; private set; }

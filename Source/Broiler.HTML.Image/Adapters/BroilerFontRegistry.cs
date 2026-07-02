@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -13,14 +14,14 @@ namespace Broiler.HTML.Image.Adapters;
 /// </summary>
 internal static class BroilerFontRegistry
 {
-    private static readonly object Sync = new();
+    private static readonly Lock Sync = new();
     private static readonly HashSet<string> LoadedFamilies = new(StringComparer.OrdinalIgnoreCase);
 
     public static IReadOnlyCollection<string> GetSystemFontFamilies()
     {
         lock (Sync)
         {
-            return new List<string>(LoadedFamilies);
+            return [.. LoadedFamilies];
         }
     }
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Drawing;
-using Broiler.HTML.Adapters;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Orchestration;
 

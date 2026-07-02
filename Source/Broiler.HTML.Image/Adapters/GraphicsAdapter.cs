@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
@@ -114,7 +115,7 @@ internal sealed class GraphicsAdapter : RGraphics
     public override void MeasureString(string str, RFont font, double maxWidth, out int charFit, out double charFitWidth) =>
         _textShaper.MeasureString((FontAdapter)font, str, maxWidth, out charFit, out charFitWidth);
 
-    public override void DrawString(string str, RFont font, Color color, PointF point, SizeF size, bool rtl)
+    public override void DrawString(string str, RFont font, BColor color, PointF point, SizeF size, bool rtl)
     {
         float glyphRotation = VerticalGlyphContext.RotationDeg;
         if (CanUseRaster && _textShaper.TryDrawString(_rasterCanvas!, (FontAdapter)font, str, color, point, glyphRotation))
@@ -124,7 +125,7 @@ internal sealed class GraphicsAdapter : RGraphics
         _textShaper.DrawString(canvas, (FontAdapter)font, str, color, point);
     }
 
-    public override void DrawGradientString(string str, RFont font, RectangleF rect, PointF point, SizeF size, bool rtl, Color[] colors, float[] positions, float angle)
+    public override void DrawGradientString(string str, RFont font, RectangleF rect, PointF point, SizeF size, bool rtl, BColor[] colors, float[] positions, float angle)
     {
         if (colors == null || colors.Length == 0)
             return;
@@ -341,7 +342,7 @@ internal sealed class GraphicsAdapter : RGraphics
         _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
-    public override RImage? CreateLinearGradientTile(int width, int height, Color[] colors, float[] positions, float angle)
+    public override RImage? CreateLinearGradientTile(int width, int height, BColor[] colors, float[] positions, float angle)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
             return null;
@@ -357,7 +358,7 @@ internal sealed class GraphicsAdapter : RGraphics
         return new ImageAdapter(bitmap);
     }
 
-    public override RImage? CreateRadialGradientTile(int width, int height, Color[] colors, float[] positions, float centerX, float centerY)
+    public override RImage? CreateRadialGradientTile(int width, int height, BColor[] colors, float[] positions, float centerX, float centerY)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
             return null;
@@ -373,7 +374,7 @@ internal sealed class GraphicsAdapter : RGraphics
         return new ImageAdapter(bitmap);
     }
 
-    public override RImage? CreateConicGradientTile(int width, int height, Color[] colors, float[] positions, float centerX, float centerY, float fromAngle)
+    public override RImage? CreateConicGradientTile(int width, int height, BColor[] colors, float[] positions, float centerX, float centerY, float fromAngle)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
             return null;

@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
-using Broiler.HTML.Core.IR;
-using GraphicsBitmap = Broiler.Graphics.BBitmap;
-using ImageBitmap = Broiler.HTML.Image.BBitmap;
 using ImageContainer = Broiler.HTML.Image.HtmlContainer;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Graphics;
 
@@ -59,13 +56,6 @@ public sealed class HtmlContainer : IDisposable
         remove { _inner.ImageLoad -= value; }
     }
 
-    public Fragment? LatestFragmentTree => _inner.LatestFragmentTree;
-
-    public HtmlStyleSet StyleSet => _inner.StyleSet;
-
-    [Obsolete("Use StyleSet.")]
-    public CssData CssData => _inner.CssData;
-
     public bool AvoidAsyncImagesLoading
     {
         get => _inner.AvoidAsyncImagesLoading;
@@ -76,18 +66,6 @@ public sealed class HtmlContainer : IDisposable
     {
         get => _inner.AvoidImagesLateLoading;
         set => _inner.AvoidImagesLateLoading = value;
-    }
-
-    public bool IsSelectionEnabled
-    {
-        get => _inner.IsSelectionEnabled;
-        set => _inner.IsSelectionEnabled = value;
-    }
-
-    public bool IsContextMenuEnabled
-    {
-        get => _inner.IsContextMenuEnabled;
-        set => _inner.IsContextMenuEnabled = value;
     }
 
     public PointF ScrollOffset
@@ -103,12 +81,6 @@ public sealed class HtmlContainer : IDisposable
     }
 
     public SizeF ActualSize => _inner.ActualSize;
-
-    public string SelectedText => _inner.SelectedText;
-
-    public string SelectedHtml => _inner.SelectedHtml;
-
-    public void ClearSelection() => _inner.ClearSelection();
 
     public PointF Location
     {
@@ -128,23 +100,8 @@ public sealed class HtmlContainer : IDisposable
         _inner.AvoidImagesLateLoading = true;
     }
 
-    [Obsolete("Use SetHtmlWithStyleSet.")]
-    public void SetHtml(string htmlSource, CssData? baseCssData = null, string? baseUrl = null) =>
-        _inner.SetHtml(htmlSource, baseCssData, baseUrl);
-
     public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
         _inner.SetHtmlWithStyleSet(htmlSource, baseStyleSet, baseUrl);
-
-    [Obsolete("Use SetDocumentWithStyleSet.")]
-    public void SetDocument(Broiler.Dom.DomDocument document, CssData? baseCssData = null, string? baseUrl = null) =>
-        _inner.SetDocument(document, baseCssData, baseUrl);
-
-    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
-        _inner.SetDocumentWithStyleSet(document, baseStyleSet, baseUrl);
-
-    public void Clear() => _inner.Clear();
-
-    public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => _inner.GetHtml(styleGen);
 
     public string GetAttributeAt(PointF location, string attribute) => _inner.GetAttributeAt(location, attribute);
 
@@ -159,35 +116,7 @@ public sealed class HtmlContainer : IDisposable
 
     public string GetLinkAt(PointF location) => _inner.GetLinkAt(location);
 
-    public void PerformLayout(GraphicsBitmap bitmap, RectangleF clip)
-    {
-        ArgumentNullException.ThrowIfNull(bitmap);
-
-        using ImageBitmap image = HtmlRender.ToImageBitmap(bitmap);
-        _inner.PerformLayout(image, clip);
-    }
-
     public void PerformLayout(RectangleF clip) => _inner.PerformLayout(clip);
-
-    public void PerformLayout() => _inner.PerformLayout();
-
-    public void PerformPaint(GraphicsBitmap bitmap, RectangleF clip)
-    {
-        ArgumentNullException.ThrowIfNull(bitmap);
-
-        using ImageBitmap image = HtmlRender.ToImageBitmap(bitmap);
-        _inner.PerformPaint(image, clip);
-        HtmlRender.CopyToGraphicsBitmap(image, bitmap);
-    }
-
-    public void PerformPaint(GraphicsBitmap bitmap, RectangleF clip, PointF translation)
-    {
-        ArgumentNullException.ThrowIfNull(bitmap);
-
-        using ImageBitmap image = HtmlRender.ToImageBitmap(bitmap);
-        _inner.PerformPaint(image, clip, translation);
-        HtmlRender.CopyToGraphicsBitmap(image, bitmap);
-    }
 
     public HtmlGraphicsRenderList CreateRenderList(Broiler.Graphics.IBroilerRenderer renderer, RectangleF clip)
     {
@@ -198,24 +127,13 @@ public sealed class HtmlContainer : IDisposable
 
     public RectangleF? GetElementRectangle(string elementId) => _inner.GetElementRectangle(elementId);
 
-    public void ScrollToElement(string elementId) => _inner.ScrollToElement(elementId);
-
-    public void ScrollToPoint(PointF location) => _inner.ScrollToPoint(location);
-
-    public void ScrollToPoint(float x, float y) => _inner.ScrollToPoint(x, y);
-
-    public List<LinkElementData<RectangleF>> GetLinks() => _inner.GetLinks();
-
-    public Color GetRootBackgroundColor() => _inner.GetRootBackgroundColor();
+    public BColor GetRootBackgroundColor() => _inner.GetRootBackgroundColor();
 
     public void HandleMouseDown(PointF location, bool leftButton = true, bool rightButton = false) =>
         _inner.HandleMouseDown(location, leftButton, rightButton);
 
     public void HandleMouseUp(PointF location, bool leftButton = true, bool rightButton = false) =>
         _inner.HandleMouseUp(location, leftButton, rightButton);
-
-    public void HandleMouseDoubleClick(PointF location, bool leftButton = true, bool rightButton = false) =>
-        _inner.HandleMouseDoubleClick(location, leftButton, rightButton);
 
     public void HandleMouseMove(PointF mousePos, bool leftButton = false, bool rightButton = false) =>
         _inner.HandleMouseMove(mousePos, leftButton, rightButton);

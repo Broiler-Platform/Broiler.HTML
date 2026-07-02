@@ -1,4 +1,5 @@
 using System;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Image;
 

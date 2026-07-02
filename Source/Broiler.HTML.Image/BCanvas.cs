@@ -1,21 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Broiler.Graphics;
 
 namespace Broiler.HTML.Image;
 
-internal sealed class BCanvas : IDisposable
+internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 {
-    private readonly BBitmap _rootBitmap;
+    private readonly BBitmap _rootBitmap = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
     private readonly Stack<CanvasState> _stateStack = new();
     private readonly Stack<LayerState> _layerStack = new();
     private readonly List<ClipOperation> _clipOperations = [];
     private PointF _translation;
-
-    public BCanvas(BBitmap bitmap)
-    {
-        _rootBitmap = bitmap ?? throw new ArgumentNullException(nameof(bitmap));
-    }
 
     public void Save() => _stateStack.Push(new CanvasState(_translation, _clipOperations.Count));
 
@@ -607,7 +603,7 @@ internal sealed class BCanvas : IDisposable
     {
         opacity = Math.Clamp(opacity, 0f, 1f);
         byte alpha = (byte)Math.Clamp((int)Math.Round(color.A * opacity), 0, 255);
-        return color with { A = alpha };
+        return new BColor(color.R, color.G, color.B, alpha);
     }
 
     private static void BlendPixel(BBitmap bitmap, int x, int y, BColor source, string blendMode)

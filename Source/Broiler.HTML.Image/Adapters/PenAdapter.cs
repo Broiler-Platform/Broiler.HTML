@@ -1,23 +1,16 @@
 using System;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class PenAdapter : RPen
+internal sealed class PenAdapter(Func<float, Graphics.DashStyle, object> paintFactory, Action<object, float, Graphics.DashStyle> paintUpdater) : RPen
 {
-    private readonly Func<float, DashStyle, object>? _paintFactory;
-    private readonly Action<object, float, DashStyle>? _paintUpdater;
+    private readonly Func<float, Graphics.DashStyle, object>? _paintFactory = paintFactory ?? throw new ArgumentNullException(nameof(paintFactory));
+    private readonly Action<object, float, Graphics.DashStyle>? _paintUpdater = paintUpdater ?? throw new ArgumentNullException(nameof(paintUpdater));
     private object? _paint;
-    private float _width;
-    private DashStyle _dashStyle;
-
-    public PenAdapter(Func<float, DashStyle, object> paintFactory, Action<object, float, DashStyle> paintUpdater)
-    {
-        _paintFactory = paintFactory ?? throw new ArgumentNullException(nameof(paintFactory));
-        _paintUpdater = paintUpdater ?? throw new ArgumentNullException(nameof(paintUpdater));
-        _width = 1f;
-        _dashStyle = DashStyle.Solid;
-    }
+    private float _width = 1f;
+    private Graphics.DashStyle _dashStyle = Graphics.DashStyle.Solid;
 
     public object Paint => _paint ??= _paintFactory?.Invoke(_width, _dashStyle)
         ?? throw new InvalidOperationException("Pen paint factory was not configured.");
@@ -26,7 +19,7 @@ internal sealed class PenAdapter : RPen
 
     internal bool HasMaterializedPaint => _paint is not null;
 
-    public bool HasSimpleStroke => SolidColor.HasValue && _dashStyle == DashStyle.Solid;
+    public bool HasSimpleStroke => SolidColor.HasValue && _dashStyle == Graphics.DashStyle.Solid;
 
     public override double Width
     {
@@ -39,7 +32,7 @@ internal sealed class PenAdapter : RPen
         }
     }
 
-    public override DashStyle DashStyle
+    public override Graphics.DashStyle DashStyle
     {
         set
         {

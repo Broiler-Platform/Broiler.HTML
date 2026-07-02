@@ -1,6 +1,8 @@
+using Broiler.HTML.Image.Adapters;
 using System;
 using System.Drawing;
 using System.IO;
+using Broiler.Graphics;
 
 // OS-free stand-ins for the former GDI+ compatibility leaves. The default
 // "broiler" raster pipeline draws shapes, solid/gradient fills and images
@@ -8,7 +10,7 @@ using System.IO;
 // depended on GDI+. They degrade gracefully (skip the visual) instead of
 // throwing, except where a result genuinely cannot be produced.
 
-namespace Broiler.HTML.Image.Adapters;
+namespace Broiler.HTML.Image.Compat;
 
 /// <summary>
 /// Text metrics and drawing stub. Measurement returns a deterministic estimate
@@ -19,8 +21,6 @@ internal sealed class StubTextShaper : ITextShaper
 {
     private const double PtToCssPx = 96.0 / 72.0;
     private const double AverageGlyphWidthRatio = 0.5;
-
-    public static StubTextShaper Instance { get; } = new();
 
     public SizeF MeasureString(FontAdapter font, string text)
     {
@@ -50,16 +50,16 @@ internal sealed class StubTextShaper : ITextShaper
 
     // Returning true tells the raster path the text was handled, so it is skipped
     // cleanly instead of falling back to the (removed) GDI canvas.
-    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, Color color, PointF point, float glyphRotationDeg = 0f) => true;
+    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, BColor color, PointF point, float glyphRotationDeg = 0f) => true;
 
-    public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, Color[] colors, float[] positions, float angle) => true;
+    public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, BColor[] colors, float[] positions, float angle) => true;
 
-    public void DrawString(object canvas, FontAdapter font, string text, Color color, PointF point)
+    public void DrawString(object canvas, FontAdapter font, string text, BColor color, PointF point)
     {
         // No text backend: glyphs are not rendered.
     }
 
-    public void DrawGradientString(object canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, Color[] colors, float[] positions, float angle)
+    public void DrawGradientString(object canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, BColor[] colors, float[] positions, float angle)
     {
         // No text backend: glyphs are not rendered.
     }
@@ -131,13 +131,13 @@ internal sealed class StubPaintCompatFactory : IPaintCompatFactory
 {
     public static StubPaintCompatFactory Instance { get; } = new();
 
-    public object CreateSolidBrushPaint(Color color) => StubPaint.Instance;
+    public object CreateSolidBrushPaint(BColor color) => StubPaint.Instance;
 
-    public object CreateLinearGradientBrushPaint(RectangleF rect, Color color1, Color color2, double angle) => StubPaint.Instance;
+    public object CreateLinearGradientBrushPaint(RectangleF rect, BColor color1, BColor color2, double angle) => StubPaint.Instance;
 
-    public object CreatePenPaint(Color color, float strokeWidth, DashStyle dashStyle) => StubPaint.Instance;
+    public object CreatePenPaint(BColor color, float strokeWidth, Graphics.DashStyle dashStyle) => StubPaint.Instance;
 
-    public void UpdatePenPaint(object paint, float strokeWidth, DashStyle dashStyle) { }
+    public void UpdatePenPaint(object paint, float strokeWidth, Graphics.DashStyle dashStyle) { }
 }
 
 /// <summary>Font-factory stub; carries the requested size so metrics stay sensible.</summary>
@@ -174,15 +174,13 @@ internal sealed class StubFontTypefaceResolver : IFontTypefaceResolver
 
     public bool HasMaterializedLoadedTypeface(string family) => false;
 
-    public object ResolveTypeface(string family, FontStyle style) => StubTypeface.Instance;
+    public object ResolveTypeface(string family, Graphics.FontStyle style) => StubTypeface.Instance;
 }
 
 /// <summary>Inert layout font carrying the size used for stub metrics.</summary>
-internal sealed class StubFont
+internal sealed class StubFont(float sizePt)
 {
-    public StubFont(float sizePt) => SizePt = sizePt;
-
-    public float SizePt { get; }
+    public float SizePt { get; } = sizePt;
 }
 
 /// <summary>Shared inert paint sentinel.</summary>

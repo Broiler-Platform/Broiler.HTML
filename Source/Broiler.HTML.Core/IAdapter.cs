@@ -1,4 +1,5 @@
-using Broiler.HTML.Adapters;
+using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
 using System.IO;
 
 namespace Broiler.HTML.Core;
@@ -15,7 +16,7 @@ internal interface IAdapter : IColorResolver
     /// <summary>
     /// Gets a cached font for the specified family, size, and style.
     /// </summary>
-    RFont GetFont(string family, double size, FontStyle style, string fontFeatures = null);
+    RFont GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures = null);
 
     /// <summary>
     /// Converts a platform-specific image object to an <see cref="RImage"/>.

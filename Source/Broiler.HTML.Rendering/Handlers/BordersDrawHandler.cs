@@ -1,8 +1,6 @@
 using System.Drawing;
 using System;
-using Broiler.HTML.Core.Core.Dom;
-using Broiler.HTML.Adapters;
-using Broiler.HTML.Utils;
+using Broiler.Graphics;
 using Broiler.HTML.Core;
 
 using CssConstants = Broiler.CSS.CssConstants;
@@ -152,12 +150,12 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
                 path.Start(r.Left + b.ActualBorderLeftWidth / 2, r.Top + b.ActualBorderTopWidth / 2 + b.ActualCornerNw);
 
                 if (b.ActualCornerNw > 0)
-                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2 + b.ActualCornerNw, r.Top + b.ActualBorderTopWidth / 2, b.ActualCornerNw, RGraphicsPath.Corner.TopLeft);
+                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2 + b.ActualCornerNw, r.Top + b.ActualBorderTopWidth / 2, b.ActualCornerNw, Broiler.Graphics.Corner.TopLeft);
 
                 path.LineTo(r.Right - b.ActualBorderRightWidth / 2 - b.ActualCornerNe, r.Top + b.ActualBorderTopWidth / 2);
 
                 if (b.ActualCornerNe > 0)
-                    path.ArcTo(r.Right - b.ActualBorderRightWidth / 2, r.Top + b.ActualBorderTopWidth / 2 + b.ActualCornerNe, b.ActualCornerNe, RGraphicsPath.Corner.TopRight);
+                    path.ArcTo(r.Right - b.ActualBorderRightWidth / 2, r.Top + b.ActualBorderTopWidth / 2 + b.ActualCornerNe, b.ActualCornerNe, Broiler.Graphics.Corner.TopRight);
                 
                 break;
 
@@ -169,12 +167,12 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
                 path.Start(r.Right - b.ActualBorderRightWidth / 2, r.Bottom - b.ActualBorderBottomWidth / 2 - b.ActualCornerSe);
 
                 if (b.ActualCornerSe > 0)
-                    path.ArcTo(r.Right - b.ActualBorderRightWidth / 2 - b.ActualCornerSe, r.Bottom - b.ActualBorderBottomWidth / 2, b.ActualCornerSe, RGraphicsPath.Corner.BottomRight);
+                    path.ArcTo(r.Right - b.ActualBorderRightWidth / 2 - b.ActualCornerSe, r.Bottom - b.ActualBorderBottomWidth / 2, b.ActualCornerSe, Broiler.Graphics.Corner.BottomRight);
 
                 path.LineTo(r.Left + b.ActualBorderLeftWidth / 2 + b.ActualCornerSw, r.Bottom - b.ActualBorderBottomWidth / 2);
 
                 if (b.ActualCornerSw > 0)
-                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2, r.Bottom - b.ActualBorderBottomWidth / 2 - b.ActualCornerSw, b.ActualCornerSw, RGraphicsPath.Corner.BottomLeft);
+                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2, r.Bottom - b.ActualBorderBottomWidth / 2 - b.ActualCornerSw, b.ActualCornerSw, Broiler.Graphics.Corner.BottomLeft);
                 
                 break;
 
@@ -189,12 +187,12 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
                 path.Start(r.Right - b.ActualBorderRightWidth / 2 - (noTop ? b.ActualCornerNe : 0), r.Top + b.ActualBorderTopWidth / 2 + (noTop ? 0 : b.ActualCornerNe));
 
                 if (b.ActualCornerNe > 0 && noTop)
-                    path.ArcTo(r.Right - b.ActualBorderLeftWidth / 2, r.Top + b.ActualBorderTopWidth / 2 + b.ActualCornerNe, b.ActualCornerNe, RGraphicsPath.Corner.TopRight);
+                    path.ArcTo(r.Right - b.ActualBorderLeftWidth / 2, r.Top + b.ActualBorderTopWidth / 2 + b.ActualCornerNe, b.ActualCornerNe, Broiler.Graphics.Corner.TopRight);
 
                 path.LineTo(r.Right - b.ActualBorderRightWidth / 2, r.Bottom - b.ActualBorderBottomWidth / 2 - b.ActualCornerSe);
 
                 if (b.ActualCornerSe > 0 && noBottom)
-                    path.ArcTo(r.Right - b.ActualBorderRightWidth / 2 - b.ActualCornerSe, r.Bottom - b.ActualBorderBottomWidth / 2, b.ActualCornerSe, RGraphicsPath.Corner.BottomRight);
+                    path.ArcTo(r.Right - b.ActualBorderRightWidth / 2 - b.ActualCornerSe, r.Bottom - b.ActualBorderBottomWidth / 2, b.ActualCornerSe, Broiler.Graphics.Corner.BottomRight);
                 break;
             case Border.Left:
                 if (b.ActualCornerNw <= 0 && b.ActualCornerSw <= 0)
@@ -207,12 +205,12 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
                 path.Start(r.Left + b.ActualBorderLeftWidth / 2 + (noBottom ? b.ActualCornerSw : 0), r.Bottom - b.ActualBorderBottomWidth / 2 - (noBottom ? 0 : b.ActualCornerSw));
 
                 if (b.ActualCornerSw > 0 && noBottom)
-                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2, r.Bottom - b.ActualBorderBottomWidth / 2 - b.ActualCornerSw, b.ActualCornerSw, RGraphicsPath.Corner.BottomLeft);
+                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2, r.Bottom - b.ActualBorderBottomWidth / 2 - b.ActualCornerSw, b.ActualCornerSw, Broiler.Graphics.Corner.BottomLeft);
 
                 path.LineTo(r.Left + b.ActualBorderLeftWidth / 2, r.Top + b.ActualBorderTopWidth / 2 + b.ActualCornerNw);
 
                 if (b.ActualCornerNw > 0 && noTop)
-                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2 + b.ActualCornerNw, r.Top + b.ActualBorderTopWidth / 2, b.ActualCornerNw, RGraphicsPath.Corner.TopLeft);
+                    path.ArcTo(r.Left + b.ActualBorderLeftWidth / 2 + b.ActualCornerNw, r.Top + b.ActualBorderTopWidth / 2, b.ActualCornerNw, Broiler.Graphics.Corner.TopLeft);
 
                 break;
         }
@@ -257,26 +255,26 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
     private static bool IsBorderVisible(string style)
         => !string.IsNullOrEmpty(style) && style != CssConstants.None && style != CssConstants.Hidden;
 
-    private static RPen GetPen(RGraphics g, string style, Color color, double width)
+    private static RPen GetPen(RGraphics g, string style, BColor color, double width)
     {
         var p = g.GetPen(color);
         p.Width = width;
         switch (style)
         {
             case "solid":
-                p.DashStyle = DashStyle.Solid;
+                p.DashStyle = Graphics.DashStyle.Solid;
                 break;
             case "dotted":
-                p.DashStyle = DashStyle.Dot;
+                p.DashStyle = Graphics.DashStyle.Dot;
                 break;
             case "dashed":
-                p.DashStyle = DashStyle.Dash;
+                p.DashStyle = Graphics.DashStyle.Dash;
                 break;
         }
         return p;
     }
 
-    private static Color GetColor(Border border, IBorderRenderData box, string style) => border switch
+    private static BColor GetColor(Border border, IBorderRenderData box, string style) => border switch
     {
         Border.Top => style == CssConstants.Inset ? Darken(box.ActualBorderTopColor) : box.ActualBorderTopColor,
         Border.Right => style == CssConstants.Outset ? Darken(box.ActualBorderRightColor) : box.ActualBorderRightColor,
@@ -303,7 +301,7 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
         _ => throw new ArgumentOutOfRangeException(nameof(border)),
     };
 
-    private static Color Darken(Color c) => Color.FromArgb(c.R / 2, c.G / 2, c.B / 2);
+    private static BColor Darken(BColor c) => BColor.FromArgb(c.R / 2, c.G / 2, c.B / 2);
 
     void IBordersDrawHandler.DrawBoxBorders(RGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast)
         => DrawBoxBorders(g, box, rect, isFirst, isLast);

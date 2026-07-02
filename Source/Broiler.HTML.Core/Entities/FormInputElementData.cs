@@ -1,5 +1,3 @@
-using System;
-
 namespace Broiler.HTML.Core.Entities;
 
 public sealed class FormInputElementData<T>(string id, string name, string type, string value, T rectangle)
@@ -9,8 +7,6 @@ public sealed class FormInputElementData<T>(string id, string name, string type,
     public string Type { get; } = type ?? string.Empty;
     public string Value { get; } = value ?? string.Empty;
     public T Rectangle { get; } = rectangle;
-
-    public bool IsPassword => Type.Equals("password", StringComparison.OrdinalIgnoreCase);
 
     public override string ToString() => $"Id: {Id}, Name: {Name}, Type: {Type}, Rectangle: {Rectangle}";
 }

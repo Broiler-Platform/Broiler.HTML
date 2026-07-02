@@ -1,6 +1,7 @@
 using System;
+using Broiler.Graphics;
 
-namespace Broiler.HTML.Image;
+namespace Broiler.HTML.Image.Compat;
 
 /// <summary>
 /// OS-free bitmap compat surface. The managed raster pipeline owns the real
@@ -51,9 +52,4 @@ internal sealed class StubBitmapCompatSurface : IBitmapCompatSurface
 /// </summary>
 internal sealed class StubCanvas
 {
-    public void Save() { }
-
-    public void Restore() { }
-
-    public void Translate(float x, float y) { }
 }

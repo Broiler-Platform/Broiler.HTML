@@ -1,31 +1,20 @@
 using System;
 using System.Drawing;
+using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class ControlAdapter : RControl
+internal sealed class ControlAdapter(
+    PointF mouseLocation,
+    bool leftMouseButton,
+    bool rightMouseButton,
+    Action invalidate = null,
+    Action<GraphicsCursor> cursorChanged = null) : RControl(CompatProvider.ImageAdapter)
 {
-    private PointF _mouseLocation;
-    private bool _leftMouseButton;
-    private bool _rightMouseButton;
-    private readonly Action _invalidate;
-    private readonly Action<GraphicsCursor> _cursorChanged;
-
-    public ControlAdapter(
-        PointF mouseLocation,
-        bool leftMouseButton,
-        bool rightMouseButton,
-        Action invalidate = null,
-        Action<GraphicsCursor> cursorChanged = null)
-        : base(CompatProvider.ImageAdapter)
-    {
-        _mouseLocation = mouseLocation;
-        _leftMouseButton = leftMouseButton;
-        _rightMouseButton = rightMouseButton;
-        _invalidate = invalidate;
-        _cursorChanged = cursorChanged;
-    }
+    private PointF _mouseLocation = mouseLocation;
+    private bool _leftMouseButton = leftMouseButton;
+    private bool _rightMouseButton = rightMouseButton;
 
     public override bool LeftMouseButton => _leftMouseButton;
 
@@ -33,18 +22,11 @@ internal sealed class ControlAdapter : RControl
 
     public override PointF MouseLocation => _mouseLocation;
 
-    public void Update(PointF mouseLocation, bool leftMouseButton, bool rightMouseButton)
-    {
-        _mouseLocation = mouseLocation;
-        _leftMouseButton = leftMouseButton;
-        _rightMouseButton = rightMouseButton;
-    }
+    public override void SetCursorDefault() => cursorChanged?.Invoke(GraphicsCursor.Default);
 
-    public override void SetCursorDefault() => _cursorChanged?.Invoke(GraphicsCursor.Default);
+    public override void SetCursorHand() => cursorChanged?.Invoke(GraphicsCursor.Hand);
 
-    public override void SetCursorHand() => _cursorChanged?.Invoke(GraphicsCursor.Hand);
-
-    public override void SetCursorIBeam() => _cursorChanged?.Invoke(GraphicsCursor.IBeam);
+    public override void SetCursorIBeam() => cursorChanged?.Invoke(GraphicsCursor.IBeam);
 
     public override void DoDragDropCopy(object dragDropData)
     {
@@ -58,7 +40,7 @@ internal sealed class ControlAdapter : RControl
         graphics.MeasureString(str, font, maxWidth, out charFit, out charFitWidth);
     }
 
-    public override void Invalidate() => _invalidate?.Invoke();
+    public override void Invalidate() => invalidate?.Invoke();
 }
 
 internal enum GraphicsCursor

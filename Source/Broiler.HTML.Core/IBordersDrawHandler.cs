@@ -1,5 +1,4 @@
-using Broiler.HTML.Adapters;
-using Broiler.HTML.Core.Core.Dom;
+using Broiler.Graphics;
 using System.Drawing;
 
 namespace Broiler.HTML.Core;
@@ -20,10 +19,10 @@ internal interface IBorderRenderData
     double ActualBorderBottomWidth { get; }
     double ActualBorderLeftWidth { get; }
 
-    Color ActualBorderTopColor { get; }
-    Color ActualBorderRightColor { get; }
-    Color ActualBorderBottomColor { get; }
-    Color ActualBorderLeftColor { get; }
+    BColor ActualBorderTopColor { get; }
+    BColor ActualBorderRightColor { get; }
+    BColor ActualBorderBottomColor { get; }
+    BColor ActualBorderLeftColor { get; }
 
     double ActualCornerNw { get; }
     double ActualCornerNe { get; }

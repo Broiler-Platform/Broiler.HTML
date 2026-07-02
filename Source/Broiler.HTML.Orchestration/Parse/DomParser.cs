@@ -3,20 +3,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Broiler.HTML.Dom.Parse;
-using Broiler.Dom.Html;
-using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Dom;
-using Broiler.Layout;
 using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
-using CommonUtils = Broiler.HTML.Utils.CommonUtils;
 using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
-using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
 
 using HtmlTag = Broiler.Layout.HtmlTag;
 using BoxKind = Broiler.Layout.BoxKind;
+using Broiler.CSS;
 using CssConstants = Broiler.CSS.CssConstants;
+using Broiler.Layout.Engine;
+using Broiler.Graphics;
 namespace Broiler.HTML.Orchestration.Parse;
 
 internal sealed class DomParser
@@ -32,7 +30,7 @@ internal sealed class DomParser
 
     // Author-origin-only cascade (stylesheets + inline), used to detect whether a
     // presentation-hint property is also claimed by an author declaration.
-    private Broiler.CSS.Dom.CssStyleEngine? _authorEngine;
+    private CSS.Dom.CssStyleEngine? _authorEngine;
 
     public DomParser(IStylesheetLoader stylesheetLoader)
     {
@@ -152,7 +150,7 @@ internal sealed class DomParser
         CssBox box,
         HtmlStyleSet styleSet,
         Uri baseUrl,
-        Broiler.CSS.Dom.CssStyleEngine engine,
+        CSS.Dom.CssStyleEngine engine,
         bool hasBeforeRules,
         bool hasAfterRules)
     {
@@ -345,8 +343,8 @@ internal sealed class DomParser
         CssBox root,
         Broiler.CSS.Dom.CssStyleEngine engine)
     {
-        htmlContainer.SelectionForeColor = Color.Empty;
-        htmlContainer.SelectionBackColor = Color.Empty;
+        htmlContainer.SelectionForeColor = BColor.Empty;
+        htmlContainer.SelectionBackColor = BColor.Empty;
 
         if (engine == null || SharedRendererCascade.FindCanonicalDocument(root)?.DocumentElement is not { } element)
             return;
@@ -486,26 +484,6 @@ internal sealed class DomParser
         }
 
         return imageUrl.Length > 0;
-    }
-
-    private static bool IsStyleOnElementAllowed(CssBox box, string key, string value)
-    {
-        if (box.HtmlTag == null || key != HtmlConstants.Display)
-            return true;
-
-        return box.HtmlTag.Name switch
-        {
-            HtmlConstants.Table => value == CssConstants.Table,
-            HtmlConstants.Tr => value == CssConstants.TableRow,
-            HtmlConstants.Tbody => value == CssConstants.TableRowGroup,
-            HtmlConstants.Thead => value == CssConstants.TableHeaderGroup,
-            HtmlConstants.Tfoot => value == CssConstants.TableFooterGroup,
-            HtmlConstants.Col => value == CssConstants.TableColumn,
-            HtmlConstants.Colgroup => value == CssConstants.TableColumnGroup,
-            HtmlConstants.Td or HtmlConstants.Th => value == CssConstants.TableCell,
-            HtmlConstants.Caption => value == CssConstants.TableCaption,
-            _ => true,
-        };
     }
 
     /// <summary>
@@ -682,7 +660,7 @@ internal sealed class DomParser
 
     private static string TranslateLength(string htmlLength)
     {
-        return Broiler.CSS.CssLengthParser.IsValidLength(htmlLength)
+        return CSS.CssLengthParser.IsValidLength(htmlLength)
             ? htmlLength
             : $"{htmlLength}px";
     }
@@ -1064,11 +1042,6 @@ internal sealed class DomParser
 
         foreach (var child in box.Boxes)
             PropagateSplitPositionedAncestor(child, ancestor);
-    }
-
-    private static void CorrectBlockSplitBadBox(CssBox parentBox, CssBox badBox, CssBox leftBlock, Uri baseUrl)
-    {
-        CorrectBlockSplitBadBoxCore(parentBox, badBox, leftBlock, baseUrl, null);
     }
 
     /// <summary>
