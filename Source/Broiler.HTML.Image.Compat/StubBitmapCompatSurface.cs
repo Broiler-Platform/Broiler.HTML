@@ -52,4 +52,19 @@ internal sealed class StubBitmapCompatSurface : IBitmapCompatSurface
 /// </summary>
 internal sealed class StubCanvas
 {
+    // The managed raster pipeline owns transform/clip state, so these compat
+    // canvas operations are inert. They exist because CompatCanvasOperations
+    // invokes them by name via reflection; the exact signatures must match its
+    // call sites (parameterless Save/Restore, Translate(float, float)).
+    public void Save()
+    {
+    }
+
+    public void Restore()
+    {
+    }
+
+    public void Translate(float x, float y)
+    {
+    }
 }
