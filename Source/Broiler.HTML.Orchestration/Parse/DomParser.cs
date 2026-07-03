@@ -775,6 +775,33 @@ internal sealed class DomParser
                 var block = CssBoxHelper.CreateBlock(childBox.ParentBox, baseUrl, null, childBox);
                 childBox.ParentBox = block;
                 childBox.Display = CssConstants.Inline;
+
+                // CSS2.1 §10.3.4: a block-level replaced element resolves its
+                // horizontal margins with the non-replaced-block rules, so
+                // `margin-left/right:auto` can center it or push it to one side.
+                // The image is painted as an inline replaced word inside this
+                // anonymous block wrapper, and auto side-margins on an *inline*
+                // replaced box compute to 0 — so without help the image is stuck
+                // flush-left (WPT c43-rpl-bbx-001: `width:50%; margin-left:auto`
+                // must be flush right). When the replaced element has a definite
+                // width and an auto side-margin, hand the block-level width and
+                // horizontal margins to the WRAPPER (which runs the block
+                // auto-margin resolution) and let the inline image fill it.
+                bool hasAutoSideMargin = childBox.MarginLeft == CssConstants.Auto
+                                      || childBox.MarginRight == CssConstants.Auto;
+                bool hasDefiniteWidth = !string.IsNullOrEmpty(childBox.Width)
+                                      && childBox.Width != CssConstants.Auto;
+                if (hasAutoSideMargin && hasDefiniteWidth)
+                {
+                    block.Width = childBox.Width;
+                    block.MarginLeft = childBox.MarginLeft;
+                    block.MarginRight = childBox.MarginRight;
+                    block.MaxWidth = childBox.MaxWidth;
+                    block.MinWidth = childBox.MinWidth;
+                    childBox.Width = "100%";
+                    childBox.MarginLeft = "0";
+                    childBox.MarginRight = "0";
+                }
             }
             else
             {
