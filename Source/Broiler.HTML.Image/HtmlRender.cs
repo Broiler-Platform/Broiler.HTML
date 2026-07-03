@@ -255,7 +255,8 @@ public static class HtmlRender
         HtmlStyleSet styleSet,
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
         EventHandler<HtmlImageLoadEventArgs> imageLoad,
-        string baseUrl)
+        string baseUrl,
+        int embedDepth = 0)
     {
         var bgColor = backgroundColor ?? BColor.White;
         var bitmap = new BBitmap(width, height);
@@ -283,6 +284,13 @@ public static class HtmlRender
             var clip = new RectangleF(0, 0, width, height);
             container.PerformLayout(bitmap, clip);
             container.PerformPaint(bitmap, clip);
+
+            // Nested browsing contexts (<object type="text/html">, <iframe>,
+            // <frame>): rasterise each embedded document at its content-box size
+            // and composite it over the box.  Depth-bounded to stop a document
+            // that (transitively) embeds itself.
+            if (embedDepth < MaxEmbeddedDocumentDepth && container.LatestFragmentTree is { } tree)
+                CompositeEmbeddedDocuments(tree, bitmap, stylesheetLoad, imageLoad, embedDepth);
         }
         else
         {
@@ -290,6 +298,70 @@ public static class HtmlRender
         }
 
         return bitmap;
+    }
+
+    private const int MaxEmbeddedDocumentDepth = 4;
+
+    /// <summary>
+    /// Walks the laid-out fragment tree and composites every embedded document
+    /// (<see cref="Layout.IR.Fragment.EmbeddedDocumentHtml"/>) over its box by
+    /// recursively rendering it at the box's content-box size.
+    /// </summary>
+    private static void CompositeEmbeddedDocuments(
+        Layout.IR.Fragment fragment,
+        BBitmap target,
+        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs> imageLoad,
+        int embedDepth)
+    {
+        if (!string.IsNullOrEmpty(fragment.EmbeddedDocumentHtml))
+        {
+            var border = fragment.Border;
+            var padding = fragment.Padding;
+
+            // Content box = border box minus border and padding (mirrors the
+            // replaced-image destination rect in PaintWalker.EmitReplacedImage).
+            int dx = (int)Math.Round(fragment.Location.X + (float)(border.Left + padding.Left));
+            int dy = (int)Math.Round(fragment.Location.Y + (float)(border.Top + padding.Top));
+            int dw = (int)Math.Round(fragment.Size.Width
+                - (float)(border.Left + border.Right + padding.Left + padding.Right));
+            int dh = (int)Math.Round(fragment.Size.Height
+                - (float)(border.Top + border.Bottom + padding.Top + padding.Bottom));
+
+            if (dw > 0 && dh > 0)
+            {
+                using var sub = RenderToImageCore(
+                    fragment.EmbeddedDocumentHtml, dw, dh,
+                    backgroundColor: null,          // resolve the embedded document's own canvas background
+                    styleSet: null,                 // the embedded document parses its own styles
+                    stylesheetLoad, imageLoad,
+                    fragment.EmbeddedDocumentBaseUrl,
+                    embedDepth + 1);
+                BlitOnto(target, sub, dx, dy);
+            }
+        }
+
+        foreach (var child in fragment.Children)
+            CompositeEmbeddedDocuments(child, target, stylesheetLoad, imageLoad, embedDepth);
+    }
+
+    /// <summary>Copies <paramref name="source"/> onto <paramref name="target"/> at
+    /// (<paramref name="destX"/>, <paramref name="destY"/>), clipped to the target.</summary>
+    private static void BlitOnto(BBitmap target, BBitmap source, int destX, int destY)
+    {
+        for (int y = 0; y < source.Height; y++)
+        {
+            int ty = destY + y;
+            if ((uint)ty >= (uint)target.Height)
+                continue;
+            for (int x = 0; x < source.Width; x++)
+            {
+                int tx = destX + x;
+                if ((uint)tx >= (uint)target.Width)
+                    continue;
+                target.SetPixel(tx, ty, source.GetPixel(x, y));
+            }
+        }
     }
 
     private static BBitmap RenderToImageAutoSizedCore(string html, int maxWidth, int maxHeight,
