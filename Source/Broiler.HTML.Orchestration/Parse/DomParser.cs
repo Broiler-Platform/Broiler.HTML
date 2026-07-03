@@ -97,6 +97,7 @@ internal sealed class DomParser
         CorrectTextBoxes(root);
         CorrectImgBoxes(root, baseUrl);
         CorrectObjectBoxes(root);
+        CorrectFramesetBoxes(root);
 
         bool followingBlock = true;
         CorrectLineBreaksBlocks(root, ref followingBlock);
@@ -790,6 +791,170 @@ internal sealed class DomParser
     /// and its children (fallback content) are removed.  Otherwise, children
     /// are kept as fallback content.
     /// </summary>
+    /// <summary>
+    /// Lays out <c>&lt;frameset&gt;</c> / <c>&lt;frame&gt;</c> as a nested-browsing-
+    /// context grid (HTML §"the frameset element"): the frameset partitions its area
+    /// per its <c>cols</c>/<c>rows</c> attributes and each frame (or nested frameset)
+    /// fills one cell.  A cell's document is rasterised by the image renderer.  The
+    /// outermost frameset fills the viewport; nested framesets fill their parent cell.
+    /// <c>&lt;noframes&gt;</c> fallback content is hidden because frames are supported.
+    /// </summary>
+    private static void CorrectFramesetBoxes(CssBox box)
+    {
+        bool isFrameset = box.HtmlTag != null
+            && box.HtmlTag.Name.Equals("frameset", StringComparison.OrdinalIgnoreCase);
+        bool parentIsFrameset = box.ParentBox?.HtmlTag != null
+            && box.ParentBox.HtmlTag.Name.Equals("frameset", StringComparison.OrdinalIgnoreCase);
+
+        if (isFrameset)
+        {
+            if (!parentIsFrameset)
+            {
+                // Outermost frameset: fill the viewport, overriding any inherited
+                // body margin.  Fixed positioning resolves 100%/offsets against the
+                // initial containing block (the viewport).
+                box.Position = CssConstants.Fixed;
+                box.Left = "0";
+                box.Top = "0";
+                box.Width = "100%";
+                box.Height = "100%";
+                box.MarginLeft = box.MarginTop = box.MarginRight = box.MarginBottom = "0";
+            }
+            LayoutFramesetChildren(box);
+        }
+
+        foreach (var child in box.Boxes)
+            CorrectFramesetBoxes(child);
+    }
+
+    private static void LayoutFramesetChildren(CssBox frameset)
+    {
+        // Cells are <frame> and nested <frameset> children; everything else
+        // (<noframes>, stray text) is fallback and must not paint.
+        var cells = new List<CssBox>();
+        foreach (var child in frameset.Boxes)
+        {
+            string name = child.HtmlTag?.Name;
+            if (string.Equals(name, "frame", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(name, "frameset", StringComparison.OrdinalIgnoreCase))
+                cells.Add(child);
+            else if (string.Equals(name, "noframes", StringComparison.OrdinalIgnoreCase))
+                child.Display = CssConstants.None;
+        }
+
+        if (cells.Count == 0)
+            return;
+
+        // cols → columns, rows → rows; missing dimension is a single track.
+        var colPercents = ParseFramesetSpec(frameset.GetAttribute("cols"), nominalTotal: 1024);
+        var rowPercents = ParseFramesetSpec(frameset.GetAttribute("rows"), nominalTotal: 768);
+        if (colPercents.Count == 0) colPercents = [100.0];
+        if (rowPercents.Count == 0) rowPercents = [100.0];
+
+        // Cells fill the grid row-major (HTML frameset layout order).
+        int cols = colPercents.Count;
+        int rows = rowPercents.Count;
+
+        double[] colLeft = new double[cols];
+        for (int c = 1; c < cols; c++)
+            colLeft[c] = colLeft[c - 1] + colPercents[c - 1];
+        double[] rowTop = new double[rows];
+        for (int r = 1; r < rows; r++)
+            rowTop[r] = rowTop[r - 1] + rowPercents[r - 1];
+
+        for (int i = 0; i < cells.Count; i++)
+        {
+            int r = i / cols;
+            int c = i % cols;
+            if (r >= rows)
+                break; // more frames than cells — extras are not rendered
+
+            var cell = cells[i];
+            cell.Position = CssConstants.Absolute;
+            cell.Left = FormatPercent(colLeft[c]);
+            cell.Top = FormatPercent(rowTop[r]);
+            cell.Width = FormatPercent(colPercents[c]);
+            cell.Height = FormatPercent(rowPercents[r]);
+            cell.MarginLeft = cell.MarginTop = cell.MarginRight = cell.MarginBottom = "0";
+        }
+    }
+
+    private static string FormatPercent(double value) =>
+        value.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture) + "%";
+
+    /// <summary>
+    /// Parses a frameset <c>cols</c>/<c>rows</c> spec (comma-separated
+    /// <c>*</c> / <c>N*</c> / <c>N%</c> / <c>N</c>) into per-track percentages of
+    /// the frameset that sum to ~100.  Pixel tracks are resolved against
+    /// <paramref name="nominalTotal"/> (the viewport axis) since the final layout
+    /// is expressed in percentages.
+    /// </summary>
+    private static List<double> ParseFramesetSpec(string spec, double nominalTotal)
+    {
+        var result = new List<double>();
+        if (string.IsNullOrWhiteSpace(spec))
+            return result;
+
+        var entries = spec.Split(',');
+        var kinds = new char[entries.Length];   // '*', '%', or 'p' (pixel)
+        var values = new double[entries.Length];
+        double reserved = 0;   // fraction of total consumed by fixed/percent tracks
+        double starWeight = 0;
+
+        for (int i = 0; i < entries.Length; i++)
+        {
+            var e = entries[i].Trim();
+            if (e.Length == 0 || e == "*")
+            {
+                kinds[i] = '*';
+                values[i] = 1;
+                starWeight += 1;
+            }
+            else if (e.EndsWith("*", StringComparison.Ordinal))
+            {
+                kinds[i] = '*';
+                values[i] = double.TryParse(e[..^1], System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var w) && w > 0 ? w : 1;
+                starWeight += values[i];
+            }
+            else if (e.EndsWith("%", StringComparison.Ordinal)
+                && double.TryParse(e[..^1], System.Globalization.NumberStyles.Float,
+                    System.Globalization.CultureInfo.InvariantCulture, out var pct))
+            {
+                kinds[i] = '%';
+                values[i] = Math.Max(0, pct);
+                reserved += values[i] / 100.0;
+            }
+            else if (double.TryParse(e.TrimEnd('p', 'x', 'P', 'X'), System.Globalization.NumberStyles.Float,
+                System.Globalization.CultureInfo.InvariantCulture, out var px))
+            {
+                kinds[i] = 'p';
+                values[i] = Math.Max(0, px);
+                reserved += nominalTotal > 0 ? values[i] / nominalTotal : 0;
+            }
+            else
+            {
+                kinds[i] = '*';
+                values[i] = 1;
+                starWeight += 1;
+            }
+        }
+
+        double remaining = Math.Max(0, 1.0 - reserved);
+        for (int i = 0; i < entries.Length; i++)
+        {
+            double frac = kinds[i] switch
+            {
+                '%' => values[i] / 100.0,
+                'p' => nominalTotal > 0 ? values[i] / nominalTotal : 0,
+                _ => starWeight > 0 ? remaining * (values[i] / starWeight) : remaining,
+            };
+            result.Add(frac * 100.0);
+        }
+
+        return result;
+    }
+
     private static void CorrectObjectBoxes(CssBox box)
     {
         for (int i = box.Boxes.Count - 1; i >= 0; i--)
