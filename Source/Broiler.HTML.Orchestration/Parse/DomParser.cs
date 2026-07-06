@@ -1175,8 +1175,34 @@ internal sealed class DomParser
         {
             var leftBlock = CssBoxHelper.CreateBlock(box, baseUrl);
 
-            while (ContainsInlinesOnlyDeep(box.Boxes[0]))
+            // Gather the leading inline-only run into leftBlock, stopping at the
+            // first child that still contains a block (the split point). Never
+            // fold leftBlock (appended last, so it becomes box.Boxes[0] only once
+            // every real child is consumed) into itself: that would detach the
+            // whole subtree and leave box.Boxes empty.
+            while (box.Boxes[0] != leftBlock && ContainsInlinesOnlyDeep(box.Boxes[0]))
                 box.Boxes[0].ParentBox = leftBlock;
+
+            // If every child folded into leftBlock (only leftBlock remains) there
+            // is no distinct block to split around — box.Boxes[1] below would throw
+            // ArgumentOutOfRangeException (the reported crash). This happens when
+            // the only "block" that made box fail !ContainsInlinesOnlyDeep is inside
+            // an out-of-flow (float/abspos) descendant, which ContainsInlinesOnlyDeep
+            // skips: every child reads as inline-only-deep and folds in, so no
+            // in-flow block actually needs hoisting. Undo the fold — move the
+            // children back onto box and drop leftBlock — so box stays
+            // ContainsInlinesOnly and the caller's `if (!ContainsInlinesOnly(box))`
+            // recursion skips it. Returning with box == [leftBlock] would instead
+            // make that recursion re-enter this same collapse and re-wrap forever
+            // (stack overflow).
+            if (box.Boxes.Count <= 1)
+            {
+                if (leftBlock.Boxes.Count > 0)
+                    box.SetAllBoxes(leftBlock);
+                leftBlock.ParentBox = null;
+                return null;
+            }
+
             leftBlock.SetBeforeBox(box.Boxes[0]);
 
             var splitBox = box.Boxes[1];
