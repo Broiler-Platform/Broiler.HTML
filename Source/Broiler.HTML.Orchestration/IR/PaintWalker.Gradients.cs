@@ -91,12 +91,7 @@ internal static partial class PaintWalker
             if (gradInfo == null || gradInfo.Stops.Count == 0)
                 continue;
 
-            // Parse background-size for this layer.
-            float tileW = fillRect.Width;
-            float tileH = fillRect.Height;
-            ParseBackgroundSize(sizeStr, fillRect.Width, fillRect.Height, out tileW, out tileH);
-
-            // Determine tile origin based on attachment and position.
+            // Determine the background positioning area.
             // Fixed backgrounds use the viewport as the positioning area,
             // unless the fragment lives inside a transformed containing block,
             // where CSS requires fixed attachment to behave like scroll.
@@ -109,6 +104,18 @@ internal static partial class PaintWalker
             // the fill rect (ordinary element backgrounds — unchanged behaviour).
             var positioningArea = isFixed ? viewport : (scrollPositioningArea ?? fillRect);
             var tileOrigin = new PointF(positioningArea.X, positioningArea.Y);
+
+            // Parse background-size for this layer. `auto` and percentages
+            // resolve against the background positioning area (CSS Backgrounds
+            // §3.9), NOT the painting area. For an ordinary element these
+            // coincide, but a root background propagated to the canvas paints
+            // over the whole viewport (fillRect) while its positioning area
+            // stays the source element's box — so `auto` must size the tile to
+            // that box and then repeat across the viewport, not stretch a single
+            // tile over the entire canvas.
+            float tileW = positioningArea.Width;
+            float tileH = positioningArea.Height;
+            ParseBackgroundSize(sizeStr, positioningArea.Width, positioningArea.Height, out tileW, out tileH);
 
             // Apply background-position offset.
             var posParts = posStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
