@@ -714,12 +714,18 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         var radians = angle * Math.PI / 180.0;
         float cx = rect.X + (rect.Width / 2f);
         float cy = rect.Y + (rect.Height / 2f);
-        float halfDiag = Math.Max(rect.Width, rect.Height) / 2f;
         float sin = (float)Math.Sin(radians);
         float cos = (float)Math.Cos(radians);
+        // CSS Images 3 §3.4.2: the gradient line runs through the box centre and
+        // its length is abs(W·sin A) + abs(H·cos A) — the projection of the box
+        // onto the gradient direction, so the start/end sit on the perpendiculars
+        // through the two nearest corners. Using max(W, H) instead over-extends
+        // the line on non-square boxes (e.g. a wide, short tile), compressing the
+        // visible colour run to the middle of the gradient.
+        float halfLen = (Math.Abs(rect.Width * sin) + Math.Abs(rect.Height * cos)) / 2f;
         return (
-            new PointF(cx - (sin * halfDiag), cy + (cos * halfDiag)),
-            new PointF(cx + (sin * halfDiag), cy - (cos * halfDiag)));
+            new PointF(cx - (sin * halfLen), cy + (cos * halfLen)),
+            new PointF(cx + (sin * halfLen), cy - (cos * halfLen)));
     }
 
     private static BColor SampleGradientColor(IReadOnlyList<BColor> colors, IReadOnlyList<float> positions, float t)
