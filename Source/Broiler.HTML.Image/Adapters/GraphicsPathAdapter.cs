@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
-using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -53,8 +52,8 @@ internal sealed class GraphicsPathAdapter : RGraphicsPath
 
     public override void ArcTo(double x, double y, double size, Graphics.Corner corner)
     {
-        float left = (float)(Math.Min(x, _lastPoint.X) - (corner == Graphics.Corner.TopRight || corner == Graphics.Corner.BottomRight ? size : 0));
-        float top = (float)(Math.Min(y, _lastPoint.Y) - (corner == Graphics.Corner.BottomLeft || corner == Graphics.Corner.BottomRight ? size : 0));
+        float left = (float)(Math.Min(x, _lastPoint.X) - (corner == Corner.TopRight || corner == Corner.BottomRight ? size : 0));
+        float top = (float)(Math.Min(y, _lastPoint.Y) - (corner == Corner.BottomLeft || corner == Corner.BottomRight ? size : 0));
         float width = (float)size * 2;
         float height = (float)size * 2;
         if (_path is not null)
@@ -96,10 +95,10 @@ internal sealed class GraphicsPathAdapter : RGraphicsPath
     {
         return corner switch
         {
-            Graphics.Corner.TopLeft => 180,
-            Graphics.Corner.TopRight => 270,
-            Graphics.Corner.BottomLeft => 90,
-            Graphics.Corner.BottomRight => 0,
+            Corner.TopLeft => 180,
+            Corner.TopRight => 270,
+            Corner.BottomLeft => 90,
+            Corner.BottomRight => 0,
             _ => throw new ArgumentOutOfRangeException(nameof(corner)),
         };
     }

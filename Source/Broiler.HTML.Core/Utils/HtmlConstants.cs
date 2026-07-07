@@ -6,16 +6,16 @@ internal static class HtmlConstants
     // lower Broiler.Layout layer (measurement-dedup roadmap M6). The renderer already
     // references Broiler.Layout, and Broiler.Layout.HtmlConstants is public, so these
     // forward instead of re-declaring the literals: A / Hr / Iframe / Img / Href.
-    public const string A = Broiler.Layout.HtmlConstants.A;
+    public const string A = Layout.HtmlConstants.A;
     public const string Br = "br";
     public const string Caption = "caption";
     public const string Col = "col";
     public const string Colgroup = "colgroup";
     public const string Display = "display";
     public const string Font = "font";
-    public const string Hr = Broiler.Layout.HtmlConstants.Hr;
-    public const string Iframe = Broiler.Layout.HtmlConstants.Iframe;
-    public const string Img = Broiler.Layout.HtmlConstants.Img;
+    public const string Hr = Layout.HtmlConstants.Hr;
+    public const string Iframe = Layout.HtmlConstants.Iframe;
+    public const string Img = Layout.HtmlConstants.Img;
     public const string Input = "input";
     public const string Li = "li";
     public const string Ol = "ol";
@@ -42,7 +42,7 @@ internal static class HtmlConstants
     public const string Dir = "dir";
     public const string Face = "face";
     public const string Height = "height";
-    public const string Href = Broiler.Layout.HtmlConstants.Href;
+    public const string Href = Layout.HtmlConstants.Href;
     public const string Hspace = "hspace";
     public const string Nowrap = "nowrap";
     public const string Size = "size";

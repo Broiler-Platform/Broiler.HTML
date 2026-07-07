@@ -5,7 +5,6 @@ using System.IO;
 using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 using Broiler.CSS;
-using Broiler.HTML.Core;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -674,7 +673,7 @@ internal sealed class StubImageAdapter : RAdapter
         if (vbMatch.Success)
         {
             var parts = vbMatch.Groups[1].Value.Split(
-                new[] { ' ', ',', '\t', '\n', '\r' },
+                [' ', ',', '\t', '\n', '\r'],
                 StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length == 4
                 && double.TryParse(parts[2], System.Globalization.NumberStyles.Float,

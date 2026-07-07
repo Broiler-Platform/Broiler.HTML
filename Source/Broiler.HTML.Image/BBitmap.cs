@@ -66,15 +66,15 @@ public sealed class BBitmap : IDisposable
 
     internal void Erase(BColor color) => Clear(color);
 
-    public byte[] Encode(Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png, int quality = 100)
+    public byte[] Encode(Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png, int quality = 100)
     {
         EnsureImageCodec();
         // The codec only reads the buffer; hand it a copy so the live pixels stay owned by this bitmap.
         var buffer = new Broiler.Graphics.BPixelBuffer(Width, Height, (byte[])_pixels.Clone());
-        return Broiler.Graphics.BImageCodec.Encode(buffer, format, quality);
+        return BImageCodec.Encode(buffer, format, quality);
     }
 
-    public void Save(string filePath, Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png, int quality = 100)
+    public void Save(string filePath, Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png, int quality = 100)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
@@ -114,7 +114,7 @@ public sealed class BBitmap : IDisposable
     {
         ArgumentNullException.ThrowIfNull(data);
         EnsureImageCodec();
-        return FromPixelBuffer(Broiler.Graphics.BImageCodec.Decode(data));
+        return FromPixelBuffer(BImageCodec.Decode(data));
     }
 
     public static BBitmap Decode(Stream stream)
@@ -149,7 +149,7 @@ public sealed class BBitmap : IDisposable
     }
 
     private static void EnsureImageCodec()
-        => Graphics.BImageCodec.UseManagedIfUnset();
+        => BImageCodec.UseManagedIfUnset();
 
     internal bool HasMaterializedCompatBitmap => _compatSurface.IsMaterialized;
     internal int CompatSyncInvocationCount { get; private set; }

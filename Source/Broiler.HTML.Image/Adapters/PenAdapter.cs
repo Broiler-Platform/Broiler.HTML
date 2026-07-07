@@ -1,6 +1,5 @@
 using System;
 using Broiler.Graphics;
-using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -10,7 +9,7 @@ internal sealed class PenAdapter(Func<float, Graphics.DashStyle, object> paintFa
     private readonly Action<object, float, Graphics.DashStyle>? _paintUpdater = paintUpdater ?? throw new ArgumentNullException(nameof(paintUpdater));
     private object? _paint;
     private float _width = 1f;
-    private Graphics.DashStyle _dashStyle = Graphics.DashStyle.Solid;
+    private Graphics.DashStyle _dashStyle = DashStyle.Solid;
 
     public object Paint => _paint ??= _paintFactory?.Invoke(_width, _dashStyle)
         ?? throw new InvalidOperationException("Pen paint factory was not configured.");
@@ -19,7 +18,7 @@ internal sealed class PenAdapter(Func<float, Graphics.DashStyle, object> paintFa
 
     internal bool HasMaterializedPaint => _paint is not null;
 
-    public bool HasSimpleStroke => SolidColor.HasValue && _dashStyle == Graphics.DashStyle.Solid;
+    public bool HasSimpleStroke => SolidColor.HasValue && _dashStyle == DashStyle.Solid;
 
     public override double Width
     {

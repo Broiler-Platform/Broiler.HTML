@@ -165,7 +165,7 @@ internal static partial class PaintWalker
     private static List<string> SplitGradientLayers(string? bgImage)
     {
         if (string.IsNullOrEmpty(bgImage) || bgImage == "none")
-            return new List<string>();
+            return [];
         return SplitOnTopLevelCommas(bgImage);
     }
 
@@ -687,7 +687,7 @@ internal static partial class PaintWalker
     {
         public float Angle { get; set; } = 180f; // default: to bottom
         public string InterpolationSpace { get; set; } = "srgb";
-        public List<GradientStop> Stops { get; set; } = new();
+        public List<GradientStop> Stops { get; set; } = [];
         public bool IsRadial { get; set; }
         public bool IsConic { get; set; }
         public float CenterX { get; set; } = 0.5f;

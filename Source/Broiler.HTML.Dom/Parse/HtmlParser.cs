@@ -56,7 +56,7 @@ internal static class HtmlParser
         // but the script bridge models text as its own DomElement subtype with
         // NodeType==Text; both expose their content via NodeValue, so this handles the
         // typed hand-off from either source (RF-BRIDGE-1b).
-        if (node.NodeType == Broiler.Dom.DomNodeType.Text)
+        if (node.NodeType == DomNodeType.Text)
         {
             var text = node.NodeValue ?? string.Empty;
             if (text.Length > 0)

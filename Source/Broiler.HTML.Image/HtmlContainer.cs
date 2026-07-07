@@ -1,4 +1,3 @@
-using Broiler.Layout;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,7 +7,6 @@ using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 using Broiler.Layout.IR;
-using Broiler.HTML.Core.IR;
 using Broiler.HTML.Core;
 
 namespace Broiler.HTML.Image;

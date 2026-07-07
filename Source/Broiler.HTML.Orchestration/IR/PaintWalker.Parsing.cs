@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using Broiler.Layout.IR;
 using Broiler.Graphics;
 
 
@@ -85,7 +84,7 @@ internal static partial class PaintWalker
     /// </summary>
     private static List<string> SplitOnTopLevelCommas(string value)
     {
-        var parts = new List<string>(Broiler.CSS.CssSyntax.SplitTopLevel(value, ','));
+        var parts = new List<string>(CSS.CssSyntax.SplitTopLevel(value, ','));
         if (parts.Count > 0 && parts[^1].Length == 0)
             parts.RemoveAt(parts.Count - 1);
         return parts;

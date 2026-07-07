@@ -39,9 +39,9 @@ internal static class SharedRendererCascade
 
         var engine = new Broiler.CSS.Dom.CssStyleEngine();
         if (styleSet.UserAgentStyleSheet.Rules.Count > 0)
-            engine.AddStyleSheet(styleSet.UserAgentStyleSheet, Broiler.CSS.Dom.CssOrigin.UserAgent);
+            engine.AddStyleSheet(styleSet.UserAgentStyleSheet, CSS.Dom.CssOrigin.UserAgent);
         if (styleSet.AuthorStyleSheet.Rules.Count > 0)
-            engine.AddStyleSheet(styleSet.AuthorStyleSheet, Broiler.CSS.Dom.CssOrigin.Author);
+            engine.AddStyleSheet(styleSet.AuthorStyleSheet, CSS.Dom.CssOrigin.Author);
 
         engine.UpdateEnvironment(new Broiler.CSS.Dom.CssEnvironment(viewportWidth, viewportHeight));
         return engine;
@@ -64,7 +64,7 @@ internal static class SharedRendererCascade
             return null;
 
         var engine = new Broiler.CSS.Dom.CssStyleEngine();
-        engine.AddStyleSheet(styleSet.AuthorStyleSheet, Broiler.CSS.Dom.CssOrigin.Author);
+        engine.AddStyleSheet(styleSet.AuthorStyleSheet, CSS.Dom.CssOrigin.Author);
         engine.UpdateEnvironment(new Broiler.CSS.Dom.CssEnvironment(viewportWidth, viewportHeight));
         return engine;
     }

@@ -1,7 +1,6 @@
 using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.HTML.Core;
-using Broiler.HTML.Rendering.Handlers;
 using System;
 using System.Collections.Concurrent;
 using System.Drawing;

@@ -1,6 +1,5 @@
 using Broiler.Graphics;
 using Broiler.Layout.IR;
-using Broiler.HTML.Core.IR;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -956,9 +955,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         pen.Width = item.Width;
         pen.DashStyle = item.DashStyle switch
         {
-            "dotted" => Graphics.DashStyle.Dot,
-            "dashed" => Graphics.DashStyle.Dash,
-            _ => Graphics.DashStyle.Solid,
+            "dotted" => DashStyle.Dot,
+            "dashed" => DashStyle.Dash,
+            _ => DashStyle.Solid,
         };
         g.DrawLine(pen, item.Start.X, item.Start.Y, item.End.X, item.End.Y);
     }
@@ -1078,9 +1077,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         pen.Width = width;
         pen.DashStyle = style switch
         {
-            "dotted" => Graphics.DashStyle.Dot,
-            "dashed" => Graphics.DashStyle.Dash,
-            _ => Graphics.DashStyle.Solid,
+            "dotted" => DashStyle.Dot,
+            "dashed" => DashStyle.Dash,
+            _ => DashStyle.Solid,
         };
         return pen;
     }

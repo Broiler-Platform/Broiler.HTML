@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
-using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 

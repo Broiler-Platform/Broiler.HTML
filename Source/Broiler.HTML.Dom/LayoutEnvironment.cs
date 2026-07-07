@@ -98,7 +98,7 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
         => new LayoutImageLoader(container.CreateImageLoadHandler((image, rect, async) => onComplete(image, rect, async)));
 
     public string FormatListMarker(int number, string style)
-        => Broiler.HTML.Utils.CommonUtils.ConvertToAlphaNumber(number, style);
+        => HTML.Utils.CommonUtils.ConvertToAlphaNumber(number, style);
 
     /// <summary>
     /// Wraps the renderer's <see cref="IImageLoadHandler"/> as a backend-neutral

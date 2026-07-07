@@ -7,7 +7,6 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Broiler.Graphics;
-using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image;
 
@@ -302,7 +301,7 @@ public static class BSvgRasterizer
             var font = CompatProvider.ImageAdapter.GetFont(
                 attrs.TryGetValue("font-family", out var family) && !string.IsNullOrWhiteSpace(family) ? family : "Arial",
                 Math.Max(fontSize, 1),
-                Graphics.FontStyle.Regular);
+                FontStyle.Regular);
 
             graphics.DrawString(text, font, fill, new PointF(x, y), context.Bounds.Size, false);
         }
@@ -655,7 +654,7 @@ public static class BSvgRasterizer
         }
         if (hex.Length != 6 && hex.Length != 8)
             return false;
-        if (!uint.TryParse(hex, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out uint v))
+        if (!uint.TryParse(hex, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint v))
             return false;
         color = hex.Length == 6
             ? new BColor((byte)((v >> 16) & 0xFF), (byte)((v >> 8) & 0xFF), (byte)(v & 0xFF))

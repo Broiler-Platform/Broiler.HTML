@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using Broiler.CSS;
 using Broiler.Graphics;
 using Broiler.Layout.IR;
 
@@ -279,7 +278,7 @@ internal static partial class PaintWalker
             // so that in-flow face content covers them.
             if (child.Style.Position == "fixed" && child.StackLevel == 0)
             {
-                fixedNoZIndex ??= new List<Fragment>();
+                fixedNoZIndex ??= [];
                 fixedNoZIndex.Add(child);
             }
             else if (child.CreatesStackingContext || child.Style.Position is "relative" or "absolute")
@@ -293,28 +292,28 @@ internal static partial class PaintWalker
                 // correctly-placed content must cover) — instead of on top of it.
                 if (child.StackLevel < 0)
                 {
-                    negativeZ ??= new List<Fragment>();
+                    negativeZ ??= [];
                     negativeZ.Add(child);
                 }
                 else
                 {
-                    positioned ??= new List<Fragment>();
+                    positioned ??= [];
                     positioned.Add(child);
                 }
             }
             else if (child.Style.Float is "left" or "right")
             {
-                floats ??= new List<Fragment>();
+                floats ??= [];
                 floats.Add(child);
             }
             else if (child.Style.Display is "inline" or "inline-block" or "inline-table")
             {
-                inlineLevel ??= new List<Fragment>();
+                inlineLevel ??= [];
                 inlineLevel.Add(child);
             }
             else
             {
-                blocks ??= new List<Fragment>();
+                blocks ??= [];
                 blocks.Add(child);
             }
         }
@@ -536,7 +535,7 @@ internal static partial class PaintWalker
             if (child.StackLevel < 0
                 && (child.CreatesStackingContext || child.Style.Position is "relative" or "absolute" or "fixed"))
             {
-                negativeZ ??= new List<Fragment>();
+                negativeZ ??= [];
                 negativeZ.Add(child);
             }
         }
@@ -692,7 +691,7 @@ internal static partial class PaintWalker
         {
             if (child.CreatesStackingContext)
             {
-                positioned ??= new List<Fragment>();
+                positioned ??= [];
                 positioned.Add(child);
             }
             else

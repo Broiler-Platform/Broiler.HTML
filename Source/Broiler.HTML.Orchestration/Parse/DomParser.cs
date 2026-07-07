@@ -1,4 +1,3 @@
-using System.Drawing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +25,7 @@ internal sealed class DomParser
     // to author/inline declarations. We record which CSS longhands each box took
     // from such a hint so the cascade projection can preserve them when the only
     // competing declaration is a user-agent rule (e.g. `td { padding: 1px }`).
-    private readonly Dictionary<CssBox, HashSet<string>> _presentationalHints = new();
+    private readonly Dictionary<CssBox, HashSet<string>> _presentationalHints = [];
 
     // Author-origin-only cascade (stylesheets + inline), used to detect whether a
     // presentation-hint property is also claimed by an author declaration.
@@ -661,7 +660,7 @@ internal sealed class DomParser
 
     private static string TranslateLength(string htmlLength)
     {
-        return CSS.CssLengthParser.IsValidLength(htmlLength)
+        return CssLengthParser.IsValidLength(htmlLength)
             ? htmlLength
             : $"{htmlLength}px";
     }

@@ -306,9 +306,9 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         float cos = 0f, sin = 0f;
         if (rotate)
         {
-            double rad = glyphRotationDeg * System.Math.PI / 180.0;
-            cos = (float)System.Math.Cos(rad);
-            sin = (float)System.Math.Sin(rad);
+            double rad = glyphRotationDeg * Math.PI / 180.0;
+            cos = (float)Math.Cos(rad);
+            sin = (float)Math.Sin(rad);
         }
 
         var userContours = new List<PointF[]>(fontContours.Count);

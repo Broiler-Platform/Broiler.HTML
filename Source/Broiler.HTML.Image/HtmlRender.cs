@@ -95,7 +95,7 @@ public static class HtmlRender
         HtmlStyleSet? styleSet = null,
         int maxWidth = 0,
         int maxHeight = 0,
-        Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png,
+        Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png,
         int quality = 90,
         BColor backgroundColor = default,
         EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
@@ -195,7 +195,7 @@ public static class HtmlRender
     public static void RenderToFileAutoSized(string html, string filePath,
         int maxWidth = 0,
         int maxHeight = 0,
-        Graphics.BImageEncodeFormat format = Graphics.BImageEncodeFormat.Png,
+        Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png,
         int quality = 90,
         BColor backgroundColor = default,
         CssData cssData = null,
@@ -421,7 +421,7 @@ public static class HtmlRender
         EventHandler<HtmlImageLoadEventArgs> imageLoad)
     {
         using var bitmap = RenderToImageCore(html, width, height, backgroundColor, styleSet, stylesheetLoad, imageLoad, null);
-        return bitmap.Encode(Graphics.BImageEncodeFormat.Png, 100);
+        return bitmap.Encode(BImageEncodeFormat.Png, 100);
     }
 
     private static BBitmap? RenderToImageAtAnchorCore(string html, string elementId, int width, int height,

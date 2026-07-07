@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using Broiler.Layout.IR;
 
 
 namespace Broiler.HTML.Orchestration.IR;
@@ -147,7 +146,7 @@ internal static partial class PaintWalker
     /// </summary>
     private static float[] ParseTransformArgs(string argsStr, RectangleF bounds)
     {
-        var parts = argsStr.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var parts = argsStr.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var result = new List<float>(parts.Length);
 
         for (int idx = 0; idx < parts.Length; idx++)
