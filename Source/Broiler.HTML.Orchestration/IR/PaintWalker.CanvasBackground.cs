@@ -44,6 +44,14 @@ internal static partial class PaintWalker
     /// </summary>
     private static Fragment? EmitCanvasBackground(Fragment root, RectangleF viewport, List<DisplayItem> items)
     {
+        // CSS Color Adjust §2.3: when the document root's used color scheme is
+        // dark, the canvas is painted the UA dark backdrop colour instead of
+        // white. Emit it as the bottom layer so a propagated root/body
+        // background (found below) paints over it; a fully-transparent root and
+        // body leave the dark backdrop showing.
+        if (RootUsesDarkColorScheme(root))
+            items.Add(new FillRectItem { Bounds = viewport, Color = DarkCanvasColor });
+
         // Find which element supplies the canvas background (color + image
         // as a unit, per CSS2.1 §14.2).
         var (canvasBg, colorSource, imgSource) = FindCanvasBackgroundAndImage(root);
@@ -192,7 +200,7 @@ internal static partial class PaintWalker
         {
             // CSS Backgrounds §2.11.1: if the root element has display:none
             // its background must not propagate to the canvas.
-            if (SuppressesPropagation(root))
+            if (SuppressesPropagation(root, isRootElement: true))
                 return (BColor.Empty, null, null);
 
             return (root.Style.ActualBackgroundColor, root,
@@ -207,8 +215,10 @@ internal static partial class PaintWalker
             return (BColor.Empty, null, null);
 
         // CSS Containment §4.2: contain:paint on the html element prevents
-        // propagation from body.
-        bool htmlSuppressed = SuppressesPropagation(html);
+        // propagation from body.  The html element is the document root, so
+        // CSS Display §2.5 blockifies a display:contents value here — it does
+        // not remove the root's box, and its background still propagates.
+        bool htmlSuppressed = SuppressesPropagation(html, isRootElement: true);
 
         bool htmlHasBg = html.Style.ActualBackgroundColor.A > 0;
         bool htmlHasImg = html.BackgroundImageHandle != null;
@@ -255,6 +265,44 @@ internal static partial class PaintWalker
         return (BColor.Empty, null, null);
     }
 
+    // CSS Color Adjust §2.3: the UA-defined dark canvas backdrop colour that
+    // Chromium paints for a dark used color scheme (rgb(18, 18, 18)).
+    private static readonly BColor DarkCanvasColor = BColor.FromArgb(255, 18, 18, 18);
+
+    /// <summary>
+    /// CSS Color Adjust §2.2–2.3: whether the document root element's used
+    /// color scheme is <c>dark</c>, which makes the canvas backdrop dark.
+    /// <para>
+    /// The reference environment prefers a <em>light</em> color scheme
+    /// (Playwright's default). The used scheme is the preferred one when the
+    /// element's <c>color-scheme</c> list includes it; otherwise the first
+    /// supported scheme in the list is used. So the canvas is dark exactly when
+    /// the list offers <c>dark</c> but not <c>light</c>. The <c>only</c> keyword
+    /// does not change this here (it forbids a UA override we do not perform).
+    /// </para>
+    /// </summary>
+    private static bool RootUsesDarkColorScheme(Fragment root)
+    {
+        // color-scheme governing the canvas is the document root element's
+        // (html). `root` may be the html fragment itself or a synthetic parent.
+        var html = FindFragmentByTag(root, "html") ?? FindFirstBlockChild(root) ?? root;
+
+        var scheme = html.Style.ColorScheme;
+        if (string.IsNullOrWhiteSpace(scheme))
+            return false;
+
+        bool hasDark = false, hasLight = false;
+        foreach (var token in scheme.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token.Equals("dark", StringComparison.OrdinalIgnoreCase))
+                hasDark = true;
+            else if (token.Equals("light", StringComparison.OrdinalIgnoreCase))
+                hasLight = true;
+        }
+
+        return hasDark && !hasLight;
+    }
+
     /// <summary>
     /// Returns <see langword="true"/> when the given fragment's CSS properties
     /// suppress background propagation to the canvas.  Per the CSS
@@ -267,11 +315,19 @@ internal static partial class PaintWalker
     ///         e.g. <c>strict</c>, <c>content</c>) — paint containment
     ///         prevents the background from propagating.</item>
     /// </list>
+    /// <para>
+    /// When <paramref name="isRootElement"/> is set, <c>display: contents</c>
+    /// does <em>not</em> suppress: CSS Display §2.5 blockifies the document
+    /// root element, so its box (and background) is generated as if
+    /// <c>display: block</c> had been specified.
+    /// </para>
     /// </summary>
-    private static bool SuppressesPropagation(Fragment fragment)
+    private static bool SuppressesPropagation(Fragment fragment, bool isRootElement = false)
     {
         var display = fragment.Style.Display;
-        if (display is "none" or "contents")
+        if (display == "none")
+            return true;
+        if (display == "contents" && !isRootElement)
             return true;
 
         var contain = fragment.Style.Contain;

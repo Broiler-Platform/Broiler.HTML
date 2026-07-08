@@ -154,7 +154,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 continue;
 
             htmlBox = child;
-            if (SuppressesCanvasBackgroundPropagation(child))
+            if (SuppressesCanvasBackgroundPropagation(child, isRootElement: true))
                 return BColor.Empty;
 
             background = child.ActualBackgroundColor;
@@ -195,7 +195,40 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             }
         }
 
+        // CSS Color Adjust §2.3: when the root's used color scheme is dark and no
+        // background propagated, the default canvas backdrop is the UA dark colour
+        // (rgb(18,18,18)) instead of white. Mirrors PaintWalker.EmitCanvasBackground.
+        if (htmlBox != null && UsesDarkColorScheme(htmlBox.ColorScheme))
+            return CanvasDarkBackdrop;
+
         return BColor.Empty;
+    }
+
+    // CSS Color Adjust §2.3: the UA dark canvas backdrop colour Chromium paints
+    // for a dark used color scheme.
+    private static readonly BColor CanvasDarkBackdrop = BColor.FromArgb(255, 18, 18, 18);
+
+    /// <summary>
+    /// CSS Color Adjust §2.2–2.3: whether a <c>color-scheme</c> value resolves to
+    /// a dark used scheme against the reference environment's light preference —
+    /// i.e. the list offers <c>dark</c> but not <c>light</c> (a matching preferred
+    /// scheme, when present, wins). The <c>only</c> keyword does not change this.
+    /// </summary>
+    private static bool UsesDarkColorScheme(string? colorScheme)
+    {
+        if (string.IsNullOrWhiteSpace(colorScheme))
+            return false;
+
+        bool hasDark = false, hasLight = false;
+        foreach (var token in colorScheme.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (token.Equals("dark", StringComparison.OrdinalIgnoreCase))
+                hasDark = true;
+            else if (token.Equals("light", StringComparison.OrdinalIgnoreCase))
+                hasLight = true;
+        }
+
+        return hasDark && !hasLight;
     }
 
     private static CssBox? FindBodyBox(CssBox parent, int depth = 0)
@@ -215,9 +248,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return null;
     }
 
-    private static bool SuppressesCanvasBackgroundPropagation(CssBox box)
+    private static bool SuppressesCanvasBackgroundPropagation(CssBox box, bool isRootElement = false)
     {
-        if (string.Equals(box.Display, "none", StringComparison.OrdinalIgnoreCase) ||
+        if (string.Equals(box.Display, "none", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // CSS Display §2.5: the document root element is blockified, so a
+        // display:contents value there still generates a box whose background
+        // propagates to the canvas. Only non-root elements are box-suppressed.
+        if (!isRootElement &&
             string.Equals(box.Display, "contents", StringComparison.OrdinalIgnoreCase))
         {
             return true;
