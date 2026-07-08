@@ -154,7 +154,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 continue;
 
             htmlBox = child;
-            if (SuppressesCanvasBackgroundPropagation(child))
+            if (SuppressesCanvasBackgroundPropagation(child, isRootElement: true))
                 return BColor.Empty;
 
             background = child.ActualBackgroundColor;
@@ -215,9 +215,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return null;
     }
 
-    private static bool SuppressesCanvasBackgroundPropagation(CssBox box)
+    private static bool SuppressesCanvasBackgroundPropagation(CssBox box, bool isRootElement = false)
     {
-        if (string.Equals(box.Display, "none", StringComparison.OrdinalIgnoreCase) ||
+        if (string.Equals(box.Display, "none", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // CSS Display §2.5: the document root element is blockified, so a
+        // display:contents value there still generates a box whose background
+        // propagates to the canvas. Only non-root elements are box-suppressed.
+        if (!isRootElement &&
             string.Equals(box.Display, "contents", StringComparison.OrdinalIgnoreCase))
         {
             return true;
