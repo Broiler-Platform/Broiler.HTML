@@ -386,7 +386,7 @@ internal sealed class StubImageAdapter : RAdapter
         }
         catch (NotSupportedException)
         {
-            // No image codec backend is registered (see Broiler.Graphics.BImageCodec).
+            // Encoded image loading is handled by Broiler.Media-backed image paths.
             return null;
         }
     }

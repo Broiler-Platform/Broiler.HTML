@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Broiler.HTML.Core.IR;
 using Broiler.Graphics;
+using Broiler.Media.Image;
 
 namespace Broiler.HTML.Image;
 
@@ -122,7 +123,7 @@ public static class PixelDiffRunner
     {
         try
         {
-            return BBitmap.Decode(source.Encode(BImageEncodeFormat.Png, 100));
+            return BBitmap.Decode(source.Encode(ImageEncodeFormat.Png, 100));
         }
         catch (InvalidOperationException)
         {

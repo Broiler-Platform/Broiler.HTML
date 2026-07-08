@@ -5,6 +5,7 @@ using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
 using Broiler.Graphics;
+using Broiler.Media.Image;
 
 namespace Broiler.HTML.Image;
 
@@ -75,7 +76,7 @@ public static class HtmlRender
         int width,
         int height,
         string filePath,
-        Graphics.BImageEncodeFormat format,
+        ImageEncodeFormat format,
         int quality = 90,
         HtmlStyleSet? styleSet = null,
         BColor backgroundColor = default,
@@ -95,7 +96,7 @@ public static class HtmlRender
         HtmlStyleSet? styleSet = null,
         int maxWidth = 0,
         int maxHeight = 0,
-        Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png,
+        ImageEncodeFormat format = ImageEncodeFormat.Png,
         int quality = 90,
         BColor backgroundColor = default,
         EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
@@ -170,7 +171,7 @@ public static class HtmlRender
 
     [Obsolete("Use RenderToFileWithStyleSet.")]
     public static void RenderToFile(string html, int width, int height, string filePath,
-        Graphics.BImageEncodeFormat format,
+        ImageEncodeFormat format,
         int quality = 90,
         BColor backgroundColor = default,
         CssData cssData = null,
@@ -195,7 +196,7 @@ public static class HtmlRender
     public static void RenderToFileAutoSized(string html, string filePath,
         int maxWidth = 0,
         int maxHeight = 0,
-        Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png,
+        ImageEncodeFormat format = ImageEncodeFormat.Png,
         int quality = 90,
         BColor backgroundColor = default,
         CssData cssData = null,
@@ -427,7 +428,7 @@ public static class HtmlRender
         EventHandler<HtmlImageLoadEventArgs> imageLoad)
     {
         using var bitmap = RenderToImageCore(html, width, height, backgroundColor, styleSet, stylesheetLoad, imageLoad, null);
-        return bitmap.Encode(BImageEncodeFormat.Png, 100);
+        return bitmap.Encode(ImageEncodeFormat.Png, 100);
     }
 
     private static BBitmap? RenderToImageAtAnchorCore(string html, string elementId, int width, int height,

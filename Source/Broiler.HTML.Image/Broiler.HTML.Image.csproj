@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Broiler.HTML.Orchestration\Broiler.HTML.Orchestration.csproj" />
+    <ProjectReference Include="..\..\..\Broiler.Media\Broiler.Media.Image.Managed\Broiler.Media.Image.Managed.csproj" />
   </ItemGroup>
 </Project>

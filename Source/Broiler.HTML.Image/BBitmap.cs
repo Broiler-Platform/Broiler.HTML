@@ -1,6 +1,9 @@
 using System;
 using System.Drawing;
 using System.IO;
+using Broiler.Media;
+using Broiler.Media.Image;
+using Broiler.Media.Image.Managed;
 using Broiler.HTML.Image.Adapters;
 using Broiler.Graphics;
 
@@ -12,6 +15,8 @@ namespace Broiler.HTML.Image;
 /// </summary>
 public sealed class BBitmap : IDisposable
 {
+    private static readonly MediaCodecCatalog ImageCodecs = new(ManagedImageCodecs.CreateCodecs());
+
     private readonly byte[] _pixels;
     private readonly IBitmapCompatSurface _compatSurface;
 
@@ -66,15 +71,13 @@ public sealed class BBitmap : IDisposable
 
     internal void Erase(BColor color) => Clear(color);
 
-    public byte[] Encode(Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png, int quality = 100)
+    public byte[] Encode(ImageEncodeFormat format = ImageEncodeFormat.Png, int quality = 100)
     {
-        EnsureImageCodec();
-        // The codec only reads the buffer; hand it a copy so the live pixels stay owned by this bitmap.
-        var buffer = new Broiler.Graphics.BPixelBuffer(Width, Height, (byte[])_pixels.Clone());
-        return BImageCodec.Encode(buffer, format, quality);
+        var sequence = ImageSequence.Static(ToImageBuffer());
+        return EncodeMedia(sequence, format, quality);
     }
 
-    public void Save(string filePath, Graphics.BImageEncodeFormat format = BImageEncodeFormat.Png, int quality = 100)
+    public void Save(string filePath, ImageEncodeFormat format = ImageEncodeFormat.Png, int quality = 100)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
@@ -113,8 +116,7 @@ public sealed class BBitmap : IDisposable
     public static BBitmap Decode(byte[] data)
     {
         ArgumentNullException.ThrowIfNull(data);
-        EnsureImageCodec();
-        return FromPixelBuffer(BImageCodec.Decode(data));
+        return FromImageBuffer(DecodeMedia(data).FirstFrame);
     }
 
     public static BBitmap Decode(Stream stream)
@@ -142,14 +144,49 @@ public sealed class BBitmap : IDisposable
         return Decode(File.ReadAllBytes(path));
     }
 
-    private static BBitmap FromPixelBuffer(Graphics.BPixelBuffer buffer)
+    private ImageBuffer ToImageBuffer() =>
+        new(Width, Height, (byte[])_pixels.Clone());
+
+    private static BBitmap FromImageBuffer(ImageBuffer buffer)
     {
         ArgumentNullException.ThrowIfNull(buffer);
-        return new BBitmap(buffer.Width, buffer.Height, buffer.Rgba);
+        return new BBitmap(buffer.Width, buffer.Height, (byte[])buffer.Rgba.Clone());
     }
 
-    private static void EnsureImageCodec()
-        => BImageCodec.UseManagedIfUnset();
+    private static ImageSequence DecodeMedia(byte[] data)
+    {
+        using var probeInput = new MediaInput(new MemoryStream(data), leaveOpen: false);
+        MediaCodecMatch? match = ImageCodecs.SelectAsync(MediaKind.Image, probeInput).AsTask().GetAwaiter().GetResult();
+        if (match?.Codec is not ImageCodec codec)
+            throw new NotSupportedException("Unrecognized image data. The media image codec catalog matched no image codec.");
+
+        using var decodeInput = new MediaInput(new MemoryStream(data), leaveOpen: false);
+        return codec.DecodeAsync(decodeInput, new ImageDecodeOptions(preserveAnimation: false))
+            .AsTask()
+            .GetAwaiter()
+            .GetResult();
+    }
+
+    private static byte[] EncodeMedia(ImageSequence sequence, ImageEncodeFormat format, int quality)
+    {
+        ImageCodec codec = CodecFor(format);
+        using var output = new MemoryStream();
+        codec.EncodeAsync(sequence, output, new ImageEncodeOptions(format, quality))
+            .AsTask()
+            .GetAwaiter()
+            .GetResult();
+        return output.ToArray();
+    }
+
+    private static ImageCodec CodecFor(ImageEncodeFormat format) => format switch
+    {
+        ImageEncodeFormat.Png => (ImageCodec)ImageCodecs.FindById(PngImageCodec.CodecDescriptor.Id)!,
+        ImageEncodeFormat.Jpeg => (ImageCodec)ImageCodecs.FindById(JpegImageCodec.CodecDescriptor.Id)!,
+        ImageEncodeFormat.Bmp => (ImageCodec)ImageCodecs.FindById(BmpImageCodec.CodecDescriptor.Id)!,
+        ImageEncodeFormat.Gif => (ImageCodec)ImageCodecs.FindById(GifImageCodec.CodecDescriptor.Id)!,
+        ImageEncodeFormat.WebP => (ImageCodec)ImageCodecs.FindById(WebpImageCodec.CodecDescriptor.Id)!,
+        _ => throw new ArgumentOutOfRangeException(nameof(format), format, "Unknown image encode format."),
+    };
 
     internal bool HasMaterializedCompatBitmap => _compatSurface.IsMaterialized;
     internal int CompatSyncInvocationCount { get; private set; }
