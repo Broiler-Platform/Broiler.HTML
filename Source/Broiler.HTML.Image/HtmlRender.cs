@@ -328,7 +328,13 @@ public static class HtmlRender
             int dh = (int)Math.Round(fragment.Size.Height
                 - (float)(border.Top + border.Bottom + padding.Top + padding.Bottom));
 
-            if (dw > 0 && dh > 0)
+            // Guard against a pathologically large embedded box (e.g. a frameset
+            // track that still resolves to billions of pixels): allocating its
+            // RGBA buffer would overflow Int32 and throw, crashing the whole page
+            // render.  Anything that large is off-screen anyway, so skip it.
+            bool fitsAllocation = (long)dw * dh * 4 <= int.MaxValue;
+
+            if (dw > 0 && dh > 0 && fitsAllocation)
             {
                 using var sub = RenderToImageCore(
                     fragment.EmbeddedDocumentHtml, dw, dh,

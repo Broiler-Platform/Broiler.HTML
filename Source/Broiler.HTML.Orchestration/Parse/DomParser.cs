@@ -978,6 +978,21 @@ internal sealed class DomParser
             result.Add(frac * 100.0);
         }
 
+        // Fixed/percentage tracks can request more than the frameset's area
+        // (e.g. rows="4294967227%,*"): the HTML frameset algorithm scales the
+        // tracks down proportionally so they fit exactly, never overflowing the
+        // frameset.  Without this a single giant track produces a frame sized in
+        // billions of pixels, overflowing the embedded-document bitmap allocation.
+        double total = 0;
+        foreach (var p in result)
+            total += p;
+        if (total > 100.0)
+        {
+            double scale = 100.0 / total;
+            for (int i = 0; i < result.Count; i++)
+                result[i] *= scale;
+        }
+
         return result;
     }
 
