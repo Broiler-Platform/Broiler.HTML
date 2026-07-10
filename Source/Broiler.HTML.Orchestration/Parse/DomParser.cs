@@ -1194,7 +1194,12 @@ internal sealed class DomParser
             // fold leftBlock (appended last, so it becomes box.Boxes[0] only once
             // every real child is consumed) into itself: that would detach the
             // whole subtree and leave box.Boxes empty.
-            while (box.Boxes[0] != leftBlock && ContainsInlinesOnlyDeep(box.Boxes[0]))
+            // CSS2.1 §9.2.1.1/§10.3.9: fold atomic inlines (inline-block/-flex/-grid) into
+            // the leading run too — they are inline-level content that establishes its own
+            // BFC, so they must not be mis-selected as the block to split around (which dissolved
+            // the inline-block and dropped its box when it had a display:none sibling).
+            while (box.Boxes[0] != leftBlock
+                   && (IsAtomicInlineLevel(box.Boxes[0]) || ContainsInlinesOnlyDeep(box.Boxes[0])))
                 box.Boxes[0].ParentBox = leftBlock;
 
             // If every child folded into leftBlock (only leftBlock remains) there
