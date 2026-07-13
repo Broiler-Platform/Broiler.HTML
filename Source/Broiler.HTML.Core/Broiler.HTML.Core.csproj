@@ -11,7 +11,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS\Broiler.CSS.csproj" />
-    <ProjectReference Include="..\..\..\Broiler.Graphics\Broiler.Graphics\Broiler.Graphics.csproj" />
+    <!-- Phase 1 item 4: resolve the canonical Broiler.Graphics kernel through
+         $(BroilerGraphicsPath) (this submodule's nested checkout for standalone builds; the
+         single root checkout in the main solution) instead of a hard-coded ..\..\.. path. -->
+    <ProjectReference Include="$(BroilerGraphicsPath)" />
     <ProjectReference Include="..\..\..\Broiler.Layout\Broiler.Layout\Broiler.Layout.csproj" />
   </ItemGroup>
 </Project>
