@@ -26,6 +26,21 @@ internal static class HtmlParser
     }
 
     public static CssBox ParseDocument(DomDocument document, Uri baseUrl)
+        => ParseDocument(document, baseUrl, contentDocumentResolver: null);
+
+    /// <summary>
+    /// Builds a <see cref="CssBox"/> tree from <paramref name="document"/>.
+    /// <paramref name="contentDocumentResolver"/> (HtmlBridge Phase 4 P4.4b) lets a host
+    /// project a nested browsing context (an <c>&lt;iframe&gt;</c>/<c>&lt;object&gt;</c>/
+    /// <c>&lt;frame&gt;</c>) whose sub-document is <em>not</em> an in-tree child: for each
+    /// element the walker asks the resolver for a referenced content
+    /// <see cref="DomDocument"/> and, if one is returned, synthesises a sub-viewport box
+    /// (flagged <see cref="CssBox.IsNestedBrowsingContextRoot"/>) under the frame box and
+    /// projects that document's tree into it. <c>null</c> keeps the legacy behaviour where
+    /// the sub-document is materialised as an in-tree subtree.
+    /// </summary>
+    public static CssBox ParseDocument(
+        DomDocument document, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -41,15 +56,16 @@ internal static class HtmlParser
             // root, matching the <html>-rooted structure the string parse produces.
             if (documentElement.LocalName == "#document")
                 foreach (var child in documentElement.ChildNodes)
-                    AppendCanonicalNode(child, root, baseUrl);
+                    AppendCanonicalNode(child, root, baseUrl, contentDocumentResolver);
             else
-                AppendCanonicalNode(documentElement, root, baseUrl);
+                AppendCanonicalNode(documentElement, root, baseUrl, contentDocumentResolver);
         }
 
         return root;
     }
 
-    private static void AppendCanonicalNode(DomNode node, CssBox parent, Uri baseUrl)
+    private static void AppendCanonicalNode(
+        DomNode node, CssBox parent, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
     {
         // Match text by canonical node type, not concrete class, and read it through
         // DomNode.NodeValue. The renderer's own parse path produces Broiler.Dom.DomText,
@@ -105,11 +121,35 @@ internal static class HtmlParser
         // Keep the link back to the canonical element so the shared Broiler.CSS.Dom
         // cascade can compute this box's style from the real DOM tree (Phase 5).
         box.SourceElement = element;
+
+        // HtmlBridge Phase 4 (P4.4b): a legacy in-tree "#subdoc-root" element roots a nested
+        // browsing context. Flag its box so CssBox.LayoutNestedBrowsingContexts finds it by the
+        // neutral flag rather than the fake tag name (the sever below produces the same box
+        // without any #subdoc-root element in the tree).
+        if (element.LocalName.Equals("#subdoc-root", StringComparison.OrdinalIgnoreCase))
+            box.IsNestedBrowsingContextRoot = true;
+
         if (element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase))
             AppendInputValueText(box, tag, baseUrl);
 
         foreach (var child in element.ChildNodes)
-            AppendCanonicalNode(child, box, baseUrl);
+            AppendCanonicalNode(child, box, baseUrl, contentDocumentResolver);
+
+        // HtmlBridge Phase 4 (P4.4b) sever: if the host references a content document for this
+        // element (an <iframe>/<object>/<frame> whose sub-document is no longer an in-tree
+        // #subdoc-root child), synthesise the sub-viewport box under the frame box and project
+        // the referenced document's tree into it. The box carries no SourceElement (it is not a
+        // script-visible element); the sub-document's own elements keep theirs, so their geometry
+        // is keyed and cascaded exactly as when they were in-tree.
+        if (contentDocumentResolver?.Invoke(element) is { } contentDocument)
+        {
+            var subViewportTag = new HtmlTag("#subdoc-root", false, null);
+            var subViewport = CssBoxHelper.CreateBox(subViewportTag, baseUrl, box);
+            subViewport.IsNestedBrowsingContextRoot = true;
+
+            if (contentDocument.DocumentElement is { } contentRoot)
+                AppendCanonicalNode(contentRoot, subViewport, baseUrl, contentDocumentResolver);
+        }
     }
 
     private static void AppendInputValueText(CssBox inputBox, HtmlTag tag, Uri baseUrl)

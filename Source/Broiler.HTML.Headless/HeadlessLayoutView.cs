@@ -43,11 +43,18 @@ public sealed class HeadlessLayoutView : ILayoutView
     /// (document, version, viewport, baseUrl) key.
     /// </summary>
     public IReadOnlyDictionary<BDom.DomElement, BoxGeometry> GetGeometry(
-        BDom.DomDocument document, SizeF viewport, string baseUrl)
+        BDom.DomDocument document, SizeF viewport, string baseUrl,
+        Func<BDom.DomElement, BDom.DomDocument?>? contentDocumentResolver = null)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        if (_hasSnapshot
+        // When a content-document resolver is present (materialised iframe/object sub-documents),
+        // the (document, version, viewport, baseUrl) key does not capture sub-document mutations —
+        // a severed sub-document has its own DomDocument.Version, invisible to the main document's.
+        // Bypass the snapshot cache in that case so a mutated sub-document always re-lays-out; the
+        // bridge still caps this to at most once per read pass via its own per-pass snapshot.
+        if (contentDocumentResolver is null
+            && _hasSnapshot
             && ReferenceEquals(_snapshotDocument, document)
             && _snapshotVersion == document.Version
             && _snapshotViewport == viewport
@@ -60,15 +67,25 @@ public sealed class HeadlessLayoutView : ILayoutView
         // BuildSharedGeometrySnapshot degrades the whole pass to an empty map), so the cause
         // is not hidden behind a per-provider catch-all. The cache is only updated on
         // success, so a transient failure does not poison a later query.
+        _container.ContentDocumentResolver = contentDocumentResolver;
         _container.SetDocumentWithStyleSet(document, baseUrl: baseUrl);
         var snapshot = _container.GetLayoutGeometry(viewport);
 
-        _snapshot = snapshot;
-        _snapshotDocument = document;
-        _snapshotVersion = document.Version;
-        _snapshotViewport = viewport;
-        _snapshotBaseUrl = baseUrl;
-        _hasSnapshot = true;
+        if (contentDocumentResolver is null)
+        {
+            _snapshot = snapshot;
+            _snapshotDocument = document;
+            _snapshotVersion = document.Version;
+            _snapshotViewport = viewport;
+            _snapshotBaseUrl = baseUrl;
+            _hasSnapshot = true;
+        }
+        else
+        {
+            // Do not serve a resolver-built snapshot from the plain-document cache on a later pass.
+            _hasSnapshot = false;
+        }
+
         return snapshot;
     }
 
