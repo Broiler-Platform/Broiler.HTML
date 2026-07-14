@@ -134,6 +134,18 @@ public sealed class HtmlContainer : IDisposable
     public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet baseStyleSet = null, string baseUrl = null) =>
         HtmlContainerInt.SetDocumentWithStyleSet(document, baseStyleSet, baseUrl);
 
+    /// <summary>
+    /// HtmlBridge Phase 4 (P4.4b): host callback mapping a nested-browsing-context container
+    /// element to its referenced content <see cref="Broiler.Dom.DomDocument"/>, forwarded to the
+    /// DOM→box builder so a severed sub-document (no in-tree <c>#subdoc-root</c> child) is still
+    /// projected into the box tree. Null on the renderer's own parse paths.
+    /// </summary>
+    public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument> ContentDocumentResolver
+    {
+        get => HtmlContainerInt.ContentDocumentResolver;
+        set => HtmlContainerInt.ContentDocumentResolver = value;
+    }
+
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => HtmlContainerInt.GetHtml(styleGen);
 
     public string GetAttributeAt(PointF location, string attribute) => HtmlContainerInt.GetAttributeAt(location, attribute);

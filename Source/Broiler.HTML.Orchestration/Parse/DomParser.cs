@@ -53,7 +53,7 @@ internal sealed class DomParser
 
     public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
-        var root = HtmlParser.ParseDocument(document, baseUrl);
+        var root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer?.ContentDocumentResolver);
         return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
     }
 

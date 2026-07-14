@@ -38,6 +38,16 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private HtmlStyleSet _boundBaseStyleSet;
 
     /// <summary>
+    /// HtmlBridge Phase 4 (P4.4b): host callback mapping a nested-browsing-context container
+    /// element (<c>&lt;iframe&gt;</c>/<c>&lt;object&gt;</c>/<c>&lt;frame&gt;</c>) to its
+    /// referenced content <see cref="Broiler.Dom.DomDocument"/>. When set, the DOM→box builder
+    /// projects the referenced document as a sub-viewport under the frame box, so a severed
+    /// sub-document (no in-tree <c>#subdoc-root</c> child) still lays out and composes geometry.
+    /// Null on the renderer's own parse paths.
+    /// </summary>
+    public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument> ContentDocumentResolver { get; set; }
+
+    /// <summary>
     /// The most recent fragment tree snapshot, built after layout completes.
     /// </summary>
     internal Fragment LatestFragmentTree { get; private set; }
