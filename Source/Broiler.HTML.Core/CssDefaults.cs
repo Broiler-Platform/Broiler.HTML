@@ -132,9 +132,13 @@ internal static class CssDefaults
         /* HTML5 text-level elements – inline by default */
         mark            { background-color: yellow; color: black }
 
-        /* HTML <dialog> — native UA display (open dialogs are block boxes; closed are
-           display:none). Requires the :not([open]) selector-matcher fix. */
-        dialog          { display: block }
+        /* HTML <dialog> — native UA display + box chrome (open dialogs are block boxes
+           with a border, padding and white background; closed are display:none).
+           Requires the :not([open]) selector-matcher fix, and — so an author reset such
+           as `dialog { border:0; background:transparent }` overrides these equal-
+           specificity UA rules — the shorthand-vs-longhand origin-precedence cascade fix
+           (author `background` shorthand must beat this UA `background-color` longhand). */
+        dialog          { display: block; border: 1px solid black; padding: 1em; background-color: white }
         dialog:not([open]) { display: none }
 
         /* Hidden elements (HTML5) */
