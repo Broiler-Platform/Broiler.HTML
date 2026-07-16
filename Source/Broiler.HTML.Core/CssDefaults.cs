@@ -132,8 +132,13 @@ internal static class CssDefaults
         /* HTML5 text-level elements – inline by default */
         mark            { background-color: yellow; color: black }
 
+        /* HTML <dialog> — native UA display (open dialogs are block boxes; closed are
+           display:none). Requires the :not([open]) selector-matcher fix. */
+        dialog          { display: block }
+        dialog:not([open]) { display: none }
+
         /* Hidden elements (HTML5) */
-        template, dialog,
+        template,
         [hidden]        { display: none }
         style, title,
         script, link,
