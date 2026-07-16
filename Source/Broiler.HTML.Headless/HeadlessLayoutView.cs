@@ -69,7 +69,31 @@ public sealed class HeadlessLayoutView : ILayoutView
         // success, so a transient failure does not poison a later query.
         _container.ContentDocumentResolver = contentDocumentResolver;
         _container.SetDocumentWithStyleSet(document, baseUrl: baseUrl);
-        var snapshot = _container.GetLayoutGeometry(viewport);
+
+        // Phase 5 LayoutSnapshot endgame: lay out with the engine's native anchor-positioning
+        // post-pass on, so the geometry the script bridge reads (offsetLeft/getBoundingClientRect
+        // during script) carries engine-resolved position-area / anchor() / anchor-size() boxes
+        // instead of the pre-bake 0×0/static placement — the read-model side of moving anchor
+        // placement into Broiler.Layout. Thread-static, so save/restore keeps concurrent layouts
+        // unaffected. PositionTryRules is the out-of-band channel for the @position-try fallback
+        // pass: the engine consumes cascaded box properties, never the stylesheet, so the rule
+        // bodies (a stylesheet at-rule) are handed in here and the native post-pass applies the
+        // first non-overflowing fallback — so a position-try box carries its resolved FALLBACK
+        // placement in the snapshot, not merely its base.
+        var previousEnabled = Broiler.Layout.Engine.NativeAnchorPlacement.Enabled;
+        var previousRules = Broiler.Layout.Engine.NativeAnchorPlacement.PositionTryRules;
+        Broiler.Layout.Engine.NativeAnchorPlacement.Enabled = true;
+        Broiler.Layout.Engine.NativeAnchorPlacement.PositionTryRules = ParsePositionTryRules(document);
+        IReadOnlyDictionary<BDom.DomElement, BoxGeometry> snapshot;
+        try
+        {
+            snapshot = _container.GetLayoutGeometry(viewport);
+        }
+        finally
+        {
+            Broiler.Layout.Engine.NativeAnchorPlacement.Enabled = previousEnabled;
+            Broiler.Layout.Engine.NativeAnchorPlacement.PositionTryRules = previousRules;
+        }
 
         if (contentDocumentResolver is null)
         {
@@ -87,6 +111,51 @@ public sealed class HeadlessLayoutView : ILayoutView
         }
 
         return snapshot;
+    }
+
+    /// <summary>
+    /// Extracts the document's <c>@position-try</c> at-rules (name → declarations) from its
+    /// <c>&lt;style&gt;</c> elements, using the canonical <c>Broiler.CSS.PositionTryRule</c>
+    /// parser — the same model the bridge's resolver and the WPT runner use, so the native
+    /// fallback pass sees the identical rule bodies. Later duplicates win, in document order.
+    /// Returns <c>null</c> when the document declares no <c>@position-try</c> rules, matching the
+    /// channel's "no fallback rules available" contract.
+    /// </summary>
+    private static IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>? ParsePositionTryRules(
+        BDom.DomDocument document)
+    {
+        Dictionary<string, IReadOnlyDictionary<string, string>>? result = null;
+        foreach (var styleEl in document.GetElementsByTagName("style"))
+        {
+            var css = StyleElementText(styleEl);
+            if (css.Length == 0 || css.IndexOf("@position-try", StringComparison.OrdinalIgnoreCase) < 0)
+                continue;
+
+            foreach (var rule in Broiler.CSS.PositionTryRule.Parse(css))
+                (result ??= new(StringComparer.Ordinal))[rule.Key] = rule.Value;
+        }
+
+        return result;
+    }
+
+    /// <summary>Concatenates the direct text-node children of a <c>&lt;style&gt;</c> element
+    /// (its CSS source), mirroring the bridge's <c>GetStyleElementSourceText</c> accessor.</summary>
+    private static string StyleElementText(BDom.DomElement styleEl)
+    {
+        string? single = null;
+        System.Text.StringBuilder? many = null;
+        foreach (var child in styleEl.ChildNodes)
+        {
+            if (child.NodeType != BDom.DomNodeType.Text || child.NodeValue is not { Length: > 0 } text)
+                continue;
+
+            if (single is null && many is null)
+                single = text;
+            else
+                (many ??= new System.Text.StringBuilder(single)).Append(text);
+        }
+
+        return many?.ToString() ?? single ?? string.Empty;
     }
 
     /// <summary>Releases the internal renderer container.</summary>
