@@ -766,7 +766,32 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         var result = new Dictionary<Broiler.Dom.DomElement, BoxGeometry>();
         if (Root != null)
             CollectLayoutGeometry(Root, result);
+
+        // Phase 5 LayoutSnapshot endgame (blocker (b) — visual-viewport): a document-root
+        // visual-viewport / root-`zoom` is a uniform scale of the whole document. Rather than
+        // baking scaled lengths into the DOM (the retiring bridge zoom bake), the box tree is laid
+        // out at unit scale and the factor is applied here, where geometry leaves the tree — all
+        // three box-model rects of every element scale about the document origin, which is exact
+        // for a uniform zoom. Inert unless a caller sets the channel (0/1 → no scale).
+        var visualViewportScale = NativeAnchorPlacement.VisualViewportScale;
+        if (visualViewportScale > 0.0001 && Math.Abs(visualViewportScale - 1.0) > 0.0001)
+            ScaleCollectedGeometry(result, (float)visualViewportScale);
+
         return result;
+    }
+
+    private static void ScaleCollectedGeometry(
+        Dictionary<Broiler.Dom.DomElement, BoxGeometry> map, float factor)
+    {
+        static RectangleF Scale(RectangleF r, float f) =>
+            new(r.X * f, r.Y * f, r.Width * f, r.Height * f);
+
+        foreach (var element in new List<Broiler.Dom.DomElement>(map.Keys))
+        {
+            var g = map[element];
+            map[element] = new BoxGeometry(
+                Scale(g.BorderBox, factor), Scale(g.PaddingBox, factor), Scale(g.ContentBox, factor));
+        }
     }
 
     private static void CollectLayoutGeometry(
