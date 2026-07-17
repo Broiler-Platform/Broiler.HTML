@@ -89,6 +89,14 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     public PointF ScrollOffset { get; set; }
 
+    /// <summary>
+    /// Uniform document-root viewport zoom (pinch-zoom / <c>html { zoom }</c>) applied at paint. When
+    /// not 1, the paint scales page content by this factor about the surface origin, so a pinch-zoomed
+    /// page renders magnified natively — instead of the bridge baking scaled CSS lengths into the DOM
+    /// (Phase 5 LayoutSnapshot endgame, blocker (b) render half). Default 1 (no scale).
+    /// </summary>
+    public float ViewportZoom { get; set; } = 1f;
+
     public PointF Location { get; set; }
 
     public SizeF MaxSize { get; set; }
@@ -911,9 +919,18 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         g.PushClip(viewport);
 
+        // Document-root viewport zoom (blocker (b) render half): scale page content AFTER the
+        // device-space viewport clip, so the content magnifies while the clip stays in device pixels.
+        bool zoomed = MathF.Abs(ViewportZoom - 1f) > 0.0001f && ViewportZoom > 0f;
+        if (zoomed)
+            g.PushViewportScale(ViewportZoom);
+
         var displayList = CreateDisplayList(viewport);
         if (displayList.Items.Count > 0)
             RGraphicsRasterBackend.Instance.Render(displayList, g);
+
+        if (zoomed)
+            g.PopViewportScale();
 
         g.PopClip();
     }

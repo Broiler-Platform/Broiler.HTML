@@ -12,8 +12,9 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     private readonly Stack<LayerState> _layerStack = new();
     private readonly List<ClipOperation> _clipOperations = [];
     private PointF _translation;
+    private float _scale = 1f;
 
-    public void Save() => _stateStack.Push(new CanvasState(_translation, _clipOperations.Count));
+    public void Save() => _stateStack.Push(new CanvasState(_translation, _scale, _clipOperations.Count));
 
     public void Restore()
     {
@@ -22,6 +23,7 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
         var state = _stateStack.Pop();
         _translation = state.Translation;
+        _scale = state.Scale;
 
         while (_clipOperations.Count > state.ClipOperationCount)
             _clipOperations.RemoveAt(_clipOperations.Count - 1);
@@ -29,6 +31,10 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
     public void Translate(float dx, float dy) =>
         _translation = new PointF(_translation.X + dx, _translation.Y + dy);
+
+    /// <summary>Composes a uniform scale about the surface origin (document-root viewport zoom):
+    /// draws map point -> point*scale + translation. Uniform-only; byte-identical at scale 1.</summary>
+    public void Scale(float scale) => _scale *= scale;
 
     public void Clear(BColor color)
     {
@@ -51,10 +57,10 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         double cornerSwY) =>
         _clipOperations.Add(ClipOperation.IncludeRounded(
             Translate(rect),
-            (float)cornerNw, (float)cornerNwY,
-            (float)cornerNe, (float)cornerNeY,
-            (float)cornerSe, (float)cornerSeY,
-            (float)cornerSw, (float)cornerSwY));
+            (float)cornerNw * _scale, (float)cornerNwY * _scale,
+            (float)cornerNe * _scale, (float)cornerNeY * _scale,
+            (float)cornerSe * _scale, (float)cornerSeY * _scale,
+            (float)cornerSw * _scale, (float)cornerSwY * _scale));
 
     public void PopClip()
     {
@@ -86,7 +92,7 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     {
         var p1 = Translate(start);
         var p2 = Translate(end);
-        float radius = Math.Max(0.5f, strokeWidth / 2f);
+        float radius = Math.Max(0.5f, strokeWidth * _scale / 2f);
 
         int minX = Math.Max(0, (int)Math.Floor(Math.Min(p1.X, p2.X) - radius));
         int minY = Math.Max(0, (int)Math.Floor(Math.Min(p1.Y, p2.Y) - radius));
@@ -551,10 +557,10 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     private BBitmap CurrentTarget => _layerStack.Count > 0 ? _layerStack.Peek().Bitmap : _rootBitmap;
 
     private RectangleF Translate(RectangleF rect) =>
-        new(rect.X + _translation.X, rect.Y + _translation.Y, rect.Width, rect.Height);
+        new(rect.X * _scale + _translation.X, rect.Y * _scale + _translation.Y, rect.Width * _scale, rect.Height * _scale);
 
     private PointF Translate(PointF point) =>
-        new(point.X + _translation.X, point.Y + _translation.Y);
+        new(point.X * _scale + _translation.X, point.Y * _scale + _translation.Y);
 
     private bool IsVisible(int x, int y)
     {
@@ -844,7 +850,7 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         return inside;
     }
 
-    private readonly record struct CanvasState(PointF Translation, int ClipOperationCount);
+    private readonly record struct CanvasState(PointF Translation, float Scale, int ClipOperationCount);
 
     private sealed record LayerState(BBitmap Bitmap, float Opacity, string BlendMode);
 

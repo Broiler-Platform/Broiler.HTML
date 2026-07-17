@@ -88,6 +88,16 @@ public sealed class HtmlContainer : IDisposable
         set => HtmlContainerInt.ScrollOffset = value;
     }
 
+    /// <summary>
+    /// Uniform document-root viewport zoom (pinch-zoom / <c>html { zoom }</c>) applied at paint;
+    /// default 1. See <see cref="HtmlContainerInt.ViewportZoom"/>.
+    /// </summary>
+    public float ViewportZoom
+    {
+        get => HtmlContainerInt.ViewportZoom;
+        set => HtmlContainerInt.ViewportZoom = value;
+    }
+
     public SizeF MaxSize
     {
         get => HtmlContainerInt.MaxSize;

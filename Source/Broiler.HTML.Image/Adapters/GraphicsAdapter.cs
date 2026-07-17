@@ -341,6 +341,18 @@ internal sealed class GraphicsAdapter : RGraphics
         _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
+    public override void PushViewportScale(float scale)
+    {
+        // Raster-pipeline only: compose a uniform scale onto BCanvas. Deliberately does NOT touch
+        // _activeCompatLayerDepth — that would flip CanUseRaster off and route every subsequent draw
+        // to the compat backend, bypassing the scale. When there is no raster canvas (the stub compat
+        // backend) this is a no-op; the document-root viewport zoom targets the Broiler raster path.
+        _rasterCanvas?.Save();
+        _rasterCanvas?.Scale(scale);
+    }
+
+    public override void PopViewportScale() => _rasterCanvas?.Restore();
+
     public override RImage? CreateLinearGradientTile(int width, int height, BColor[] colors, float[] positions, float angle)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
