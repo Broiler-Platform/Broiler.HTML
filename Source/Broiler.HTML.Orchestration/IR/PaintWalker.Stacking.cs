@@ -12,9 +12,19 @@ namespace Broiler.HTML.Orchestration.IR;
 // background/foreground phase split. Split out of PaintWalker.cs for size.
 internal static partial class PaintWalker
 {
-    private static void PaintFragment(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom = null, RectangleF viewport = default, bool isRoot = false, BColor? bgClipTextColor = null, bool asInlineContent = false)
+    private static void PaintFragment(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom = null, RectangleF viewport = default, bool isRoot = false, BColor? bgClipTextColor = null, bool asInlineContent = false, bool paintingTopLayer = false)
     {
         var style = fragment.Style;
+
+        // CSS Position 4 §top-layer: a top-layer box (open modal <dialog>, open popover, or a
+        // synthesized ::backdrop — marked by the bridge, projected to Fragment.TopLayerOrder)
+        // does NOT paint in normal in-tree stacking order. It is skipped here and re-painted by
+        // PaintTopLayer in a final root-level pass, above every ordinary stacking context. The
+        // final pass calls back in with paintingTopLayer:true so the target itself paints; a
+        // nested top-layer descendant reached during that subtree walk (paintingTopLayer:false
+        // again) is skipped and painted from its own collection entry — so no box double-paints.
+        if (fragment.TopLayerOrder != null && !paintingTopLayer)
+            return;
 
         // Skip invisible fragments
         if (style.Display == "none")
@@ -417,6 +427,64 @@ internal static partial class PaintWalker
             positioned.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
             foreach (var child in positioned)
                 PaintPositionedChild(child);
+        }
+    }
+
+    /// <summary>
+    /// CSS Position 4 §top-layer painting: after the whole document tree has painted, re-paint
+    /// every top-layer fragment (<see cref="Fragment.TopLayerOrder"/> non-null — an open modal
+    /// <c>&lt;dialog&gt;</c>, an open popover, or a synthesized <c>::backdrop</c>) above all
+    /// ordinary stacking contexts, ordered by top-layer order (a later-added element paints over
+    /// an earlier one). During the normal traversal these fragments were skipped by
+    /// <see cref="PaintFragment"/>; this is where they actually paint. A no-op when nothing is in
+    /// the top layer, so ordinary documents are unaffected. Replaces the bridge's approximate
+    /// very-large-z-index top-layer emulation with a real, isolated top-layer pass.
+    /// </summary>
+    private static void PaintTopLayer(Fragment root, List<DisplayItem> items, Fragment? propagatedFrom, RectangleF viewport)
+    {
+        List<Fragment>? topLayer = null;
+        CollectTopLayer(root, ref topLayer);
+        if (topLayer == null)
+            return;
+
+        // Stable order by top-layer order (document order breaks ties — the collection walk is in
+        // document order and List.Sort is not stable, so decorate with the collected index).
+        var ordered = new List<(int Order, int Index, Fragment Fragment)>(topLayer.Count);
+        for (int i = 0; i < topLayer.Count; i++)
+            ordered.Add((topLayer[i].TopLayerOrder!.Value, i, topLayer[i]));
+        ordered.Sort((a, b) => a.Order != b.Order ? a.Order.CompareTo(b.Order) : a.Index.CompareTo(b.Index));
+
+        foreach (var (_, _, fragment) in ordered)
+        {
+            // Top-layer boxes are UA position:fixed, so apply the fixed-position viewport offset
+            // (CSS2.1 §9.6.1) over the emitted subtree exactly as PaintChildren does for a fixed
+            // child. paintingTopLayer:true lets this fragment through the PaintFragment skip; any
+            // nested top-layer descendant is skipped there and painted from its own entry.
+            if (viewport.Width > 0 && viewport.Height > 0)
+            {
+                int startIdx = items.Count;
+                PaintFragment(fragment, items, propagatedFrom, viewport, paintingTopLayer: true);
+                OffsetDisplayItems(items, startIdx, viewport.X, viewport.Y);
+            }
+            else
+            {
+                PaintFragment(fragment, items, propagatedFrom, viewport, paintingTopLayer: true);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Collects every top-layer fragment in the subtree (document order). Recurses through
+    /// top-layer fragments too, so a nested top-layer box is collected as its own entry rather
+    /// than only painted inside its ancestor's subtree.
+    /// </summary>
+    private static void CollectTopLayer(Fragment fragment, ref List<Fragment>? acc)
+    {
+        foreach (var child in fragment.Children)
+        {
+            if (child.TopLayerOrder != null)
+                (acc ??= []).Add(child);
+            CollectTopLayer(child, ref acc);
         }
     }
 

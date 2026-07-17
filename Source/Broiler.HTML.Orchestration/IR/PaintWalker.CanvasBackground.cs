@@ -31,6 +31,11 @@ internal static partial class PaintWalker
             propagatedFrom = EmitCanvasBackground(root, viewport, items);
 
         PaintFragment(root, items, propagatedFrom, viewport, isRoot: true);
+
+        // CSS Position 4 §top-layer: modal dialogs, open popovers, and their ::backdrops paint
+        // above every ordinary stacking context, after the whole tree. A no-op unless a fragment
+        // carries a top-layer order (bridge-marked); see PaintTopLayer.
+        PaintTopLayer(root, items, propagatedFrom, viewport);
         return new DisplayList { Items = items };
     }
 
