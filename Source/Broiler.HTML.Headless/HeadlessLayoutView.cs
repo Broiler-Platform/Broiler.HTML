@@ -33,6 +33,7 @@ public sealed class HeadlessLayoutView : ILayoutView
     private ulong _snapshotVersion;
     private SizeF _snapshotViewport;
     private string? _snapshotBaseUrl;
+    private double _snapshotVisualViewportScale;
     private bool _hasSnapshot;
     private bool _disposed;
 
@@ -48,6 +49,12 @@ public sealed class HeadlessLayoutView : ILayoutView
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
+        // The document-root visual-viewport / root-zoom scale the caller set on the out-of-band
+        // channel (DomBridge sets it around this call) scales the extracted geometry, but it is not
+        // a DOM mutation, so it does not bump DomDocument.Version. Include it in the snapshot key so a
+        // visualViewport.scale change re-lays-out instead of serving a stale (differently-scaled) map.
+        var visualViewportScale = Broiler.Layout.Engine.NativeAnchorPlacement.VisualViewportScale;
+
         // When a content-document resolver is present (materialised iframe/object sub-documents),
         // the (document, version, viewport, baseUrl) key does not capture sub-document mutations —
         // a severed sub-document has its own DomDocument.Version, invisible to the main document's.
@@ -58,6 +65,7 @@ public sealed class HeadlessLayoutView : ILayoutView
             && ReferenceEquals(_snapshotDocument, document)
             && _snapshotVersion == document.Version
             && _snapshotViewport == viewport
+            && _snapshotVisualViewportScale == visualViewportScale
             && string.Equals(_snapshotBaseUrl, baseUrl, StringComparison.Ordinal))
         {
             return _snapshot!;
@@ -102,6 +110,7 @@ public sealed class HeadlessLayoutView : ILayoutView
             _snapshotVersion = document.Version;
             _snapshotViewport = viewport;
             _snapshotBaseUrl = baseUrl;
+            _snapshotVisualViewportScale = visualViewportScale;
             _hasSnapshot = true;
         }
         else
