@@ -92,6 +92,7 @@ internal sealed class DomParser
             engine,
             RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: true),
             RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: false));
+        GenerateNativeBackdrops(root, engine, baseUrl);
         SetTextSelectionStyle(htmlContainer, root, engine);
         CorrectTextBoxes(root);
         CorrectImgBoxes(root, baseUrl);
@@ -450,6 +451,85 @@ internal sealed class DomParser
         var text = contentValue.Trim('\'', '"');
         if (text.Length > 0)
             pseudoBox.Text = text.AsMemory();
+    }
+
+    // Bridge markers (mirrored from DomBridge.AnchorResolver.Dialogs): the resolved backdrop
+    // background the bridge stamps on a top-layer element in NativeTopLayer mode, and the
+    // top-layer order it stamps alongside. Absent on the baked path, so backdrop generation is a
+    // no-op there.
+    private const string BackdropBgAttr = "data-broiler-backdrop";
+    private const string TopLayerOrderMarkerAttr = "data-broiler-top-layer";
+
+    // Author ::backdrop declarations that override the viewport-covering geometry defaults (an
+    // explicitly sized/positioned backdrop). Background is not overlaid — the bridge already
+    // folded any author background into the resolved value on the marker.
+    private static readonly string[] BackdropGeometryProps =
+        { "width", "height", "top", "left", "right", "bottom", "position" };
+
+    /// <summary>
+    /// CSS Position 4 §top-layer / HTML §dialog: generates a native <c>::backdrop</c> box for each
+    /// element the bridge marked with a resolved backdrop background
+    /// (<c>data-broiler-backdrop</c>) — an open modal dialog or open popover in
+    /// <c>NativeTopLayer</c> mode. The <c>::backdrop</c> is a top-layer box (order from the
+    /// element's <c>data-broiler-top-layer</c> marker) inserted as a sibling <em>before</em> the
+    /// element, so <c>PaintWalker.PaintTopLayer</c> paints it directly beneath the element yet
+    /// above ordinary page content — replacing the bridge's synthesized backdrop <c>&lt;div&gt;</c>
+    /// (which mutated the box tree). A no-op on the baked path, where the marker is absent.
+    /// </summary>
+    private static void GenerateNativeBackdrops(CssBox root, Broiler.CSS.Dom.CssStyleEngine engine, Uri baseUrl)
+    {
+        // Collect first — inserting siblings mutates the parents' child lists.
+        var targets = new List<CssBox>();
+        CollectBackdropTargets(root, targets);
+        foreach (var dialogBox in targets)
+            CreateNativeBackdropBox(dialogBox, engine, baseUrl);
+    }
+
+    private static void CollectBackdropTargets(CssBox box, List<CssBox> targets)
+    {
+        if (box.HtmlTag != null && box.HtmlTag.HasAttribute(BackdropBgAttr))
+            targets.Add(box);
+        foreach (var child in box.Boxes)
+            CollectBackdropTargets(child, targets);
+    }
+
+    private static void CreateNativeBackdropBox(CssBox dialogBox, Broiler.CSS.Dom.CssStyleEngine engine, Uri baseUrl)
+    {
+        var parent = dialogBox.ParentBox;
+        if (parent == null)
+            return;
+
+        var bg = dialogBox.HtmlTag.TryGetAttribute(BackdropBgAttr, "transparent");
+        int order = 0;
+        var orderRaw = dialogBox.HtmlTag.TryGetAttribute(TopLayerOrderMarkerAttr);
+        if (!string.IsNullOrEmpty(orderRaw))
+            int.TryParse(orderRaw, System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture, out order);
+
+        // Insert the ::backdrop as a sibling immediately before the element, so the top-layer
+        // paint's document-order tiebreak paints it beneath the element.
+        var backdrop = CssBoxHelper.CreateBox(parent, baseUrl, before: dialogBox);
+
+        // UA ::backdrop box: fixed, covering the viewport (inset:0, resolved natively), with the
+        // bridge-resolved background (UA modal/popover scrim default folded with author background).
+        CssUtils.SetPropertyValue(backdrop, "position", "fixed");
+        CssUtils.SetPropertyValue(backdrop, "top", "0");
+        CssUtils.SetPropertyValue(backdrop, "left", "0");
+        CssUtils.SetPropertyValue(backdrop, "right", "0");
+        CssUtils.SetPropertyValue(backdrop, "bottom", "0");
+        CssUtils.SetPropertyValue(backdrop, "background-color", bg);
+
+        // Overlay author ::backdrop geometry (an explicitly sized/positioned backdrop); the
+        // background stays the bridge-resolved value.
+        if (engine != null && dialogBox.SourceElement != null)
+        {
+            var decls = engine.GetCascadedStyle(dialogBox.SourceElement, "::backdrop");
+            foreach (var prop in BackdropGeometryProps)
+                if (decls.TryGetValue(prop, out var val) && !string.IsNullOrWhiteSpace(val))
+                    CssUtils.SetPropertyValue(backdrop, prop, val.Trim());
+        }
+
+        backdrop.TopLayerOrder = order;
     }
 
     private static bool TryExtractPseudoElementImageUrl(string contentValue, out string imageUrl)
