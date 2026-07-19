@@ -69,6 +69,14 @@ internal static partial class PaintWalker
                     textColor = CompositeTextColor(bgClipTextColor.Value, textColor);
 
                 var (shadowX, shadowY, shadowColor) = ParseTextShadow(inlineStyle.TextShadow);
+                // Paint-only used length (CSS zoom, increment 5): the text-shadow offsets are resolved here
+                // from the raw string rather than from the zoomed box geometry, so scale them by the box's
+                // effective zoom. 1.0 (the default) while the native-zoom engine is off, so this is inert.
+                if (inlineStyle.EffectiveZoom != 1.0)
+                {
+                    shadowX *= (float)inlineStyle.EffectiveZoom;
+                    shadowY *= (float)inlineStyle.EffectiveZoom;
+                }
 
                 items.Add(new DrawTextItem
                 {
