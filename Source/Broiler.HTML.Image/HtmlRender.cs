@@ -32,9 +32,10 @@ public static class HtmlRender
         BColor backgroundColor = default,
         EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
         EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
-        string? baseUrl = null) =>
+        string? baseUrl = null,
+        float viewportZoom = 1f) =>
         RenderToImageCore(html, width, height, backgroundColor == default ? null : backgroundColor,
-            styleSet, stylesheetLoad, imageLoad, baseUrl);
+            styleSet, stylesheetLoad, imageLoad, baseUrl, viewportZoom: viewportZoom);
 
     public static BBitmap RenderToImageAutoSizedWithStyleSet(
         string html,
@@ -257,7 +258,8 @@ public static class HtmlRender
         EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
         EventHandler<HtmlImageLoadEventArgs> imageLoad,
         string baseUrl,
-        int embedDepth = 0)
+        int embedDepth = 0,
+        float viewportZoom = 1f)
     {
         var bgColor = backgroundColor ?? BColor.White;
         var bitmap = new BBitmap(width, height);
@@ -269,6 +271,7 @@ public static class HtmlRender
             container.MaxSize = new SizeF(width, height);
             container.AvoidAsyncImagesLoading = true;
             container.AvoidImagesLateLoading = true;
+            container.ViewportZoom = viewportZoom;
 
             if (stylesheetLoad != null)
                 container.StylesheetLoad += stylesheetLoad;
