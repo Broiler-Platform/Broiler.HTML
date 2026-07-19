@@ -156,7 +156,10 @@ internal static partial class PaintWalker
                 bounds.Height - (float)(border.Top + border.Bottom + padding.Top + padding.Bottom));
 
             if (r.Width > 0 && r.Height > 0)
-                items.AddRange(SvgRenderer.RenderSvgContent(fragment.SvgContent, r));
+                // Pass the box's effective CSS zoom so a view-box-less SVG's raw user-unit geometry scales
+                // with the box (a view-boxed SVG is unaffected — its scale derives from the zoomed bounds).
+                // 1.0 while the native-zoom engine is off, so this is inert by default.
+                items.AddRange(SvgRenderer.RenderSvgContent(fragment.SvgContent, r, fragment.Style.EffectiveZoom));
         }
     }
 
