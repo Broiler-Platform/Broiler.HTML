@@ -100,6 +100,7 @@ internal sealed class DomParser
         CorrectFramesetBoxes(root);
         CorrectIframeBoxes(root);
         CorrectVideoBoxes(root);
+        CorrectProgressBoxes(root, baseUrl);
 
         bool followingBlock = true;
         CorrectLineBreaksBlocks(root, ref followingBlock);
@@ -972,6 +973,104 @@ internal sealed class DomParser
         return !string.IsNullOrWhiteSpace(raw)
                && double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _)
             ? raw + "px"
+            : fallback;
+    }
+
+    private const double DefaultProgressTrackLengthPx = 120;
+
+    /// <summary>
+    /// HTML §4.10.13/4.10.14: <c>&lt;progress&gt;</c> / <c>&lt;meter&gt;</c> are replaced form controls.
+    /// Broiler has no native control chrome, so — matching the bridge's
+    /// <c>HtmlPostProcessor.ReplaceProgressLikeWithPlaceholder</c> fallback — a post-cascade pass renders each
+    /// as a bordered <c>inline-block</c> track with an absolutely-positioned fill bar proportional to
+    /// <c>value</c> (honouring writing-mode / direction for vertical and reversed bars) and hides the
+    /// element's fallback text. Runs post-cascade so the injected fill box and forced track geometry are not
+    /// re-cascaded. Native replacement for the string rewrite; matches its exact colours/sizes so retiring the
+    /// fallback (once the pointer is bumped) does not change rendering.
+    /// </summary>
+    private static void CorrectProgressBoxes(CssBox box, Uri baseUrl)
+    {
+        if (box.HtmlTag != null
+            && (box.HtmlTag.Name.Equals("progress", StringComparison.OrdinalIgnoreCase)
+                || box.HtmlTag.Name.Equals("meter", StringComparison.OrdinalIgnoreCase)))
+        {
+            bool isMeter = box.HtmlTag.Name.Equals("meter", StringComparison.OrdinalIgnoreCase);
+            bool vertical = box.WritingMode != null
+                && (box.WritingMode.StartsWith("vertical", StringComparison.OrdinalIgnoreCase)
+                    || box.WritingMode.StartsWith("sideways", StringComparison.OrdinalIgnoreCase));
+            bool reverseInline = string.Equals(box.Direction, "rtl", StringComparison.OrdinalIgnoreCase);
+            double ratio = ResolveProgressValueRatio(box, isMeter);
+
+            // Track (host) box — forced geometry/appearance, matching the string fallback.
+            box.Display = CssConstants.InlineBlock;
+            box.BoxSizing = "border-box";
+            box.Position = CssConstants.Relative;
+            box.Overflow = CssConstants.Hidden;
+            box.PaddingLeft = box.PaddingRight = box.PaddingTop = box.PaddingBottom = "0";
+            SetUniformBorder(box, "1px", "solid", "#767676");
+            box.BackgroundColor = isMeter ? "#e6e6e6" : "#f0f0f0";
+            box.VerticalAlign = "middle";
+            box.Width = vertical ? "16px" : "120px";
+            box.Height = vertical ? "120px" : "16px";
+
+            // The element's fallback text/content does not paint; the fill bar replaces it.
+            foreach (var child in box.Boxes)
+                child.Display = CssConstants.None;
+
+            // Fill bar — absolutely positioned within the relative track, sized to the value ratio.
+            var fillExtent = (DefaultProgressTrackLengthPx * ratio)
+                .ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "px";
+            var fill = CssBoxHelper.CreateBlock(box, baseUrl);
+            fill.Position = CssConstants.Absolute;
+            fill.BackgroundColor = isMeter ? "#4caf50" : "#0a84ff";
+            if (vertical)
+            {
+                fill.Left = "0";
+                fill.Right = "0";
+                if (reverseInline) fill.Bottom = "0"; else fill.Top = "0";
+                fill.Height = fillExtent;
+            }
+            else
+            {
+                fill.Top = "0";
+                fill.Bottom = "0";
+                if (reverseInline) fill.Right = "0"; else fill.Left = "0";
+                fill.Width = fillExtent;
+            }
+            return;
+        }
+
+        foreach (var child in box.Boxes)
+            CorrectProgressBoxes(child, baseUrl);
+    }
+
+    private static void SetUniformBorder(CssBox box, string width, string style, string color)
+    {
+        box.BorderLeftWidth = box.BorderRightWidth = box.BorderTopWidth = box.BorderBottomWidth = width;
+        box.BorderLeftStyle = box.BorderRightStyle = box.BorderTopStyle = box.BorderBottomStyle = style;
+        box.BorderLeftColor = box.BorderRightColor = box.BorderTopColor = box.BorderBottomColor = color;
+    }
+
+    /// <summary>
+    /// Resolves a <c>&lt;progress&gt;</c>/<c>&lt;meter&gt;</c> fill ratio in [0,1] from its numeric
+    /// <c>value</c>/<c>max</c> (and, for <c>&lt;meter&gt;</c>, <c>min</c>) attributes, mirroring the fallback.
+    /// </summary>
+    private static double ResolveProgressValueRatio(CssBox box, bool isMeter)
+    {
+        double min = isMeter ? ReadNumericAttribute(box, "min", 0) : 0;
+        double max = ReadNumericAttribute(box, "max", 1);
+        if (max <= min)
+            max = min + 1;
+        double value = ReadNumericAttribute(box, "value", min);
+        return Math.Clamp((value - min) / (max - min), 0, 1);
+    }
+
+    private static double ReadNumericAttribute(CssBox box, string name, double fallback)
+    {
+        var raw = box.HtmlTag?.TryGetAttribute(name);
+        return !string.IsNullOrWhiteSpace(raw)
+               && double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
+            ? v
             : fallback;
     }
 
