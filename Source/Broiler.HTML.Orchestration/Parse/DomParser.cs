@@ -98,6 +98,7 @@ internal sealed class DomParser
         CorrectImgBoxes(root, baseUrl);
         CorrectObjectBoxes(root);
         CorrectFramesetBoxes(root);
+        CorrectIframeBoxes(root);
 
         bool followingBlock = true;
         CorrectLineBreaksBlocks(root, ref followingBlock);
@@ -905,6 +906,29 @@ internal sealed class DomParser
     /// outermost frameset fills the viewport; nested framesets fill their parent cell.
     /// <c>&lt;noframes&gt;</c> fallback content is hidden because frames are supported.
     /// </summary>
+    /// <summary>
+    /// HTML §4.8.5: an <c>&lt;iframe&gt;</c> is a replaced element hosting a nested browsing context.
+    /// UAs that support iframes never render the inline fallback content between the tags — the loaded
+    /// sub-document replaces it. This static renderer cannot load a sub-document, so the iframe paints as
+    /// an empty replaced box (its UA <c>border: 2px inset</c> at the explicit/auto size) and its fallback
+    /// children must not lay out or paint. Runs post-cascade so the per-box cascade cannot re-show a block
+    /// child (e.g. a <c>&lt;div&gt;</c>) after the fact — the reason a cascade-time hide is insufficient.
+    /// </summary>
+    private static void CorrectIframeBoxes(CssBox box)
+    {
+        if (box.HtmlTag != null
+            && box.HtmlTag.Name.Equals("iframe", StringComparison.OrdinalIgnoreCase))
+        {
+            // display:none on each direct child hides that child and its whole subtree.
+            foreach (var child in box.Boxes)
+                child.Display = CssConstants.None;
+            return;
+        }
+
+        foreach (var child in box.Boxes)
+            CorrectIframeBoxes(child);
+    }
+
     private static void CorrectFramesetBoxes(CssBox box)
     {
         bool isFrameset = box.HtmlTag != null
