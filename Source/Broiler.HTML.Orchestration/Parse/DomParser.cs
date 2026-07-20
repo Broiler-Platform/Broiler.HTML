@@ -101,6 +101,7 @@ internal sealed class DomParser
         CorrectIframeBoxes(root);
         CorrectVideoBoxes(root);
         CorrectProgressBoxes(root, baseUrl);
+        CorrectSelectMultipleBoxes(root, baseUrl);
 
         bool followingBlock = true;
         CorrectLineBreaksBlocks(root, ref followingBlock);
@@ -1072,6 +1073,132 @@ internal sealed class DomParser
                && double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
             ? v
             : fallback;
+    }
+
+    private const int SelectMultipleDefaultVisibleTracks = 4;
+    private const int SelectMultipleTrackThicknessPx = 16;
+    private const int SelectMultipleInlineExtentPx = 72;
+    private const int SelectMultipleChromeThicknessPx = 10;
+
+    /// <summary>
+    /// HTML §4.10.7: a <c>&lt;select multiple&gt;</c> is a replaced list-box control. Broiler has no native
+    /// control chrome, so — matching the bridge's <c>HtmlPostProcessor.ReplaceSelectMultipleWithPlaceholder</c>
+    /// fallback (native-appearance case) — a post-cascade pass renders it as an <c>inline-block</c> list box
+    /// with one row track per visible option (the first row painted as the selection highlight, the rest
+    /// alternating), an edge scrollbar-chrome strip, honouring <c>writing-mode</c> for vertical/reversed
+    /// boxes, and hides the real <c>&lt;option&gt;</c> children. Runs post-cascade (absolute row/chrome boxes
+    /// are laid out because the engine discovers absolutes by walking the tree at layout time).
+    /// </summary>
+    /// <remarks>
+    /// Both appearance modes are covered: <c>appearance:auto</c> (native — chrome strip, grey field) and
+    /// <c>appearance:none</c> (no chrome, white field, lighter border), branched on the box's cascaded
+    /// <c>Appearance</c> value.
+    /// </remarks>
+    private static void CorrectSelectMultipleBoxes(CssBox box, Uri baseUrl)
+    {
+        if (box.HtmlTag != null
+            && box.HtmlTag.Name.Equals("select", StringComparison.OrdinalIgnoreCase)
+            && box.HtmlTag.HasAttribute("multiple"))
+        {
+            bool vertical = box.WritingMode != null
+                && (box.WritingMode.StartsWith("vertical", StringComparison.OrdinalIgnoreCase)
+                    || box.WritingMode.StartsWith("sideways", StringComparison.OrdinalIgnoreCase));
+            bool reverseBlock = box.WritingMode != null
+                && box.WritingMode.EndsWith("-rl", StringComparison.OrdinalIgnoreCase);
+
+            // 'appearance:none' opts out of the native list-box chrome (no scrollbar strip, white field,
+            // lighter border) — CSS Basic UI; the box's Appearance is populated by the cascade.
+            bool nativeAppearance = !string.Equals(box.Appearance, "none", StringComparison.OrdinalIgnoreCase);
+
+            int visibleTracks = (int)Math.Clamp(
+                ReadNumericAttribute(box, "size", SelectMultipleDefaultVisibleTracks), 2, 8);
+
+            int chromeInset = nativeAppearance ? SelectMultipleChromeThicknessPx : 2;
+            int blockExtent = (visibleTracks * SelectMultipleTrackThicknessPx) + 4;
+            int hostWidth = vertical ? blockExtent : SelectMultipleInlineExtentPx;
+            int hostHeight = vertical ? SelectMultipleInlineExtentPx : blockExtent;
+            int contentWidth = vertical
+                ? visibleTracks * SelectMultipleTrackThicknessPx
+                : SelectMultipleInlineExtentPx - chromeInset;
+            int contentHeight = vertical
+                ? SelectMultipleInlineExtentPx - chromeInset
+                : visibleTracks * SelectMultipleTrackThicknessPx;
+
+            // Host (list box) — forced geometry/appearance, matching the string fallback.
+            box.Display = CssConstants.InlineBlock;
+            box.Position = CssConstants.Relative;
+            box.BoxSizing = "border-box";
+            box.Overflow = CssConstants.Hidden;
+            box.VerticalAlign = "middle";
+            box.FontSize = "13px";
+            box.FontFamily = "sans-serif";
+            box.Width = hostWidth + "px";
+            box.Height = hostHeight + "px";
+            SetUniformBorder(box, "1px", "solid", nativeAppearance ? "#767676" : "#9a9a9a");
+            box.BackgroundColor = nativeAppearance ? "#f0f0f0" : "#ffffff";
+
+            // The real <option> children do not paint; the row tracks replace them.
+            foreach (var child in box.Boxes)
+                child.Display = CssConstants.None;
+
+            for (int i = 0; i < visibleTracks; i++)
+            {
+                var background = i == 0 ? "#3875d7" : (i % 2 == 0 ? "#ffffff" : "#f7f7f7");
+                int offset = 1 + (i * SelectMultipleTrackThicknessPx);
+                var track = CssBoxHelper.CreateBlock(box, baseUrl);
+                track.Position = CssConstants.Absolute;
+                track.BackgroundColor = background;
+                if (vertical)
+                {
+                    track.Top = "1px";
+                    if (reverseBlock) track.Right = offset + "px"; else track.Left = offset + "px";
+                    track.Width = SelectMultipleTrackThicknessPx + "px";
+                    track.Height = Math.Max(contentHeight, 8) + "px";
+                }
+                else
+                {
+                    track.Left = "1px";
+                    track.Top = offset + "px";
+                    track.Width = Math.Max(contentWidth, 8) + "px";
+                    track.Height = SelectMultipleTrackThicknessPx + "px";
+                    track.BorderBottomWidth = "1px";
+                    track.BorderBottomStyle = "solid";
+                    track.BorderBottomColor = "#d0d0d0";
+                }
+            }
+
+            // Scrollbar-chrome strip along the block-end edge — native appearance only.
+            if (nativeAppearance)
+            {
+                var chrome = CssBoxHelper.CreateBlock(box, baseUrl);
+                chrome.Position = CssConstants.Absolute;
+                chrome.BackgroundColor = "#dcdcdc";
+                if (vertical)
+                {
+                    chrome.Left = "1px";
+                    if (reverseBlock) chrome.Top = "1px"; else chrome.Bottom = "1px";
+                    chrome.Width = (hostWidth - 2) + "px";
+                    chrome.Height = (SelectMultipleChromeThicknessPx - 2) + "px";
+                    chrome.BorderTopWidth = "1px";
+                    chrome.BorderTopStyle = "solid";
+                    chrome.BorderTopColor = "#b8b8b8";
+                }
+                else
+                {
+                    chrome.Top = "1px";
+                    chrome.Right = "1px";
+                    chrome.Width = (SelectMultipleChromeThicknessPx - 2) + "px";
+                    chrome.Height = (hostHeight - 2) + "px";
+                    chrome.BorderLeftWidth = "1px";
+                    chrome.BorderLeftStyle = "solid";
+                    chrome.BorderLeftColor = "#b8b8b8";
+                }
+            }
+            return;
+        }
+
+        foreach (var child in box.Boxes)
+            CorrectSelectMultipleBoxes(child, baseUrl);
     }
 
     private static void CorrectFramesetBoxes(CssBox box)
