@@ -99,6 +99,7 @@ internal sealed class DomParser
         CorrectObjectBoxes(root);
         CorrectFramesetBoxes(root);
         CorrectIframeBoxes(root);
+        CorrectVideoBoxes(root);
 
         bool followingBlock = true;
         CorrectLineBreaksBlocks(root, ref followingBlock);
@@ -927,6 +928,51 @@ internal sealed class DomParser
 
         foreach (var child in box.Boxes)
             CorrectIframeBoxes(child);
+    }
+
+    /// <summary>
+    /// HTML §4.8.9: a <c>&lt;video&gt;</c> is a replaced element. Broiler cannot decode video streams, so —
+    /// like a supporting UA with no poster/frame to show — it paints as an inline-block replaced box at its
+    /// used size (the CSS-default intrinsic 300×150, or an author CSS size / the <c>width</c>/<c>height</c>
+    /// presentation attributes) filled black, and its inline fallback content between the tags does not lay
+    /// out or paint. Runs post-cascade so a cascade-time hide of a block fallback child cannot be re-shown
+    /// (the same reason <see cref="CorrectIframeBoxes"/> is post-cascade). This is the native replacement for
+    /// the bridge's <c>HtmlPostProcessor.ReplaceVideoWithPlaceholder</c> string rewrite.
+    /// </summary>
+    private static void CorrectVideoBoxes(CssBox box)
+    {
+        if (box.HtmlTag != null
+            && box.HtmlTag.Name.Equals("video", StringComparison.OrdinalIgnoreCase))
+        {
+            box.Display = CssConstants.InlineBlock;
+            // Author CSS sizing wins; otherwise the width/height presentation attributes, then the CSS
+            // replaced-element intrinsic default 300×150.
+            if (box.Width == CssConstants.Auto)
+                box.Width = PresentationLengthPx(box, "width", "300px");
+            if (box.Height == CssConstants.Auto)
+                box.Height = PresentationLengthPx(box, "height", "150px");
+            box.BackgroundColor = "black";
+            foreach (var child in box.Boxes)
+                child.Display = CssConstants.None;
+            return;
+        }
+
+        foreach (var child in box.Boxes)
+            CorrectVideoBoxes(child);
+    }
+
+    /// <summary>
+    /// Reads a numeric <c>width</c>/<c>height</c> presentation attribute as a pixel length, falling back to
+    /// <paramref name="fallback"/> when the attribute is absent or non-numeric (percentages and other units
+    /// are left to CSS).
+    /// </summary>
+    private static string PresentationLengthPx(CssBox box, string attribute, string fallback)
+    {
+        var raw = box.HtmlTag?.TryGetAttribute(attribute);
+        return !string.IsNullOrWhiteSpace(raw)
+               && double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out _)
+            ? raw + "px"
+            : fallback;
     }
 
     private static void CorrectFramesetBoxes(CssBox box)
