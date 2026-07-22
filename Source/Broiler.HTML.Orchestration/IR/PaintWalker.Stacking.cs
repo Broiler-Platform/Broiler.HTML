@@ -260,7 +260,7 @@ internal static partial class PaintWalker
         // through transparent areas.
         if (fragment.Style.Display is "table" or "inline-table")
         {
-            PaintTableChildren(fragment, items, propagatedFrom, viewport);
+            PaintTableChildren(fragment, items, propagatedFrom, viewport, bgClipTextColor);
             return;
         }
 
@@ -720,7 +720,7 @@ internal static partial class PaintWalker
     /// Layers 2–3: column-group and column backgrounds.
     /// Layers 4–6: row-group, row, and cell backgrounds (tree order).
     /// </summary>
-    private static void PaintTableChildren(Fragment table, List<DisplayItem> items, Fragment? propagatedFrom, RectangleF viewport = default)
+    private static void PaintTableChildren(Fragment table, List<DisplayItem> items, Fragment? propagatedFrom, RectangleF viewport = default, BColor? bgClipTextColor = null)
     {
         // Collect column/column-group fragments whose backgrounds will be
         // emitted early (layers 2–3) so PaintFragment can skip them later.
@@ -765,7 +765,7 @@ internal static partial class PaintWalker
             else
             {
                 var skipBg = propagatedFrom ?? (earlyBgFragments != null && earlyBgFragments.Contains(child) ? child : null);
-                PaintFragment(child, items, skipBg, viewport);
+                PaintFragment(child, items, skipBg, viewport, bgClipTextColor: bgClipTextColor);
             }
         }
 
@@ -775,7 +775,7 @@ internal static partial class PaintWalker
             foreach (var child in positioned)
             {
                 var skipBg = propagatedFrom ?? (earlyBgFragments != null && earlyBgFragments.Contains(child) ? child : null);
-                PaintFragment(child, items, skipBg, viewport);
+                PaintFragment(child, items, skipBg, viewport, bgClipTextColor: bgClipTextColor);
             }
         }
     }
