@@ -3,10 +3,10 @@
   "generatedFrom": {
     "registry": "tests/html52/generated/css-modules/registry.json",
     "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
-    "snapshotDate": "2026-06-21"
+    "snapshotDate": "2026-07-24"
   },
   "moduleFamily": "miscellaneous",
-  "itemCount": 5,
+  "itemCount": 6,
   "items": [
     {
       "moduleId": "css-gaps-1",
@@ -28,6 +28,24 @@
         "css-module-phase4-draft-layout-position-001"
       ],
       "reason": "Phase 6 display-list/render coverage links this module to executable CSS module oracles for paint primitives, images, masks, shapes, effects, transforms, pseudo-elements, shadows, and gap paint behavior."
+    },
+    {
+      "moduleId": "css-link-params-1",
+      "moduleTitle": "CSS Linked Parameters Level 1",
+      "featureId": "css-module-css-link-params-1",
+      "supportLevel": "experimental",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "implementationStatus": "inventory-only",
+      "oracleDepth": "none",
+      "targetOracleDepth": "parse",
+      "nextOracle": "parse",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "tests": [],
+      "reason": "Early draft module; keep registry coverage and add parser/no-crash smoke tests before making rendering a release gate."
     },
     {
       "moduleId": "css-paint-api-1",

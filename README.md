@@ -3,9 +3,9 @@
 Broiler.HTML is a modular .NET HTML renderer split into focused assemblies for parsing, CSS processing, layout, painting, image generation, and WPF hosting.
 
 > **Preview status:** APIs, rendering behavior, and platform support are unstable.
-> Substantial implementation work was AI-assisted. This component is **not
-> human-approved for preview use** while [HUMAN_REVIEW.md](HUMAN_REVIEW.md) remains
-> `PENDING`.
+> Substantial implementation work was AI-assisted. Human-review approval is
+> revision-scoped; consult [HUMAN_REVIEW.md](HUMAN_REVIEW.md) for the reviewed
+> revision and conditions before describing the current checkout as approved.
 
 ## Origin, independence, and development
 
@@ -45,7 +45,8 @@ The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized in
 - `Broiler.HTML.Rendering` - paint-time handlers and rendering logic
 - `Broiler.HTML.Graphics` - Broiler.Graphics bitmap and render-list frontend
 - `Broiler.HTML.Graphics.Win32.Demo` - simple Win32 URL rendering demo using `Broiler.Graphics.Direct2D`
-- `Broiler.HTML.Image` / `Broiler.HTML.Image.Compat` - image rendering, deterministic comparison, and Skia compatibility
+- `Broiler.HTML.Image` / `Broiler.HTML.Image.Compat` - image rendering,
+  deterministic comparison, and the remaining backend-neutral compatibility seam
 - `Broiler.HTML.WPF` - WPF rendering surface and controls
 - `Broiler.HTML` - shared public surface used by platform adapters
 
@@ -214,7 +215,9 @@ When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configure
 ## Documentation
 
 - [Architecture and API notes](docs/architecture.md)
+- [Graphics backend and fallback](docs/graphics-backend.md)
 - [Compliance suites and status tracking](docs/compliance.md)
+- [Current roadmap](docs/roadmap.md)
 
 ## Compliance status
 

@@ -3,7 +3,7 @@
   "generatedFrom": {
     "registry": "tests/html52/generated/css-modules/registry.json",
     "sourceUrl": "https://www.w3.org/Style/CSS/current-work.en.html",
-    "snapshotDate": "2026-06-21"
+    "snapshotDate": "2026-07-24"
   },
   "items": [
     {
@@ -3748,6 +3748,32 @@
       "scopeDecision": "static-renderer-in-scope",
       "outOfScopeDecision": null,
       "reason": "Phase 4 draft and early-draft coverage links this module to executable CSS parser/no-crash sweep cases; keep volatile rendering assertions out of release gates until implementation and interoperability mature."
+    },
+    {
+      "featureId": "css-module-css-link-params-1",
+      "title": "CSS Linked Parameters Level 1",
+      "cluster": "css-modules",
+      "specSections": [
+        "https://www.w3.org/TR/css-link-params-1"
+      ],
+      "supportLevel": "experimental",
+      "status": "planned",
+      "tests": [],
+      "moduleId": "css-link-params-1",
+      "moduleTitle": "CSS Linked Parameters Level 1",
+      "moduleFamily": "miscellaneous",
+      "w3cStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "editorDraftUrl": "https://drafts.csswg.org/css-link-params/",
+      "implementationStatus": "inventory-only",
+      "oracleDepth": "none",
+      "targetOracleDepth": "parse",
+      "nextOracle": "parse",
+      "owner": "paint-engine",
+      "blockedBy": [],
+      "scopeDecision": "static-renderer-in-scope",
+      "outOfScopeDecision": null,
+      "reason": "Early draft module; keep registry coverage and add parser/no-crash smoke tests before making rendering a release gate."
     },
     {
       "featureId": "css-module-content",

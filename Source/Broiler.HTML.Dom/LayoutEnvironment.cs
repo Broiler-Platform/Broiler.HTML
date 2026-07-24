@@ -9,8 +9,8 @@ using Broiler.Layout;
 namespace Broiler.HTML.Dom;
 
 /// <summary>
-/// Renderer-side <see cref="ILayoutEnvironment"/> adapter for the layout
-/// extraction (see <c>docs/roadmap/broiler-layout-component.md</c> §4, §6). It
+/// Renderer-side <see cref="ILayoutEnvironment"/> adapter for the extracted
+/// layout component. It
 /// forwards layout's metric, font, colour, refresh and initial-containing-block
 /// requests to the owning <see cref="IHtmlContainerInt"/> and the active
 /// <see cref="RGraphics"/> surface, so the layout code depends only on the

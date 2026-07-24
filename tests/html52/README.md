@@ -9,11 +9,8 @@ repository [human review](../../HUMAN_REVIEW.md), [Apache-2.0 license](../../LIC
 and [HTML Renderer provenance notice](../../THIRD_PARTY_NOTICES.md). Test results do not
 by themselves constitute a safety approval.
 
-The detailed design lives in
-[`docs/html52-test-suite-plan.md`](../../docs/html52-test-suite-plan.md).
-The planned CSS modules expansion lives in
-[`docs/css-modules-test-suite-plan.md`](../../docs/css-modules-test-suite-plan.md).
-Current coverage status is generated in
+Remaining suite and conformance work is tracked in the
+[current roadmap](../../docs/roadmap.md). Current coverage status is generated in
 [`docs/compliance.md`](../../docs/compliance.md). Contribution rules live in
 [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
@@ -166,8 +163,9 @@ npm run html52:css-coverage:check
 ```
 
 Check whether in-scope CSS modules have reached their target implementation
-oracle depth. This is an opt-in completion gate and is expected to fail until
-deeper computed-style, layout, display-list, and render coverage lands:
+oracle depth. This gate currently proves the repository's declared
+static-renderer smoke target; it is not a claim of full section-level CSS
+conformance:
 
 ```bash
 npm run html52:css-implementation:check

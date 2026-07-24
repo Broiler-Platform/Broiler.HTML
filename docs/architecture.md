@@ -73,6 +73,10 @@ Use `HtmlRender` for direct drawing/image generation and `HtmlPanel` / `HtmlLabe
 
 `Broiler.HTML.Adapters.RAdapter` is the central abstraction for backend-specific functionality such as brushes, pens, fonts, images, clipboard integration, and context menus.
 
+The image renderer's current raster/fallback selection and the remaining
+`Broiler.HTML.Image.Compat` seam are documented in
+[Graphics backend and fallback](graphics-backend.md).
+
 ## Repeatable repository checks
 
 The repository currently supports these repeatable checks directly:

@@ -3,7 +3,7 @@
   "generatedFrom": {
     "title": "W3C CSS current work",
     "url": "https://www.w3.org/Style/CSS/current-work.en.html",
-    "snapshotDate": "2026-06-21",
+    "snapshotDate": "2026-07-24",
     "activeStatuses": [
       "REC",
       "CRD",
@@ -13,12 +13,12 @@
     ]
   },
   "counts": {
-    "totalRows": 155,
-    "activeRows": 130,
+    "totalRows": 156,
+    "activeRows": 131,
     "byCurrentStatus": {
       "CR": 19,
       "CRD": 15,
-      "FPWD": 19,
+      "FPWD": 20,
       "REC": 12,
       "WD": 65
     }
@@ -1174,6 +1174,15 @@
       "upcomingStatus": "WD",
       "url": "https://www.w3.org/TR/css-image-animation-1",
       "editorDraftUrl": "https://drafts.csswg.org/css-image-animation-1/",
+      "notes": null
+    },
+    {
+      "id": "css-link-params-1",
+      "title": "CSS Linked Parameters Level 1",
+      "currentStatus": "FPWD",
+      "upcomingStatus": "WD",
+      "url": "https://www.w3.org/TR/css-link-params-1",
+      "editorDraftUrl": "https://drafts.csswg.org/css-link-params/",
       "notes": null
     },
     {

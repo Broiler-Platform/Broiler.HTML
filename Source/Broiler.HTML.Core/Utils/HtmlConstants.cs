@@ -3,7 +3,7 @@ namespace Broiler.HTML.Utils;
 internal static class HtmlConstants
 {
     // The five tag/attribute names shared with layout are single-sourced from the
-    // lower Broiler.Layout layer (measurement-dedup roadmap M6). The renderer already
+    // lower Broiler.Layout layer. The renderer already
     // references Broiler.Layout, and Broiler.Layout.HtmlConstants is public, so these
     // forward instead of re-declaring the literals: A / Hr / Iframe / Img / Href.
     public const string A = Layout.HtmlConstants.A;
