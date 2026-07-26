@@ -36,6 +36,46 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     /// draws map point -> point*scale + translation. Uniform-only; byte-identical at scale 1.</summary>
     public void Scale(float scale) => _scale *= scale;
 
+    /// <summary>
+    /// Applies a CSS 2D transform (matrix <c>[a,b,c,d,e,f]</c> about origin
+    /// <paramref name="originX"/>/<paramref name="originY"/>) to the raster state, saving the prior
+    /// state so <see cref="Restore"/> reverses it. Returns <c>false</c> — without touching state —
+    /// when the matrix is not expressible on this canvas, which maps a point only as
+    /// <c>p*scale + translation</c>: rotation, skew and non-uniform scale are rejected so the caller
+    /// can route those to the fuller compat backend. Translation and uniform scale (the common
+    /// <c>translate()</c>/<c>scale()</c> cases) are folded into <see cref="_scale"/>/<see cref="_translation"/>
+    /// so transformed content actually rasterises instead of vanishing when the compat backend is a stub.
+    /// </summary>
+    public bool TrySaveTransform(float[] matrix, float originX, float originY)
+    {
+        if (matrix is null || matrix.Length < 6)
+            return false;
+
+        float a = matrix[0], b = matrix[1], c = matrix[2], d = matrix[3], e = matrix[4], f = matrix[5];
+
+        // Only translation + uniform scale survive this canvas's point mapping. b/c carry
+        // rotation/skew; a != d is a non-uniform scale.
+        const float epsilon = 1e-4f;
+        if (MathF.Abs(b) > epsilon || MathF.Abs(c) > epsilon || MathF.Abs(a - d) > epsilon)
+            return false;
+
+        float scale = a;
+
+        // Transform-origin applies to the whole transform: p' = scale*(p - origin) + origin + (e,f).
+        float localTranslateX = originX * (1f - scale) + e;
+        float localTranslateY = originY * (1f - scale) + f;
+
+        // Compose ahead of the existing surface mapping (p -> p*_scale + _translation): a child point p
+        // becomes (scale*p + localTranslate) which the surface then maps, giving
+        // p*(scale*_scale) + (localTranslate*_scale + _translation).
+        Save();
+        _translation = new PointF(
+            localTranslateX * _scale + _translation.X,
+            localTranslateY * _scale + _translation.Y);
+        _scale *= scale;
+        return true;
+    }
+
     public void Clear(BColor color)
     {
         CurrentTarget.ErasePixels(color);

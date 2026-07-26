@@ -331,12 +331,31 @@ internal sealed class GraphicsAdapter : RGraphics
 
     public override void SaveTransformLayer(float[] matrix, float originX, float originY)
     {
+        // Prefer the raster canvas for translate/uniform-scale transforms — the common
+        // translate()/scale() cases. Routing those to the compat backend (as the fall-through does)
+        // makes CanUseRaster false for every enclosed draw; with a stub compat backend the
+        // transformed content then vanishes entirely. Rotation/skew/non-uniform scale are not
+        // expressible on the raster canvas and still fall back.
+        bool useRaster = _rasterCanvas is not null
+            && _activeCompatLayerDepth == 0
+            && _rasterCanvas.TrySaveTransform(matrix, originX, originY);
+        _rasterLayerStack.Push(useRaster);
+        if (useRaster)
+            return;
+
         _activeCompatLayerDepth++;
         ApplyCanvasOperation(canvas => _canvasCompat.SaveTransformLayer(canvas, matrix, originX, originY));
     }
 
     public override void RestoreTransformLayer()
     {
+        bool usedRaster = _rasterLayerStack.Count > 0 && _rasterLayerStack.Pop();
+        if (usedRaster)
+        {
+            _rasterCanvas!.Restore();
+            return;
+        }
+
         ApplyCanvasOperation(CompatCanvasOperations.Restore);
         _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
