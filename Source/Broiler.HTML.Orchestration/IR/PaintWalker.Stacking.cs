@@ -35,6 +35,36 @@ internal static partial class PaintWalker
         return false;
     }
 
+    /// <summary>
+    /// The overflow clip edge for a box that <see cref="ClipsOverflow"/> — the
+    /// padding box (border-box inset by the border widths). CSS Overflow §4:
+    /// <c>overflow-clip-margin</c> expands the edge outward for boxes that clip
+    /// without scrolling (<c>overflow: clip</c> or paint containment); it has no
+    /// effect on scroll containers (<c>overflow: hidden/scroll/auto</c>), whose
+    /// margin stays 0.
+    /// </summary>
+    private static RectangleF OverflowClipRect(Fragment fragment, ComputedStyle style)
+    {
+        var bounds = fragment.Bounds;
+        var border = fragment.Border;
+        float left = bounds.X + (float)border.Left;
+        float top = bounds.Y + (float)border.Top;
+        float width = bounds.Width - (float)(border.Left + border.Right);
+        float height = bounds.Height - (float)(border.Top + border.Bottom);
+
+        if (style.OverflowClipMargin > 0
+            && style.Overflow is not ("hidden" or "auto" or "scroll"))
+        {
+            float m = (float)style.OverflowClipMargin;
+            left -= m;
+            top -= m;
+            width += 2 * m;
+            height += 2 * m;
+        }
+
+        return new RectangleF(left, top, width, height);
+    }
+
     private static void PaintFragment(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom = null, RectangleF viewport = default, bool isRoot = false, BColor? bgClipTextColor = null, bool asInlineContent = false, bool paintingTopLayer = false)
     {
         var style = fragment.Style;
@@ -211,12 +241,7 @@ internal static partial class PaintWalker
         bool clipped = false;
         if (ClipsOverflow(style))
         {
-            var border = fragment.Border;
-            var clipRect = new RectangleF(
-                bounds.X + (float)border.Left,
-                bounds.Y + (float)border.Top,
-                bounds.Width - (float)(border.Left + border.Right),
-                bounds.Height - (float)(border.Top + border.Bottom));
+            var clipRect = OverflowClipRect(fragment, style);
             items.Add(new ClipItem { Bounds = bounds, ClipRect = clipRect });
             clipped = true;
         }
@@ -584,12 +609,7 @@ internal static partial class PaintWalker
         bool clipped = false;
         if (ClipsOverflow(style))
         {
-            var border = fragment.Border;
-            var clipRect = new RectangleF(
-                bounds.X + (float)border.Left,
-                bounds.Y + (float)border.Top,
-                bounds.Width - (float)(border.Left + border.Right),
-                bounds.Height - (float)(border.Top + border.Bottom));
+            var clipRect = OverflowClipRect(fragment, style);
             items.Add(new ClipItem { Bounds = bounds, ClipRect = clipRect });
             clipped = true;
         }
@@ -701,12 +721,7 @@ internal static partial class PaintWalker
         bool clipped = false;
         if (ClipsOverflow(style))
         {
-            var border = fragment.Border;
-            var clipRect = new RectangleF(
-                bounds.X + (float)border.Left,
-                bounds.Y + (float)border.Top,
-                bounds.Width - (float)(border.Left + border.Right),
-                bounds.Height - (float)(border.Top + border.Bottom));
+            var clipRect = OverflowClipRect(fragment, style);
             items.Add(new ClipItem { Bounds = bounds, ClipRect = clipRect });
             clipped = true;
         }
