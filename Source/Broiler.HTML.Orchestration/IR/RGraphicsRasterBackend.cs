@@ -161,8 +161,14 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         RestoreBlendModeItem => true,
         TransformItem => false,
         RestoreTransformItem => false,
-        DrawTextItem => false,
-        DrawSvgTextItem => false,
+        // Text renders on the raster canvas via the text shaper (the same path all
+        // non-layer text already uses, with a compat fallback inside DrawString), so a
+        // text-bearing opacity/blend layer can stay on the raster path. Marking it
+        // non-raster forced the whole layer onto the compat backend, which is a stub in
+        // the image renderer — so any element with `0 < opacity < 1` and text (or an SVG
+        // text) vanished entirely, background and all (css-view-transitions capture family).
+        DrawTextItem => true,
+        DrawSvgTextItem => true,
         _ => false,
     };
 
