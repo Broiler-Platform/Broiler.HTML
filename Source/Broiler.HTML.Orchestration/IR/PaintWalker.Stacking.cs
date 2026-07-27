@@ -12,6 +12,29 @@ namespace Broiler.HTML.Orchestration.IR;
 // background/foreground phase split. Split out of PaintWalker.cs for size.
 internal static partial class PaintWalker
 {
+    /// <summary>
+    /// Whether the box clips its overflowing content to its overflow clip edge.
+    /// True for the scroll/clip <c>overflow</c> values, and — CSS Containment
+    /// §3.1 — for paint containment (<c>contain: paint</c>, and the composite
+    /// keywords <c>strict</c> and <c>content</c> which both include paint
+    /// containment), which clips descendants to the box just like
+    /// <c>overflow: clip</c>.
+    /// </summary>
+    private static bool ClipsOverflow(ComputedStyle style)
+    {
+        if (style.Overflow is "hidden" or "clip" or "auto" or "scroll")
+            return true;
+
+        var contain = style.Contain;
+        if (!string.IsNullOrEmpty(contain) && contain != "none"
+            && (contain.Contains("paint", StringComparison.OrdinalIgnoreCase)
+                || contain.Equals("strict", StringComparison.OrdinalIgnoreCase)
+                || contain.Equals("content", StringComparison.OrdinalIgnoreCase)))
+            return true;
+
+        return false;
+    }
+
     private static void PaintFragment(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom = null, RectangleF viewport = default, bool isRoot = false, BColor? bgClipTextColor = null, bool asInlineContent = false, bool paintingTopLayer = false)
     {
         var style = fragment.Style;
@@ -186,7 +209,7 @@ internal static partial class PaintWalker
         // identically to overflow:hidden (no scrollbar UI).
         // Applied after background/borders so they remain visible.
         bool clipped = false;
-        if (style.Overflow is "hidden" or "auto" or "scroll")
+        if (ClipsOverflow(style))
         {
             var border = fragment.Border;
             var clipRect = new RectangleF(
@@ -559,7 +582,7 @@ internal static partial class PaintWalker
         // Overflow clipping — paired with RestoreItem at the end.
         // Applied after background/borders so they remain visible.
         bool clipped = false;
-        if (style.Overflow is "hidden" or "auto" or "scroll")
+        if (ClipsOverflow(style))
         {
             var border = fragment.Border;
             var clipRect = new RectangleF(
@@ -676,7 +699,7 @@ internal static partial class PaintWalker
 
         // Overflow clipping — paired with RestoreItem at the end
         bool clipped = false;
-        if (style.Overflow is "hidden" or "auto" or "scroll")
+        if (ClipsOverflow(style))
         {
             var border = fragment.Border;
             var clipRect = new RectangleF(
