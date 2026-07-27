@@ -12,9 +12,10 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     private readonly Stack<LayerState> _layerStack = new();
     private readonly List<ClipOperation> _clipOperations = [];
     private PointF _translation;
-    private float _scale = 1f;
+    private float _scaleX = 1f;
+    private float _scaleY = 1f;
 
-    public void Save() => _stateStack.Push(new CanvasState(_translation, _scale, _clipOperations.Count));
+    public void Save() => _stateStack.Push(new CanvasState(_translation, _scaleX, _scaleY, _clipOperations.Count));
 
     public void Restore()
     {
@@ -23,7 +24,8 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
         var state = _stateStack.Pop();
         _translation = state.Translation;
-        _scale = state.Scale;
+        _scaleX = state.ScaleX;
+        _scaleY = state.ScaleY;
 
         while (_clipOperations.Count > state.ClipOperationCount)
             _clipOperations.RemoveAt(_clipOperations.Count - 1);
@@ -34,17 +36,22 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
     /// <summary>Composes a uniform scale about the surface origin (document-root viewport zoom):
     /// draws map point -> point*scale + translation. Uniform-only; byte-identical at scale 1.</summary>
-    public void Scale(float scale) => _scale *= scale;
+    public void Scale(float scale)
+    {
+        _scaleX *= scale;
+        _scaleY *= scale;
+    }
 
     /// <summary>
     /// Applies a CSS 2D transform (matrix <c>[a,b,c,d,e,f]</c> about origin
     /// <paramref name="originX"/>/<paramref name="originY"/>) to the raster state, saving the prior
     /// state so <see cref="Restore"/> reverses it. Returns <c>false</c> — without touching state —
-    /// when the matrix is not expressible on this canvas, which maps a point only as
-    /// <c>p*scale + translation</c>: rotation, skew and non-uniform scale are rejected so the caller
-    /// can route those to the fuller compat backend. Translation and uniform scale (the common
-    /// <c>translate()</c>/<c>scale()</c> cases) are folded into <see cref="_scale"/>/<see cref="_translation"/>
-    /// so transformed content actually rasterises instead of vanishing when the compat backend is a stub.
+    /// when the matrix is not expressible on this canvas, which maps a point per axis as
+    /// <c>p*scale + translation</c>: rotation and skew (the <c>b</c>/<c>c</c> terms) are rejected so
+    /// the caller can route those to the fuller compat backend. Translation and axis-aligned scale —
+    /// including <em>non-uniform</em> scale (<c>scaleX</c>/<c>scaleY</c>/<c>scale(x, y)</c>) — are
+    /// folded into <see cref="_scaleX"/>/<see cref="_scaleY"/>/<see cref="_translation"/> so
+    /// transformed content actually rasterises instead of vanishing when the compat backend is a stub.
     /// </summary>
     public bool TrySaveTransform(float[] matrix, float originX, float originY)
     {
@@ -53,26 +60,28 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
         float a = matrix[0], b = matrix[1], c = matrix[2], d = matrix[3], e = matrix[4], f = matrix[5];
 
-        // Only translation + uniform scale survive this canvas's point mapping. b/c carry
-        // rotation/skew; a != d is a non-uniform scale.
+        // Only translation + axis-aligned scale survive this canvas's per-axis point mapping. b/c
+        // carry rotation/skew, which the raster canvas cannot express; those still fall back.
         const float epsilon = 1e-4f;
-        if (MathF.Abs(b) > epsilon || MathF.Abs(c) > epsilon || MathF.Abs(a - d) > epsilon)
+        if (MathF.Abs(b) > epsilon || MathF.Abs(c) > epsilon)
             return false;
 
-        float scale = a;
+        float scaleX = a, scaleY = d;
 
-        // Transform-origin applies to the whole transform: p' = scale*(p - origin) + origin + (e,f).
-        float localTranslateX = originX * (1f - scale) + e;
-        float localTranslateY = originY * (1f - scale) + f;
+        // Transform-origin applies to the whole transform, per axis:
+        // p' = scale*(p - origin) + origin + (e,f).
+        float localTranslateX = originX * (1f - scaleX) + e;
+        float localTranslateY = originY * (1f - scaleY) + f;
 
-        // Compose ahead of the existing surface mapping (p -> p*_scale + _translation): a child point p
-        // becomes (scale*p + localTranslate) which the surface then maps, giving
+        // Compose ahead of the existing surface mapping (p -> p*_scale + _translation, per axis): a
+        // child point p becomes (scale*p + localTranslate) which the surface then maps, giving
         // p*(scale*_scale) + (localTranslate*_scale + _translation).
         Save();
         _translation = new PointF(
-            localTranslateX * _scale + _translation.X,
-            localTranslateY * _scale + _translation.Y);
-        _scale *= scale;
+            localTranslateX * _scaleX + _translation.X,
+            localTranslateY * _scaleY + _translation.Y);
+        _scaleX *= scaleX;
+        _scaleY *= scaleY;
         return true;
     }
 
@@ -97,10 +106,10 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         double cornerSwY) =>
         _clipOperations.Add(ClipOperation.IncludeRounded(
             Translate(rect),
-            (float)cornerNw * _scale, (float)cornerNwY * _scale,
-            (float)cornerNe * _scale, (float)cornerNeY * _scale,
-            (float)cornerSe * _scale, (float)cornerSeY * _scale,
-            (float)cornerSw * _scale, (float)cornerSwY * _scale));
+            (float)cornerNw * _scaleX, (float)cornerNwY * _scaleY,
+            (float)cornerNe * _scaleX, (float)cornerNeY * _scaleY,
+            (float)cornerSe * _scaleX, (float)cornerSeY * _scaleY,
+            (float)cornerSw * _scaleX, (float)cornerSwY * _scaleY));
 
     public void PopClip()
     {
@@ -132,7 +141,9 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     {
         var p1 = Translate(start);
         var p2 = Translate(end);
-        float radius = Math.Max(0.5f, strokeWidth * _scale / 2f);
+        // Stroke width has no single value under non-uniform scale; use the geometric mean of the
+        // axis scales (equal to the uniform scale when scaleX == scaleY, so byte-identical there).
+        float radius = Math.Max(0.5f, strokeWidth * MathF.Sqrt(_scaleX * _scaleY) / 2f);
 
         int minX = Math.Max(0, (int)Math.Floor(Math.Min(p1.X, p2.X) - radius));
         int minY = Math.Max(0, (int)Math.Floor(Math.Min(p1.Y, p2.Y) - radius));
@@ -597,10 +608,10 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     private BBitmap CurrentTarget => _layerStack.Count > 0 ? _layerStack.Peek().Bitmap : _rootBitmap;
 
     private RectangleF Translate(RectangleF rect) =>
-        new(rect.X * _scale + _translation.X, rect.Y * _scale + _translation.Y, rect.Width * _scale, rect.Height * _scale);
+        new(rect.X * _scaleX + _translation.X, rect.Y * _scaleY + _translation.Y, rect.Width * _scaleX, rect.Height * _scaleY);
 
     private PointF Translate(PointF point) =>
-        new(point.X * _scale + _translation.X, point.Y * _scale + _translation.Y);
+        new(point.X * _scaleX + _translation.X, point.Y * _scaleY + _translation.Y);
 
     private bool IsVisible(int x, int y)
     {
@@ -890,7 +901,7 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         return inside;
     }
 
-    private readonly record struct CanvasState(PointF Translation, float Scale, int ClipOperationCount);
+    private readonly record struct CanvasState(PointF Translation, float ScaleX, float ScaleY, int ClipOperationCount);
 
     private sealed record LayerState(BBitmap Bitmap, float Opacity, string BlendMode);
 
