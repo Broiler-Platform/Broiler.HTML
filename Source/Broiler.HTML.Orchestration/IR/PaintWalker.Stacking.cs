@@ -103,6 +103,24 @@ internal static partial class PaintWalker
 
         var bounds = fragment.Bounds;
 
+        // Filter Effects: a CSS `filter: url(#id)` that references an SVG filter whose sole modelled
+        // primitive is an `feFlood` replaces the element's entire rendering with a solid fill of the
+        // flood colour over the filter region (the element’s border box). feFlood ignores its source,
+        // so the element's own background/content and descendants are suppressed. The fill is emitted
+        // here — before the transform/opacity/filter layers — because the flood is produced in the
+        // element’s own user space, not its transformed box (WPT
+        // css/filter-effects/svg-filter-primitive-units-user-space: a translated, filtered <div>
+        // matches an untranslated green box). A non-flood url() filter is left to render unfiltered.
+        if (!isRoot
+            && !string.IsNullOrEmpty(style.Filter)
+            && Layout.IR.SvgFilterTable.ExtractUrlReferenceId(style.Filter) is { } floodId
+            && Layout.IR.SvgFilterTable.TryGetFlood(floodId, out var flood)
+            && flood.Color.A > 0)
+        {
+            items.Add(new FillRectItem { Bounds = bounds, Color = flood.Color });
+            return;
+        }
+
         // Skip empty-cells table cells
         if (style.Display == "table-cell" && style.EmptyCells == "hide")
         {
