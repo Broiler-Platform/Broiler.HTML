@@ -60,6 +60,9 @@ internal static partial class PaintWalker
         var style = fragment.Style;
         var bounds = fragment.Bounds;
 
+        // Outset box-shadow paints behind the inline box's own background (and outside its clip).
+        EmitBoxShadow(fragment, items, inset: false);
+
         bool bgClippedRounded = false;
         bool hasCornerRadius = style.ActualCornerNw > 0 || style.ActualCornerNe > 0
             || style.ActualCornerSe > 0 || style.ActualCornerSw > 0;
@@ -83,10 +86,322 @@ internal static partial class PaintWalker
 
         EmitBackground(fragment, items);
         EmitBackgroundImage(fragment, items, viewport);
+        // Inset box-shadow paints over the background, inside the box, beneath the borders.
+        EmitBoxShadow(fragment, items, inset: true);
         EmitBorders(fragment, items);
 
         if (bgClippedRounded)
             items.Add(new RestoreItem { Bounds = bounds });
+    }
+
+    /// <summary>
+    /// Emits the outset layers of a fragment's CSS <c>box-shadow</c> (CSS Backgrounds §7) as solid
+    /// fills behind the element's border box — one per painted rect, so an inline box shadows each
+    /// of its line fragments. Must be emitted <em>before</em> the element's background so the shadow
+    /// sits behind it; a solid background then covers the part of an outset shadow that overlaps the
+    /// box, leaving only the visible offset/spread halo.
+    /// <para>
+    /// A zero-blur layer is a single sharp fill; a blurred layer is approximated by
+    /// <see cref="EmitBlurredShadow"/> (concentric solid fills matching the Gaussian coverage).
+    /// <c>inset</c> layers are skipped (they paint inside the box, over the background, and are not
+    /// yet modelled). This is why a <c>box-shadow: -20px -20px yellow</c> on an inline
+    /// <c>&lt;span&gt;</c> — previously not painted at all — now shows its yellow offset rectangle
+    /// (WPT css/css-view-transitions/inline-child-with-overflow-shadow).
+    /// </para>
+    /// </summary>
+    private static void EmitBoxShadow(Fragment fragment, List<DisplayItem> items, bool inset)
+    {
+        var style = fragment.Style;
+        var layers = ParseBoxShadow(style.BoxShadow, style.ActualColor);
+        if (layers.Count == 0)
+            return;
+
+        bool hasCornerRadius = style.ActualCornerNw > 0 || style.ActualCornerNe > 0
+            || style.ActualCornerSe > 0 || style.ActualCornerSw > 0;
+
+        foreach (var rect in GetPaintRects(fragment))
+        {
+            if (rect.Width <= 0 || rect.Height <= 0)
+                continue;
+
+            // Paint later-listed layers first so the first-listed shadow ends up on top.
+            for (int i = layers.Count - 1; i >= 0; i--)
+            {
+                var s = layers[i];
+                if (s.Inset != inset || s.Color.A == 0)
+                    continue;
+
+                if (inset)
+                {
+                    EmitInsetShadow(items, fragment, rect, s, hasCornerRadius);
+                    continue;
+                }
+
+                // Outset: the un-blurred shape is the border box, offset, then grown by the spread.
+                var core = InflateRect(new RectangleF(
+                    rect.X + s.OffsetX, rect.Y + s.OffsetY, rect.Width, rect.Height), s.Spread);
+                if (core.Width <= 0 || core.Height <= 0)
+                    continue;
+
+                if (s.Blur > 0.5f)
+                    EmitBlurredShadow(items, fragment, rect, s, core, hasCornerRadius);
+                else
+                    EmitShadowFill(items, fragment, rect, core, s.Spread, s.Color, hasCornerRadius);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Emits an <c>inset</c> box-shadow layer (CSS Backgrounds §7). Unlike an outset shadow this
+    /// paints <em>inside</em> the border box, over the background: the shadow fills the frame between
+    /// the border box and an inner "clear" rectangle (the border box inset by the spread, then
+    /// offset), so it reads as a recess. The whole layer is clipped to the border box. A zero-blur
+    /// layer is that frame as up to four solid strips; a blurred layer softens the inner edge with the
+    /// same Gaussian-coverage shells as the outset path, each shell being the frame around a
+    /// progressively inflated inner rectangle. The strips of one shell never overlap, so alpha does
+    /// not double up at the corners.
+    /// </summary>
+    private static void EmitInsetShadow(
+        List<DisplayItem> items, Fragment fragment, RectangleF borderRect,
+        in BoxShadowLayer s, bool hasCornerRadius)
+    {
+        // Confine the shadow to the (optionally rounded) border box.
+        EmitBorderBoxClip(items, fragment, borderRect, hasCornerRadius);
+
+        // The clear inner rectangle: border box shrunk by the spread, then translated by the offset.
+        var innerBase = InflateRect(borderRect, -s.Spread);
+        innerBase = new RectangleF(innerBase.X + s.OffsetX, innerBase.Y + s.OffsetY, innerBase.Width, innerBase.Height);
+
+        if (s.Blur > 0.5f)
+        {
+            float sigma = Math.Max(0.01f, s.Blur * 0.5f);
+            float extent = 3f * sigma;
+            int shells = Math.Clamp((int)MathF.Ceiling(extent), 4, 24);
+            float peak = s.Color.A;
+            float prevT = 0f;
+            for (int k = 0; k < shells; k++)
+            {
+                // Boundary `e` px outside the clear rect (from -extent inside to +extent toward border).
+                float e = -extent + ((k + 1) / (float)(shells + 1)) * (2f * extent);
+                float targetT = peak * NormalCdf(e / sigma);
+                float denom = 255f - prevT;
+                float aShell = denom > 0.001f ? (targetT - prevT) / denom : 0f;
+                prevT = targetT;
+                int alpha = (int)Math.Round(Math.Clamp(aShell, 0f, 1f) * 255f);
+                if (alpha <= 0)
+                    continue;
+                var shellColor = BColor.FromArgb(alpha, s.Color.R, s.Color.G, s.Color.B);
+                EmitFrameStrips(items, borderRect, InflateRect(innerBase, e), shellColor);
+            }
+        }
+        else
+        {
+            EmitFrameStrips(items, borderRect, innerBase, s.Color);
+            // Round the clear rectangle's corners to match the (rounded) border box, concentric —
+            // the inner radius is the border radius reduced by the inset distance (the spread).
+            if (hasCornerRadius)
+                EmitInnerCornerNotches(items, fragment, innerBase, s.Spread, s.Color);
+        }
+
+        items.Add(new RestoreItem { Bounds = borderRect });
+    }
+
+    /// <summary>
+    /// Rounds the corners of an inset shadow's clear rectangle by filling, at each corner, the region
+    /// inside the sharp corner but outside the rounded arc (a quarter-square minus its quarter-ellipse)
+    /// as thin horizontal slices. The clear rectangle is concentric with the border box, so each inner
+    /// radius is the border radius reduced by <paramref name="inset"/> (the shadow's inset distance).
+    /// These notch fills sit within the sharp clear rectangle, which the frame strips leave unpainted,
+    /// so they never overlap the strips.
+    /// </summary>
+    private static void EmitInnerCornerNotches(
+        List<DisplayItem> items, Fragment fragment, RectangleF inner, float inset, BColor color)
+    {
+        if (inner.Width <= 0 || inner.Height <= 0)
+            return;
+
+        var style = fragment.Style;
+        float halfW = inner.Width / 2f;
+        float halfH = inner.Height / 2f;
+
+        float Radius(double actual) => Math.Clamp((float)actual - inset, 0f, Math.Min(halfW, halfH));
+        float RadiusY(string raw, double actual) =>
+            Math.Clamp((float)GetEffectiveCornerRadiusY(raw, actual, inner) - inset, 0f, Math.Min(halfW, halfH));
+
+        EmitCornerNotch(items, inner.Left, inner.Top, Radius(style.ActualCornerNw), RadiusY(style.CornerNwRadiusRaw, style.ActualCornerNw), +1f, +1f, color);
+        EmitCornerNotch(items, inner.Right, inner.Top, Radius(style.ActualCornerNe), RadiusY(style.CornerNeRadiusRaw, style.ActualCornerNe), -1f, +1f, color);
+        EmitCornerNotch(items, inner.Right, inner.Bottom, Radius(style.ActualCornerSe), RadiusY(style.CornerSeRadiusRaw, style.ActualCornerSe), -1f, -1f, color);
+        EmitCornerNotch(items, inner.Left, inner.Bottom, Radius(style.ActualCornerSw), RadiusY(style.CornerSwRadiusRaw, style.ActualCornerSw), +1f, -1f, color);
+    }
+
+    /// <summary>
+    /// Fills one rounded-corner notch: the area between the sharp corner at
+    /// (<paramref name="cornerX"/>, <paramref name="cornerY"/>) and the quarter-ellipse of radii
+    /// (<paramref name="rX"/>, <paramref name="rY"/>) whose centre lies inside the rectangle in the
+    /// (<paramref name="dirX"/>, <paramref name="dirY"/>) direction. Emitted as 1px-tall slices.
+    /// </summary>
+    private static void EmitCornerNotch(
+        List<DisplayItem> items, float cornerX, float cornerY, float rX, float rY,
+        float dirX, float dirY, BColor color)
+    {
+        if (rX <= 0.5f || rY <= 0.5f)
+            return;
+
+        float centerX = cornerX + (dirX * rX);
+        float centerY = cornerY + (dirY * rY);
+        int steps = (int)MathF.Ceiling(rY);
+        for (int yy = 0; yy < steps; yy++)
+        {
+            float sliceTop = dirY > 0 ? cornerY + yy : cornerY - yy - 1f;
+            float sy = sliceTop + 0.5f;
+            float dyN = MathF.Min(1f, MathF.Abs(sy - centerY) / rY);
+            float dx = rX * MathF.Sqrt(MathF.Max(0f, 1f - (dyN * dyN)));
+            float arcX = centerX - (dirX * dx);          // clear-region boundary along this row
+            float w = MathF.Abs(arcX - cornerX);
+            if (w <= 0.01f)
+                continue;
+            float x0 = MathF.Min(cornerX, arcX);
+            items.Add(new FillRectItem { Bounds = new RectangleF(x0, sliceTop, w, 1f), Color = color });
+        }
+    }
+
+    /// <summary>
+    /// Fills <paramref name="outer"/> minus its intersection with <paramref name="inner"/> as up to
+    /// four non-overlapping rectangles (top and bottom bands span the full width; the left and right
+    /// bands fill only the height between them). Used to paint an inset shadow's frame without the
+    /// corner over-draw that overlapping edge strips would cause.
+    /// </summary>
+    private static void EmitFrameStrips(List<DisplayItem> items, RectangleF outer, RectangleF inner, BColor color)
+    {
+        float il = Math.Max(outer.Left, inner.Left);
+        float ir = Math.Min(outer.Right, inner.Right);
+        float it = Math.Max(outer.Top, inner.Top);
+        float ib = Math.Min(outer.Bottom, inner.Bottom);
+
+        // The clear rectangle does not overlap the border box: the whole box is shadowed.
+        if (ir <= il || ib <= it)
+        {
+            items.Add(new FillRectItem { Bounds = outer, Color = color });
+            return;
+        }
+
+        if (it > outer.Top)
+            items.Add(new FillRectItem { Bounds = new RectangleF(outer.Left, outer.Top, outer.Width, it - outer.Top), Color = color });
+        if (ib < outer.Bottom)
+            items.Add(new FillRectItem { Bounds = new RectangleF(outer.Left, ib, outer.Width, outer.Bottom - ib), Color = color });
+        if (il > outer.Left)
+            items.Add(new FillRectItem { Bounds = new RectangleF(outer.Left, it, il - outer.Left, ib - it), Color = color });
+        if (ir < outer.Right)
+            items.Add(new FillRectItem { Bounds = new RectangleF(ir, it, outer.Right - ir, ib - it), Color = color });
+    }
+
+    /// <summary>Pushes a clip to the element's border box, rounded when it has a border radius.</summary>
+    private static void EmitBorderBoxClip(List<DisplayItem> items, Fragment fragment, RectangleF borderRect, bool hasCornerRadius)
+    {
+        if (!hasCornerRadius)
+        {
+            items.Add(new ClipItem { Bounds = borderRect, ClipRect = borderRect });
+            return;
+        }
+
+        var style = fragment.Style;
+        items.Add(new ClipItem
+        {
+            Bounds = borderRect,
+            ClipRect = borderRect,
+            CornerNw = style.ActualCornerNw,
+            CornerNwY = GetEffectiveCornerRadiusY(style.CornerNwRadiusRaw, style.ActualCornerNw, borderRect),
+            CornerNe = style.ActualCornerNe,
+            CornerNeY = GetEffectiveCornerRadiusY(style.CornerNeRadiusRaw, style.ActualCornerNe, borderRect),
+            CornerSe = style.ActualCornerSe,
+            CornerSeY = GetEffectiveCornerRadiusY(style.CornerSeRadiusRaw, style.ActualCornerSe, borderRect),
+            CornerSw = style.ActualCornerSw,
+            CornerSwY = GetEffectiveCornerRadiusY(style.CornerSwRadiusRaw, style.ActualCornerSw, borderRect),
+        });
+    }
+
+    /// <summary>
+    /// Emits a blurred outset shadow layer as a stack of concentric solid fills whose cumulative
+    /// SrcOver coverage approximates a Gaussian blur of the shadow shape. Per CSS Backgrounds §7 the
+    /// blur applies a Gaussian with standard deviation <c>blur/2</c>; the coverage across the shape
+    /// edge is that Gaussian's cumulative distribution. Shells run from the outer edge of the blur
+    /// band (<c>~3σ</c> outside the shape, coverage ≈ 0) inward to its interior (coverage ≈ the
+    /// shadow colour's own alpha), each painted at the incremental alpha needed to reach the target
+    /// cumulative coverage. Still an approximation — a true separable Gaussian would soften the
+    /// corners further — but far closer than a sharp rectangle.
+    /// </summary>
+    private static void EmitBlurredShadow(
+        List<DisplayItem> items, Fragment fragment, RectangleF borderRect,
+        in BoxShadowLayer s, RectangleF core, bool hasCornerRadius)
+    {
+        float sigma = Math.Max(0.01f, s.Blur * 0.5f);
+        float extent = 3f * sigma;                              // band half-width (±3σ ≈ full falloff)
+        int shells = Math.Clamp((int)MathF.Ceiling(extent), 4, 24);
+        float peak = s.Color.A;                                 // cumulative coverage reached inside
+
+        // Outer → inner: SrcOver accumulates toward `peak` at the interior. Shell k's boundary sits
+        // `d` px into the shape from the core edge (d from -extent outside to +extent inside).
+        float prevT = 0f;
+        for (int k = 0; k < shells; k++)
+        {
+            float d = -extent + ((k + 1) / (float)(shells + 1)) * (2f * extent);
+            float targetT = peak * NormalCdf(d / sigma);        // desired cumulative coverage here
+            float denom = 255f - prevT;
+            float aShell = denom > 0.001f ? (targetT - prevT) / denom : 0f;
+            prevT = targetT;
+
+            int alpha = (int)Math.Round(Math.Clamp(aShell, 0f, 1f) * 255f);
+            if (alpha <= 0)
+                continue;
+
+            float inflate = -d;                                 // boundary d inside ⇒ shrink core by d
+            var shellRect = InflateRect(core, inflate);
+            var shellColor = BColor.FromArgb(alpha, s.Color.R, s.Color.G, s.Color.B);
+            EmitShadowFill(items, fragment, borderRect, shellRect, s.Spread + inflate, shellColor, hasCornerRadius);
+        }
+    }
+
+    /// <summary>Standard-normal CDF Φ(z), via a monotonic logistic approximation (max error ≈ 1%),
+    /// used to shape the blurred-shadow coverage falloff.</summary>
+    private static float NormalCdf(float z) => 1f / (1f + MathF.Exp(-1.702f * z));
+
+    private static RectangleF InflateRect(RectangleF r, float by) =>
+        new(r.X - by, r.Y - by, r.Width + (2f * by), r.Height + (2f * by));
+
+    /// <summary>
+    /// Emits one shadow rectangle fill of <paramref name="color"/>, clipped to the box's rounded
+    /// corners (grown by <paramref name="cornerDelta"/>) when the element has a border radius.
+    /// </summary>
+    private static void EmitShadowFill(
+        List<DisplayItem> items, Fragment fragment, RectangleF borderRect,
+        RectangleF fillRect, float cornerDelta, BColor color, bool hasCornerRadius)
+    {
+        if (fillRect.Width <= 0 || fillRect.Height <= 0)
+            return;
+
+        if (hasCornerRadius)
+        {
+            var style = fragment.Style;
+            items.Add(new ClipItem
+            {
+                Bounds = fillRect,
+                ClipRect = fillRect,
+                CornerNw = Math.Max(0.0, style.ActualCornerNw + cornerDelta),
+                CornerNwY = Math.Max(0.0, GetEffectiveCornerRadiusY(style.CornerNwRadiusRaw, style.ActualCornerNw, borderRect) + cornerDelta),
+                CornerNe = Math.Max(0.0, style.ActualCornerNe + cornerDelta),
+                CornerNeY = Math.Max(0.0, GetEffectiveCornerRadiusY(style.CornerNeRadiusRaw, style.ActualCornerNe, borderRect) + cornerDelta),
+                CornerSe = Math.Max(0.0, style.ActualCornerSe + cornerDelta),
+                CornerSeY = Math.Max(0.0, GetEffectiveCornerRadiusY(style.CornerSeRadiusRaw, style.ActualCornerSe, borderRect) + cornerDelta),
+                CornerSw = Math.Max(0.0, style.ActualCornerSw + cornerDelta),
+                CornerSwY = Math.Max(0.0, GetEffectiveCornerRadiusY(style.CornerSwRadiusRaw, style.ActualCornerSw, borderRect) + cornerDelta),
+            });
+            items.Add(new FillRectItem { Bounds = fillRect, Color = color });
+            items.Add(new RestoreItem { Bounds = fillRect });
+        }
+        else
+        {
+            items.Add(new FillRectItem { Bounds = fillRect, Color = color });
+        }
     }
 
     private static void EmitReplacedImage(Fragment fragment, List<DisplayItem> items)

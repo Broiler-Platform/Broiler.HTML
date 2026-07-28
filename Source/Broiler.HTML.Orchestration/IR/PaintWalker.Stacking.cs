@@ -234,6 +234,10 @@ internal static partial class PaintWalker
         bool bgClippedRounded = false;
         if (!asInlineContent && !ReferenceEquals(fragment, propagatedFrom))
         {
+            // Outset box-shadow paints behind the element's background and outside its rounded
+            // background clip, so emit it before either is pushed.
+            EmitBoxShadow(fragment, items, inset: false);
+
             bool hasCornerRadius = style.ActualCornerNw > 0 || style.ActualCornerNe > 0
                 || style.ActualCornerSe > 0 || style.ActualCornerSw > 0;
             if (hasCornerRadius)
@@ -256,6 +260,8 @@ internal static partial class PaintWalker
 
             EmitBackground(fragment, items);
             EmitBackgroundImage(fragment, items, viewport);
+            // Inset box-shadow paints over the background, inside the box, beneath the borders.
+            EmitBoxShadow(fragment, items, inset: true);
         }
 
         // Borders (clipped to the rounded border-box when border-radius is set)
@@ -618,6 +624,11 @@ internal static partial class PaintWalker
         if (clipPathClipped)
             items.Add(clipPathItem);
 
+        // Outset box-shadow paints behind the element's background and outside its rounded
+        // background clip (but is clipped by any clip-path, emitted above), so emit it here.
+        if (!ReferenceEquals(fragment, propagatedFrom))
+            EmitBoxShadow(fragment, items, inset: false);
+
         // CSS2.1 §14.2/§11.1.1: Background, background image, and borders
         // are part of the element's own rendering and are NOT clipped by
         // the element's overflow.  Emit them before the overflow clip.
@@ -646,6 +657,9 @@ internal static partial class PaintWalker
             EmitBackground(fragment, items);
             EmitBackgroundImage(fragment, items, viewport);
         }
+        // Inset box-shadow paints over the background, inside the box, beneath the borders.
+        if (!ReferenceEquals(fragment, propagatedFrom))
+            EmitBoxShadow(fragment, items, inset: true);
         EmitBorders(fragment, items);
 
         if (hasCornerRadius)

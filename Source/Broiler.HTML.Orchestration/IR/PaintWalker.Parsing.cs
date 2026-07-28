@@ -75,6 +75,94 @@ internal static partial class PaintWalker
         return (offsetX, offsetY, color);
     }
 
+    /// <summary>One parsed CSS <c>box-shadow</c> layer.</summary>
+    private readonly record struct BoxShadowLayer(
+        float OffsetX, float OffsetY, float Blur, float Spread, BColor Color, bool Inset);
+
+    /// <summary>
+    /// Parses a CSS <c>box-shadow</c> value into its comma-separated layers. Each layer is
+    /// <c>inset? &amp;&amp; &lt;offset-x&gt; &lt;offset-y&gt; &lt;blur&gt;? &lt;spread&gt;? &lt;color&gt;?</c>
+    /// (CSS Backgrounds §7). Lengths are read positionally (x, y, blur, spread); the colour may
+    /// appear anywhere and defaults to <paramref name="currentColor"/>. Layers are returned in
+    /// source order (the first is painted on top). Only pixel lengths are recognised — the
+    /// computed value has already resolved font/viewport-relative lengths to px.
+    /// </summary>
+    private static List<BoxShadowLayer> ParseBoxShadow(string? value, BColor currentColor)
+    {
+        var layers = new List<BoxShadowLayer>();
+        if (string.IsNullOrEmpty(value) || value.Equals("none", StringComparison.OrdinalIgnoreCase))
+            return layers;
+
+        foreach (var layerText in Broiler.CSS.CssSyntax.SplitTopLevel(value, ','))
+        {
+            var lengths = new List<float>();
+            string colorStr = "";
+            bool inset = false;
+
+            // Space-split at paren depth 0 so a functional colour like rgb(0 0 0) stays whole.
+            int depth = 0, start = 0;
+            var span = layerText;
+            for (int i = 0; i <= span.Length; i++)
+            {
+                char c = i < span.Length ? span[i] : ' ';
+                if (c == '(') depth++;
+                else if (c == ')') { if (depth > 0) depth--; }
+                else if ((c == ' ' || c == '\t') && depth == 0 && i > start)
+                {
+                    AddShadowToken(span[start..i]);
+                    start = i + 1;
+                }
+                else if ((c == ' ' || c == '\t') && depth == 0)
+                {
+                    start = i + 1;
+                }
+            }
+
+            void AddShadowToken(string raw)
+            {
+                var t = raw.Trim();
+                if (t.Length == 0)
+                    return;
+                if (t.Equals("inset", StringComparison.OrdinalIgnoreCase)) { inset = true; return; }
+                if (lengths.Count < 4 && TryParsePixelLength(t, out float v)) { lengths.Add(v); return; }
+                colorStr += (colorStr.Length > 0 ? " " : "") + t;
+            }
+
+            if (lengths.Count < 2)
+                continue; // offset-x and offset-y are required.
+
+            BColor color = currentColor;
+            if (!string.IsNullOrEmpty(colorStr))
+            {
+                var parsed = ParseCssColor(colorStr);
+                if (parsed != BColor.Empty)
+                    color = parsed;
+            }
+
+            layers.Add(new BoxShadowLayer(
+                lengths[0], lengths[1],
+                lengths.Count >= 3 ? lengths[2] : 0f,
+                lengths.Count >= 4 ? lengths[3] : 0f,
+                color, inset));
+        }
+
+        return layers;
+    }
+
+    /// <summary>Parses a single CSS pixel length token (e.g. <c>-20px</c>, <c>0</c>).</summary>
+    private static bool TryParsePixelLength(string token, out float value)
+    {
+        value = 0f;
+        var t = token.Trim();
+        if (t.Length == 0)
+            return false;
+        if (!(char.IsDigit(t[0]) || t[0] == '-' || t[0] == '+' || t[0] == '.'))
+            return false;
+        if (t.EndsWith("px", StringComparison.OrdinalIgnoreCase))
+            t = t[..^2];
+        return float.TryParse(t, NumberStyles.Float, CultureInfo.InvariantCulture, out value);
+    }
+
     /// <summary>
     /// Splits a CSS value on top-level commas, delegating to the canonical
     /// <see cref="Broiler.CSS.CssSyntax.SplitTopLevel(string, char)"/> (which also
