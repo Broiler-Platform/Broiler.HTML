@@ -585,6 +585,20 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         CompositeLayer(layer);
     }
 
+    public void SaveFilterLayer(string filter)
+    {
+        _layerStack.Push(new LayerState(new BBitmap(_rootBitmap.Width, _rootBitmap.Height), 1f, "normal", filter));
+    }
+
+    public void RestoreFilterLayer()
+    {
+        if (_layerStack.Count == 0)
+            return;
+
+        var layer = _layerStack.Pop();
+        CompositeLayer(layer);
+    }
+
     public void SaveBlendLayer(string blendMode)
     {
         _layerStack.Push(new LayerState(new BBitmap(_rootBitmap.Width, _rootBitmap.Height), 1f, blendMode ?? "normal"));
@@ -646,6 +660,9 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
                 if (source.A == 0)
                     continue;
 
+                if (layer.Filter is { } filter)
+                    source = ApplyColorFilter(source, filter);
+
                 if (layer.Opacity < 1f)
                     source = ApplyOpacity(source, layer.Opacity);
 
@@ -661,6 +678,136 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         opacity = Math.Clamp(opacity, 0f, 1f);
         byte alpha = (byte)Math.Clamp((int)Math.Round(color.A * opacity), 0, 255);
         return new BColor(color.R, color.G, color.B, alpha);
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex FilterFunctionPattern =
+        new(@"([a-zA-Z-]+)\(([^)]*)\)", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>
+    /// Applies the colour-matrix CSS filter functions (invert/grayscale/brightness/contrast/
+    /// sepia/saturate/opacity/hue-rotate) to a single pixel, left to right. Unsupported functions
+    /// (blur/drop-shadow/…) are skipped. Matrices follow Filter Effects §16.
+    /// </summary>
+    private static BColor ApplyColorFilter(BColor color, string filter)
+    {
+        float r = color.R, g = color.G, b = color.B, a = color.A;
+        foreach (System.Text.RegularExpressions.Match match in FilterFunctionPattern.Matches(filter))
+        {
+            var name = match.Groups[1].Value.ToLowerInvariant();
+            var arg = match.Groups[2].Value.Trim();
+            switch (name)
+            {
+                case "invert":
+                {
+                    float t = ParseFilterAmount(arg, 1f, clampToOne: true);
+                    r = Lerp(r, 255f - r, t); g = Lerp(g, 255f - g, t); b = Lerp(b, 255f - b, t);
+                    break;
+                }
+                case "grayscale":
+                {
+                    float t = ParseFilterAmount(arg, 1f, clampToOne: true);
+                    float l = 0.2126f * r + 0.7152f * g + 0.0722f * b;
+                    r = Lerp(r, l, t); g = Lerp(g, l, t); b = Lerp(b, l, t);
+                    break;
+                }
+                case "brightness":
+                {
+                    float t = ParseFilterAmount(arg, 1f, clampToOne: false);
+                    r *= t; g *= t; b *= t;
+                    break;
+                }
+                case "contrast":
+                {
+                    float t = ParseFilterAmount(arg, 1f, clampToOne: false);
+                    r = (r - 128f) * t + 128f; g = (g - 128f) * t + 128f; b = (b - 128f) * t + 128f;
+                    break;
+                }
+                case "opacity":
+                {
+                    float t = ParseFilterAmount(arg, 1f, clampToOne: true);
+                    a *= t;
+                    break;
+                }
+                case "saturate":
+                {
+                    float s = ParseFilterAmount(arg, 1f, clampToOne: false);
+                    (r, g, b) = (
+                        (0.213f + 0.787f * s) * r + (0.715f - 0.715f * s) * g + (0.072f - 0.072f * s) * b,
+                        (0.213f - 0.213f * s) * r + (0.715f + 0.285f * s) * g + (0.072f - 0.072f * s) * b,
+                        (0.213f - 0.213f * s) * r + (0.715f - 0.715f * s) * g + (0.072f + 0.928f * s) * b);
+                    break;
+                }
+                case "sepia":
+                {
+                    float s = 1f - ParseFilterAmount(arg, 1f, clampToOne: true);
+                    (r, g, b) = (
+                        (0.393f + 0.607f * s) * r + (0.769f - 0.769f * s) * g + (0.189f - 0.189f * s) * b,
+                        (0.349f - 0.349f * s) * r + (0.686f + 0.314f * s) * g + (0.168f - 0.168f * s) * b,
+                        (0.272f - 0.272f * s) * r + (0.534f - 0.534f * s) * g + (0.131f + 0.869f * s) * b);
+                    break;
+                }
+                case "hue-rotate":
+                {
+                    float rad = ParseFilterAngleRadians(arg);
+                    float cos = MathF.Cos(rad), sin = MathF.Sin(rad);
+                    (r, g, b) = (
+                        (0.213f + cos * 0.787f - sin * 0.213f) * r + (0.715f - cos * 0.715f - sin * 0.715f) * g + (0.072f - cos * 0.072f + sin * 0.928f) * b,
+                        (0.213f - cos * 0.213f + sin * 0.143f) * r + (0.715f + cos * 0.285f + sin * 0.140f) * g + (0.072f - cos * 0.072f - sin * 0.283f) * b,
+                        (0.213f - cos * 0.213f - sin * 0.787f) * r + (0.715f - cos * 0.715f + sin * 0.715f) * g + (0.072f + cos * 0.928f + sin * 0.072f) * b);
+                    break;
+                }
+            }
+        }
+
+        return new BColor(ClampByte(r), ClampByte(g), ClampByte(b), ClampByte(a));
+    }
+
+    private static float Lerp(float from, float to, float t) => from + (to - from) * t;
+
+    private static byte ClampByte(float value) => (byte)Math.Clamp((int)MathF.Round(value), 0, 255);
+
+    /// <summary>Parses a filter amount: a number, or a percentage (n%). <paramref name="clampToOne"/>
+    /// caps at 1 for the [0,1]-ranged functions (invert/grayscale/sepia/opacity).</summary>
+    private static float ParseFilterAmount(string arg, float fallback, bool clampToOne)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+            return fallback;
+
+        float value;
+        if (arg.EndsWith("%", StringComparison.Ordinal))
+        {
+            if (!float.TryParse(arg.AsSpan(0, arg.Length - 1), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var pct))
+                return fallback;
+            value = pct / 100f;
+        }
+        else if (!float.TryParse(arg, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out value))
+        {
+            return fallback;
+        }
+
+        value = Math.Max(0f, value);
+        return clampToOne ? Math.Min(1f, value) : value;
+    }
+
+    private static float ParseFilterAngleRadians(string arg)
+    {
+        arg = arg.Trim();
+        if (string.IsNullOrEmpty(arg) || arg == "0")
+            return 0f;
+
+        (string suffix, float perUnit) = arg switch
+        {
+            _ when arg.EndsWith("rad", StringComparison.OrdinalIgnoreCase) => ("rad", 1f),
+            _ when arg.EndsWith("grad", StringComparison.OrdinalIgnoreCase) => ("grad", MathF.PI / 200f),
+            _ when arg.EndsWith("turn", StringComparison.OrdinalIgnoreCase) => ("turn", MathF.PI * 2f),
+            _ when arg.EndsWith("deg", StringComparison.OrdinalIgnoreCase) => ("deg", MathF.PI / 180f),
+            _ => ("", MathF.PI / 180f),
+        };
+
+        var numberSpan = suffix.Length > 0 ? arg.AsSpan(0, arg.Length - suffix.Length) : arg.AsSpan();
+        return float.TryParse(numberSpan, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var n)
+            ? n * perUnit
+            : 0f;
     }
 
     private static void BlendPixel(BBitmap bitmap, int x, int y, BColor source, string blendMode)
@@ -903,7 +1050,7 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
     private readonly record struct CanvasState(PointF Translation, float ScaleX, float ScaleY, int ClipOperationCount);
 
-    private sealed record LayerState(BBitmap Bitmap, float Opacity, string BlendMode);
+    private sealed record LayerState(BBitmap Bitmap, float Opacity, string BlendMode, string? Filter = null);
 
     private readonly record struct ClipOperation(
         RectangleF Rect,

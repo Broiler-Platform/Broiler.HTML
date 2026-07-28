@@ -299,6 +299,26 @@ internal sealed class GraphicsAdapter : RGraphics
         _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
+    public override void SaveFilterLayer(string filter)
+    {
+        // Filters need pixel readback to apply, which only the raster canvas offers. When the
+        // layer is raster-compatible, push a real filter layer there; otherwise render the content
+        // directly (unfiltered but visible) rather than route it to the stub compat backend and
+        // lose it — the same graceful degradation the ignored-filter path had before.
+        bool useRaster = _rasterCanvas is not null && _activeCompatLayerDepth == 0 && _nextLayerCanUseRaster;
+        _nextLayerCanUseRaster = false;
+        _rasterLayerStack.Push(useRaster);
+        if (useRaster)
+            _rasterCanvas!.SaveFilterLayer(filter);
+    }
+
+    public override void RestoreFilterLayer()
+    {
+        bool usedRaster = _rasterLayerStack.Count > 0 && _rasterLayerStack.Pop();
+        if (usedRaster)
+            _rasterCanvas!.RestoreFilterLayer();
+    }
+
     public override void SaveBlendLayer(string blendMode)
     {
         bool useRaster = _rasterCanvas is not null

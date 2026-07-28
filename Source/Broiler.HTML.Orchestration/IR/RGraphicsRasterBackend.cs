@@ -92,6 +92,13 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
                 case RestoreBlendModeItem:
                     g.RestoreBlendLayer();
                     break;
+                case FilterItem filterItem:
+                    g.HintNextLayerCanUseRaster(IsRasterCompatibleFilterLayer(list.Items, index));
+                    g.SaveFilterLayer(filterItem.Filter);
+                    break;
+                case RestoreFilterItem:
+                    g.RestoreFilterLayer();
+                    break;
                 case TransformItem transformItem:
                     g.SaveTransformLayer(transformItem.Matrix, transformItem.OriginX, transformItem.OriginY);
                     break;
@@ -108,6 +115,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     private static bool IsRasterCompatibleBlendLayer(IReadOnlyList<DisplayItem> items, int startIndex, string? blendMode) =>
         IsRasterBlendModeSupported(blendMode)
         && IsRasterCompatibleLayer(items, startIndex, typeof(BlendModeItem), typeof(RestoreBlendModeItem));
+
+    private static bool IsRasterCompatibleFilterLayer(IReadOnlyList<DisplayItem> items, int startIndex) =>
+        IsRasterCompatibleLayer(items, startIndex, typeof(FilterItem), typeof(RestoreFilterItem));
 
     private static bool IsRasterCompatibleLayer(
         IReadOnlyList<DisplayItem> items,
@@ -159,6 +169,8 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         RestoreOpacityItem => true,
         BlendModeItem blend => IsRasterBlendModeSupported(blend.Mode),
         RestoreBlendModeItem => true,
+        FilterItem => true,
+        RestoreFilterItem => true,
         TransformItem => false,
         RestoreTransformItem => false,
         // Text renders on the raster canvas via the text shaper (the same path all

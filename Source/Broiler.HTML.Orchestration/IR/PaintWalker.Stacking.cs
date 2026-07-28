@@ -139,6 +139,20 @@ internal static partial class PaintWalker
             }
         }
 
+        // Filter Effects §1: a non-none `filter` renders the element into a compositing group
+        // that the filter is applied to. Only the colour-matrix functions are modelled here
+        // (invert/grayscale/brightness/contrast/sepia/saturate/opacity/hue-rotate); a filter with
+        // none of those (e.g. blur only) is left to render unfiltered rather than emitting an
+        // effect-free layer. Wraps opacity/blend so it filters the element's composited result.
+        bool hasFilter = !isRoot
+            && !string.IsNullOrEmpty(style.Filter)
+            && !style.Filter.Equals("none", StringComparison.OrdinalIgnoreCase)
+            && HasSupportedFilterFunction(style.Filter);
+        if (hasFilter)
+        {
+            items.Add(new FilterItem { Bounds = bounds, Filter = style.Filter });
+        }
+
         // CSS3: 0 < opacity < 1 creates a compositing group — all
         // descendant content is rendered into a separate layer, then
         // composited back at the specified opacity.
@@ -291,9 +305,24 @@ internal static partial class PaintWalker
         if (hasOpacity)
             items.Add(new RestoreOpacityItem { Bounds = bounds });
 
+
+        // Restore filter layer (wraps opacity/blend, applied to the composited element)
+        if (hasFilter)
+            items.Add(new RestoreFilterItem { Bounds = bounds });
         // Restore transform layer (outermost layer)
         if (hasTransform)
             items.Add(new RestoreTransformItem { Bounds = bounds });
+    }
+
+    /// <summary>Whether a CSS <c>filter</c> value contains at least one colour-matrix function
+    /// this renderer applies (invert/grayscale/brightness/contrast/sepia/saturate/opacity/
+    /// hue-rotate). Blur and drop-shadow are not modelled.</summary>
+    private static bool HasSupportedFilterFunction(string filter)
+    {
+        foreach (var name in new[] { "invert", "grayscale", "brightness", "contrast", "sepia", "saturate", "opacity", "hue-rotate" })
+            if (filter.Contains(name + "(", StringComparison.OrdinalIgnoreCase))
+                return true;
+        return false;
     }
 
     private static void PaintChildren(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom = null, RectangleF viewport = default, BColor? bgClipTextColor = null, bool skipBlockBackgrounds = false)
