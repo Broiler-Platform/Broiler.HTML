@@ -78,14 +78,40 @@ internal static partial class PaintWalker
             rootOpacity = Math.Clamp(op, 0f, 1f);
         }
 
+        // CSS Filter Effects §: a `filter` on the document root (html) element applies to
+        // the entire canvas background — colour and image alike — even when that background
+        // was propagated up from <body> (CSS2.1 §14.2). Wrap the canvas emission in a filter
+        // layer rather than only tinting the fill colour, so e.g. `filter: invert(100%)` on
+        // <html> with a white <body> background renders black (WPT hidpi-invert-filter-background).
+        // Prefer the root element's filter; fall back to the propagating element's own filter
+        // (e.g. a filter set directly on <body>).
+        string? canvasFilter = ResolveCanvasFilter(root, htmlFragment);
+        if (canvasFilter != null)
+            items.Add(new FilterItem { Bounds = viewport, Filter = canvasFilter });
+
+        var propagated = EmitCanvasBackgroundLayers(
+            viewport, items, canvasBg, colorSource, imgSource, gradientSource, rootOpacity);
+
+        if (canvasFilter != null)
+            items.Add(new RestoreFilterItem { Bounds = viewport });
+
+        return propagated;
+    }
+
+    /// <summary>
+    /// Emits the canvas background fill / gradient / image layers (CSS2.1 §14.2), returning the
+    /// fragment whose background was propagated so it can be suppressed during normal painting.
+    /// Kept separate from <see cref="EmitCanvasBackground"/> so the caller can wrap the whole
+    /// emission in a single root-filter layer.
+    /// </summary>
+    private static Fragment? EmitCanvasBackgroundLayers(
+        RectangleF viewport, List<DisplayItem> items,
+        BColor canvasBg, Fragment? colorSource, Fragment? imgSource, Fragment? gradientSource,
+        float rootOpacity)
+    {
         if (canvasBg.A > 0)
         {
             BColor finalBg = CompositOverWhite(canvasBg, rootOpacity);
-
-            // CSS Filter Effects §8: When the root element has filter: invert(N),
-            // the filter applies to the canvas background.
-            finalBg = ApplyRootFilter(htmlFragment, finalBg);
-
             items.Add(new FillRectItem { Bounds = viewport, Color = finalBg });
         }
 
@@ -370,88 +396,30 @@ internal static partial class PaintWalker
     }
 
     /// <summary>
-    /// Applies CSS filter functions on the root/html fragment to the canvas background color.
-    /// Supports <c>invert()</c> and <c>sepia()</c>; other filter functions are silently ignored.
+    /// The CSS <c>filter</c> that applies to the canvas background, or <c>null</c> when none
+    /// applies. The document root (html) element's filter governs the canvas — including a
+    /// background propagated up from <body> — so it is preferred; a filter set directly on the
+    /// propagating element (e.g. <body>) is the fallback. Only colour-matrix functions the
+    /// rasterizer models are returned (see <see cref="HasSupportedFilterFunction"/>).
     /// </summary>
-    private static BColor ApplyRootFilter(Fragment? htmlFragment, BColor color)
+    private static string? ResolveCanvasFilter(Fragment root, Fragment? bgSource)
     {
-        if (htmlFragment == null) return color;
+        var rootElement = string.Equals(root.Style.TagName, "html", StringComparison.OrdinalIgnoreCase)
+            ? root
+            : FindFragmentByTag(root, "html") ?? FindFirstBlockChild(root) ?? root;
 
-        string? filter = htmlFragment.Style.Filter;
-        if (string.IsNullOrEmpty(filter) || filter == "none") return color;
+        return SupportedFilterOrNull(rootElement) ?? SupportedFilterOrNull(bgSource);
+    }
 
-        // Parse invert(N) where N is 0..1 (or 0%..100%)
-        var invertMatch = System.Text.RegularExpressions.Regex.Match(filter, @"invert\(\s*([^)]+)\s*\)");
-        if (invertMatch.Success)
-        {
-            string valStr = invertMatch.Groups[1].Value.Trim();
-            float amount = 1f;
-            if (valStr.EndsWith("%"))
-            {
-                if (float.TryParse(valStr.AsSpan(0, valStr.Length - 1),
-                    NumberStyles.Float,
-                    CultureInfo.InvariantCulture, out var pct))
-                    amount = pct / 100f;
-            }
-            else if (float.TryParse(valStr,
-                NumberStyles.Float,
-                CultureInfo.InvariantCulture, out var val))
-            {
-                amount = val;
-            }
-            amount = Math.Clamp(amount, 0f, 1f);
-
-            // invert(amount): result = value × (1 - amount) + (255 - value) × amount
-            int r = (int)Math.Round(color.R * (1 - amount) + (255 - color.R) * amount);
-            int g = (int)Math.Round(color.G * (1 - amount) + (255 - color.G) * amount);
-            int b = (int)Math.Round(color.B * (1 - amount) + (255 - color.B) * amount);
-
-            return BColor.FromArgb(color.A,
-                Math.Clamp(r, 0, 255),
-                Math.Clamp(g, 0, 255),
-                Math.Clamp(b, 0, 255));
-        }
-
-        // Parse sepia(N) where N is 0..1 (or 0%..100%)
-        // sepia transform matrix (CSS Filter Effects Module Level 1):
-        //   R' = min(255, 0.393R + 0.769G + 0.189B)
-        //   G' = min(255, 0.349R + 0.686G + 0.168B)
-        //   B' = min(255, 0.272R + 0.534G + 0.131B)
-        var sepiaMatch = System.Text.RegularExpressions.Regex.Match(filter, @"sepia\(\s*([^)]+)\s*\)");
-        if (sepiaMatch.Success)
-        {
-            string valStr = sepiaMatch.Groups[1].Value.Trim();
-            float amount = 1f;
-            if (valStr.EndsWith("%"))
-            {
-                if (float.TryParse(valStr.AsSpan(0, valStr.Length - 1),
-                    NumberStyles.Float,
-                    CultureInfo.InvariantCulture, out var pct))
-                    amount = pct / 100f;
-            }
-            else if (float.TryParse(valStr,
-                NumberStyles.Float,
-                CultureInfo.InvariantCulture, out var val))
-            {
-                amount = val;
-            }
-            amount = Math.Clamp(amount, 0f, 1f);
-
-            // Sepia matrix applied with interpolation: result = original × (1-amount) + sepia × amount
-            double sr = 0.393 * color.R + 0.769 * color.G + 0.189 * color.B;
-            double sg = 0.349 * color.R + 0.686 * color.G + 0.168 * color.B;
-            double sb = 0.272 * color.R + 0.534 * color.G + 0.131 * color.B;
-
-            int r = (int)Math.Round(color.R * (1 - amount) + Math.Min(255, sr) * amount);
-            int g = (int)Math.Round(color.G * (1 - amount) + Math.Min(255, sg) * amount);
-            int b = (int)Math.Round(color.B * (1 - amount) + Math.Min(255, sb) * amount);
-
-            return BColor.FromArgb(color.A,
-                Math.Clamp(r, 0, 255),
-                Math.Clamp(g, 0, 255),
-                Math.Clamp(b, 0, 255));
-        }
-
-        return color;
+    /// <summary>Returns the fragment's <c>filter</c> value when it is non-<c>none</c> and contains
+    /// at least one colour-matrix function the rasterizer applies; otherwise <c>null</c>.</summary>
+    private static string? SupportedFilterOrNull(Fragment? fragment)
+    {
+        var filter = fragment?.Style.Filter;
+        if (string.IsNullOrEmpty(filter)
+            || filter.Equals("none", StringComparison.OrdinalIgnoreCase)
+            || !HasSupportedFilterFunction(filter))
+            return null;
+        return filter;
     }
 }
