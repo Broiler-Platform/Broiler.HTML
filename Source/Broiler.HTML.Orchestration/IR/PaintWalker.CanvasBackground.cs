@@ -53,9 +53,15 @@ internal static partial class PaintWalker
         // dark, the canvas is painted the UA dark backdrop colour instead of
         // white. Emit it as the bottom layer so a propagated root/body
         // background (found below) paints over it; a fully-transparent root and
-        // body leave the dark backdrop showing.
+        // body leave the dark backdrop showing. It is also the backdrop a
+        // *translucent* propagated background composites against, so carry it
+        // down to EmitCanvasBackgroundLayers rather than assuming white there.
+        BColor canvasBackdrop = BColor.White;
         if (RootUsesDarkColorScheme(root))
+        {
+            canvasBackdrop = DarkCanvasColor;
             items.Add(new FillRectItem { Bounds = viewport, Color = DarkCanvasColor });
+        }
 
         // Find which element supplies the canvas background (color + image
         // as a unit, per CSS2.1 §14.2).
@@ -90,7 +96,8 @@ internal static partial class PaintWalker
             items.Add(new FilterItem { Bounds = viewport, Filter = canvasFilter });
 
         var propagated = EmitCanvasBackgroundLayers(
-            viewport, items, canvasBg, colorSource, imgSource, gradientSource, rootOpacity);
+            viewport, items, canvasBg, colorSource, imgSource, gradientSource, rootOpacity,
+            canvasBackdrop);
 
         if (canvasFilter != null)
             items.Add(new RestoreFilterItem { Bounds = viewport });
@@ -107,11 +114,11 @@ internal static partial class PaintWalker
     private static Fragment? EmitCanvasBackgroundLayers(
         RectangleF viewport, List<DisplayItem> items,
         BColor canvasBg, Fragment? colorSource, Fragment? imgSource, Fragment? gradientSource,
-        float rootOpacity)
+        float rootOpacity, BColor canvasBackdrop)
     {
         if (canvasBg.A > 0)
         {
-            BColor finalBg = CompositOverWhite(canvasBg, rootOpacity);
+            BColor finalBg = CompositOverCanvasBackdrop(canvasBg, rootOpacity, canvasBackdrop);
             items.Add(new FillRectItem { Bounds = viewport, Color = finalBg });
         }
 
@@ -376,18 +383,27 @@ internal static partial class PaintWalker
     }
 
     /// <summary>
-    /// Composites a foreground color over a white backdrop, applying an
+    /// Composites a foreground color over the canvas backdrop, applying an
     /// additional opacity factor.  Uses the "source over" Porter-Duff model.
+    /// <para>
+    /// The backdrop is white for a light used color scheme and the UA dark canvas colour for a
+    /// dark one (CSS Color Adjust §2.3) — the same fill <see cref="EmitCanvasBackground"/> lays
+    /// down beneath this layer. Compositing against a fixed white regardless made a translucent
+    /// root background wash out on a dark canvas: WPT
+    /// css/css-color-adjust/rendering/dark-color-scheme/color-scheme-iframe-background-mismatch-alpha
+    /// has <c>:root { color-scheme: dark; background-color: rgba(0, 128, 0, 0.5) }</c>, which must
+    /// render dark green over rgb(18, 18, 18) but came out light green over white.
+    /// </para>
     /// </summary>
-    private static BColor CompositOverWhite(BColor fg, float opacity)
+    private static BColor CompositOverCanvasBackdrop(BColor fg, float opacity, BColor backdrop)
     {
         float a = (fg.A / 255f) * opacity;
         if (a >= 1f) return fg;
-        if (a <= 0f) return BColor.White;
+        if (a <= 0f) return backdrop;
 
-        int r = (int)Math.Round(fg.R * a + 255 * (1 - a));
-        int g = (int)Math.Round(fg.G * a + 255 * (1 - a));
-        int b = (int)Math.Round(fg.B * a + 255 * (1 - a));
+        int r = (int)Math.Round(fg.R * a + backdrop.R * (1 - a));
+        int g = (int)Math.Round(fg.G * a + backdrop.G * (1 - a));
+        int b = (int)Math.Round(fg.B * a + backdrop.B * (1 - a));
 
         return BColor.FromArgb(255,
             Math.Clamp(r, 0, 255),
