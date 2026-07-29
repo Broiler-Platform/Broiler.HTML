@@ -922,6 +922,18 @@ internal sealed class DomParser
         if (box.HtmlTag != null
             && box.HtmlTag.Name.Equals("iframe", StringComparison.OrdinalIgnoreCase))
         {
+            // Author CSS sizing wins; otherwise the width/height presentation attributes, then the CSS
+            // replaced-element default object size 300×150 — the same precedence CorrectVideoBoxes uses.
+            // Without a default an unsized iframe collapsed to its border and neither the frame box nor
+            // the projected sub-document rendered (WPT resource-timing/tentative/initiator-url/
+            // static-resource). This must not be a UA-stylesheet width/height: that form outranks the
+            // presentation attributes, so `iframe.width = 100` stopped taking effect
+            // (the-dialog-element/centering, popovers/popover-move-documents).
+            if (box.Width == CssConstants.Auto)
+                box.Width = PresentationLengthPx(box, "width", "300px");
+            if (box.Height == CssConstants.Auto)
+                box.Height = PresentationLengthPx(box, "height", "150px");
+
             // display:none on each direct child hides that child and its whole subtree.
             foreach (var child in box.Boxes)
                 child.Display = CssConstants.None;
