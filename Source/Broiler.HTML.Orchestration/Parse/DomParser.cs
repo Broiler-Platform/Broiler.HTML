@@ -114,6 +114,19 @@ internal sealed class DomParser
 
     private void CascadeParseStyles(CssBox box, ref HtmlStyleSet styleSet)
     {
+        // HTML §4.12.3: a <template>'s children are its *template contents*, held in a separate
+        // document fragment. They are inert — not rendered, and their <style>/<link> do not style
+        // the host document; a template is a stamp, and nothing on it applies until it is stamped
+        // out. The contents already produce no boxes, but this walk collected their stylesheets
+        // anyway, so a shadow-DOM component that keeps its styles in a <template> (the ordinary way
+        // to write one) leaked them into the page. That is WPT issue #1491 problem 29:
+        // delegatesFocus-highlight-sibling puts `:host { background-color: #aaa }` and
+        // `:host(:focus) { background-color: #ccc }` in a template, and Broiler painted 99% of the
+        // canvas #ccc against a reference that is 98% white.
+        if (box.HtmlTag != null &&
+            box.HtmlTag.Name.Equals("template", StringComparison.CurrentCultureIgnoreCase))
+            return;
+
         if (box.HtmlTag != null)
         {
             // CSSOM §2.3 / HTML §4.2.6: a disabled stylesheet does not apply.
