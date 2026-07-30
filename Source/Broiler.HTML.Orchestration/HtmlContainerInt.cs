@@ -859,6 +859,38 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             : RectangleF.FromLTRB(left, top, right, bottom);
     }
 
+    /// <summary>
+    /// The used <c>writing-mode</c> of the root (<c>html</c>) element, which is
+    /// what CSS Values 4 §6.1.4 resolves the logical viewport units
+    /// (<c>vi</c>/<c>vb</c>) against. <see cref="Root"/> may be a synthetic box
+    /// above the document element, so the <c>html</c> box is looked up when one
+    /// is present; otherwise the root box's own value stands.
+    /// </summary>
+    private string GetRootWritingMode()
+    {
+        var box = Root;
+        if (box == null)
+            return null;
+
+        if (!IsHtmlElementBox(box))
+        {
+            foreach (var child in box.Boxes)
+            {
+                if (IsHtmlElementBox(child))
+                {
+                    box = child;
+                    break;
+                }
+            }
+        }
+
+        return box.WritingMode;
+
+        static bool IsHtmlElementBox(CssBox candidate) =>
+            candidate?.HtmlTag != null &&
+            candidate.HtmlTag.Name.Equals("html", StringComparison.OrdinalIgnoreCase);
+    }
+
     public void PerformLayout(RGraphics g)
     {
         ArgumentNullException.ThrowIfNull(g);
@@ -868,14 +900,17 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (Root == null)
             return;
 
-        // Set viewport dimensions for CSS viewport-relative units (vh, vw, vmin, vmax).
+        // Set viewport dimensions for CSS viewport-relative units (vh, vw, vmin,
+        // vmax, and the logical vi/vb).
         // MaxSize represents the actual rendering viewport when set; PageSize is the
         // fallback (may be 99999 in auto-size scenarios).
         float vpW = MaxSize.Width > 0 ? Math.Min(MaxSize.Width, PageSize.Width) : PageSize.Width;
         float vpH = MaxSize.Height > 0 ? Math.Min(MaxSize.Height, PageSize.Height) : PageSize.Height;
         // Phase 3.2 dual-run: layout now resolves lengths via the Broiler.CSS port,
         // which keeps its own viewport ThreadStatic — sync it from the same source.
-        CssLengthParser.SetViewportSize(vpW, vpH);
+        // CSS Values 4 §6.1.4: vi/vb name the ROOT element's inline/block axes, so
+        // the root's writing mode goes with the dimensions.
+        CssLengthParser.SetViewportSize(vpW, vpH, GetRootWritingMode());
 
         // if width is not restricted we set it to large value to get the actual later
         // CSS2.1 §10.5: Percentage heights on the root element resolve against
