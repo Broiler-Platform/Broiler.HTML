@@ -58,7 +58,7 @@ internal static partial class PaintWalker
             string argsStr = transform[argsStart..pos];
             pos++; // skip ')'
 
-            var args = ParseTransformArgs(argsStr, bounds);
+            var args = ParseTransformArgs(argsStr, bounds, funcName);
 
             // Compute the function's matrix and multiply
             float fa, fb, fc, fd, fe, ff;
@@ -143,16 +143,27 @@ internal static partial class PaintWalker
     /// Parses the comma-or-space-separated arguments of a CSS transform function.
     /// Handles angle units (deg, rad, grad, turn) and length units (px, %).
     /// Returns the parsed values as an array of floats (angles in radians, lengths in pixels).
+    /// <para>
+    /// <paramref name="funcName"/> decides what a percentage means. A scale factor is
+    /// <c>&lt;number&gt; | &lt;percentage&gt;</c> and the percentage is simply the ratio —
+    /// <c>scale(50%)</c> is <c>scale(0.5)</c> (css-transforms-2 §"scale") — while only the translate
+    /// family resolves one against the box. Resolving every percentage against the box multiplied a
+    /// scaled element by its own pixel size: a 100px box given <c>scale(50%)</c> came out 50× and
+    /// filled the canvas.
+    /// </para>
     /// </summary>
-    private static float[] ParseTransformArgs(string argsStr, RectangleF bounds)
+    private static float[] ParseTransformArgs(string argsStr, RectangleF bounds, string funcName)
     {
+        // funcName is already lower-cased by the caller; this covers scale/scaleX/scaleY/scale3d.
+        bool percentageIsRatio = funcName.StartsWith("scale", StringComparison.Ordinal);
+
         var parts = argsStr.Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var result = new List<float>(parts.Length);
 
         for (int idx = 0; idx < parts.Length; idx++)
         {
             string p = parts[idx];
-            if (TryParseAngleOrLength(p, bounds, idx, out float val))
+            if (TryParseAngleOrLength(p, bounds, idx, percentageIsRatio, out float val))
                 result.Add(val);
         }
 
@@ -166,7 +177,8 @@ internal static partial class PaintWalker
     /// to reference <c>bounds.Width</c> (even indices) or <c>bounds.Height</c>
     /// (odd indices), matching the CSS spec for translate(x,y).
     /// </summary>
-    private static bool TryParseAngleOrLength(string p, RectangleF bounds, int argIndex, out float result)
+    private static bool TryParseAngleOrLength(
+        string p, RectangleF bounds, int argIndex, bool percentageIsRatio, out float result)
     {
         result = 0;
         if (p.EndsWith("deg", StringComparison.OrdinalIgnoreCase))
@@ -196,6 +208,11 @@ internal static partial class PaintWalker
         {
             if (!float.TryParse(p.AsSpan(0, p.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
                 return false;
+            if (percentageIsRatio)
+            {
+                result = pct / 100f;
+                return true;
+            }
             float refDim = (argIndex % 2 == 0) ? bounds.Width : bounds.Height;
             result = pct / 100f * refDim;
             return true;
