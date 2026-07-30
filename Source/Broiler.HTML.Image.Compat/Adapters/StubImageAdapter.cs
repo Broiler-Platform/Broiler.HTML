@@ -5,6 +5,7 @@ using System.IO;
 using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 using Broiler.CSS;
+using Broiler.Media.Image;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -377,7 +378,11 @@ internal sealed class StubImageAdapter : RAdapter
 
         try
         {
-            return new ImageAdapter(BBitmap.Decode(data));
+            // An animated image shows the frame its own timeline has reached at the pass's
+            // presentation time. This is the only seam where the frame is chosen — everything
+            // above holds one decoded bitmap — so the clock is read here rather than threaded
+            // down through the container and the load handlers.
+            return new ImageAdapter(BBitmap.DecodeFrameAt(data, ImageAnimationClock.PresentationTime));
         }
         catch (ArgumentException)
         {

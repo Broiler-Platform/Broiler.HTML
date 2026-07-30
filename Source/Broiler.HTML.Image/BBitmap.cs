@@ -113,10 +113,26 @@ public sealed class BBitmap : IDisposable
         return resized;
     }
 
-    public static BBitmap Decode(byte[] data)
+    public static BBitmap Decode(byte[] data) => DecodeFrameAt(data, TimeSpan.Zero);
+
+    /// <summary>
+    /// Decodes an image and returns the frame its own animation timeline is showing at
+    /// <paramref name="presentationTime"/>. A still image decodes to itself whatever the time;
+    /// an animated one advances through its frame delays, so a render taken 300 ms in shows
+    /// what a browser would have been showing 300 ms in rather than always frame 0.
+    /// </summary>
+    /// <remarks>
+    /// At <see cref="TimeSpan.Zero"/> — the default for callers with no clock — the later frames
+    /// are not decoded at all, so the common still-image path costs exactly what it did before.
+    /// </remarks>
+    public static BBitmap DecodeFrameAt(byte[] data, TimeSpan presentationTime)
     {
         ArgumentNullException.ThrowIfNull(data);
-        return FromImageBuffer(DecodeMedia(data).FirstFrame);
+
+        bool needsTimeline = presentationTime > TimeSpan.Zero;
+        ImageSequence sequence = DecodeMedia(data, preserveAnimation: needsTimeline);
+        return FromImageBuffer(
+            needsTimeline ? sequence.FrameAt(presentationTime).Pixels : sequence.FirstFrame);
     }
 
     public static BBitmap Decode(Stream stream)
@@ -153,7 +169,7 @@ public sealed class BBitmap : IDisposable
         return new BBitmap(buffer.Width, buffer.Height, (byte[])buffer.Rgba.Clone());
     }
 
-    private static ImageSequence DecodeMedia(byte[] data)
+    private static ImageSequence DecodeMedia(byte[] data, bool preserveAnimation = false)
     {
         using var probeInput = new MediaInput(new MemoryStream(data), leaveOpen: false);
         MediaCodecMatch? match = ImageCodecs.SelectAsync(MediaKind.Image, probeInput).AsTask().GetAwaiter().GetResult();
@@ -161,7 +177,7 @@ public sealed class BBitmap : IDisposable
             throw new NotSupportedException("Unrecognized image data. The media image codec catalog matched no image codec.");
 
         using var decodeInput = new MediaInput(new MemoryStream(data), leaveOpen: false);
-        return codec.DecodeAsync(decodeInput, new ImageDecodeOptions(preserveAnimation: false))
+        return codec.DecodeAsync(decodeInput, new ImageDecodeOptions(preserveAnimation: preserveAnimation))
             .AsTask()
             .GetAwaiter()
             .GetResult();
