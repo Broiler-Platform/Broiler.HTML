@@ -597,7 +597,13 @@ internal static partial class PaintWalker
     /// Block children are visited recursively so their backgrounds also
     /// appear before floats (Step 4).
     /// </summary>
-    private static void PaintFragmentBackgroundPhase(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom, RectangleF viewport)
+    /// <param name="descend">
+    /// Whether to recurse into block children for their backgrounds. False for a table: its own
+    /// decorations belong to Step 3 like any other block, but its internals are painted by the
+    /// six-layer <see cref="PaintTableChildren"/> pass in the foreground, so descending here would
+    /// paint every row-group/row/cell background twice.
+    /// </param>
+    private static void PaintFragmentBackgroundPhase(Fragment fragment, List<DisplayItem> items, Fragment? propagatedFrom, RectangleF viewport, bool descend = true)
     {
         var style = fragment.Style;
 
@@ -606,7 +612,8 @@ internal static partial class PaintWalker
         if (style.Visibility != "visible")
         {
             // Walk block children even when not visible (their visibility is independent)
-            PaintChildrenBackgroundPhase(fragment, items, propagatedFrom, viewport);
+            if (descend)
+                PaintChildrenBackgroundPhase(fragment, items, propagatedFrom, viewport);
             return;
         }
 
@@ -678,7 +685,8 @@ internal static partial class PaintWalker
         EmitReplacedImage(fragment, items);
 
         // Recursively visit block children for their backgrounds
-        PaintChildrenBackgroundPhase(fragment, items, propagatedFrom, viewport);
+        if (descend)
+            PaintChildrenBackgroundPhase(fragment, items, propagatedFrom, viewport);
 
         if (clipped)
             items.Add(new RestoreItem { Bounds = bounds });
@@ -740,9 +748,21 @@ internal static partial class PaintWalker
             // Skip inline-level — handled in Step 5
             if (child.Style.Display is "inline" or "inline-block" or "inline-table")
                 continue;
-            // Skip tables — they use their own six-layer model
-            if (child.Style.Display is "table" or "inline-table")
+
+            // A table's own background, background-image, box-shadow and borders are Step-3
+            // decorations like any other block's — it is the table's INTERNALS (col-groups → cols →
+            // row-groups → rows → cells) that use the six-layer model, and PaintTableChildren paints
+            // those in the foreground pass. Skipping the table outright here meant nobody ever
+            // emitted layer 1: PaintTableChildren starts at layer 2, and the foreground pass runs
+            // with block backgrounds suppressed, so `<table style="background: yellow">` painted
+            // nothing at all while its cells and text painted normally (WPT issue #1497 problem 8,
+            // css-page/monolithic-overflow-011-print). Descend:false keeps the internals to the
+            // six-layer pass so they do not paint twice.
+            if (child.Style.Display == "table")
+            {
+                PaintFragmentBackgroundPhase(child, items, propagatedFrom, viewport, descend: false);
                 continue;
+            }
 
             PaintFragmentBackgroundPhase(child, items, propagatedFrom, viewport);
         }
