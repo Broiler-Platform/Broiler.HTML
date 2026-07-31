@@ -117,6 +117,57 @@ internal static partial class PaintWalker
                     if (args.Length < 6) return null;
                     fa = args[0]; fb = args[1]; fc = args[2]; fd = args[3]; fe = args[4]; ff = args[5];
                     break;
+                // ── 3D spellings of 2D transforms ────────────────────────────────────────────
+                // Authors reach for these constantly (`translate3d` to force GPU promotion,
+                // `scale3d`, `rotate3d(0,0,1,…)`), and a reference file may spell in 3D exactly what
+                // its test spells in 2D — WPT css-view-transitions/content-with-transform-ref uses
+                // `scale3d(2,3,1)` where the test uses `scale(2,3)`. Skipped as unknown, those
+                // elements rendered untransformed.
+                //
+                // Only the cases that are *exactly* a 2D transform are taken. Anything needing real
+                // depth — a rotation about any axis but Z, a matrix3d that is genuinely 3D — is still
+                // skipped, deliberately: projecting each function to the page plane on its own is not
+                // the same as composing in 3D and projecting once, so a `preserve-3d` chain that
+                // cancels in space (WPT css-anchor-position/transform-005 rotates by an axis and then
+                // by its inverse) would stop cancelling. Approximating those is worse than leaving
+                // them unsupported, which is what this renderer already does.
+                case "translate3d":
+                    if (args.Length < 2) return null;
+                    fa = 1; fb = 0; fc = 0; fd = 1; fe = args[0]; ff = args[1];
+                    break;
+                case "translatez":
+                    // Pure Z translation has no in-plane effect without perspective.
+                    fa = 1; fb = 0; fc = 0; fd = 1; fe = 0; ff = 0;
+                    break;
+                case "scale3d":
+                    if (args.Length < 2) return null;
+                    fa = args[0]; fb = 0; fc = 0; fd = args[1]; fe = 0; ff = 0;
+                    break;
+                case "scalez":
+                    fa = 1; fb = 0; fc = 0; fd = 1; fe = 0; ff = 0;
+                    break;
+                case "rotatez":
+                    if (args.Length < 1) return null;
+                    fa = MathF.Cos(args[0]); fb = MathF.Sin(args[0]);
+                    fc = -fb; fd = fa; fe = 0; ff = 0;
+                    break;
+                case "rotate3d":
+                    // Only a rotation about the Z axis is an in-plane rotation; every other axis
+                    // needs depth. A zero-length axis is not a rotation at all (a no-op per spec).
+                    if (args.Length < 4 || args[0] != 0 || args[1] != 0 || args[2] == 0)
+                        continue;
+                    float axisAngle = args[2] > 0 ? args[3] : -args[3];
+                    fa = MathF.Cos(axisAngle); fb = MathF.Sin(axisAngle);
+                    fc = -fb; fd = fa; fe = 0; ff = 0;
+                    break;
+                case "matrix3d":
+                    // Column-major m11..m44. Reduce only when the matrix is 2D — the Z row and
+                    // column untouched — and then it is exactly matrix(m11,m12,m21,m22,m41,m42).
+                    if (args.Length < 16 || !IsTwoDimensionalMatrix3d(args))
+                        continue;
+                    fa = args[0]; fb = args[1]; fc = args[4]; fd = args[5]; fe = args[12]; ff = args[13];
+                    break;
+
                 default:
                     // Unknown transform function — skip it
                     continue;
@@ -138,6 +189,18 @@ internal static partial class PaintWalker
 
         return [a, b, c, d, e, f];
     }
+
+    /// <summary>
+    /// Whether a <c>matrix3d()</c> is really a 2D matrix — the Z row and column left as the
+    /// identity, per the CSS Transforms definition of a 2D matrix. Only then does dropping to
+    /// <c>matrix(m11,m12,m21,m22,m41,m42)</c> lose nothing.
+    /// </summary>
+    private static bool IsTwoDimensionalMatrix3d(float[] m) =>
+        m[2] == 0 && m[3] == 0 &&      // m13, m14
+        m[6] == 0 && m[7] == 0 &&      // m23, m24
+        m[8] == 0 && m[9] == 0 &&      // m31, m32
+        m[10] == 1 && m[11] == 0 &&    // m33, m34
+        m[14] == 0 && m[15] == 1;      // m43, m44
 
     /// <summary>
     /// Parses the comma-or-space-separated arguments of a CSS transform function.
