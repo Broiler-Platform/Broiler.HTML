@@ -15,7 +15,6 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
 {
     private readonly IHtmlContainerInt _htmlContainer;
     private readonly ActionInt<RImage, RectangleF, bool> _loadCompleteCallback;
-    private FileStream _imageFileStream;
     private RectangleF _imageRectangle;
     private bool _asyncCallback;
     private bool _releaseImageObject;
@@ -187,14 +186,17 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     {
         try
         {
-            var imageFileStream = File.Open(source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            // Scoped to the decode. ImageFromStream materialises the encoded bytes before it
+            // returns and the decoded image never reads the stream again, so there is nothing to
+            // hold the handle open for. Keeping it — as this used to — left the renderer owning an
+            // OS handle on every image sub-resource it had loaded for as long as the box tree that
+            // loaded it stayed alive, which on Windows blocks deleting or renaming that file.
+            using var imageFileStream = File.Open(source, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
 
             lock (_loadCompleteCallback)
             {
-                _imageFileStream = imageFileStream;
-
                 if (!_disposed)
-                    Image = _htmlContainer.ImageFromStream(_imageFileStream);
+                    Image = _htmlContainer.ImageFromStream(imageFileStream);
 
                 _releaseImageObject = true;
             }
@@ -255,9 +257,6 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
                 Image.Dispose();
                 Image = null;
             }
-
-            _imageFileStream?.Dispose();
-            _imageFileStream = null;
         }
     }
 }
