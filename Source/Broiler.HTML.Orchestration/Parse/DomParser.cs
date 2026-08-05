@@ -483,6 +483,15 @@ internal sealed class DomParser
     private static readonly string[] BackdropGeometryProps =
         { "width", "height", "top", "left", "right", "bottom", "position" };
 
+    // Author ::backdrop declarations that change how the scrim composites rather than where it
+    // sits. Without these the box painted with the resolved background and nothing else, so an
+    // author `opacity: 0.5` on a green scrim filled the viewport with opaque green instead of
+    // compositing over the canvas (WPT the-dialog-element/modal-dialog-backdrop-opacity). Kept
+    // in step with the bridge's BackdropPaintingProps, which does the same for the synthesized
+    // <div> the NativeBackdrop-off path builds.
+    private static readonly string[] BackdropPaintingProps =
+        { "opacity", "mix-blend-mode", "border-radius", "box-shadow" };
+
     /// <summary>
     /// CSS Position 4 §top-layer / HTML §dialog: generates a native <c>::backdrop</c> box for each
     /// element the bridge marked with a resolved backdrop background
@@ -536,12 +545,15 @@ internal sealed class DomParser
         CssUtils.SetPropertyValue(backdrop, "bottom", "0");
         CssUtils.SetPropertyValue(backdrop, "background-color", bg);
 
-        // Overlay author ::backdrop geometry (an explicitly sized/positioned backdrop); the
-        // background stays the bridge-resolved value.
+        // Overlay author ::backdrop geometry (an explicitly sized/positioned backdrop) and the
+        // painting properties that composite it; the background stays the bridge-resolved value.
         if (engine != null && dialogBox.SourceElement != null)
         {
             var decls = engine.GetCascadedStyle(dialogBox.SourceElement, "::backdrop");
             foreach (var prop in BackdropGeometryProps)
+                if (decls.TryGetValue(prop, out var val) && !string.IsNullOrWhiteSpace(val))
+                    CssUtils.SetPropertyValue(backdrop, prop, val.Trim());
+            foreach (var prop in BackdropPaintingProps)
                 if (decls.TryGetValue(prop, out var val) && !string.IsNullOrWhiteSpace(val))
                     CssUtils.SetPropertyValue(backdrop, prop, val.Trim());
         }
