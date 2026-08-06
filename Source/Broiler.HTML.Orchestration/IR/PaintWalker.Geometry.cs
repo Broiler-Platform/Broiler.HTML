@@ -160,7 +160,14 @@ internal static partial class PaintWalker
         return string.IsNullOrEmpty(effectiveClip) ? "border-box" : effectiveClip;
     }
 
-    private static bool TryCreateInsetClipPathItem(Fragment fragment, RectangleF bounds, out ClipItem clipItem)
+    /// <summary>
+    /// Builds the clip for a fragment's <c>clip-path</c>, or returns <c>false</c> when it is
+    /// <c>none</c> or uses a basic shape the rasterizer does not model. <c>inset()</c> becomes a
+    /// rectangular clip and <c>polygon()</c> a polygon clip; every other shape (<c>circle()</c>,
+    /// <c>ellipse()</c>, <c>path()</c>, <c>url()</c>) is still unhandled, and leaving it unclipped
+    /// is the safer failure — a wrong clip erases content the page meant to show.
+    /// </summary>
+    private static bool TryCreateClipPathItem(Fragment fragment, RectangleF bounds, out ClipItem clipItem)
     {
         clipItem = null!;
 
@@ -172,6 +179,12 @@ internal static partial class PaintWalker
         }
 
         clipPath = clipPath.Trim();
+        if (clipPath.StartsWith("polygon(", StringComparison.OrdinalIgnoreCase)
+            && clipPath.EndsWith(")", StringComparison.Ordinal))
+        {
+            return TryCreatePolygonClipPathItem(clipPath[8..^1], fragment, bounds, out clipItem);
+        }
+
         if (!clipPath.StartsWith("inset(", StringComparison.OrdinalIgnoreCase)
             || !clipPath.EndsWith(")", StringComparison.Ordinal))
         {
@@ -220,6 +233,67 @@ internal static partial class PaintWalker
             return false;
 
         clipItem = new ClipItem { Bounds = bounds, ClipRect = clipRect };
+        return true;
+    }
+
+    /// <summary>
+    /// Parses the argument list of <c>clip-path: polygon(...)</c> — an optional <c>&lt;fill-rule&gt;</c>
+    /// followed by a comma-separated list of <c>&lt;x&gt; &lt;y&gt;</c> vertex pairs, each resolved
+    /// against the reference box (percentages against its width and height). The fill rule is parsed
+    /// and dropped: the rasterizer's crossing test is even-odd, which agrees with <c>nonzero</c> for
+    /// the non-self-intersecting polygons that clip paths overwhelmingly use.
+    /// </summary>
+    private static bool TryCreatePolygonClipPathItem(
+        string polygonArgs, Fragment fragment, RectangleF bounds, out ClipItem clipItem)
+    {
+        clipItem = null!;
+
+        var vertexArgs = SplitOnTopLevelCommas(polygonArgs);
+        if (vertexArgs.Count == 0)
+            return false;
+
+        var first = vertexArgs[0].Trim();
+        if (first.Equals("nonzero", StringComparison.OrdinalIgnoreCase)
+            || first.Equals("evenodd", StringComparison.OrdinalIgnoreCase))
+        {
+            vertexArgs.RemoveAt(0);
+        }
+
+        // Fewer than three vertices is not a valid polygon(), and an invalid clip-path is dropped
+        // at parse time (computed value `none`) rather than clipping everything away.
+        if (vertexArgs.Count < 3)
+            return false;
+
+        float emSize = GetPositionEmSize(fragment.Style);
+        var points = new PointF[vertexArgs.Count];
+        for (int i = 0; i < vertexArgs.Count; i++)
+        {
+            // Split on top-level spaces so a calc() coordinate stays in one piece.
+            var coordinates = SplitOnTopLevelSpaces(vertexArgs[i]);
+            if (coordinates.Count != 2)
+                return false;
+
+            points[i] = new PointF(
+                bounds.X + ParseInsetClipPathValue(coordinates[0], bounds.Width, emSize),
+                bounds.Y + ParseInsetClipPathValue(coordinates[1], bounds.Height, emSize));
+        }
+
+        float minX = points[0].X, minY = points[0].Y;
+        float maxX = points[0].X, maxY = points[0].Y;
+        foreach (var point in points)
+        {
+            minX = Math.Min(minX, point.X);
+            minY = Math.Min(minY, point.Y);
+            maxX = Math.Max(maxX, point.X);
+            maxY = Math.Max(maxY, point.Y);
+        }
+
+        clipItem = new ClipItem
+        {
+            Bounds = bounds,
+            ClipRect = new RectangleF(minX, minY, maxX - minX, maxY - minY),
+            Polygon = points,
+        };
         return true;
     }
 

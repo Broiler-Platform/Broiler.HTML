@@ -65,7 +65,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
                     RenderSvgPolyline(g, svgPolyline);
                     break;
                 case ClipItem clip:
-                    if (clip.CornerNw > 0 || clip.CornerNe > 0 || clip.CornerSe > 0 || clip.CornerSw > 0)
+                    if (clip.Polygon is { Length: >= 3 } polygon)
+                        g.PushClipPolygon(polygon, clip.ClipRect);
+                    else if (clip.CornerNw > 0 || clip.CornerNe > 0 || clip.CornerSe > 0 || clip.CornerSw > 0)
                         g.PushClipRounded(
                             clip.ClipRect,
                             clip.CornerNw, clip.CornerNwY,

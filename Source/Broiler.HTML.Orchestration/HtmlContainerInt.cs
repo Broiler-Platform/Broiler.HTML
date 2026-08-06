@@ -175,6 +175,14 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             if (SuppressesCanvasBackgroundPropagation(child, isRootElement: true))
                 return BColor.Empty;
 
+            // A clip-path on the document element clips the background it propagates to the
+            // canvas, so there is no single flat colour to hand back: callers erase the whole
+            // surface with what this returns, which would flood the clipped-away area. Report
+            // "none propagated" and let PaintWalker.EmitCanvasBackground paint the background
+            // inside the clip instead.
+            if (ClipsCanvasBackground(child))
+                return BColor.Empty;
+
             background = child.ActualBackgroundColor;
             if (!background.IsEmpty && background.A > 0)
                 return background;
@@ -264,6 +272,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Whether the box's <c>clip-path</c> is one the paint walker actually clips to, which is
+    /// what makes the canvas background non-uniform. Deliberately limited to the shapes
+    /// <c>PaintWalker.TryCreateClipPathItem</c> models: a shape it ignores leaves the background
+    /// covering the whole canvas, and reporting it as clipped here would blank it out instead.
+    /// </summary>
+    private static bool ClipsCanvasBackground(CssBox box)
+    {
+        var clipPath = box.ClipPath?.TrimStart();
+        return !string.IsNullOrEmpty(clipPath)
+            && (clipPath.StartsWith("inset(", StringComparison.OrdinalIgnoreCase)
+                || clipPath.StartsWith("polygon(", StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool SuppressesCanvasBackgroundPropagation(CssBox box, bool isRootElement = false)

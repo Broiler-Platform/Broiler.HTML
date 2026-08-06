@@ -94,6 +94,26 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
     public void PushClipExclude(RectangleF rect) => _clipOperations.Add(ClipOperation.Exclude(Translate(rect)));
 
+    /// <summary>
+    /// Clips subsequent drawing to an arbitrary closed polygon (CSS <c>clip-path: polygon()</c>).
+    /// Vertices are in canvas-local coordinates and go through the same surface mapping as every
+    /// other geometry. Fewer than three vertices encloses no area, so it clips everything away.
+    /// </summary>
+    public void PushClipPolygon(IReadOnlyList<PointF> points)
+    {
+        if (points is null || points.Count < 3)
+        {
+            _clipOperations.Add(ClipOperation.Include(RectangleF.Empty));
+            return;
+        }
+
+        var translated = new PointF[points.Count];
+        for (int i = 0; i < points.Count; i++)
+            translated[i] = Translate(points[i]);
+
+        _clipOperations.Add(ClipOperation.IncludePolygon(translated));
+    }
+
     public void PushClipRounded(
         RectangleF rect,
         double cornerNw,
@@ -1063,11 +1083,33 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         float CornerSe,
         float CornerSeY,
         float CornerSw,
-        float CornerSwY)
+        float CornerSwY,
+        PointF[]? Polygon = null)
     {
         public static ClipOperation Include(RectangleF rect) => new(rect, false, false, 0, 0, 0, 0, 0, 0, 0, 0);
 
         public static ClipOperation Exclude(RectangleF rect) => new(rect, true, false, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        /// <summary>
+        /// A polygon clip. <see cref="Rect"/> carries the polygon's bounding box so
+        /// <see cref="Contains"/> can reject the common case before running the crossing test.
+        /// </summary>
+        public static ClipOperation IncludePolygon(PointF[] polygon)
+        {
+            float minX = float.PositiveInfinity, minY = float.PositiveInfinity;
+            float maxX = float.NegativeInfinity, maxY = float.NegativeInfinity;
+            foreach (var point in polygon)
+            {
+                minX = Math.Min(minX, point.X);
+                minY = Math.Min(minY, point.Y);
+                maxX = Math.Max(maxX, point.X);
+                maxY = Math.Max(maxY, point.Y);
+            }
+
+            return new(
+                new RectangleF(minX, minY, maxX - minX, maxY - minY),
+                false, false, 0, 0, 0, 0, 0, 0, 0, 0, polygon);
+        }
 
         public static ClipOperation IncludeRounded(
             RectangleF rect,
@@ -1085,6 +1127,9 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         {
             if (!Rect.Contains(x, y))
                 return false;
+
+            if (Polygon is not null)
+                return ContainsPolygonPoint(Polygon, x, y);
 
             if (!IsRounded)
                 return true;

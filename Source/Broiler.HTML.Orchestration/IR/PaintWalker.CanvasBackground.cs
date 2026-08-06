@@ -84,6 +84,16 @@ internal static partial class PaintWalker
             rootOpacity = Math.Clamp(op, 0f, 1f);
         }
 
+        // CSS Masking §clip-path / Compositing §rootgroup: a `clip-path` on the document element
+        // clips the root group, and the canvas background is part of it — so the background the
+        // root propagated to the canvas (CSS2.1 §14.2) is clipped along with the root's own
+        // painting, leaving the UA canvas backdrop showing outside the shape. Pushed outside the
+        // filter layer below because clip-path applies after filter in the CSS painting order.
+        // (WPT css-masking/clip-path/clip-path-document-element{,-will-change}.)
+        bool canvasClipped = TryCreateCanvasClipPathItem(root, out var canvasClip);
+        if (canvasClipped)
+            items.Add(canvasClip);
+
         // CSS Filter Effects §: a `filter` on the document root (html) element applies to
         // the entire canvas background — colour and image alike — even when that background
         // was propagated up from <body> (CSS2.1 §14.2). Wrap the canvas emission in a filter
@@ -101,6 +111,9 @@ internal static partial class PaintWalker
 
         if (canvasFilter != null)
             items.Add(new RestoreFilterItem { Bounds = viewport });
+
+        if (canvasClipped)
+            items.Add(new RestoreItem { Bounds = canvasClip.Bounds });
 
         return propagated;
     }
@@ -420,12 +433,34 @@ internal static partial class PaintWalker
     /// </summary>
     private static string? ResolveCanvasFilter(Fragment root, Fragment? bgSource)
     {
-        var rootElement = string.Equals(root.Style.TagName, "html", StringComparison.OrdinalIgnoreCase)
-            ? root
-            : FindFragmentByTag(root, "html") ?? FindFirstBlockChild(root) ?? root;
+        var rootElement = FindRootElementFragment(root);
 
         return SupportedFilterOrNull(rootElement) ?? SupportedFilterOrNull(bgSource);
     }
+
+    /// <summary>
+    /// The clip the document root element's <c>clip-path</c> imposes on the canvas background, or
+    /// <c>false</c> when the root has none (or one the rasterizer does not model). Resolved against
+    /// the root element's own box, which is the reference box for its <c>clip-path</c> — not the
+    /// viewport, even though the background it propagates covers the whole canvas.
+    /// Unlike <see cref="ResolveCanvasFilter"/> there is no fall back to the propagating element:
+    /// a <c>clip-path</c> on &lt;body&gt; clips body's own rendering, and the background it hands
+    /// to the canvas is no longer body's to clip.
+    /// </summary>
+    private static bool TryCreateCanvasClipPathItem(Fragment root, out ClipItem clipItem)
+    {
+        clipItem = null!;
+        var rootElement = FindRootElementFragment(root);
+        return rootElement != null
+            && TryCreateClipPathItem(rootElement, rootElement.Bounds, out clipItem);
+    }
+
+    /// <summary>The fragment of the document root (html) element, falling back to the outermost
+    /// block when the tree is not rooted at a recognisable html element.</summary>
+    private static Fragment? FindRootElementFragment(Fragment root) =>
+        string.Equals(root.Style.TagName, "html", StringComparison.OrdinalIgnoreCase)
+            ? root
+            : FindFragmentByTag(root, "html") ?? FindFirstBlockChild(root) ?? root;
 
     /// <summary>Returns the fragment's <c>filter</c> value when it is non-<c>none</c> and contains
     /// at least one colour-matrix function the rasterizer applies; otherwise <c>null</c>.</summary>

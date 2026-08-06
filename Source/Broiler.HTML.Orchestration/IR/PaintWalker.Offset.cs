@@ -108,6 +108,7 @@ internal static partial class PaintWalker
             {
                 Bounds = ob,
                 ClipRect = OffsetRect(c.ClipRect, dx, dy),
+                Polygon = OffsetPoints(c.Polygon, dx, dy),
                 CornerNw = c.CornerNw,
                 CornerNwY = c.CornerNwY,
                 CornerNe = c.CornerNe,
@@ -145,4 +146,19 @@ internal static partial class PaintWalker
 
     internal static RectangleF OffsetRect(RectangleF r, float dx, float dy)
         => new(r.X + dx, r.Y + dy, r.Width, r.Height);
+
+    /// <summary>
+    /// Translates a clip polygon's vertices, returning a fresh array so the original item's
+    /// geometry is not mutated. <c>null</c> (no polygon) passes through unchanged.
+    /// </summary>
+    private static PointF[]? OffsetPoints(PointF[]? points, float dx, float dy)
+    {
+        if (points is null)
+            return null;
+
+        var offset = new PointF[points.Length];
+        for (int i = 0; i < points.Length; i++)
+            offset[i] = new PointF(points[i].X + dx, points[i].Y + dy);
+        return offset;
+    }
 }
