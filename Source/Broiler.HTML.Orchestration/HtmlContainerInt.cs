@@ -1287,28 +1287,67 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     private static bool IsEditableInputControl(CssBox box)
     {
-        if (box.HtmlTag == null || !box.HtmlTag.Name.Equals("input", StringComparison.OrdinalIgnoreCase))
+        if (box.HtmlTag == null)
+            return false;
+
+        // A <textarea> is always a text-entry control; an <input> only for the
+        // types that are typed into (a checkbox or a submit button is not).
+        if (IsTextArea(box))
+            return true;
+
+        if (!box.HtmlTag.Name.Equals("input", StringComparison.OrdinalIgnoreCase))
             return false;
 
         var inputType = box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
         return inputType is "text" or "search" or "email" or "url" or "tel" or "number" or "password";
     }
 
+    private static bool IsTextArea(CssBox box) =>
+        box.HtmlTag != null && box.HtmlTag.Name.Equals("textarea", StringComparison.OrdinalIgnoreCase);
+
     private static FormInputElementData<RectangleF> CreateFormInputElementData(CssBox box, RectangleF rect)
     {
-        var type = box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
+        bool isTextArea = IsTextArea(box);
+        var type = isTextArea
+            ? "textarea"
+            : box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
+
+        // HTML Forms §the textarea element: a textarea's value is its text
+        // content, not a value attribute.
+        var value = isTextArea
+            ? CollectTextContent(box)
+            : box.HtmlTag.TryGetAttribute("value") ?? string.Empty;
+
         return new FormInputElementData<RectangleF>(
             box.HtmlTag.TryGetAttribute("id") ?? string.Empty,
             box.HtmlTag.TryGetAttribute("name") ?? string.Empty,
             type,
-            box.HtmlTag.TryGetAttribute("value") ?? string.Empty,
+            value,
             rect);
+    }
+
+    private static string CollectTextContent(CssBox box)
+    {
+        var buffer = new System.Text.StringBuilder();
+        AppendTextContent(box, buffer);
+        return buffer.ToString();
+    }
+
+    private static void AppendTextContent(CssBox box, System.Text.StringBuilder buffer)
+    {
+        if (box.Text.Length > 0)
+            buffer.Append(box.Text);
+
+        foreach (var child in box.Boxes)
+            AppendTextContent(child, buffer);
     }
 
     private static void SetEditableInputValue(CssBox box, string value)
     {
         value ??= string.Empty;
-        box.HtmlTag.SetAttribute("value", value);
+        if (!IsTextArea(box))
+            box.HtmlTag.SetAttribute("value", value);
+
         box.SetGeneratedTextContent(value);
     }
 
