@@ -774,13 +774,60 @@ internal static partial class PaintWalker
         return true;
     }
 
+    /// <summary>
+    /// The vertical radius of a corner, given its resolved horizontal one. A single value makes a
+    /// circular corner — except that a <em>percentage</em> resolves against the box's width on the
+    /// horizontal axis and its height on the vertical, so the same percentage is a different length
+    /// per axis. Two values (<c>border-top-left-radius: 75px 50px</c>, or the <c>/</c> form of the
+    /// shorthand) name an ellipse outright.
+    /// <para>
+    /// The second value is applied as a ratio against the first rather than re-parsed, so the zoom
+    /// already folded into <paramref name="cornerRadiusX"/> carries over for free. A ratio only means
+    /// something when both values share a unit; mixed units fall back to the single-value result
+    /// rather than inventing a length.
+    /// </para>
+    /// </summary>
     private static double GetEffectiveCornerRadiusY(string rawRadius, double cornerRadiusX, RectangleF bounds)
     {
-        if (!string.IsNullOrEmpty(rawRadius)
-            && rawRadius.Contains('%', StringComparison.Ordinal)
-            && bounds.Width > 0)
-            return cornerRadiusX * bounds.Height / bounds.Width;
+        if (string.IsNullOrWhiteSpace(rawRadius))
+            return cornerRadiusX;
 
-        return cornerRadiusX;
+        var parts = rawRadius.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var horizontal = parts.Length > 0 ? parts[0] : rawRadius;
+
+        var singleValueY = horizontal.Contains('%', StringComparison.Ordinal) && bounds.Width > 0
+            ? cornerRadiusX * bounds.Height / bounds.Width
+            : cornerRadiusX;
+
+        if (parts.Length < 2)
+            return singleValueY;
+
+        if (!TryParseCornerRadiusComponent(horizontal, out var x, out var xUnit)
+            || !TryParseCornerRadiusComponent(parts[1], out var y, out var yUnit)
+            || !string.Equals(xUnit, yUnit, StringComparison.OrdinalIgnoreCase)
+            || x <= 0)
+        {
+            return singleValueY;
+        }
+
+        return singleValueY * (y / x);
+    }
+
+    /// <summary>Splits a corner-radius component into its number and its unit suffix.</summary>
+    private static bool TryParseCornerRadiusComponent(string token, out double value, out string unit)
+    {
+        value = 0;
+        unit = string.Empty;
+
+        var end = 0;
+        while (end < token.Length && (char.IsAsciiDigit(token[end]) || token[end] is '.' or '-' or '+'))
+            end++;
+
+        if (end == 0)
+            return false;
+
+        unit = token[end..].Trim();
+        return double.TryParse(
+            token[..end], NumberStyles.Float, CultureInfo.InvariantCulture, out value);
     }
 }
