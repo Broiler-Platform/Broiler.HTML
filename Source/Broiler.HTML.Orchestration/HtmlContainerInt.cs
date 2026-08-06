@@ -283,10 +283,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private static bool ClipsCanvasBackground(CssBox box)
     {
         var clipPath = box.ClipPath?.TrimStart();
-        return !string.IsNullOrEmpty(clipPath)
-            && (clipPath.StartsWith("inset(", StringComparison.OrdinalIgnoreCase)
-                || clipPath.StartsWith("polygon(", StringComparison.OrdinalIgnoreCase));
+        if (string.IsNullOrEmpty(clipPath))
+            return false;
+
+        foreach (var shape in ClipPathShapesThatClip)
+        {
+            if (clipPath.StartsWith(shape, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
     }
+
+    private static readonly string[] ClipPathShapesThatClip =
+        ["inset(", "polygon(", "circle(", "ellipse("];
 
     private static bool SuppressesCanvasBackgroundPropagation(CssBox box, bool isRootElement = false)
     {

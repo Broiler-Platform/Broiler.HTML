@@ -163,9 +163,10 @@ internal static partial class PaintWalker
     /// <summary>
     /// Builds the clip for a fragment's <c>clip-path</c>, or returns <c>false</c> when it is
     /// <c>none</c> or uses a basic shape the rasterizer does not model. <c>inset()</c> becomes a
-    /// rectangular clip and <c>polygon()</c> a polygon clip; every other shape (<c>circle()</c>,
-    /// <c>ellipse()</c>, <c>path()</c>, <c>url()</c>) is still unhandled, and leaving it unclipped
-    /// is the safer failure — a wrong clip erases content the page meant to show.
+    /// rectangular clip, <c>polygon()</c> a polygon clip, and <c>circle()</c>/<c>ellipse()</c> an
+    /// elliptical one; the rest (<c>path()</c>, <c>shape()</c>, <c>url()</c>) are still unhandled,
+    /// and leaving those unclipped is the safer failure — a wrong clip erases content the page
+    /// meant to show.
     /// </summary>
     private static bool TryCreateClipPathItem(Fragment fragment, RectangleF bounds, out ClipItem clipItem)
     {
@@ -179,17 +180,20 @@ internal static partial class PaintWalker
         }
 
         clipPath = clipPath.Trim();
-        if (clipPath.StartsWith("polygon(", StringComparison.OrdinalIgnoreCase)
-            && clipPath.EndsWith(")", StringComparison.Ordinal))
-        {
-            return TryCreatePolygonClipPathItem(clipPath[8..^1], fragment, bounds, out clipItem);
-        }
-
-        if (!clipPath.StartsWith("inset(", StringComparison.OrdinalIgnoreCase)
-            || !clipPath.EndsWith(")", StringComparison.Ordinal))
-        {
+        if (!clipPath.EndsWith(")", StringComparison.Ordinal))
             return false;
-        }
+
+        if (clipPath.StartsWith("polygon(", StringComparison.OrdinalIgnoreCase))
+            return TryCreatePolygonClipPathItem(clipPath[8..^1], fragment, bounds, out clipItem);
+
+        if (clipPath.StartsWith("circle(", StringComparison.OrdinalIgnoreCase))
+            return TryCreateEllipseClipPathItem(clipPath[7..^1], fragment, bounds, isCircle: true, out clipItem);
+
+        if (clipPath.StartsWith("ellipse(", StringComparison.OrdinalIgnoreCase))
+            return TryCreateEllipseClipPathItem(clipPath[8..^1], fragment, bounds, isCircle: false, out clipItem);
+
+        if (!clipPath.StartsWith("inset(", StringComparison.OrdinalIgnoreCase))
+            return false;
 
         var insetArgs = clipPath[6..^1];
         int roundIndex = insetArgs.IndexOf(" round ", StringComparison.OrdinalIgnoreCase);
@@ -294,6 +298,204 @@ internal static partial class PaintWalker
             ClipRect = new RectangleF(minX, minY, maxX - minX, maxY - minY),
             Polygon = points,
         };
+        return true;
+    }
+
+    /// <summary>
+    /// Parses <c>clip-path: circle(...)</c> / <c>ellipse(...)</c> — an optional radius (one value
+    /// for a circle, two for an ellipse) and an optional <c>at &lt;position&gt;</c>, defaulting to
+    /// <c>closest-side</c> at the centre of the reference box (CSS Shapes §3).
+    ///
+    /// Both become a rounded-rectangle clip whose box is the ellipse's bounding box and whose four
+    /// corner radii are the ellipse's own radii. That degenerate rounded rect <em>is</em> the
+    /// ellipse — every corner arc is the same ellipse centred on the box — so this needs no new
+    /// display-list item or backend entry point, and a backend that can only clip rectangles
+    /// degrades to the bounding box exactly as it already does for rounded corners.
+    /// </summary>
+    private static bool TryCreateEllipseClipPathItem(
+        string shapeArgs, Fragment fragment, RectangleF bounds, bool isCircle, out ClipItem clipItem)
+    {
+        clipItem = null!;
+        if (bounds.Width <= 0 || bounds.Height <= 0)
+            return false;
+
+        var tokens = SplitOnTopLevelSpaces(shapeArgs);
+        int atIndex = tokens.FindIndex(t => t.Equals("at", StringComparison.OrdinalIgnoreCase));
+
+        var radiusTokens = atIndex >= 0 ? tokens.GetRange(0, atIndex) : tokens;
+        var positionTokens = atIndex >= 0
+            ? tokens.GetRange(atIndex + 1, tokens.Count - atIndex - 1)
+            : [];
+
+        // circle() takes one radius, ellipse() takes two, and either may be omitted entirely.
+        // Anything else is invalid, and an invalid clip-path is dropped rather than half-read.
+        int radiusCount = isCircle ? 1 : 2;
+        if (radiusTokens.Count != 0 && radiusTokens.Count != radiusCount)
+            return false;
+
+        float emSize = GetPositionEmSize(fragment.Style);
+        if (!TryResolveShapePosition(positionTokens, bounds, emSize, out float centerX, out float centerY))
+            return false;
+
+        // Distances from the centre to each edge, which the <radial-size> keywords select between.
+        float toLeft = centerX - bounds.X, toRight = bounds.Right - centerX;
+        float toTop = centerY - bounds.Y, toBottom = bounds.Bottom - centerY;
+
+        float radiusX, radiusY;
+        if (isCircle)
+        {
+            // A circle percentage resolves against sqrt(w² + h²) / sqrt(2) — the "diagonal"
+            // reference length that keeps 50% on a square equal to half its side (CSS Shapes §3.1).
+            float diagonal = (float)(Math.Sqrt(
+                (bounds.Width * bounds.Width) + (bounds.Height * bounds.Height)) / Math.Sqrt(2));
+            if (!TryResolveShapeRadius(
+                    radiusTokens.Count > 0 ? radiusTokens[0] : "closest-side",
+                    diagonal, emSize,
+                    Math.Min(Math.Min(toLeft, toRight), Math.Min(toTop, toBottom)),
+                    Math.Max(Math.Max(toLeft, toRight), Math.Max(toTop, toBottom)),
+                    out radiusX))
+            {
+                return false;
+            }
+
+            radiusY = radiusX;
+        }
+        else
+        {
+            if (!TryResolveShapeRadius(
+                    radiusTokens.Count > 0 ? radiusTokens[0] : "closest-side",
+                    bounds.Width, emSize,
+                    Math.Min(toLeft, toRight), Math.Max(toLeft, toRight), out radiusX)
+                || !TryResolveShapeRadius(
+                    radiusTokens.Count > 1 ? radiusTokens[1] : "closest-side",
+                    bounds.Height, emSize,
+                    Math.Min(toTop, toBottom), Math.Max(toTop, toBottom), out radiusY))
+            {
+                return false;
+            }
+        }
+
+        // A negative radius is invalid and drops the declaration (leaving the element unclipped);
+        // a zero radius is a valid, empty shape, and an empty shape clips everything away.
+        if (radiusX < 0 || radiusY < 0)
+            return false;
+
+        if (radiusX == 0 || radiusY == 0)
+        {
+            clipItem = new ClipItem { Bounds = bounds, ClipRect = RectangleF.Empty };
+            return true;
+        }
+
+        clipItem = new ClipItem
+        {
+            Bounds = bounds,
+            ClipRect = new RectangleF(centerX - radiusX, centerY - radiusY, radiusX * 2, radiusY * 2),
+            CornerNw = radiusX,
+            CornerNwY = radiusY,
+            CornerNe = radiusX,
+            CornerNeY = radiusY,
+            CornerSe = radiusX,
+            CornerSeY = radiusY,
+            CornerSw = radiusX,
+            CornerSwY = radiusY,
+        };
+        return true;
+    }
+
+    /// <summary>
+    /// Resolves one <c>&lt;radial-size&gt;</c>: a length or percentage against
+    /// <paramref name="referenceLength"/>, or the <c>closest-side</c>/<c>farthest-side</c> keywords
+    /// against the pre-computed edge distances. <c>closest-corner</c>/<c>farthest-corner</c> are
+    /// gradient-only and not valid here, so they fail the shape rather than being approximated.
+    /// </summary>
+    private static bool TryResolveShapeRadius(
+        string token, float referenceLength, float emSize, float closestSide, float farthestSide, out float radius)
+    {
+        if (token.Equals("closest-side", StringComparison.OrdinalIgnoreCase))
+        {
+            radius = closestSide;
+            return true;
+        }
+
+        if (token.Equals("farthest-side", StringComparison.OrdinalIgnoreCase))
+        {
+            radius = farthestSide;
+            return true;
+        }
+
+        radius = 0;
+        if (!token.EndsWith('%') && !CssLengthParser.IsValidLength(token))
+            return false;
+
+        radius = ParseInsetClipPathValue(token, referenceLength, emSize);
+        return true;
+    }
+
+    /// <summary>
+    /// Resolves the <c>at &lt;position&gt;</c> of a <c>circle()</c>/<c>ellipse()</c> to a point in
+    /// <paramref name="bounds"/>. Supports the one- and two-value forms (a keyword, a percentage or
+    /// a length per axis); an omitted position — and an omitted second value — is <c>center</c>.
+    /// The four-value edge-offset form (<c>left 10px top 20px</c>) is not modelled and fails the
+    /// shape, leaving the element unclipped rather than clipped in the wrong place.
+    /// </summary>
+    private static bool TryResolveShapePosition(
+        List<string> tokens, RectangleF bounds, float emSize, out float centerX, out float centerY)
+    {
+        centerX = bounds.X + (bounds.Width / 2f);
+        centerY = bounds.Y + (bounds.Height / 2f);
+
+        if (tokens.Count == 0)
+            return true;
+        if (tokens.Count > 2)
+            return false;
+
+        // A single value sets one axis explicitly; the other stays centred. A lone `top`/`bottom`
+        // names the vertical axis, everything else the horizontal one.
+        if (tokens.Count == 1
+            && (tokens[0].Equals("top", StringComparison.OrdinalIgnoreCase)
+                || tokens[0].Equals("bottom", StringComparison.OrdinalIgnoreCase)))
+        {
+            return TryResolveShapePositionValue(
+                tokens[0], bounds.Y, bounds.Height, emSize, isHorizontal: false, out centerY);
+        }
+
+        if (!TryResolveShapePositionValue(
+                tokens[0], bounds.X, bounds.Width, emSize, isHorizontal: true, out centerX))
+        {
+            return false;
+        }
+
+        return tokens.Count == 1
+            || TryResolveShapePositionValue(
+                tokens[1], bounds.Y, bounds.Height, emSize, isHorizontal: false, out centerY);
+    }
+
+    private static bool TryResolveShapePositionValue(
+        string token, float origin, float extent, float emSize, bool isHorizontal, out float coordinate)
+    {
+        coordinate = origin + (extent / 2f);
+
+        if (token.Equals("center", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        var near = isHorizontal ? "left" : "top";
+        var far = isHorizontal ? "right" : "bottom";
+        if (token.Equals(near, StringComparison.OrdinalIgnoreCase))
+        {
+            coordinate = origin;
+            return true;
+        }
+
+        if (token.Equals(far, StringComparison.OrdinalIgnoreCase))
+        {
+            coordinate = origin + extent;
+            return true;
+        }
+
+        if (!token.EndsWith('%') && !CssLengthParser.IsValidLength(token))
+            return false;
+
+        coordinate = origin + ParseInsetClipPathValue(token, extent, emSize);
         return true;
     }
 
