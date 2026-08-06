@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Broiler.HTML.Dom.Parse;
 using Broiler.HTML.Dom;
@@ -237,21 +238,7 @@ internal sealed class DomParser
             {
                 box.Display = CssConstants.InlineBlock;
 
-                // Honour width/height from CSS style or HTML attributes.
-                if (string.IsNullOrEmpty(box.Width) || box.Width == CssConstants.Auto)
-                {
-                    var attrW = box.HtmlTag.TryGetAttribute("width");
-                    box.Width = !string.IsNullOrEmpty(attrW)
-                        ? NormaliseDimensionAttribute(attrW)
-                        : "300px";
-                }
-                if (string.IsNullOrEmpty(box.Height) || box.Height == CssConstants.Auto)
-                {
-                    var attrH = box.HtmlTag.TryGetAttribute("height");
-                    box.Height = !string.IsNullOrEmpty(attrH)
-                        ? NormaliseDimensionAttribute(attrH)
-                        : "150px";
-                }
+                ApplySvgReplacedSizing(box);
 
                 // Overflow hidden to clip SVG content at the element bounds.
                 if (string.IsNullOrEmpty(box.Overflow) || box.Overflow == CssConstants.Visible)
@@ -769,6 +756,13 @@ internal sealed class DomParser
 
     private static string TranslateLength(string htmlLength)
     {
+        // `auto` is a keyword, not a length: appending "px" turned it into the
+        // unparseable "autopx", which every consumer resolved to zero — an
+        // `<svg width="auto">` collapsed to a zero-width box and painted nothing
+        // instead of falling back to the element's auto sizing.
+        if (htmlLength != null && htmlLength.Trim().Equals(CssConstants.Auto, StringComparison.OrdinalIgnoreCase))
+            return CssConstants.Auto;
+
         return CssLengthParser.IsValidLength(htmlLength)
             ? htmlLength
             : $"{htmlLength}px";
@@ -1898,6 +1892,161 @@ internal sealed class DomParser
 
         return hasBlock && hasInline;
     }
+
+    /// <summary>
+    /// SVG 2 §8.2 ("Establishing a new viewport"): sizes an outer
+    /// <c>&lt;svg&gt;</c> as a replaced element.
+    /// <para>Its <c>width</c>/<c>height</c> presentation attributes default to
+    /// <c>auto</c>, and a valid <c>viewBox</c> gives the element an intrinsic
+    /// aspect ratio (but no intrinsic size). CSS then sizes it (CSS2.1 §10.3.2 /
+    /// Sizing 4 §4): an <c>auto</c> width resolves to <c>100%</c> of the containing
+    /// block and the other axis is transferred through the ratio, so
+    /// <c>&lt;svg viewBox="0 0 500 500"&gt;</c> in the body is a viewport-wide
+    /// square — not the 300×150 default object size. Broiler sized every such
+    /// element 300×150, rendering a small letterboxed drawing where the reference
+    /// browser fills the page (WPT <c>inert/inert-svg-hittest</c>,
+    /// <c>accessibility/svg-mouse-listener</c>,
+    /// <c>svg/animations/svgrect-animation-invalid-value-1</c>).</para>
+    /// <para>With no usable ratio — no <c>viewBox</c>, a malformed one, or one with
+    /// a non-positive width/height — each auto axis falls back to the CSS default
+    /// object size, per axis: <c>&lt;svg width="100"&gt;</c> is 100×150.</para>
+    /// <para>The auto height is left for the layout engine to transfer from the
+    /// used width (<c>CssBox.TryResolveAspectRatioBlockHeight</c>), because a
+    /// <c>100%</c> or percentage width is not known here. The reverse transfer — an
+    /// auto width from a definite height — is done directly, and only for a pixel
+    /// height, since a percentage height needs the same layout knowledge.</para>
+    /// </summary>
+    private static void ApplySvgReplacedSizing(CssBox box)
+    {
+        // CSS wins over the presentation attributes: box.Width/Height are already
+        // cascaded, so an attribute only fills in an axis the cascade left auto.
+        if (IsAutoLength(box.Width))
+            box.Width = SvgDimensionAttribute(box, "width");
+        if (IsAutoLength(box.Height))
+            box.Height = SvgDimensionAttribute(box, "height");
+
+        bool widthIsAuto = IsAutoLength(box.Width);
+        bool heightIsAuto = IsAutoLength(box.Height);
+
+        // CSS Sizing 4 §4: an author `aspect-ratio` is a *preferred* ratio that
+        // replaces the natural one the viewBox gives, so it is consulted first and
+        // never overwritten.
+        bool hasRatio = CssBox.TryParseAspectRatio(box.AspectRatio, out double ratio);
+        if (!hasRatio && TryParseSvgViewBoxRatio(box, out ratio))
+        {
+            hasRatio = true;
+            if (heightIsAuto)
+                box.AspectRatio = FormatRatio(ratio);
+        }
+
+        if (hasRatio && widthIsAuto)
+        {
+            // A definite height gives the width directly; otherwise the auto width
+            // resolves to 100% of the containing block and the layout engine
+            // transfers it back into the auto height.
+            if (!heightIsAuto && TryParsePixelLength(box.Height, out double heightPx))
+                box.Width = FormatPixels(heightPx * ratio);
+            else
+                box.Width = "100%";
+
+            widthIsAuto = false;
+        }
+
+        // With no usable ratio each auto axis falls back to the CSS default object
+        // size independently; with one, the auto height is the layout engine's to
+        // transfer and must stay auto.
+        if (widthIsAuto)
+            box.Width = "300px";
+        if (heightIsAuto && !hasRatio)
+            box.Height = "150px";
+    }
+
+    /// <summary>Reads an outer <c>&lt;svg&gt;</c>'s <c>width</c>/<c>height</c>
+    /// presentation attribute as a CSS length, mapping an absent, empty or
+    /// <c>auto</c> value back to <c>auto</c> so the caller's sizing rules apply.
+    /// </summary>
+    private static string SvgDimensionAttribute(CssBox box, string attribute)
+    {
+        var raw = box.HtmlTag?.TryGetAttribute(attribute);
+        if (string.IsNullOrWhiteSpace(raw))
+            return CssConstants.Auto;
+
+        var trimmed = raw.Trim();
+        return trimmed.Equals(CssConstants.Auto, StringComparison.OrdinalIgnoreCase)
+            ? CssConstants.Auto
+            : NormaliseDimensionAttribute(trimmed);
+    }
+
+    /// <summary>
+    /// SVG 2 §8.2: reads the intrinsic aspect ratio (width ÷ height) an outer
+    /// <c>&lt;svg&gt;</c>'s <c>viewBox</c> establishes. The attribute is exactly
+    /// four unitless numbers separated by whitespace and/or commas; anything else —
+    /// a wrong count, a unit suffix, or a non-positive width or height — leaves the
+    /// element with no ratio at all (matching the reference browser, which then
+    /// falls back to the default object size).
+    /// </summary>
+    private static bool TryParseSvgViewBoxRatio(CssBox box, out double ratio)
+    {
+        ratio = 0;
+
+        var raw = box.HtmlTag?.TryGetAttribute("viewBox");
+        if (string.IsNullOrWhiteSpace(raw))
+            return false;
+
+        var parts = raw.Split(ViewBoxSeparators, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length != 4)
+            return false;
+
+        // Only the third and fourth numbers (width, height) shape the ratio, but
+        // all four must parse: a malformed origin invalidates the whole attribute.
+        Span<double> numbers = stackalloc double[4];
+        for (int i = 0; i < 4; i++)
+        {
+            if (!double.TryParse(parts[i], NumberStyles.Float, CultureInfo.InvariantCulture, out numbers[i]))
+                return false;
+        }
+
+        if (!(numbers[2] > 0) || !(numbers[3] > 0))
+            return false;
+
+        ratio = numbers[2] / numbers[3];
+        return double.IsFinite(ratio) && ratio > 0;
+    }
+
+    private static readonly char[] ViewBoxSeparators = [' ', '\t', '\r', '\n', '\f', ','];
+
+    /// <summary><c>true</c> when a cascaded length property is absent or the
+    /// <c>auto</c> keyword — the two forms an unspecified box dimension takes.
+    /// </summary>
+    private static bool IsAutoLength(string value) =>
+        string.IsNullOrWhiteSpace(value)
+        || value.Trim().Equals(CssConstants.Auto, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Parses a plain pixel (or unitless) length. Percentages and
+    /// font/viewport-relative units need a containing block or a font, neither of
+    /// which is known at cascade time, and so are rejected.</summary>
+    private static bool TryParsePixelLength(string value, out double pixels)
+    {
+        pixels = 0;
+        if (string.IsNullOrWhiteSpace(value))
+            return false;
+
+        var trimmed = value.Trim();
+        if (trimmed.EndsWith("px", StringComparison.OrdinalIgnoreCase))
+            trimmed = trimmed[..^2].Trim();
+
+        return double.TryParse(trimmed, NumberStyles.Float, CultureInfo.InvariantCulture, out pixels)
+            && double.IsFinite(pixels);
+    }
+
+    private static string FormatPixels(double pixels) =>
+        pixels.ToString("0.####", CultureInfo.InvariantCulture) + "px";
+
+    /// <summary>Formats a width÷height ratio as an <c>aspect-ratio</c> value.
+    /// Written without spaces around the solidus: the layout parser splits on
+    /// whitespace first, so a bare <c>/</c> token would be rejected.</summary>
+    private static string FormatRatio(double ratio) =>
+        ratio.ToString("R", CultureInfo.InvariantCulture) + "/1";
 
     /// <summary>
     /// Normalises an HTML dimension attribute value (width/height) to a CSS
