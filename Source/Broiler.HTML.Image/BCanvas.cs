@@ -94,6 +94,26 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
     public void PushClipExclude(RectangleF rect) => _clipOperations.Add(ClipOperation.Exclude(Translate(rect)));
 
+    /// <summary>
+    /// Clips subsequent drawing to an arbitrary closed polygon (CSS <c>clip-path: polygon()</c>).
+    /// Vertices are in canvas-local coordinates and go through the same surface mapping as every
+    /// other geometry. Fewer than three vertices encloses no area, so it clips everything away.
+    /// </summary>
+    public void PushClipPolygon(IReadOnlyList<PointF> points)
+    {
+        if (points is null || points.Count < 3)
+        {
+            _clipOperations.Add(ClipOperation.Include(RectangleF.Empty));
+            return;
+        }
+
+        var translated = new PointF[points.Count];
+        for (int i = 0; i < points.Count; i++)
+            translated[i] = Translate(points[i]);
+
+        _clipOperations.Add(ClipOperation.IncludePolygon(translated));
+    }
+
     public void PushClipRounded(
         RectangleF rect,
         double cornerNw,
@@ -1063,11 +1083,33 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         float CornerSe,
         float CornerSeY,
         float CornerSw,
-        float CornerSwY)
+        float CornerSwY,
+        PointF[]? Polygon = null)
     {
         public static ClipOperation Include(RectangleF rect) => new(rect, false, false, 0, 0, 0, 0, 0, 0, 0, 0);
 
         public static ClipOperation Exclude(RectangleF rect) => new(rect, true, false, 0, 0, 0, 0, 0, 0, 0, 0);
+
+        /// <summary>
+        /// A polygon clip. <see cref="Rect"/> carries the polygon's bounding box so
+        /// <see cref="Contains"/> can reject the common case before running the crossing test.
+        /// </summary>
+        public static ClipOperation IncludePolygon(PointF[] polygon)
+        {
+            float minX = float.PositiveInfinity, minY = float.PositiveInfinity;
+            float maxX = float.NegativeInfinity, maxY = float.NegativeInfinity;
+            foreach (var point in polygon)
+            {
+                minX = Math.Min(minX, point.X);
+                minY = Math.Min(minY, point.Y);
+                maxX = Math.Max(maxX, point.X);
+                maxY = Math.Max(maxY, point.Y);
+            }
+
+            return new(
+                new RectangleF(minX, minY, maxX - minX, maxY - minY),
+                false, false, 0, 0, 0, 0, 0, 0, 0, 0, polygon);
+        }
 
         public static ClipOperation IncludeRounded(
             RectangleF rect,
@@ -1086,44 +1128,46 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
             if (!Rect.Contains(x, y))
                 return false;
 
+            if (Polygon is not null)
+                return ContainsPolygonPoint(Polygon, x, y);
+
             if (!IsRounded)
                 return true;
 
             return ContainsRounded(x, y);
         }
 
+        /// <summary>
+        /// Whether a point inside the clip's bounding rect is inside its rounded shape.
+        /// <para>
+        /// Only the four corner boxes are curved — a corner box spanning that corner's two radii —
+        /// and a point inside one is inside the shape only if it is inside that corner's ellipse.
+        /// Everything else within the rect is simply inside. A zero radius makes its corner box
+        /// empty, so that corner stays square with no special case.
+        /// </para>
+        /// <para>
+        /// This replaces a test that asked whether the point lay in a horizontal or vertical band
+        /// between opposing radii. Those bands span the whole box as soon as the opposing corner is
+        /// square: with only a top-left radius set, the "between the bottom corners" band covered
+        /// every row, so the shape reported itself as the full rectangle and a single rounded corner
+        /// rendered square. It only clipped correctly when all four corners were rounded.
+        /// </para>
+        /// </summary>
         private bool ContainsRounded(float x, float y)
         {
-            float left = Rect.Left;
-            float right = Rect.Right;
-            float top = Rect.Top;
-            float bottom = Rect.Bottom;
+            if (x < Rect.Left + CornerNw && y < Rect.Top + CornerNwY)
+                return InEllipse(x, y, Rect.Left + CornerNw, Rect.Top + CornerNwY, CornerNw, CornerNwY);
 
-            if (x >= left + CornerNw && x <= right - CornerNe)
-                return true;
+            if (x > Rect.Right - CornerNe && y < Rect.Top + CornerNeY)
+                return InEllipse(x, y, Rect.Right - CornerNe, Rect.Top + CornerNeY, CornerNe, CornerNeY);
 
-            if (x >= left + CornerSw && x <= right - CornerSe)
-                return true;
+            if (x > Rect.Right - CornerSe && y > Rect.Bottom - CornerSeY)
+                return InEllipse(x, y, Rect.Right - CornerSe, Rect.Bottom - CornerSeY, CornerSe, CornerSeY);
 
-            if (y >= top + CornerNwY && y <= bottom - CornerSwY)
-                return true;
+            if (x < Rect.Left + CornerSw && y > Rect.Bottom - CornerSwY)
+                return InEllipse(x, y, Rect.Left + CornerSw, Rect.Bottom - CornerSwY, CornerSw, CornerSwY);
 
-            if (y >= top + CornerNeY && y <= bottom - CornerSeY)
-                return true;
-
-            if (CornerNw > 0 && CornerNwY > 0 && InEllipse(x, y, left + CornerNw, top + CornerNwY, CornerNw, CornerNwY))
-                return true;
-
-            if (CornerNe > 0 && CornerNeY > 0 && InEllipse(x, y, right - CornerNe, top + CornerNeY, CornerNe, CornerNeY))
-                return true;
-
-            if (CornerSe > 0 && CornerSeY > 0 && InEllipse(x, y, right - CornerSe, bottom - CornerSeY, CornerSe, CornerSeY))
-                return true;
-
-            if (CornerSw > 0 && CornerSwY > 0 && InEllipse(x, y, left + CornerSw, bottom - CornerSwY, CornerSw, CornerSwY))
-                return true;
-
-            return false;
+            return true;
         }
 
         private static bool InEllipse(float x, float y, float centerX, float centerY, float radiusX, float radiusY)

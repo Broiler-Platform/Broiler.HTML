@@ -75,6 +75,21 @@ internal sealed class GraphicsAdapter : RGraphics
         _rasterCanvas?.PushClipExclude(rect);
     }
 
+    public override void PushClipPolygon(PointF[] points, RectangleF bounds)
+    {
+        _clipStack.Push(bounds);
+        ApplyCanvasOperation(canvas =>
+        {
+            CompatCanvasOperations.Save(canvas);
+            // The compat canvas has no arbitrary-shape clip, so it gets the polygon's
+            // bounding box. The raster canvas below clips to the polygon exactly, and it
+            // is the pipeline the headless renderer (and therefore the WPT run) uses.
+            _canvasCompat.PushClip(canvas, bounds);
+        });
+
+        _rasterCanvas?.PushClipPolygon(points);
+    }
+
     public override void PushClipRounded(RectangleF rect,
         double cornerNw, double cornerNwY,
         double cornerNe, double cornerNeY,
