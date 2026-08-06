@@ -216,7 +216,7 @@ internal static partial class PaintWalker
                 currentBgClipTextColor = bgColor;
         }
 
-        bool clipPathClipped = TryCreateClipPathItem(fragment, bounds, out var clipPathItem);
+        bool clipPathClipped = TryCreateClipPathItem(fragment, bounds, viewport, out var clipPathItem);
         if (clipPathClipped)
             items.Add(clipPathItem);
 
@@ -627,7 +627,7 @@ internal static partial class PaintWalker
                 return;
         }
 
-        bool clipPathClipped = TryCreateClipPathItem(fragment, bounds, out var clipPathItem);
+        bool clipPathClipped = TryCreateClipPathItem(fragment, bounds, viewport, out var clipPathItem);
         if (clipPathClipped)
             items.Add(clipPathItem);
 
@@ -794,7 +794,7 @@ internal static partial class PaintWalker
 
         var bounds = fragment.Bounds;
 
-        bool clipPathClipped = TryCreateClipPathItem(fragment, bounds, out var clipPathItem);
+        bool clipPathClipped = TryCreateClipPathItem(fragment, bounds, viewport, out var clipPathItem);
         if (clipPathClipped)
             items.Add(clipPathItem);
 

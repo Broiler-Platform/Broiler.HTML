@@ -90,7 +90,7 @@ internal static partial class PaintWalker
         // painting, leaving the UA canvas backdrop showing outside the shape. Pushed outside the
         // filter layer below because clip-path applies after filter in the CSS painting order.
         // (WPT css-masking/clip-path/clip-path-document-element{,-will-change}.)
-        bool canvasClipped = TryCreateCanvasClipPathItem(root, out var canvasClip);
+        bool canvasClipped = TryCreateCanvasClipPathItem(root, viewport, out var canvasClip);
         if (canvasClipped)
             items.Add(canvasClip);
 
@@ -447,12 +447,12 @@ internal static partial class PaintWalker
     /// a <c>clip-path</c> on &lt;body&gt; clips body's own rendering, and the background it hands
     /// to the canvas is no longer body's to clip.
     /// </summary>
-    private static bool TryCreateCanvasClipPathItem(Fragment root, out ClipItem clipItem)
+    private static bool TryCreateCanvasClipPathItem(Fragment root, RectangleF viewport, out ClipItem clipItem)
     {
         clipItem = null!;
         var rootElement = FindRootElementFragment(root);
         return rootElement != null
-            && TryCreateClipPathItem(rootElement, rootElement.Bounds, out clipItem);
+            && TryCreateClipPathItem(rootElement, rootElement.Bounds, viewport, out clipItem);
     }
 
     /// <summary>The fragment of the document root (html) element, falling back to the outermost
