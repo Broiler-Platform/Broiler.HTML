@@ -238,9 +238,11 @@ internal static partial class PaintWalker
     /// The cascade is: root → html → body, but body is only considered when
     /// html has BOTH transparent background-color AND no background-image.
     /// <para>
-    /// CSS Backgrounds §2.11.1 and CSS Containment §4.2: propagation is
-    /// suppressed when the source element has <c>display: none</c>,
-    /// <c>display: contents</c>, or <c>contain: paint</c>.
+    /// Two different things stop a background from reaching the canvas, and they
+    /// apply to different steps of that cascade. An element that generates no
+    /// principal box has no background to give (CSS Backgrounds §2.11.2), which
+    /// applies at every step; containment (CSS Contain 2 §2) disables propagation
+    /// <em>from body</em> only — see <see cref="HasActiveContainment"/>.
     /// </para>
     /// Returns (color, colorSource, imageSource).
     /// </summary>
@@ -249,9 +251,9 @@ internal static partial class PaintWalker
         // Check root itself.
         if (root.Style.ActualBackgroundColor.A > 0 || root.BackgroundImageHandle != null)
         {
-            // CSS Backgrounds §2.11.1: if the root element has display:none
+            // CSS Backgrounds §2.11.2: if the root element has display:none
             // its background must not propagate to the canvas.
-            if (SuppressesPropagation(root, isRootElement: true))
+            if (GeneratesNoBox(root, isRootElement: true))
                 return (BColor.Empty, null, null);
 
             return (root.Style.ActualBackgroundColor, root,
@@ -265,30 +267,28 @@ internal static partial class PaintWalker
         if (html == null)
             return (BColor.Empty, null, null);
 
-        // CSS Containment §4.2: contain:paint on the html element prevents
-        // propagation from body.  The html element is the document root, so
-        // CSS Display §2.5 blockifies a display:contents value here — it does
+        // A display:none root generates no box, so neither it nor body has a
+        // background to give the canvas. The html element is the document root,
+        // so CSS Display §2.5 blockifies a display:contents value here — it does
         // not remove the root's box, and its background still propagates.
-        bool htmlSuppressed = SuppressesPropagation(html, isRootElement: true);
+        if (GeneratesNoBox(html, isRootElement: true))
+            return (BColor.Empty, null, null);
 
         bool htmlHasBg = html.Style.ActualBackgroundColor.A > 0;
         bool htmlHasImg = html.BackgroundImageHandle != null;
 
+        // The root element's own background *is* the canvas background rather
+        // than something propagated to it, so containment on the root does not
+        // hold it back (verified against Chromium: `html { contain: paint;
+        // background: green }` paints the whole canvas green).
         if (htmlHasBg || htmlHasImg)
         {
-            if (htmlSuppressed)
-                return (BColor.Empty, null, null);
-
             return (html.Style.ActualBackgroundColor,
                 htmlHasBg ? html : null,
                 htmlHasImg ? html : null);
         }
 
         // Step 2: html has no background at all → fall back to body.
-        // But if html has contain:paint, propagation from body is blocked.
-        if (htmlSuppressed)
-            return (BColor.Empty, null, null);
-
         // When body has display:inline, anonymous block wrappers may
         // intervene between the html fragment and the body fragment.
         // Use a recursive tag-based search (depth-limited) to locate
@@ -298,10 +298,15 @@ internal static partial class PaintWalker
         if (body == null)
             return (BColor.Empty, null, null);
 
-        // CSS Containment §4.2 / CSS Backgrounds §2.11.1: body with
-        // contain:paint or display:contents/none does not propagate.
-        if (SuppressesPropagation(body))
+        // CSS Backgrounds §2.11.2: a body with no principal box has no
+        // background to propagate. CSS Contain 2 §2: containment on *either*
+        // html or body disables propagation from body.
+        if (GeneratesNoBox(body)
+            || HasActiveContainment(html)
+            || HasActiveContainment(body))
+        {
             return (BColor.Empty, null, null);
+        }
 
         bool bodyHasBg = body.Style.ActualBackgroundColor.A > 0;
         bool bodyHasImg = body.BackgroundImageHandle != null;
@@ -355,17 +360,9 @@ internal static partial class PaintWalker
     }
 
     /// <summary>
-    /// Returns <see langword="true"/> when the given fragment's CSS properties
-    /// suppress background propagation to the canvas.  Per the CSS
-    /// Backgrounds and CSS Containment specifications, propagation is
-    /// suppressed when:
-    /// <list type="bullet">
-    ///   <item><c>display: none</c> — the element generates no box.</item>
-    ///   <item><c>display: contents</c> — the element generates no principal box.</item>
-    ///   <item><c>contain: paint</c> (or a shorthand that includes paint,
-    ///         e.g. <c>strict</c>, <c>content</c>) — paint containment
-    ///         prevents the background from propagating.</item>
-    /// </list>
+    /// Returns <see langword="true"/> when the fragment generates no principal
+    /// box, so it has no background for the canvas to take (CSS Backgrounds
+    /// §2.11.2): <c>display: none</c>, or <c>display: contents</c>.
     /// <para>
     /// When <paramref name="isRootElement"/> is set, <c>display: contents</c>
     /// does <em>not</em> suppress: CSS Display §2.5 blockifies the document
@@ -373,23 +370,71 @@ internal static partial class PaintWalker
     /// <c>display: block</c> had been specified.
     /// </para>
     /// </summary>
-    private static bool SuppressesPropagation(Fragment fragment, bool isRootElement = false)
+    private static bool GeneratesNoBox(Fragment fragment, bool isRootElement = false)
     {
         var display = fragment.Style.Display;
-        if (display == "none")
-            return true;
-        if (display == "contents" && !isRootElement)
-            return true;
+        return display == "none" || (display == "contents" && !isRootElement);
+    }
 
-        var contain = fragment.Style.Contain;
-        if (!string.IsNullOrEmpty(contain) && contain != "none")
+    /// <summary>
+    /// Returns <see langword="true"/> when containment is active on the fragment.
+    /// CSS Contain 2 §2: "when any containments are active on either the html or
+    /// body elements, propagation of properties from the body element to the
+    /// initial containing block, the viewport, or the canvas background, is
+    /// disabled" — so this governs the body → canvas step only, and *any*
+    /// containment does it, not just <c>paint</c>.
+    /// <para>
+    /// Containment is also what <c>content-visibility: hidden</c> and
+    /// <c>auto</c> apply (CSS Contain 2 §4), and Chromium suppresses propagation
+    /// for those too.
+    /// </para>
+    /// <para>
+    /// Deliberately not modelled: containment does not apply to a non-atomic
+    /// inline, so Chromium keeps propagating for a <c>display: inline</c> body
+    /// with <c>contain: layout</c>. The box tree reports <c>&lt;body&gt;</c> as
+    /// <c>block</c> whatever <c>display</c> says, so that case cannot be told
+    /// apart here and a guard for it would be unreachable.
+    /// </para>
+    /// </summary>
+    private static bool HasActiveContainment(Fragment fragment)
+    {
+        var style = fragment.Style;
+
+        var contentVisibility = style.ContentVisibility;
+        if (contentVisibility != null
+            && (contentVisibility.Equals("hidden", StringComparison.OrdinalIgnoreCase)
+                || contentVisibility.Equals("auto", StringComparison.OrdinalIgnoreCase)))
         {
-            // contain: strict = size layout style paint
-            // contain: content = layout style paint
-            if (contain.Contains("paint", StringComparison.OrdinalIgnoreCase)
-                || contain.Equals("strict", StringComparison.OrdinalIgnoreCase)
-                || contain.Equals("content", StringComparison.OrdinalIgnoreCase))
+            return true;
+        }
+
+        return ContainKeywordsActive(style.Contain);
+    }
+
+    /// <summary>
+    /// Whether a computed <c>contain</c> value names at least one containment.
+    /// Tokenised rather than substring-matched so <c>none</c> — and any future
+    /// value that merely spells a keyword — cannot read as containment.
+    /// </summary>
+    private static bool ContainKeywordsActive(string? contain)
+    {
+        if (string.IsNullOrEmpty(contain))
+            return false;
+
+        foreach (var token in contain.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            // `strict` is size + layout + style + paint; `content` is all but size.
+            if (token.Equals("size", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("inline-size", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("block-size", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("layout", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("style", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("paint", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("strict", StringComparison.OrdinalIgnoreCase)
+                || token.Equals("content", StringComparison.OrdinalIgnoreCase))
+            {
                 return true;
+            }
         }
 
         return false;

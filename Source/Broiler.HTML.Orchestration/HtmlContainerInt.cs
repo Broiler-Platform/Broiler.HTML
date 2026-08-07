@@ -172,7 +172,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 continue;
 
             htmlBox = child;
-            if (SuppressesCanvasBackgroundPropagation(child, isRootElement: true))
+            if (GeneratesNoBox(child, isRootElement: true))
                 return BColor.Empty;
 
             // A clip-path on the document element clips the background it propagates to the
@@ -197,7 +197,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             if (!string.Equals(child.HtmlTag?.Name, "body", StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            if (SuppressesCanvasBackgroundPropagation(child))
+            if (SuppressesCanvasBackgroundPropagation(child, htmlBox))
                 return BColor.Empty;
 
             background = child.ActualBackgroundColor;
@@ -212,7 +212,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             var bodyBox = FindBodyBox(htmlBox);
             if (bodyBox != null)
             {
-                if (SuppressesCanvasBackgroundPropagation(bodyBox))
+                if (SuppressesCanvasBackgroundPropagation(bodyBox, htmlBox))
                     return BColor.Empty;
 
                 background = bodyBox.ActualBackgroundColor;
@@ -298,25 +298,71 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private static readonly string[] ClipPathShapesThatClip =
         ["inset(", "polygon(", "circle(", "ellipse("];
 
-    private static bool SuppressesCanvasBackgroundPropagation(CssBox box, bool isRootElement = false)
+    /// <summary>
+    /// Whether the box generates no principal box, so it has no background for the canvas to
+    /// take (CSS Backgrounds §2.11.2). CSS Display §2.5: the document root element is
+    /// blockified, so a display:contents value there still generates a box whose background
+    /// propagates to the canvas — only non-root elements are box-suppressed by it.
+    /// </summary>
+    private static bool GeneratesNoBox(CssBox box, bool isRootElement = false)
     {
         if (string.Equals(box.Display, "none", StringComparison.OrdinalIgnoreCase))
             return true;
 
-        // CSS Display §2.5: the document root element is blockified, so a
-        // display:contents value there still generates a box whose background
-        // propagates to the canvas. Only non-root elements are box-suppressed.
-        if (!isRootElement &&
-            string.Equals(box.Display, "contents", StringComparison.OrdinalIgnoreCase))
+        return !isRootElement &&
+               string.Equals(box.Display, "contents", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Whether the body box's background is held back from the canvas. Mirrors
+    /// <c>PaintWalker.FindCanvasBackgroundAndImage</c>: a body with no principal box has
+    /// nothing to give, and CSS Contain 2 §2 disables propagation from body when any
+    /// containment is active on <em>either</em> the body or the html element.
+    /// </summary>
+    private static bool SuppressesCanvasBackgroundPropagation(CssBox body, CssBox? htmlBox)
+    {
+        return GeneratesNoBox(body)
+            || HasActiveContainment(body)
+            || (htmlBox != null && HasActiveContainment(htmlBox));
+    }
+
+    /// <summary>
+    /// Whether containment is active on the box — the <c>contain</c> property naming any
+    /// containment, or the <c>content-visibility</c> values that apply it (CSS Contain 2 §4).
+    /// Mirrors <c>PaintWalker.HasActiveContainment</c>, including what it leaves out: the
+    /// non-atomic-inline exemption is unreachable because the box tree reports
+    /// <c>&lt;body&gt;</c> as <c>block</c> whatever <c>display</c> says.
+    /// </summary>
+    private static bool HasActiveContainment(CssBox box)
+    {
+        var contentVisibility = box.ContentVisibility;
+        if (string.Equals(contentVisibility, "hidden", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(contentVisibility, "auto", StringComparison.OrdinalIgnoreCase))
         {
             return true;
         }
 
         var contain = box.Contain;
-        return !string.IsNullOrEmpty(contain) &&
-               (contain.Contains("paint", StringComparison.OrdinalIgnoreCase) ||
-                contain.Contains("strict", StringComparison.OrdinalIgnoreCase) ||
-                contain.Contains("content", StringComparison.OrdinalIgnoreCase));
+        if (string.IsNullOrEmpty(contain))
+            return false;
+
+        foreach (var token in contain.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+        {
+            // `strict` is size + layout + style + paint; `content` is all but size.
+            if (string.Equals(token, "size", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(token, "inline-size", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(token, "block-size", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(token, "layout", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(token, "style", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(token, "paint", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(token, "strict", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(token, "content", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
     internal BColor SelectionForeColor { get; set; }
     internal BColor SelectionBackColor { get; set; }
