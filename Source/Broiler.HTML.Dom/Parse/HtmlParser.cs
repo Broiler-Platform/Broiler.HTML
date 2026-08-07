@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Broiler.Layout.Engine;
 using Broiler.HTML.Utils;
 using Broiler.Layout;
-using System.Net;
 
 namespace Broiler.HTML.Dom.Parse;
 
@@ -111,8 +110,12 @@ internal static class HtmlParser
         if (element.Attributes.Count > 0)
         {
             attrs = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            // Taken as they stand: the tokenizer decodes an attribute value's character references
+            // where every other consumer of the DOM sees them (WHATWG §13.2.5). Decoding again here
+            // would eat a second level of escaping — `title="&amp;amp;"` means a literal `&amp;`,
+            // not `&`.
             foreach (var attribute in element.Attributes.Values)
-                attrs[attribute.QualifiedName] = WebUtility.HtmlDecode(attribute.Value);
+                attrs[attribute.QualifiedName] = attribute.Value;
         }
 
         var isSingle = HtmlUtils.IsSingleTag(element.LocalName);
