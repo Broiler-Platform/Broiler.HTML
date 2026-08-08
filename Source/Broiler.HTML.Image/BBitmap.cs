@@ -205,6 +205,23 @@ public sealed class BBitmap : IDisposable
     };
 
     internal bool HasMaterializedCompatBitmap => _compatSurface.IsMaterialized;
+
+    /// <summary>
+    /// Whether pixels of this bitmap may be written from several threads at once, given each
+    /// thread writes its own pixels. Gates the rasterizer's band parallelism (multithreading
+    /// roadmap item #4).
+    /// </summary>
+    /// <remarks>
+    /// A write is two steps: the managed pixel buffer, which is a byte array and so tolerates
+    /// disjoint concurrent writes by construction, and a mirror into the compat surface. The
+    /// mirror is what decides the answer. A surface that has never materialized a platform bitmap
+    /// has nothing to mirror into — the headless raster pipeline installs exactly such a stub —
+    /// whereas one backed by a real platform bitmap carries that bitmap's threading rules, which
+    /// are not ours to assume. So the parallel path is taken only for the former, and any surface
+    /// that reports itself materialized keeps the single-threaded rasterizer it was written
+    /// against.
+    /// </remarks>
+    internal bool SupportsConcurrentPixelWrites => !_compatSurface.IsMaterialized;
     internal int CompatSyncInvocationCount { get; private set; }
 
     internal object OpenCanvas() => _compatSurface.OpenCanvas();

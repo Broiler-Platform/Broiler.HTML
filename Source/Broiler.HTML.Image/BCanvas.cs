@@ -145,17 +145,40 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         int maxX = Math.Min(CurrentTarget.Width - 1, (int)Math.Ceiling(translated.Right) - 1);
         int maxY = Math.Min(CurrentTarget.Height - 1, (int)Math.Ceiling(translated.Bottom) - 1);
 
-        for (int y = minY; y <= maxY; y++)
+        ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
-            for (int x = minX; x <= maxX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                    BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                }
             }
-        }
+        });
     }
+
+    /// <summary>
+    /// Splits a fill's scanlines into bands across threads, or runs them inline when the fill is
+    /// too small to be worth it. Multithreading roadmap item #4; the reasoning is on
+    /// <see cref="BRasterParallelism"/>.
+    /// </summary>
+    /// <remarks>
+    /// Takes the clipped pixel bounds rather than a row count because the decision is about area:
+    /// a hundred-row fill one pixel wide is not worth a thread and a two-row fill across a 4K
+    /// surface may be. <see cref="CurrentTarget"/> is read here — once, before any band starts —
+    /// so the layer a fill draws into is fixed for the whole fill, exactly as it is in the
+    /// sequential path.
+    /// </remarks>
+    private void ForEachBand(int minY, int maxY, int minX, int maxX, Action<int, int> band) =>
+        BRasterParallelism.ForEachBand(
+            minY,
+            maxY,
+            maxX - minX + 1,
+            CurrentTarget.SupportsConcurrentPixelWrites,
+            band);
 
     public void DrawLine(PointF start, PointF end, BColor color, float strokeWidth = 1f)
     {
@@ -170,18 +193,21 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         int maxX = Math.Min(CurrentTarget.Width - 1, (int)Math.Ceiling(Math.Max(p1.X, p2.X) + radius));
         int maxY = Math.Min(CurrentTarget.Height - 1, (int)Math.Ceiling(Math.Max(p1.Y, p2.Y) + radius));
 
-        for (int y = minY; y <= maxY; y++)
+        ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
-            for (int x = minX; x <= maxX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                float distance = DistanceToSegment(x + 0.5f, y + 0.5f, p1, p2);
-                if (distance <= radius)
-                    BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                    float distance = DistanceToSegment(x + 0.5f, y + 0.5f, p1, p2);
+                    if (distance <= radius)
+                        BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                }
             }
-        }
+        });
     }
 
     public void DrawRectangleStroke(RectangleF rect, BColor color, float strokeWidth = 1f)
@@ -219,17 +245,20 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         int endX = Math.Min(CurrentTarget.Width - 1, (int)Math.Ceiling(maxX));
         int endY = Math.Min(CurrentTarget.Height - 1, (int)Math.Ceiling(maxY));
 
-        for (int y = startY; y <= endY; y++)
+        ForEachBand(startY, endY, startX, endX, (fromY, toY) =>
         {
-            for (int x = startX; x <= endX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = startX; x <= endX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                if (ContainsPolygonPoint(translated, x + 0.5f, y + 0.5f))
-                    BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                    if (ContainsPolygonPoint(translated, x + 0.5f, y + 0.5f))
+                        BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                }
             }
-        }
+        });
     }
 
     /// <summary>
@@ -276,72 +305,81 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
         const int subSamples = 4;
         int width = maxX - minX + 1;
-        var coverage = new float[width];
-        var crossings = new List<(float x, int dir)>(16);
 
-        for (int y = minY; y <= maxY; y++)
+        // The coverage accumulator and the crossing list are per band, not per canvas: they are
+        // the only mutable state a scanline carries, and giving each band its own is what lets the
+        // bands run at once. A glyph is normally far below the parallel threshold and takes the
+        // inline path with exactly one band — this matters for the large fills (drop caps, SVG
+        // outlines, headline text) that are not.
+        ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
-            Array.Clear(coverage, 0, width);
+            var coverage = new float[width];
+            var crossings = new List<(float x, int dir)>(16);
 
-            for (int s = 0; s < subSamples; s++)
+            for (int y = fromY; y <= toY; y++)
             {
-                float sampleY = y + (s + 0.5f) / subSamples;
-                crossings.Clear();
+                Array.Clear(coverage, 0, width);
 
-                foreach (var poly in devContours)
+                for (int s = 0; s < subSamples; s++)
                 {
-                    int n = poly.Length;
-                    for (int i = 0; i < n; i++)
+                    float sampleY = y + (s + 0.5f) / subSamples;
+                    crossings.Clear();
+
+                    foreach (var poly in devContours)
                     {
-                        PointF p0 = poly[i];
-                        PointF p1 = poly[(i + 1) % n];
-                        if (p0.Y == p1.Y)
-                            continue;
+                        int n = poly.Length;
+                        for (int i = 0; i < n; i++)
+                        {
+                            PointF p0 = poly[i];
+                            PointF p1 = poly[(i + 1) % n];
+                            if (p0.Y == p1.Y)
+                                continue;
 
-                        float lo = Math.Min(p0.Y, p1.Y);
-                        float hi = Math.Max(p0.Y, p1.Y);
-                        if (sampleY < lo || sampleY >= hi)
-                            continue;
+                            float lo = Math.Min(p0.Y, p1.Y);
+                            float hi = Math.Max(p0.Y, p1.Y);
+                            if (sampleY < lo || sampleY >= hi)
+                                continue;
 
-                        float t = (sampleY - p0.Y) / (p1.Y - p0.Y);
-                        float xCross = p0.X + t * (p1.X - p0.X);
-                        crossings.Add((xCross, p1.Y > p0.Y ? 1 : -1));
+                            float t = (sampleY - p0.Y) / (p1.Y - p0.Y);
+                            float xCross = p0.X + t * (p1.X - p0.X);
+                            crossings.Add((xCross, p1.Y > p0.Y ? 1 : -1));
+                        }
+                    }
+
+                    if (crossings.Count < 2)
+                        continue;
+
+                    crossings.Sort(static (l, r) => l.x.CompareTo(r.x));
+
+                    int winding = 0;
+                    for (int i = 0; i < crossings.Count - 1; i++)
+                    {
+                        winding += crossings[i].dir;
+                        if (winding != 0)
+                            AccumulateGlyphSpan(coverage, minX, crossings[i].x, crossings[i + 1].x, 1f / subSamples);
                     }
                 }
 
-                if (crossings.Count < 2)
-                    continue;
-
-                crossings.Sort(static (l, r) => l.x.CompareTo(r.x));
-
-                int winding = 0;
-                for (int i = 0; i < crossings.Count - 1; i++)
+                for (int i = 0; i < width; i++)
                 {
-                    winding += crossings[i].dir;
-                    if (winding != 0)
-                        AccumulateGlyphSpan(coverage, minX, crossings[i].x, crossings[i + 1].x, 1f / subSamples);
+                    float cov = coverage[i];
+                    if (cov <= 0f)
+                        continue;
+                    if (cov > 1f)
+                        cov = 1f;
+
+                    int x = minX + i;
+                    if (!IsVisible(x, y))
+                        continue;
+
+                    byte a = (byte)Math.Clamp((int)Math.Round(color.A * cov), 0, 255);
+                    if (a == 0)
+                        continue;
+
+                    BlendPixel(CurrentTarget, x, y, new BColor(color.R, color.G, color.B, a), blendMode: "normal");
                 }
             }
-
-            for (int i = 0; i < width; i++)
-            {
-                float cov = coverage[i];
-                if (cov <= 0f)
-                    continue;
-                if (cov > 1f)
-                    cov = 1f;
-
-                int x = minX + i;
-                if (!IsVisible(x, y))
-                    continue;
-
-                byte a = (byte)Math.Clamp((int)Math.Round(color.A * cov), 0, 255);
-                if (a == 0)
-                    continue;
-
-                BlendPixel(CurrentTarget, x, y, new BColor(color.R, color.G, color.B, a), blendMode: "normal");
-            }
-        }
+        });
     }
 
     private static void AccumulateGlyphSpan(float[] coverage, int minX, float spanStart, float spanEnd, float weight)
@@ -381,23 +419,26 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         if (startX > endX || startY > endY)
             return;
 
-        for (int y = startY; y <= endY; y++)
+        ForEachBand(startY, endY, startX, endX, (fromY, toY) =>
         {
-            for (int x = startX; x <= endX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = startX; x <= endX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                float normalizedX = ((x + 0.5f) - translatedDest.Left) / translatedDest.Width;
-                float normalizedY = ((y + 0.5f) - translatedDest.Top) / translatedDest.Height;
-                if (normalizedX < 0f || normalizedX >= 1f || normalizedY < 0f || normalizedY >= 1f)
-                    continue;
+                    float normalizedX = ((x + 0.5f) - translatedDest.Left) / translatedDest.Width;
+                    float normalizedY = ((y + 0.5f) - translatedDest.Top) / translatedDest.Height;
+                    if (normalizedX < 0f || normalizedX >= 1f || normalizedY < 0f || normalizedY >= 1f)
+                        continue;
 
-                int srcX = Math.Clamp((int)Math.Floor(srcRect.Left + (normalizedX * srcRect.Width)), 0, source.Width - 1);
-                int srcY = Math.Clamp((int)Math.Floor(srcRect.Top + (normalizedY * srcRect.Height)), 0, source.Height - 1);
-                BlendPixel(CurrentTarget, x, y, source.GetPixel(srcX, srcY), blendMode: "normal");
+                    int srcX = Math.Clamp((int)Math.Floor(srcRect.Left + (normalizedX * srcRect.Width)), 0, source.Width - 1);
+                    int srcY = Math.Clamp((int)Math.Floor(srcRect.Top + (normalizedY * srcRect.Height)), 0, source.Height - 1);
+                    BlendPixel(CurrentTarget, x, y, source.GetPixel(srcX, srcY), blendMode: "normal");
+                }
             }
-        }
+        });
     }
 
     public void DrawPathStroke(IReadOnlyList<PointF> points, BColor color, float strokeWidth = 1f)
@@ -423,26 +464,29 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         int maxX = Math.Min(CurrentTarget.Width - 1, (int)Math.Ceiling(translatedDest.Right) - 1);
         int maxY = Math.Min(CurrentTarget.Height - 1, (int)Math.Ceiling(translatedDest.Bottom) - 1);
 
-        for (int y = minY; y <= maxY; y++)
+        ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
-            for (int x = minX; x <= maxX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                float sampleX = x + 0.5f;
-                float sampleY = y + 0.5f;
-                int srcX = Math.Clamp(
-                    (int)Math.Floor(srcRect.Left + PositiveModulo(sampleX - translatedOrigin.X, srcRect.Width)),
-                    0,
-                    source.Width - 1);
-                int srcY = Math.Clamp(
-                    (int)Math.Floor(srcRect.Top + PositiveModulo(sampleY - translatedOrigin.Y, srcRect.Height)),
-                    0,
-                    source.Height - 1);
-                BlendPixel(CurrentTarget, x, y, source.GetPixel(srcX, srcY), blendMode: "normal");
+                    float sampleX = x + 0.5f;
+                    float sampleY = y + 0.5f;
+                    int srcX = Math.Clamp(
+                        (int)Math.Floor(srcRect.Left + PositiveModulo(sampleX - translatedOrigin.X, srcRect.Width)),
+                        0,
+                        source.Width - 1);
+                    int srcY = Math.Clamp(
+                        (int)Math.Floor(srcRect.Top + PositiveModulo(sampleY - translatedOrigin.Y, srcRect.Height)),
+                        0,
+                        source.Height - 1);
+                    BlendPixel(CurrentTarget, x, y, source.GetPixel(srcX, srcY), blendMode: "normal");
+                }
             }
-        }
+        });
     }
 
     public void FillLinearGradientRect(RectangleF rect, IReadOnlyList<BColor> colors, IReadOnlyList<float>? positions, float angle)
@@ -473,20 +517,23 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
             return;
         }
 
-        for (int y = minY; y <= maxY; y++)
+        ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
-            for (int x = minX; x <= maxX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                float sampleX = x + 0.5f;
-                float sampleY = y + 0.5f;
-                float t = (((sampleX - startPoint.X) * gradientX) + ((sampleY - startPoint.Y) * gradientY)) / gradientLengthSquared;
-                var color = SampleGradientColor(colors, normalizedPositions, Math.Clamp(t, 0f, 1f));
-                BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                    float sampleX = x + 0.5f;
+                    float sampleY = y + 0.5f;
+                    float t = (((sampleX - startPoint.X) * gradientX) + ((sampleY - startPoint.Y) * gradientY)) / gradientLengthSquared;
+                    var color = SampleGradientColor(colors, normalizedPositions, Math.Clamp(t, 0f, 1f));
+                    BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                }
             }
-        }
+        });
     }
 
     /// <summary>
@@ -525,20 +572,23 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         if (rx <= 0 || ry <= 0)
             return;
 
-        for (int y = minY; y <= maxY; y++)
+        ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
-            for (int x = minX; x <= maxX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                float dx = (x + 0.5f - cx) / rx;
-                float dy = (y + 0.5f - cy) / ry;
-                float t = Math.Clamp((float)Math.Sqrt((dx * dx) + (dy * dy)), 0f, 1f);
-                var color = SampleGradientColor(colors, normalizedPositions, t);
-                BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                    float dx = (x + 0.5f - cx) / rx;
+                    float dy = (y + 0.5f - cy) / ry;
+                    float t = Math.Clamp((float)Math.Sqrt((dx * dx) + (dy * dy)), 0f, 1f);
+                    var color = SampleGradientColor(colors, normalizedPositions, t);
+                    BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                }
             }
-        }
+        });
     }
 
     /// <summary>
@@ -571,24 +621,27 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         float cx = translatedRect.Left + (centerX * translatedRect.Width);
         float cy = translatedRect.Top + (centerY * translatedRect.Height);
 
-        for (int y = minY; y <= maxY; y++)
+        ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
-            for (int x = minX; x <= maxX; x++)
+            for (int y = fromY; y <= toY; y++)
             {
-                if (!IsVisible(x, y))
-                    continue;
+                for (int x = minX; x <= maxX; x++)
+                {
+                    if (!IsVisible(x, y))
+                        continue;
 
-                float dx = x + 0.5f - cx;
-                float dy = y + 0.5f - cy;
+                    float dx = x + 0.5f - cx;
+                    float dy = y + 0.5f - cy;
 
-                // atan2(dx, -dy) yields 0 at 12 o'clock and increases clockwise.
-                float angleDeg = (float)(Math.Atan2(dx, -dy) * 180.0 / Math.PI);
-                float t = PositiveModulo(angleDeg - fromAngleDeg, 360f) / 360f;
+                    // atan2(dx, -dy) yields 0 at 12 o'clock and increases clockwise.
+                    float angleDeg = (float)(Math.Atan2(dx, -dy) * 180.0 / Math.PI);
+                    float t = PositiveModulo(angleDeg - fromAngleDeg, 360f) / 360f;
 
-                var color = SampleGradientColor(colors, normalizedPositions, t);
-                BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                    var color = SampleGradientColor(colors, normalizedPositions, t);
+                    BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                }
             }
-        }
+        });
     }
 
     public void SaveOpacityLayer(float opacity)
