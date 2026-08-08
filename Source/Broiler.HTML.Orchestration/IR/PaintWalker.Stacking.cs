@@ -84,8 +84,27 @@ internal static partial class PaintWalker
             return;
         if (style.Visibility != "visible")
         {
+            // CSS2.1 §11.2: visibility:hidden suppresses only this box's *own* rendering. The box
+            // is still generated and still clips, so a `visibility: visible` descendant paints —
+            // and it paints inside this box's overflow clip. Walking the children without pushing
+            // that clip let a hidden scroller's oversized content escape across the whole page
+            // (WPT css/css-overflow/overflow-scroll-resize-visibility-hidden, where two hidden
+            // 100x100 scrollers each hold 1000x1000 of green).
+            bool hiddenClipsOverflow = ClipsOverflow(style);
+            if (hiddenClipsOverflow)
+            {
+                items.Add(new ClipItem
+                {
+                    Bounds = fragment.Bounds,
+                    ClipRect = OverflowClipRect(fragment, style),
+                });
+            }
+
             // Even if not visible, children may be visible (CSS spec)
             PaintChildren(fragment, items, propagatedFrom, viewport, bgClipTextColor: bgClipTextColor);
+
+            if (hiddenClipsOverflow)
+                items.Add(new RestoreItem { Bounds = fragment.Bounds });
             return;
         }
 
@@ -611,9 +630,23 @@ internal static partial class PaintWalker
             return;
         if (style.Visibility != "visible")
         {
+            // The hidden box still clips its descendants — same rule as in PaintFragment above.
+            bool hiddenClipsOverflow = descend && ClipsOverflow(style);
+            if (hiddenClipsOverflow)
+            {
+                items.Add(new ClipItem
+                {
+                    Bounds = fragment.Bounds,
+                    ClipRect = OverflowClipRect(fragment, style),
+                });
+            }
+
             // Walk block children even when not visible (their visibility is independent)
             if (descend)
                 PaintChildrenBackgroundPhase(fragment, items, propagatedFrom, viewport);
+
+            if (hiddenClipsOverflow)
+                items.Add(new RestoreItem { Bounds = fragment.Bounds });
             return;
         }
 
