@@ -401,6 +401,18 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (string.IsNullOrEmpty(htmlSource))
             return;
 
+        // Publish this document's quirks mode, the way the HtmlBridge DOM path
+        // already does at DomBridge.HtmlParsing.cs. Leaving it unwritten here was
+        // harmless only for as long as one thread renders one document at a time:
+        // the flag is [ThreadStatic], so a pooled thread that last rendered a
+        // quirks document through the DOM path carries that `true` into this
+        // standards-mode render — which is a wrong render, not a crash, and looks
+        // like a layout bug rather than a threading one. That is the residual
+        // recorded in docs/architecture/multithreading-static-state.md, and it has
+        // to close before a render-path worker pool exists rather than after.
+        Layout.DocumentModeContext.CurrentQuirksMode =
+            Layout.DocumentModeContext.IsQuirksHtml(htmlSource);
+
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
         DomParser parser = new(new StylesheetLoadHandler(this));
         InitialiseRoot(
