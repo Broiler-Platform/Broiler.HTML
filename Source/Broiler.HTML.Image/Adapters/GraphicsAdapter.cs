@@ -2,14 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
+using Broiler.Layout.IR;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class GraphicsAdapter : RGraphics
+internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBoundsCullingSurface
 {
     private readonly Func<object> _canvasFactory;
     private readonly BCanvas? _rasterCanvas;
     private readonly bool _disposeCanvas;
+
+    /// <summary>
+    /// Whether this adapter is one of a replay's tile views (multithreading item #5) rather than a
+    /// surface in its own right. A tile view shares its parent's compat-canvas factory, so the
+    /// compat canvas is not its to close even though the raster canvas beside it is — and reaching
+    /// that factory at all is a defect worth counting.
+    /// </summary>
+    private readonly bool _isTileView;
+
     private readonly bool _restoreOnDispose;
     private readonly Action? _onDispose;
     private readonly List<Action<object>> _deferredCanvasOperations = [];
@@ -30,12 +40,14 @@ internal sealed class GraphicsAdapter : RGraphics
         ITextShaper? textShaper = null,
         ICanvasCompat? canvasCompat = null,
         Action<object, object?>? initialCanvasOperation = null,
-        object? initialCanvasOperationState = null)
+        object? initialCanvasOperationState = null,
+        bool isTileView = false)
         : base(CompatProvider.ImageAdapter, initialClip)
     {
         _canvasFactory = canvasFactory ?? throw new ArgumentNullException(nameof(canvasFactory));
         _rasterCanvas = rasterCanvas;
         _disposeCanvas = disposeCanvas;
+        _isTileView = isTileView;
         _restoreOnDispose = restoreOnDispose;
         _onDispose = onDispose;
         _textShaper = textShaper ?? CompatProvider.TextShaper;
@@ -45,6 +57,51 @@ internal sealed class GraphicsAdapter : RGraphics
     }
 
     internal bool HasMaterializedCanvas => _canvas is not null;
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Three conditions, and each of them is a way a second thread could go wrong rather than a
+    /// preference. There has to <em>be</em> a raster canvas (with no raster pipeline every draw
+    /// goes to the compat backend, whose threading rules are not ours to assume); the surface must
+    /// still tolerate concurrent pixel writes, which stops being true once it mirrors into a
+    /// platform bitmap; and this adapter must not already have materialized a compat canvas, since
+    /// the views share the factory that would make a second one.
+    /// </remarks>
+    public Size TileParallelSurfaceSize =>
+        _rasterCanvas is { } canvas && !HasMaterializedCanvas && canvas.SupportsConcurrentPixelWrites
+            ? new Size(canvas.SurfaceWidth, canvas.SurfaceHeight)
+            : Size.Empty;
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Only the raster canvas can answer: it owns the clip the pixels are tested against. With no
+    /// raster canvas every draw goes to the compat backend, whose clip this adapter does not model,
+    /// so nothing is culled and every primitive runs exactly as it did before.
+    /// </remarks>
+    public bool IsCulled(RectangleF bounds) => _rasterCanvas?.IsCulled(bounds) ?? false;
+
+    /// <inheritdoc />
+    public RGraphics CreateTileView(Rectangle tile)
+    {
+        var canvas = _rasterCanvas
+            ?? throw new InvalidOperationException("This surface has no raster canvas to tile.");
+
+        return new GraphicsAdapter(
+            _canvasFactory,
+            // The clip stack goes across UNNARROWED, and that is load-bearing rather than tidy: a
+            // caller may derive geometry from GetClip(), not merely obey it. DrawClippedImage
+            // recomputes an image's *source* rectangle from the intersection of its destination with
+            // the clip, so a tile-narrowed clip re-derives a different source rectangle and resamples
+            // the image — which showed up as one row of subtly different pixels on two
+            // background-size tests and on nothing else. The tile belongs to the rasterizer's
+            // per-pixel test and to nothing above it, so it is added to the raster canvas only.
+            _clipStack.Peek(),
+            canvas.CreateTileView(tile),
+            disposeCanvas: true,
+            textShaper: _textShaper,
+            canvasCompat: _canvasCompat,
+            isTileView: true);
+    }
 
     public override void PopClip()
     {
@@ -466,7 +523,8 @@ internal sealed class GraphicsAdapter : RGraphics
 
         if (_disposeCanvas)
         {
-            (_canvas as IDisposable)?.Dispose();
+            if (!_isTileView)
+                (_canvas as IDisposable)?.Dispose();
             _rasterCanvas?.Dispose();
         }
 
@@ -479,6 +537,14 @@ internal sealed class GraphicsAdapter : RGraphics
     {
         if (_canvas is not null)
             return _canvas;
+
+        // A tile view reaching the compat backend is the one assumption tile-parallel replay rests
+        // on being wrong: the replay is only tiled when every item in the display list is one the
+        // raster canvas draws on its own, so no tile should ever need this. Count it rather than
+        // throw — a hole in that gate should show up in the harness and the exit-gate test as a
+        // number, not as a crashed render — and see TileParallelReplay for what the count means.
+        if (_isTileView)
+            TileParallelReplay.NoteCompatFallback();
 
         _canvas = _canvasFactory();
         foreach (var operation in _deferredCanvasOperations)

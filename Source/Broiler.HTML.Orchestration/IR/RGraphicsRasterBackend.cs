@@ -20,9 +20,53 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         if (surface is not RGraphics g)
             throw new ArgumentException("Surface must be an RGraphics instance.", nameof(surface));
 
+        // Multithreading item #5. Tiles are offered the whole list and replay it into disjoint
+        // regions of the surface; the driver hands it back when this surface or this budget cannot
+        // take them, and then the same loop runs here on this thread. Deciding before anything is
+        // drawn is the contract — a primitive blends against what is already on the surface, so
+        // there is no way to start tiled and finish sequentially.
+        if (TileParallelReplay.TryReplay(list, g, CanReplayInTiles(list), Replay))
+            return;
+
+        Replay(list, g);
+    }
+
+    /// <summary>
+    /// Whether every item in the list is one the surface draws without falling back to the compat
+    /// backend, which a replay's tile views share.
+    /// </summary>
+    /// <remarks>
+    /// <b>One-sided by construction.</b> <see cref="IsRasterCompatibleItem"/> already answers "can
+    /// this item stay on the raster canvas" for the layer decision, and answers <c>false</c> for
+    /// anything it does not model — including every item type added since it was written. Reusing it
+    /// per <em>list</em> rather than per layer therefore gives a necessary condition for tiling that
+    /// errs towards the sequential replay, which is the direction an error has to point: a page that
+    /// could have been tiled and was not is slow, a page tiled when it should not have been has two
+    /// threads inside a backend that never agreed to it. Where the condition is not provably
+    /// sufficient is per-call rather than per-item, and
+    /// <see cref="TileParallelReplay.CompatFallbacks"/> is what counts that gap.
+    /// </remarks>
+    private static bool CanReplayInTiles(DisplayList list)
+    {
+        for (int index = 0; index < list.Items.Count; index++)
+        {
+            if (!IsRasterCompatibleItem(list.Items[index]))
+                return false;
+        }
+
+        return true;
+    }
+
+    private static void Replay(DisplayList list, RGraphics g)
+    {
+        var culler = g as IBoundsCullingSurface;
+
         for (int index = 0; index < list.Items.Count; index++)
         {
             var item = list.Items[index];
+            if (culler is not null && IsCulled(culler, item))
+                continue;
+
             switch (item)
             {
                 case FillRectItem fill:
@@ -109,6 +153,71 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// Whether the surface can skip this item outright because nothing it draws can land on a pixel
+    /// the surface may write.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>Only items whose drawn area this file itself derives.</b> Each rectangle below is the very
+    /// field the matching <c>Render…</c> method passes to the surface — <c>Bounds</c> for a fill and
+    /// a border, <c>DestRect</c> for an image, <c>FillRect</c> for the two tiled paints, the
+    /// endpoints for a line — so the test is about where the primitive draws rather than about a
+    /// bounding box it was annotated with. Anything else, and every item that touches the clip,
+    /// layer or transform stacks, falls through to the switch: skipping a state item would leave the
+    /// stacks unbalanced for everything after it.
+    /// </para>
+    /// <para>
+    /// <b>Text is deliberately not here.</b> A text item's drawn extent is the shaped run, which
+    /// this file does not compute — the rasterizer does, and it rejects each glyph against the same
+    /// clip for a few floating-point comparisons. Culling text on a bounds field would be guessing
+    /// where the guess is not needed.
+    /// </para>
+    /// <para>
+    /// Strokes are inflated by their width plus a pixel, since a stroke is centred on its geometry
+    /// and anti-aliasing reaches past it. The margin errs towards drawing, which is the only
+    /// direction an error here may point.
+    /// </para>
+    /// </remarks>
+    private static bool IsCulled(IBoundsCullingSurface surface, DisplayItem item) => item switch
+    {
+        FillRectItem => surface.IsCulled(item.Bounds),
+        DrawBorderItem => surface.IsCulled(Inflate(item.Bounds, 1f)),
+        DrawImageItem image => surface.IsCulled(image.DestRect),
+        DrawTiledImageItem tiled => surface.IsCulled(tiled.FillRect),
+        DrawTiledGradientItem gradient => surface.IsCulled(gradient.FillRect),
+        DrawLineItem line => surface.IsCulled(Inflate(
+            RectangleF.FromLTRB(
+                Math.Min(line.Start.X, line.End.X),
+                Math.Min(line.Start.Y, line.End.Y),
+                Math.Max(line.Start.X, line.End.X),
+                Math.Max(line.Start.Y, line.End.Y)),
+            line.Width + 1f)),
+        DrawSvgRectItem svg => surface.IsCulled(Inflate(
+            new RectangleF(svg.Bounds.X + svg.X, svg.Bounds.Y + svg.Y, svg.Width, svg.Height),
+            svg.StrokeWidth + 1f)),
+        DrawSvgEllipseItem svg => surface.IsCulled(Inflate(
+            new RectangleF(
+                svg.Bounds.X + svg.Cx - svg.Rx, svg.Bounds.Y + svg.Cy - svg.Ry,
+                svg.Rx * 2f, svg.Ry * 2f),
+            svg.StrokeWidth + 1f)),
+        DrawSvgLineItem svg => surface.IsCulled(Inflate(
+            RectangleF.FromLTRB(
+                svg.Bounds.X + Math.Min(svg.X1, svg.X2),
+                svg.Bounds.Y + Math.Min(svg.Y1, svg.Y2),
+                svg.Bounds.X + Math.Max(svg.X1, svg.X2),
+                svg.Bounds.Y + Math.Max(svg.Y1, svg.Y2)),
+            svg.StrokeWidth + 1f)),
+        _ => false,
+    };
+
+    private static RectangleF Inflate(RectangleF rect, float margin)
+    {
+        margin = Math.Max(0f, margin);
+        return RectangleF.FromLTRB(
+            rect.Left - margin, rect.Top - margin, rect.Right + margin, rect.Bottom + margin);
     }
 
     private static bool IsRasterCompatibleOpacityLayer(IReadOnlyList<DisplayItem> items, int startIndex) =>

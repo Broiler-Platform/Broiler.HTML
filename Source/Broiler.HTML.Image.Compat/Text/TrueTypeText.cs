@@ -226,8 +226,11 @@ internal sealed class TrueTypeTextShaper : ITextShaper
 
     public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, BColor color, PointF point, float glyphRotationDeg = 0f)
     {
-        if (!string.IsNullOrEmpty(text) && TryGetFont(font, out var ttf, out float scale))
+        if (!string.IsNullOrEmpty(text) && TryGetFont(font, out var ttf, out float scale)
+            && !IsRunBelowOrAboveTheClip(canvas, ttf, scale, point))
+        {
             DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures, glyphRotationDeg);
+        }
 
         // Returning true reports the text as handled (glyphs drawn, or
         // intentionally skipped for an unregistered font) so the raster path
@@ -249,6 +252,33 @@ internal sealed class TrueTypeTextShaper : ITextShaper
 
     public void DrawGradientString(object canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, BColor[] colors, float[] positions, float angle)
     {
+    }
+
+    /// <summary>
+    /// Whether the whole run sits outside the rows the canvas may write, so none of its glyphs need
+    /// be looked at.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>The vertical extent is exact and free; the horizontal one is neither.</b> The pen is
+    /// placed at the top of an em box and every glyph is drawn between the font's ascender and its
+    /// descender, so the run's row range is two multiplications away — while its column range needs
+    /// the advances of every glyph in it, which is most of the work the test is trying to avoid. One
+    /// em of slack above and below covers a glyph that overshoots its own metrics, and the em box a
+    /// rotated glyph (vertical writing mode) turns inside.
+    /// </para>
+    /// <para>
+    /// <b>Why it is worth a test at all.</b> A document is normally much taller than its viewport
+    /// and the run is clipped to it, so most runs on a long page draw nothing — and under
+    /// tile-parallel replay every tile walks every run, so a run that misses is walked once per tile.
+    /// Rejecting it here skips the shaping, the glyph lookups and the per-glyph outline fetch, not
+    /// only the fills.
+    /// </para>
+    /// </remarks>
+    private static bool IsRunBelowOrAboveTheClip(BCanvas canvas, TrueTypeFont ttf, float scale, PointF point)
+    {
+        float em = (ttf.Ascender - ttf.Descender) * scale;
+        return canvas.IsRowBandCulled(point.Y - em, point.Y + (em * 2f));
     }
 
     private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string features = null, float glyphRotationDeg = 0f)
