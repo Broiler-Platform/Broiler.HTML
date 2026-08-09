@@ -48,13 +48,17 @@ internal sealed class DomParser
 
     public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
-        var root = HtmlParser.ParseDocument(html, baseUrl);
+        CssBox root;
+        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
+            root = HtmlParser.ParseDocument(html, baseUrl);
         return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
     }
 
     public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
-        var root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer?.ContentDocumentResolver);
+        CssBox root;
+        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
+            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer?.ContentDocumentResolver);
         return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
     }
 
@@ -68,47 +72,64 @@ internal sealed class DomParser
         // initial-containing-block inputs resolve through it (roadmap §4, Phase 4 prep).
         root.LayoutEnvironment = new HtmlLayoutEnvironment(htmlContainer);
 
-        CascadeParseStyles(root, ref styleSet);
+        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.CssParse))
+            CascadeParseStyles(root, ref styleSet);
 
         // Resolve every stylesheet, inline declaration, generated pseudo-element,
         // animation, and ::selection rule through the shared model and style engine.
         var viewport = htmlContainer?.ViewportSize ?? default;
         var canonicalDocument = SharedRendererCascade.FindCanonicalDocument(root);
-        Broiler.CSS.Dom.CssStyleEngine engine = SharedRendererCascade.BuildEngine(
-            canonicalDocument,
-            styleSet,
-            (int)viewport.Width,
-            (int)viewport.Height);
-        _authorEngine = SharedRendererCascade.BuildAuthorEngine(
-            canonicalDocument,
-            styleSet,
-            (int)viewport.Width,
-            (int)viewport.Height);
+        Broiler.CSS.Dom.CssStyleEngine engine;
+        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.CascadeResolve))
+        {
+            engine = SharedRendererCascade.BuildEngine(
+                canonicalDocument,
+                styleSet,
+                (int)viewport.Width,
+                (int)viewport.Height);
+            _authorEngine = SharedRendererCascade.BuildAuthorEngine(
+                canonicalDocument,
+                styleSet,
+                (int)viewport.Width,
+                (int)viewport.Height);
 
-        var combinedStyleSheet = styleSet.StyleSheet;
-        CascadeApplyStyles(
-            root,
-            styleSet,
-            baseUrl,
-            engine,
-            RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: true),
-            RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: false));
-        GenerateNativeBackdrops(root, engine, baseUrl);
-        SetTextSelectionStyle(htmlContainer, root, engine);
-        CorrectTextBoxes(root);
-        CorrectImgBoxes(root, baseUrl);
-        CorrectObjectBoxes(root);
-        CorrectFramesetBoxes(root);
-        CorrectIframeBoxes(root);
-        CorrectVideoBoxes(root);
-        CorrectProgressBoxes(root, baseUrl);
-        CorrectSelectMultipleBoxes(root, baseUrl);
+            // Item #12: resolve every element's cascade on the thread budget first, so the ordered
+            // box walk below reads the engine's memo instead of computing. See CssStyleRecalc for
+            // why the walk itself is not the thing that gets threaded.
+            Broiler.Layout.Engine.CssStyleRecalc.Warm(root, engine);
+        }
 
-        bool followingBlock = true;
-        CorrectLineBreaksBlocks(root, ref followingBlock);
-        CorrectInlineBoxesParent(root, baseUrl);
-        CorrectBlockInsideInline(root, baseUrl);
-        CorrectInlineBoxesParent(root, baseUrl);
+        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.CascadeProject))
+        {
+            var combinedStyleSheet = styleSet.StyleSheet;
+            CascadeApplyStyles(
+                root,
+                styleSet,
+                baseUrl,
+                engine,
+                RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: true),
+                RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: false));
+            GenerateNativeBackdrops(root, engine, baseUrl);
+            SetTextSelectionStyle(htmlContainer, root, engine);
+        }
+
+        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.BoxFixups))
+        {
+            CorrectTextBoxes(root);
+            CorrectImgBoxes(root, baseUrl);
+            CorrectObjectBoxes(root);
+            CorrectFramesetBoxes(root);
+            CorrectIframeBoxes(root);
+            CorrectVideoBoxes(root);
+            CorrectProgressBoxes(root, baseUrl);
+            CorrectSelectMultipleBoxes(root, baseUrl);
+
+            bool followingBlock = true;
+            CorrectLineBreaksBlocks(root, ref followingBlock);
+            CorrectInlineBoxesParent(root, baseUrl);
+            CorrectBlockInsideInline(root, baseUrl);
+            CorrectInlineBoxesParent(root, baseUrl);
+        }
 
         return root;
     }
