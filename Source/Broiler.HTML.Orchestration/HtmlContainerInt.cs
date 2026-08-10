@@ -37,6 +37,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private ulong _boundDocumentVersion;
     private HtmlStyleSet _boundBaseStyleSet;
 
+    // Multithreading roadmap item #14. The version counter above says "something changed";
+    // this says whether any of it reached the render tree. See
+    // Broiler.Layout.Engine.RenderTreeInvalidation for what it can and cannot answer, and for
+    // why the type is in the main repository rather than here.
+    private Broiler.Layout.Engine.RenderTreeInvalidation _boundDocumentInvalidation;
+
     /// <summary>
     /// HtmlBridge Phase 4 (P4.4b): host callback mapping a nested-browsing-context container
     /// element (<c>&lt;iframe&gt;</c>/<c>&lt;object&gt;</c>/<c>&lt;frame&gt;</c>) to its
@@ -435,6 +441,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         _boundDocument = document;
         _boundDocumentVersion = document.Version;
         _boundBaseStyleSet = baseStyleSet;
+        _boundDocumentInvalidation = new Broiler.Layout.Engine.RenderTreeInvalidation(document);
 
         if (baseUrl != null)
             BaseUrl = baseUrl;
@@ -480,12 +487,26 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             BaseUrl,
             (ref styleSet) => parser.GenerateCssTree(_boundDocument, this, ref styleSet, baseUri));
         _boundDocumentVersion = _boundDocument.Version;
+        _boundDocumentInvalidation?.MarkRebuilt();
     }
 
     private void EnsureBoundDocumentCurrent()
     {
-        if (_boundDocument != null && _boundDocumentVersion != _boundDocument.Version)
-            BuildBoundDocument();
+        if (_boundDocument == null || _boundDocumentVersion == _boundDocument.Version)
+            return;
+
+        // Item #14: the rebuild below is 60-97% of what a relayout costs, so it is worth asking
+        // whether the mutations that moved the version could have changed anything this tree
+        // shows. A ledger that cannot account for every bump answers "rebuild", which is the
+        // behaviour that was here before it existed. The check and the ledger's own bookkeeping
+        // are one call so a mutation cannot arrive between them and be marked read unseen.
+        if (_boundDocumentInvalidation != null && _boundDocumentInvalidation.TrySkipRebuild())
+        {
+            _boundDocumentVersion = _boundDocument.Version;
+            return;
+        }
+
+        BuildBoundDocument();
     }
 
     /// <summary>
@@ -762,6 +783,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         _boundDocument = null;
         _boundBaseStyleSet = null;
+        _boundDocumentInvalidation?.Dispose();
+        _boundDocumentInvalidation = null;
         DisposeRenderTree();
     }
 
@@ -1536,6 +1559,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
             _selectionHandler?.Dispose();
             _selectionHandler = null;
+
+            // The ledger holds a DomDocument.Mutated subscription; a container that is disposed
+            // without Clear() would otherwise keep the document alive through it.
+            _boundDocumentInvalidation?.Dispose();
+            _boundDocumentInvalidation = null;
         }
         catch
         { }
