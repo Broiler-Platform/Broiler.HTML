@@ -487,8 +487,18 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             BaseUrl,
             (ref styleSet) => parser.GenerateCssTree(_boundDocument, this, ref styleSet, baseUri));
         _boundDocumentVersion = _boundDocument.Version;
-        _boundDocumentInvalidation?.MarkRebuilt();
+        _boundDocumentInvalidation?.MarkRebuilt(BuildCascadeDependencies());
     }
+
+    // Item #14, second half. The tree just built cascaded these sheets, so this is what a
+    // mutation arriving before the next build has to be judged against: an attribute no selector
+    // filters on and no attr() reads cannot have changed what it shows. The set is rebuilt here
+    // rather than cached because _styleSet is not final until GenerateCssTree returns — <style>
+    // elements and @import are appended to it during the parse — and because a scan of the sheets
+    // is nothing against the rebuild it is attached to.
+    private Broiler.Layout.Engine.CascadeInvalidationSet BuildCascadeDependencies() =>
+        Broiler.Layout.Engine.CascadeInvalidationSet.Build(
+            [_styleSet?.UserAgentStyleSheet, _styleSet?.AuthorStyleSheet]);
 
     private void EnsureBoundDocumentCurrent()
     {
