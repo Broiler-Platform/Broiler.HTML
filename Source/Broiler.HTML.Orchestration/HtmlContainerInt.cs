@@ -19,6 +19,7 @@ using System.IO;
 using System.Net.Http;
 using Broiler.HTML.Orchestration.IR;
 using Broiler.Layout.Engine;
+using Broiler.Layout.Diagnostics;
 
 namespace Broiler.HTML.Orchestration;
 
@@ -1017,6 +1018,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public void PerformLayout(RGraphics g)
     {
         ArgumentNullException.ThrowIfNull(g);
+        LayoutPassCounter.RecordCall();
         EnsureBoundDocumentCurrent();
 
         ActualSize = SizeF.Empty;
@@ -1049,6 +1051,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         var layoutEnvironment = Root.LayoutEnvironment as HtmlLayoutEnvironment ?? new HtmlLayoutEnvironment(this);
         layoutEnvironment.SetGraphics(g);
         Root.LayoutEnvironment = layoutEnvironment;
+        LayoutPassCounter.Record();
         Root.PerformLayout(layoutEnvironment);
 
         if (MaxSize.Width <= 0.1)
@@ -1056,6 +1059,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             // in case the width is not restricted we need to double layout, first will find the width so second can layout by it (center alignment)
             Root.Size = new SizeF((int)Math.Ceiling(ActualSize.Width), 0);
             ActualSize = SizeF.Empty;
+            LayoutPassCounter.Record();
             Root.PerformLayout(layoutEnvironment);
         }
 
