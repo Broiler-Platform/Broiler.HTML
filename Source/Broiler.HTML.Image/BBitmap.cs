@@ -86,6 +86,27 @@ public sealed class BBitmap : IDisposable
 
     public BBitmap Copy() => new(Width, Height, (byte[])_pixels.Clone());
 
+    /// <summary>
+    /// The backing RGBA bytes, row-major, four bytes per pixel — the same store
+    /// <see cref="GetPixel"/> reads and <see cref="SetPixel"/> writes.
+    /// </summary>
+    /// <remarks>
+    /// For assembly-internal readers that walk every pixel and would otherwise pay a call and a
+    /// <see cref="BColor"/> construction each — <see cref="PixelDiffRunner"/> compares 786 432
+    /// pixels of two bitmaps per WPT test. Exposed as a span rather than the array so a caller
+    /// cannot hand the buffer on or resize it, and deliberately not public: the compat surface a
+    /// <see cref="BBitmap"/> may carry is updated by <see cref="SetPixel"/>, so anything that
+    /// *writes* has to keep going through that.
+    /// </remarks>
+    internal ReadOnlySpan<byte> PixelBytes => _pixels;
+
+    /// <summary>
+    /// Wraps <paramref name="pixels"/> as a bitmap without copying it. The caller must not retain
+    /// the array. Assembly-internal for the same reason <see cref="PixelBytes"/> is.
+    /// </summary>
+    internal static BBitmap FromPixelsNoCopy(int width, int height, byte[] pixels) =>
+        new(width, height, pixels);
+
     public Broiler.Graphics.BPixelBuffer ToPixelBuffer() =>
         new(Width, Height, (byte[])_pixels.Clone());
 

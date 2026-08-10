@@ -25,8 +25,13 @@ public static class PixelDiffRunner
 
         config ??= DeterministicRenderConfig.Default;
 
-        using var normalizedActual = NormalizeForComparison(actual);
-        using var normalizedBaseline = NormalizeForComparison(baseline);
+        // Compared directly. This used to round-trip both inputs through
+        // `BBitmap.Decode(source.Encode(Png, 100))` before looking at a single pixel, which cost
+        // ~141 ms per bitmap — 99% of a 1024x768 comparison, and 16-21% of a whole WPT run — for a
+        // transformation measured to be an identity on pixel values (see the header comment on
+        // NormalizeForComparison below for what replaced it and how that was established).
+        var normalizedActual = actual;
+        var normalizedBaseline = baseline;
 
         if (normalizedActual.Width != normalizedBaseline.Width || normalizedActual.Height != normalizedBaseline.Height)
         {
@@ -53,41 +58,42 @@ public static class PixelDiffRunner
 
         int tolerance = config.ColorTolerance;
         int diffCount = 0;
-        var diffBitmap = new BBitmap(normalizedActual.Width, normalizedActual.Height);
         var mismatches = new List<PixelMismatch>();
+
+        // Pass 1 counts, and allocates nothing. The diff bitmap is built in pass 2 and only when
+        // the comparison actually failed: it used to be allocated and written for every pixel of
+        // every comparison, then thrown away on the match path — a 3 MB image and 786 432
+        // SetPixel calls that nothing ever looked at, on the ~62% of WPT tests that pass.
+        //
+        // Both bitmaps are read through their backing spans rather than GetPixel, which is the
+        // same store GetPixel reads (BBitmap.PixelBytes) without a call and a BColor per pixel.
+        var actualBytes = normalizedActual.PixelBytes;
+        var baselineBytes = normalizedBaseline.PixelBytes;
+        int width = normalizedActual.Width;
 
         for (int y = 0; y < normalizedActual.Height; y++)
         {
-            for (int x = 0; x < normalizedActual.Width; x++)
+            int row = y * width * 4;
+            for (int x = 0; x < width; x++)
             {
-                var p1 = normalizedActual.GetPixel(x, y);
-                var p2 = normalizedBaseline.GetPixel(x, y);
+                int i = row + x * 4;
 
-                bool match = Math.Abs(p1.R - p2.R) <= tolerance &&
-                             Math.Abs(p1.G - p2.G) <= tolerance &&
-                             Math.Abs(p1.B - p2.B) <= tolerance &&
-                             Math.Abs(p1.A - p2.A) <= tolerance;
+                bool match = Math.Abs(actualBytes[i] - baselineBytes[i]) <= tolerance &&
+                             Math.Abs(actualBytes[i + 1] - baselineBytes[i + 1]) <= tolerance &&
+                             Math.Abs(actualBytes[i + 2] - baselineBytes[i + 2]) <= tolerance &&
+                             Math.Abs(actualBytes[i + 3] - baselineBytes[i + 3]) <= tolerance;
 
                 if (!match)
                 {
                     diffCount++;
-                    diffBitmap.SetPixel(x, y, new BColor(255, 0, 255, 255));
 
                     if (mismatches.Count < PixelDiffResult.MaxMismatchEntries)
                     {
                         mismatches.Add(new PixelMismatch(
                             x, y,
-                            p1.R, p1.G, p1.B, p1.A,
-                            p2.R, p2.G, p2.B, p2.A));
+                            actualBytes[i], actualBytes[i + 1], actualBytes[i + 2], actualBytes[i + 3],
+                            baselineBytes[i], baselineBytes[i + 1], baselineBytes[i + 2], baselineBytes[i + 3]));
                     }
-                }
-                else
-                {
-                    diffBitmap.SetPixel(x, y, new BColor(
-                        (byte)(p1.R / 3),
-                        (byte)(p1.G / 3),
-                        (byte)(p1.B / 3),
-                        255));
                 }
             }
         }
@@ -97,7 +103,6 @@ public static class PixelDiffRunner
 
         if (isMatch)
         {
-            diffBitmap.Dispose();
             return new PixelDiffResult
             {
                 DiffRatio = ratio,
@@ -107,6 +112,8 @@ public static class PixelDiffRunner
                 Mismatches = mismatches
             };
         }
+
+        var diffBitmap = BuildDiffBitmap(actualBytes, baselineBytes, width, normalizedActual.Height, tolerance);
 
         return new PixelDiffResult
         {
@@ -119,15 +126,55 @@ public static class PixelDiffRunner
         };
     }
 
-    private static BBitmap NormalizeForComparison(BBitmap source)
+    /// <summary>
+    /// The failure-path diff image: magenta where the two differ, the actual dimmed to a third
+    /// where they agree. Byte for byte what the single-pass version produced — only later, and only
+    /// when someone is going to look at it.
+    /// </summary>
+    private static BBitmap BuildDiffBitmap(
+        ReadOnlySpan<byte> actualBytes, ReadOnlySpan<byte> baselineBytes, int width, int height, int tolerance)
     {
-        try
+        var pixels = new byte[checked(width * height * 4)];
+
+        for (int i = 0; i < pixels.Length; i += 4)
         {
-            return BBitmap.Decode(source.Encode(ImageEncodeFormat.Png, 100));
+            bool match = Math.Abs(actualBytes[i] - baselineBytes[i]) <= tolerance &&
+                         Math.Abs(actualBytes[i + 1] - baselineBytes[i + 1]) <= tolerance &&
+                         Math.Abs(actualBytes[i + 2] - baselineBytes[i + 2]) <= tolerance &&
+                         Math.Abs(actualBytes[i + 3] - baselineBytes[i + 3]) <= tolerance;
+
+            if (!match)
+            {
+                pixels[i] = 255;
+                pixels[i + 1] = 0;
+                pixels[i + 2] = 255;
+            }
+            else
+            {
+                pixels[i] = (byte)(actualBytes[i] / 3);
+                pixels[i + 1] = (byte)(actualBytes[i + 1] / 3);
+                pixels[i + 2] = (byte)(actualBytes[i + 2] / 3);
+            }
+
+            pixels[i + 3] = 255;
         }
-        catch (InvalidOperationException)
-        {
-            return source.Copy();
-        }
+
+        return BBitmap.FromPixelsNoCopy(width, height, pixels);
     }
+
+    // NormalizeForComparison used to run here, round-tripping each input through
+    // `BBitmap.Decode(source.Encode(ImageEncodeFormat.Png, 100))` before any pixel was read.
+    //
+    // It was removed rather than made cheaper, because it was measured to be an identity: a
+    // synthetic opaque image, one with graded alpha, one fully transparent with non-zero RGB (the
+    // two cases where a PNG codec is entitled to premultiply or collapse the colour type), and 25
+    // real WPT reference PNGs off disk all round-tripped to byte-identical pixels. It could not
+    // have been anything else here — `Encode` serialises the same `_pixels` array `GetPixel` reads,
+    // so a lossless round trip has nothing to normalise between two BBitmaps. Its own
+    // `catch (InvalidOperationException) => source.Copy()` fallback already treated a plain copy as
+    // an acceptable substitute.
+    //
+    // Cost of the no-op: ~141 ms per bitmap, ~282 ms of a 284 ms comparison, and 16-21% of a WPT
+    // run. See tests/render-stages/results/pixel-compare.md in the parent repository, and
+    // `--pixel-compare-cost`, which re-runs the identity check alongside the timings.
 }
