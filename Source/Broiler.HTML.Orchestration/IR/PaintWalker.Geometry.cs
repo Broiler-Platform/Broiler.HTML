@@ -240,8 +240,10 @@ internal static partial class PaintWalker
             bounds.Y + top,
             Math.Max(0, bounds.Width - left - right),
             Math.Max(0, bounds.Height - top - bottom));
-        if (clipRect.Width <= 0 || clipRect.Height <= 0)
-            return false;
+        // An empty rectangle is a clip that admits nothing, not the absence of one:
+        // `inset(100% 0 0 0)`, and the `clip: rect(96px, 96px, 96px, 96px)` that projects onto
+        // it, both say the element is not to be seen. Emitting it lets the backend clip to it;
+        // dropping it painted the element in full.
 
         clipItem = new ClipItem { Bounds = bounds, ClipRect = clipRect };
         return true;
