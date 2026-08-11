@@ -56,7 +56,7 @@ internal static partial class PaintWalker
         // body leave the dark backdrop showing. It is also the backdrop a
         // *translucent* propagated background composites against, so carry it
         // down to EmitCanvasBackgroundLayers rather than assuming white there.
-        BColor canvasBackdrop = BColor.White;
+        BColor canvasBackdrop = Broiler.Layout.Engine.CanvasBackdrop.Current ?? BColor.White;
         if (RootUsesDarkColorScheme(root))
         {
             canvasBackdrop = DarkCanvasColor;
