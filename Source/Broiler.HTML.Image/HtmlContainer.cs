@@ -287,6 +287,12 @@ public sealed class HtmlContainer : IDisposable
     /// </summary>
     public BColor GetRootBackgroundColor() => HtmlContainerInt.GetRootBackgroundColor();
 
+    /// <summary>
+    /// The computed <c>color-scheme</c> of the document's root element. A frame's canvas is
+    /// transparent unless this differs from the embedding element's (CSS Color Adjust §2.4).
+    /// </summary>
+    public string? GetRootColorScheme() => HtmlContainerInt.GetRootColorScheme();
+
     public void Dispose() => HtmlContainerInt.Dispose();
 
     private static ControlAdapter CreateControl(PointF mouseLocation, bool leftButton, bool rightButton) =>

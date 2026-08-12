@@ -237,6 +237,26 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return BColor.Empty;
     }
 
+    /// <summary>
+    /// The computed <c>color-scheme</c> of the document's root element, or <c>null</c> when there
+    /// is no root box. A frame's canvas opacity is decided by comparing this with the embedding
+    /// element's (CSS Color Adjust §2.4, Broiler.Layout.Engine.EmbeddedCanvas), and the caller
+    /// rasterising the frame has no other way to reach it.
+    /// </summary>
+    public string? GetRootColorScheme()
+    {
+        if (Root == null)
+            return null;
+
+        foreach (var child in Root.Boxes)
+        {
+            if (string.Equals(child.HtmlTag?.Name, "html", StringComparison.OrdinalIgnoreCase))
+                return child.ColorScheme;
+        }
+
+        return null;
+    }
+
     // CSS Color Adjust §2.3: the UA dark canvas backdrop colour Chromium paints
     // for a dark used color scheme.
     private static readonly BColor CanvasDarkBackdrop = BColor.FromArgb(255, 18, 18, 18);

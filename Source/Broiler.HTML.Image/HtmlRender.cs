@@ -283,7 +283,18 @@ public static class HtmlRender
             if (backgroundColor is null)
                 bgColor = ResolveCanvasBackground(container, bgColor);
 
-            bitmap.Erase(bgColor);
+            // CSS Color Adjust §2.4: a nested browsing context whose used colour scheme matches its
+            // embedding element's has a *transparent* canvas — no UA backdrop — so the embedder
+            // shows through wherever the document propagates no background of its own. Erasing to
+            // transparent is what leaves it showing: the frame composites over the page rather than
+            // replacing it (see BlitOnto). A background the document really does propagate is
+            // painted by PaintWalker.EmitCanvasBackground either way, so only the UA's own backdrop
+            // is dropped here. Nothing pinned means "not embedded", so a top-level document erases
+            // to its resolved canvas colour exactly as before.
+            bitmap.Erase(
+                Broiler.Layout.Engine.EmbeddedCanvas.PaintsOpaqueBackdrop(container.GetRootColorScheme())
+                    ? bgColor
+                    : BColor.Transparent);
 
             var clip = new RectangleF(0, 0, width, height);
             container.PerformLayout(bitmap, clip);
@@ -340,6 +351,13 @@ public static class HtmlRender
 
             if (dw > 0 && dh > 0 && fitsAllocation)
             {
+                // CSS Color Adjust §2.4: whether this frame's canvas is opaque is decided against
+                // *this element's* used colour scheme, not the containing document's — an <iframe>
+                // may carry its own `color-scheme`, and WPT
+                // color-scheme-iframe-background(-mismatch-opaque-cross-origin-003) turn on exactly
+                // that distinction. Scoped to this frame's render, so sibling and nested frames
+                // each compare against their own embedding element.
+                using var embedded = Broiler.Layout.Engine.EmbeddedCanvas.Pin(fragment.Style.ColorScheme);
                 using var sub = RenderToImageCore(
                     fragment.EmbeddedDocumentHtml, dw, dh,
                     backgroundColor: null,          // resolve the embedded document's own canvas background
@@ -355,8 +373,14 @@ public static class HtmlRender
             CompositeEmbeddedDocuments(child, target, stylesheetLoad, imageLoad, embedDepth);
     }
 
-    /// <summary>Copies <paramref name="source"/> onto <paramref name="target"/> at
-    /// (<paramref name="destX"/>, <paramref name="destY"/>), clipped to the target.</summary>
+    /// <summary>Composites <paramref name="source"/> onto <paramref name="target"/> at
+    /// (<paramref name="destX"/>, <paramref name="destY"/>), clipped to the target.
+    /// <para>
+    /// Source-over rather than a copy, because a frame's canvas may legitimately be transparent
+    /// (CSS Color Adjust §2.4): copying would punch the embedder out instead of letting it show
+    /// through. A fully opaque frame — every frame, before that rule was modelled — still takes the
+    /// copy path, so this is byte-identical for one.
+    /// </para></summary>
     private static void BlitOnto(BBitmap target, BBitmap source, int destX, int destY)
     {
         for (int y = 0; y < source.Height; y++)
@@ -369,9 +393,36 @@ public static class HtmlRender
                 int tx = destX + x;
                 if ((uint)tx >= (uint)target.Width)
                     continue;
-                target.SetPixel(tx, ty, source.GetPixel(x, y));
+                target.SetPixel(tx, ty, BlendOver(source.GetPixel(x, y), target.GetPixel(tx, ty)));
             }
         }
+    }
+
+    /// <summary>
+    /// Porter-Duff source-over of <paramref name="source"/> onto <paramref name="destination"/>,
+    /// on straight (non-premultiplied) alpha.
+    /// </summary>
+    private static BColor BlendOver(BColor source, BColor destination)
+    {
+        if (source.A == 255 || destination.A == 0)
+            return source;
+        if (source.A == 0)
+            return destination;
+
+        float sa = source.A / 255f;
+        float da = destination.A / 255f;
+        float outA = sa + da * (1f - sa);
+        if (outA <= 0f)
+            return BColor.Transparent;
+
+        byte Channel(byte s, byte d) =>
+            (byte)Math.Clamp((int)Math.Round((s * sa + d * da * (1f - sa)) / outA), 0, 255);
+
+        return BColor.FromArgb(
+            (byte)Math.Clamp((int)Math.Round(outA * 255f), 0, 255),
+            Channel(source.R, destination.R),
+            Channel(source.G, destination.G),
+            Channel(source.B, destination.B));
     }
 
     private static BBitmap RenderToImageAutoSizedCore(string html, int maxWidth, int maxHeight,

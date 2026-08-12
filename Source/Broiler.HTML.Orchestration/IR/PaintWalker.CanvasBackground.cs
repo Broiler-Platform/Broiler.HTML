@@ -57,7 +57,12 @@ internal static partial class PaintWalker
         // *translucent* propagated background composites against, so carry it
         // down to EmitCanvasBackgroundLayers rather than assuming white there.
         BColor canvasBackdrop = Broiler.Layout.Engine.CanvasBackdrop.Current ?? BColor.White;
-        if (RootUsesDarkColorScheme(root))
+        // §2.4: a nested browsing context's canvas is transparent unless its used colour
+        // scheme differs from its embedding element's, so a dark frame inside a dark-scheme
+        // <iframe> paints no backdrop at all and the embedder shows through it. Nothing pinned
+        // means "not embedded", so a top-level document keeps painting its backdrop as before.
+        if (RootUsesDarkColorScheme(root)
+            && Broiler.Layout.Engine.EmbeddedCanvas.PaintsOpaqueBackdrop(RootColorScheme(root)))
         {
             canvasBackdrop = DarkCanvasColor;
             items.Add(new FillRectItem { Bounds = viewport, Color = DarkCanvasColor });
@@ -324,6 +329,15 @@ internal static partial class PaintWalker
     // CSS Color Adjust §2.3: the UA-defined dark canvas backdrop colour that
     // Chromium paints for a dark used color scheme (rgb(18, 18, 18)).
     private static readonly BColor DarkCanvasColor = BColor.FromArgb(255, 18, 18, 18);
+
+    /// <summary>
+    /// The document root element's computed <c>color-scheme</c> — the value the canvas is
+    /// governed by. <c>root</c> may be the <c>html</c> fragment itself or a synthetic parent,
+    /// so the lookup is the one <see cref="RootUsesDarkColorScheme"/> performs, named once so
+    /// that the darkness test and the opacity decision cannot read different elements.
+    /// </summary>
+    private static string? RootColorScheme(Fragment root) =>
+        (FindFragmentByTag(root, "html") ?? FindFirstBlockChild(root) ?? root).Style.ColorScheme;
 
     /// <summary>
     /// CSS Color Adjust §2.2–2.3: whether the document root element's used
