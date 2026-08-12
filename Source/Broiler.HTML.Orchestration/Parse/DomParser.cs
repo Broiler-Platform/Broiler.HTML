@@ -121,6 +121,7 @@ internal sealed class DomParser
             CorrectFramesetBoxes(root);
             CorrectIframeBoxes(root);
             CorrectVideoBoxes(root);
+            CorrectCanvasBoxes(root);
             CorrectProgressBoxes(root, baseUrl);
             CorrectSelectMultipleBoxes(root, baseUrl);
 
@@ -674,9 +675,19 @@ internal sealed class DomParser
         if (!tag.HasAttributes())
             return;
 
+        // HTML §4.12.5: a <canvas>'s width/height content attributes are the dimensions of its
+        // *bitmap*, and the Rendering section maps no presentation width/height for it — unlike
+        // <img>, <table> and the rest below. Projecting them onto CSS width/height made the two axes
+        // independently stated, so `max-width`/`max-height` clamped each on its own instead of
+        // keeping the natural ratio; CorrectCanvasBoxes records them as the natural size instead.
+        bool isCanvas = tag.Name.Equals("canvas", StringComparison.OrdinalIgnoreCase);
+
         foreach (string att in tag.Attributes.Keys)
         {
             string value = tag.Attributes[att];
+
+            if (isCanvas && (att == HtmlConstants.Width || att == HtmlConstants.Height))
+                continue;
 
             switch (att)
             {
@@ -1013,6 +1024,56 @@ internal sealed class DomParser
 
         foreach (var child in box.Boxes)
             CorrectVideoBoxes(child);
+    }
+
+    /// <summary>
+    /// HTML §4.12.5: a <c>&lt;canvas&gt;</c> is a replaced element whose <b>natural</b> size is its
+    /// <c>width</c>/<c>height</c> content attributes, defaulting to the 300×150 bitmap. Natural, not
+    /// a CSS width and height: the distinction only shows once <c>max-width</c>/<c>max-height</c>
+    /// clamp it, where the two axes stay tied by the natural ratio (CSS2.1 §10.4), which is what WPT
+    /// <c>css-sizing/replaced-max-size-saturation</c> asserts. Broiler has no 2D context, so the
+    /// bitmap is transparent and only the element's own background and border paint — and, like any
+    /// UA that supports canvas, it never renders the fallback content between the tags. Runs
+    /// post-cascade for the same reason <see cref="CorrectIframeBoxes"/> does: a cascade-time hide of
+    /// a block fallback child can be re-shown afterwards.
+    /// </summary>
+    private static void CorrectCanvasBoxes(CssBox box)
+    {
+        if (box.HtmlTag != null
+            && box.HtmlTag.Name.Equals("canvas", StringComparison.OrdinalIgnoreCase))
+        {
+            // Only the UA default display is replaced by the atomic inline-level box; an author
+            // `display` (block, grid, none, …) is theirs to keep.
+            if (box.Display == CssConstants.Inline)
+                box.Display = CssConstants.InlineBlock;
+
+            box.IntrinsicReplacedSize = new System.Drawing.SizeF(
+                CanvasBitmapDimension(box, "width", 300),
+                CanvasBitmapDimension(box, "height", 150));
+
+            foreach (var child in box.Boxes)
+                child.Display = CssConstants.None;
+            return;
+        }
+
+        foreach (var child in box.Boxes)
+            CorrectCanvasBoxes(child);
+    }
+
+    /// <summary>
+    /// HTML §4.12.5: reads a <c>&lt;canvas&gt;</c>'s <c>width</c>/<c>height</c> content attribute as
+    /// a valid non-negative integer, falling back to the default bitmap dimension when it is absent,
+    /// malformed or zero (a zero-area canvas has no natural size to size the box from).
+    /// </summary>
+    private static float CanvasBitmapDimension(CssBox box, string attribute, float fallback)
+    {
+        var raw = box.HtmlTag?.TryGetAttribute(attribute);
+
+        return !string.IsNullOrWhiteSpace(raw)
+               && uint.TryParse(raw.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out uint bitmap)
+               && bitmap > 0
+            ? bitmap
+            : fallback;
     }
 
     /// <summary>
@@ -1611,7 +1672,13 @@ internal sealed class DomParser
         // Also inherit any split-positioned-ancestor from a higher level.
         CssBox splitAncestor = wasPositioned ? box : box.SplitPositionedAncestor;
         if (box.Display == CssConstants.Inline)
+        {
             box.Display = CssConstants.Block;
+            // The element is still inline as far as CSS is concerned; the block-level display is
+            // an artefact of how this split is modelled. Layout needs to know, because a box like
+            // this is not a containing block a percentage resolves against.
+            box.IsBlockifiedInlineSplit = true;
+        }
 
         if (box.Boxes.Count > 1 || box.Boxes[0].Boxes.Count > 1)
         {
@@ -1685,6 +1752,7 @@ internal sealed class DomParser
         else if (box.Boxes[0].Display == CssConstants.Inline)
         {
             box.Boxes[0].Display = CssConstants.Block;
+            box.Boxes[0].IsBlockifiedInlineSplit = true;
         }
 
         return null;
