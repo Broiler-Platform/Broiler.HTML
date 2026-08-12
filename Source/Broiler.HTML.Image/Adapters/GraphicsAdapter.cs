@@ -232,6 +232,26 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
             return;
         }
 
+        // A solid-coloured dashed or dotted stroke reduces to a list of solid runs, which the
+        // raster canvas can draw. Without this it fell through to the compat seam below, and on
+        // a host with no OS backend that seam is an inert stub — so `border-style: dashed` and
+        // `dotted` painted nothing at all while `solid` painted normally.
+        if (CanUseRaster && penAdapter.SolidColor is { } dashColor)
+        {
+            var width = (float)pen.Width;
+            var runs = DashedStrokeGeometry.Segments(
+                (float)x1,
+                (float)y1,
+                (float)x2,
+                (float)y2,
+                DashedStrokeGeometry.PatternFor(penAdapter.CurrentDashStyle, width));
+
+            foreach (var run in runs)
+                _rasterCanvas!.DrawLine(new PointF(run.X1, run.Y1), new PointF(run.X2, run.Y2), dashColor, width);
+
+            return;
+        }
+
         _canvasCompat.DrawLine(EnsureCanvas(), (float)x1, (float)y1, (float)x2, (float)y2, penAdapter.Paint);
     }
 
@@ -241,6 +261,28 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         if (CanUseRaster && penAdapter.HasSimpleStroke)
         {
             _rasterCanvas!.DrawRectangleStroke(new RectangleF((float)x, (float)y, (float)width, (float)height), penAdapter.SolidColor!.Value, (float)pen.Width);
+            return;
+        }
+
+        // Same reduction for a stroked rectangle: dash each edge rather than lose the outline.
+        if (CanUseRaster && penAdapter.SolidColor is { } dashColor)
+        {
+            float x0 = (float)x, y0 = (float)y, x1 = (float)(x + width), y1 = (float)(y + height);
+            var strokeWidth = (float)pen.Width;
+            var pattern = DashedStrokeGeometry.PatternFor(penAdapter.CurrentDashStyle, strokeWidth);
+
+            foreach (var (ax, ay, bx, by) in new[]
+                     {
+                         (x0, y0, x1, y0),
+                         (x1, y0, x1, y1),
+                         (x1, y1, x0, y1),
+                         (x0, y1, x0, y0),
+                     })
+            {
+                foreach (var run in DashedStrokeGeometry.Segments(ax, ay, bx, by, pattern))
+                    _rasterCanvas!.DrawLine(new PointF(run.X1, run.Y1), new PointF(run.X2, run.Y2), dashColor, strokeWidth);
+            }
+
             return;
         }
 

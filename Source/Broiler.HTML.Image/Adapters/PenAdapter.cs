@@ -20,6 +20,10 @@ internal sealed class PenAdapter(Func<float, Graphics.DashStyle, object> paintFa
 
     public bool HasSimpleStroke => SolidColor.HasValue && _dashStyle == DashStyle.Solid;
 
+    // RPen.DashStyle is set-only, but the raster path has to read the style back to reduce a
+    // dashed stroke to solid runs. Internal so the public pen contract is unchanged.
+    internal Graphics.DashStyle CurrentDashStyle => _dashStyle;
+
     public override double Width
     {
         get => _width;
