@@ -117,7 +117,7 @@ internal static class CssDefaults
            directly in DomParser (TranslateAttributes / ApplyTableBorder), not
            here, and author CSS is left to win normally. */
         /* Replaced inline elements — WHATWG default rendering */
-        iframe          { border: 2px inset; display: inline-block }
+        iframe          { border: 2px inset #EEEEEE; display: inline-block }
         object          { display: inline-block }
 
         /* HTML5 semantic/sectioning elements – display:block per WHATWG */
@@ -148,7 +148,11 @@ internal static class CssDefaults
         script, link,
         meta, area,
         base, param     { display:none }
-        hr              { border-top-color: #9A9A9A; border-left-color: #9A9A9A; border-bottom-color: #EEEEEE; border-right-color: #EEEEEE; }
+        /* The bevel base, not the bevel: Engine.BorderBevel darkens the top and left of an
+           `inset` border, turning this into the #9A9A9A/#EEEEEE pair browsers paint. CSS makes
+           the initial border-color `currentColor`, which bevels black-on-black; every engine
+           substitutes a light grey, and stating it here is how Broiler does that. */
+        hr              { border-color: #EEEEEE; }
         pre             { font-size: 10pt; margin-top: 15px; }
         
         /*This is the background of the HtmlToolTip*/

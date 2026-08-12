@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
 using Broiler.Layout.IR;
+using Bevel = Broiler.Layout.Engine.BorderBevel;
 
 
 namespace Broiler.HTML.Orchestration.IR;
@@ -530,25 +531,80 @@ internal static partial class PaintWalker
             bool isFirst = i == 0;
             bool isLast = i == rects.Count - 1;
 
-            items.Add(new DrawBorderItem
+            // CSS 2.1 §8.5.3: a bevelled border is not four flat sides.  `inset`/`outset` shade
+            // two sides down and light the other two; `groove`/`ridge` carry the same two shades
+            // but split each side lengthwise, so they paint as two nested rings.  Every other
+            // style has an outer "half" that is the whole side and an empty inner one, which
+            // leaves it emitting exactly the one item it always did.  The rule, and which half
+            // gets which shade, is Broiler.Layout.Engine.BorderBevel.
+            var outerWidths = new BoxEdges(
+                Bevel.HalfWidth(style.BorderTopStyle, border.Top, outerHalf: true),
+                Bevel.HalfWidth(style.BorderRightStyle, border.Right, outerHalf: true),
+                Bevel.HalfWidth(style.BorderBottomStyle, border.Bottom, outerHalf: true),
+                Bevel.HalfWidth(style.BorderLeftStyle, border.Left, outerHalf: true));
+
+            for (int half = 0; half < 2; half++)
             {
-                Bounds = rect,
-                Widths = border,
-                TopColor = hasTop ? style.ActualBorderTopColor : BColor.Empty,
-                RightColor = (hasRight && isLast) ? style.ActualBorderRightColor : BColor.Empty,
-                BottomColor = hasBottom ? style.ActualBorderBottomColor : BColor.Empty,
-                LeftColor = (hasLeft && isFirst) ? style.ActualBorderLeftColor : BColor.Empty,
-                // Style kept for Phase 1 backward compat; per-side styles are authoritative
-                Style = style.BorderTopStyle ?? "solid",
-                TopStyle = style.BorderTopStyle ?? "none",
-                RightStyle = (isLast) ? (style.BorderRightStyle ?? "none") : "none",
-                BottomStyle = style.BorderBottomStyle ?? "none",
-                LeftStyle = (isFirst) ? (style.BorderLeftStyle ?? "none") : "none",
-                CornerNw = style.ActualCornerNw,
-                CornerNe = style.ActualCornerNe,
-                CornerSe = style.ActualCornerSe,
-                CornerSw = style.ActualCornerSw,
-            });
+                bool outerHalf = half == 0;
+                var widths = outerHalf
+                    ? outerWidths
+                    : new BoxEdges(
+                        Bevel.HalfWidth(style.BorderTopStyle, border.Top, outerHalf: false),
+                        Bevel.HalfWidth(style.BorderRightStyle, border.Right, outerHalf: false),
+                        Bevel.HalfWidth(style.BorderBottomStyle, border.Bottom, outerHalf: false),
+                        Bevel.HalfWidth(style.BorderLeftStyle, border.Left, outerHalf: false));
+
+                if (widths.Top <= 0 && widths.Right <= 0 && widths.Bottom <= 0 && widths.Left <= 0)
+                    continue;
+
+                // The inner ring sits inside the outer one, so its box is the border box pulled in
+                // by the outer half and its corner radii shrink by the same amount.
+                var bounds = outerHalf
+                    ? rect
+                    : new RectangleF(
+                        rect.X + (float)outerWidths.Left,
+                        rect.Y + (float)outerWidths.Top,
+                        rect.Width - (float)(outerWidths.Left + outerWidths.Right),
+                        rect.Height - (float)(outerWidths.Top + outerWidths.Bottom));
+
+                if (bounds.Width <= 0 || bounds.Height <= 0)
+                    continue;
+
+                double InnerRadius(double radius, double inset) =>
+                    outerHalf ? radius : Math.Max(0, radius - inset);
+
+                items.Add(new DrawBorderItem
+                {
+                    Bounds = bounds,
+                    Widths = widths,
+                    TopColor = hasTop
+                        ? Bevel.HalfColor(style.BorderTopStyle, isTopOrLeft: true,
+                            style.ActualBorderTopColor, border.Top, outerHalf)
+                        : BColor.Empty,
+                    RightColor = (hasRight && isLast)
+                        ? Bevel.HalfColor(style.BorderRightStyle, isTopOrLeft: false,
+                            style.ActualBorderRightColor, border.Right, outerHalf)
+                        : BColor.Empty,
+                    BottomColor = hasBottom
+                        ? Bevel.HalfColor(style.BorderBottomStyle, isTopOrLeft: false,
+                            style.ActualBorderBottomColor, border.Bottom, outerHalf)
+                        : BColor.Empty,
+                    LeftColor = (hasLeft && isFirst)
+                        ? Bevel.HalfColor(style.BorderLeftStyle, isTopOrLeft: true,
+                            style.ActualBorderLeftColor, border.Left, outerHalf)
+                        : BColor.Empty,
+                    // Style kept for Phase 1 backward compat; per-side styles are authoritative
+                    Style = style.BorderTopStyle ?? "solid",
+                    TopStyle = style.BorderTopStyle ?? "none",
+                    RightStyle = (isLast) ? (style.BorderRightStyle ?? "none") : "none",
+                    BottomStyle = style.BorderBottomStyle ?? "none",
+                    LeftStyle = (isFirst) ? (style.BorderLeftStyle ?? "none") : "none",
+                    CornerNw = InnerRadius(style.ActualCornerNw, outerWidths.Left),
+                    CornerNe = InnerRadius(style.ActualCornerNe, outerWidths.Right),
+                    CornerSe = InnerRadius(style.ActualCornerSe, outerWidths.Right),
+                    CornerSw = InnerRadius(style.ActualCornerSw, outerWidths.Left),
+                });
+            }
         }
     }
 
