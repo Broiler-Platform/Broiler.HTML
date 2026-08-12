@@ -362,6 +362,13 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         if (!NarrowToClip(ref startX, ref startY, ref endX, ref endY))
             return;
 
+        // A border side's mitres are anti-aliased; its own axis-aligned edges, and every other
+        // polygon, are filled by testing the pixel centre as they always have been. See
+        // Broiler.Layout.Engine.BorderAntialiasing for why this is a lever the border path pins
+        // rather than the rasteriser's default: two shapes sharing an edge, each blended
+        // independently, leave the background showing through the seam.
+        bool antialias = Broiler.Layout.Engine.BorderAntialiasing.Active;
+
         ForEachBand(startY, endY, startX, endX, (fromY, toY) =>
         {
             for (int y = fromY; y <= toY; y++)
@@ -371,8 +378,23 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
                     if (!IsVisible(x, y))
                         continue;
 
-                    if (ContainsPolygonPoint(translated, x + 0.5f, y + 0.5f))
-                        BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                    if (!antialias)
+                    {
+                        if (ContainsPolygonPoint(translated, x + 0.5f, y + 0.5f))
+                            BlendPixel(CurrentTarget, x, y, color, blendMode: "normal");
+                        continue;
+                    }
+
+                    float coverage = Broiler.Layout.Engine.BorderAntialiasing.Coverage(translated, x, y);
+                    if (coverage <= 0f)
+                        continue;
+
+                    var covered = coverage >= 1f
+                        ? color
+                        : BColor.FromArgb((byte)Math.Clamp((int)Math.Round(color.A * coverage), 0, 255),
+                            color.R, color.G, color.B);
+                    if (covered.A > 0)
+                        BlendPixel(CurrentTarget, x, y, covered, blendMode: "normal");
                 }
             }
         });

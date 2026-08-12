@@ -353,9 +353,18 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         // rendering with anti-aliasing enabled produces the
         // correct CSS 2.1 Appendix E paint order.
 
-        // Fill corner rectangles to prevent anti-aliased seams along
-        // the diagonal edges where two same-color border trapezoids meet.
+        // Fill corner rectangles to prevent anti-aliased seams along the diagonal edges where two
+        // border trapezoids meet: the second one drawn blends its mitre over an already opaque
+        // corner instead of over the page, which is what keeps the background out of the seam.
         FillBorderCorners(g, item);
+
+        // The mitres are the only part of a border that is not axis-aligned, and filling them by
+        // pixel centre steps them into a staircase. Anti-alias them — but only when every side that
+        // is drawn is opaque, since the corner fill above is what makes blending safe and it cannot
+        // run for a translucent side without compositing it twice.
+        using var antialias = AllDrawnSidesAreOpaque(item)
+            ? Broiler.Layout.Engine.BorderAntialiasing.Pin()
+            : null;
 
         // Top border
         if (widths.Top > 0 && item.TopColor.A > 0 && IsBorderStyleVisible(item.TopStyle))
@@ -364,7 +373,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             {
                 DrawDoubleBorderSide(g, item, Border.Top);
             }
-            else if (item.TopStyle == "solid")
+            else if (UsesMitredTrapezoid(item.TopStyle))
             {
                 // Trapezoid rendering for correct corner joins with asymmetric widths
                 var pts = new PointF[4];
@@ -388,7 +397,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             {
                 DrawDoubleBorderSide(g, item, Border.Left);
             }
-            else if (item.LeftStyle == "solid")
+            else if (UsesMitredTrapezoid(item.LeftStyle))
             {
                 var pts = new PointF[4];
                 pts[0] = new PointF(bounds.Left, bounds.Top);
@@ -411,7 +420,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             {
                 DrawDoubleBorderSide(g, item, Border.Bottom);
             }
-            else if (item.BottomStyle == "solid")
+            else if (UsesMitredTrapezoid(item.BottomStyle))
             {
                 var pts = new PointF[4];
                 pts[0] = new PointF((float)(bounds.Left + widths.Left), (float)(bounds.Bottom - widths.Bottom));
@@ -435,7 +444,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             {
                 DrawDoubleBorderSide(g, item, Border.Right);
             }
-            else if (item.RightStyle == "solid")
+            else if (UsesMitredTrapezoid(item.RightStyle))
             {
                 var pts = new PointF[4];
                 pts[0] = new PointF((float)(bounds.Right - widths.Right), (float)(bounds.Top + widths.Top));
@@ -472,29 +481,64 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         bool hasBottom = widths.Bottom > 0 && item.BottomColor.A == 255 && IsCornerFillBorderStyle(item.BottomStyle);
         bool hasLeft = widths.Left > 0 && item.LeftColor.A == 255 && IsCornerFillBorderStyle(item.LeftStyle);
 
-        // Top-left corner
-        if (hasTop && hasLeft && item.TopColor == item.LeftColor)
+        // The fill is the colour of whichever of the two sides is drawn *first* — the sides go top,
+        // left, bottom, right — so the second one's mitre blends over it and the corner ends up the
+        // two colours mixed by coverage rather than either of them over the page. Where the two
+        // agree this is the same rectangle it always was.
+
+        // Top-left corner: top is drawn before left.
+        if (hasTop && hasLeft)
             g.DrawRectangle(g.GetSolidBrush(item.TopColor),
                 bounds.Left, bounds.Top, widths.Left, widths.Top);
 
-        // Top-right corner
-        if (hasTop && hasRight && item.TopColor == item.RightColor)
+        // Top-right corner: top is drawn before right.
+        if (hasTop && hasRight)
             g.DrawRectangle(g.GetSolidBrush(item.TopColor),
                 bounds.Right - widths.Right, bounds.Top, widths.Right, widths.Top);
 
-        // Bottom-left corner
-        if (hasBottom && hasLeft && item.BottomColor == item.LeftColor)
-            g.DrawRectangle(g.GetSolidBrush(item.BottomColor),
+        // Bottom-left corner: left is drawn before bottom.
+        if (hasBottom && hasLeft)
+            g.DrawRectangle(g.GetSolidBrush(item.LeftColor),
                 bounds.Left, bounds.Bottom - widths.Bottom, widths.Left, widths.Bottom);
 
-        // Bottom-right corner
-        if (hasBottom && hasRight && item.BottomColor == item.RightColor)
+        // Bottom-right corner: bottom is drawn before right.
+        if (hasBottom && hasRight)
             g.DrawRectangle(g.GetSolidBrush(item.BottomColor),
                 bounds.Right - widths.Right, bounds.Bottom - widths.Bottom, widths.Right, widths.Bottom);
     }
 
-    private static bool IsCornerFillBorderStyle(string? style) =>
-        string.Equals(style, "solid", StringComparison.OrdinalIgnoreCase);
+    /// <summary>
+    /// Whether every side this item actually draws is fully opaque. Anti-aliasing a mitre relies on
+    /// the corner fill underneath it, which a translucent side cannot have — it would composite the
+    /// same alpha twice — so such a border keeps the pixel-centre fill it has always had.
+    /// </summary>
+    private static bool AllDrawnSidesAreOpaque(DrawBorderItem item)
+    {
+        var widths = item.Widths;
+        return (widths.Top <= 0 || !IsBorderStyleVisible(item.TopStyle) || item.TopColor.A == 255)
+            && (widths.Right <= 0 || !IsBorderStyleVisible(item.RightStyle) || item.RightColor.A == 255)
+            && (widths.Bottom <= 0 || !IsBorderStyleVisible(item.BottomStyle) || item.BottomColor.A == 255)
+            && (widths.Left <= 0 || !IsBorderStyleVisible(item.LeftStyle) || item.LeftColor.A == 255);
+    }
+
+    private static bool IsCornerFillBorderStyle(string? style) => UsesMitredTrapezoid(style);
+
+    /// <summary>
+    /// Whether a side of this style is painted as a mitred trapezoid rather than stroked along its
+    /// centre line. CSS 2.1 §8.5.4 divides every border at its corners by a straight line, but a
+    /// stroke has no mitre — it butts square into its neighbour, so whichever side is drawn last
+    /// owns the whole corner. That is only invisible while the two sides share a colour, which is
+    /// exactly what the 3D styles do not do: a `groove` puts a darkened top against a lit right.
+    /// They stroke solid (<see cref="CreateBorderPen"/> gives them <c>DashStyle.Solid</c>), so the
+    /// trapezoid draws the same band and mitres it properly. `dashed`, `dotted` and `double` keep
+    /// their own paths, which are about the pattern along the side rather than its ends.
+    /// </summary>
+    private static bool UsesMitredTrapezoid(string? style) =>
+        string.Equals(style, "solid", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(style, "inset", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(style, "outset", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(style, "groove", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(style, "ridge", StringComparison.OrdinalIgnoreCase);
 
     private static void DrawDoubleBorderSide(RGraphics g, DrawBorderItem item, Border side)
     {
