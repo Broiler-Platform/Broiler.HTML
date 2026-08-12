@@ -1,6 +1,6 @@
 # Broiler.HTML
 
-Broiler.HTML is a modular .NET HTML renderer split into focused assemblies for parsing, CSS processing, layout, painting, image generation, and WPF hosting.
+Broiler.HTML is a modular .NET HTML renderer split into focused assemblies for parsing, CSS processing, layout, painting, and image generation.
 
 > **Preview status:** APIs, rendering behavior, and platform support are unstable.
 > Substantial implementation work was AI-assisted. Human-review approval is
@@ -47,18 +47,15 @@ The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized in
 - `Broiler.HTML.Graphics.Win32.Demo` - simple Win32 URL rendering demo using `Broiler.Graphics.Direct2D`
 - `Broiler.HTML.Image` / `Broiler.HTML.Image.Compat` - image rendering,
   deterministic comparison, and the remaining backend-neutral compatibility seam
-- `Broiler.HTML.WPF` - WPF rendering surface and controls
 - `Broiler.HTML` - shared public surface used by platform adapters
 
 ## Public API highlights
 
 - `Broiler.HTML.Image.HtmlRender` renders HTML to in-memory bitmaps, PNG bytes, and files.
-- `Broiler.HTML.Graphics.HtmlRender` renders HTML to `Broiler.Graphics.BBitmap` instances, encoded bytes, files, and renderer command lists without WPF.
+- `Broiler.HTML.Graphics.HtmlRender` renders HTML to `Broiler.Graphics.BBitmap` instances, encoded bytes, files, and renderer command lists.
 - `Broiler.HTML.Tool` exposes a cross-platform command-line renderer plus image-diff reporting for HTML compliance workflows.
 - `Broiler.HTML.Image.PixelDiffRunner` compares rendered output to a baseline image.
 - `Broiler.HTML.Image.MismatchClassifier` classifies visual mismatches for compliance triage.
-- `Broiler.HTML.WPF.HtmlRender` renders HTML into WPF drawing contexts and images.
-- `Broiler.HTML.WPF.HtmlPanel` and `Broiler.HTML.WPF.HtmlLabel` expose WPF controls.
 - `Broiler.HTML.Adapters.RAdapter` is the backend extension point for graphics, fonts, images, clipboard, and context-menu services.
 
 ## Build and validation
@@ -71,7 +68,6 @@ dotnet build Broiler.HTML.slnx
 dotnet test Broiler.HTML.slnx
 ```
 
-`Broiler.HTML.WPF` now enables Windows targeting so solution-wide restore/build validation also works on non-Windows CI hosts.
 The current solution does not contain checked-in .NET test projects yet, so `dotnet test` currently acts as a repository validation command rather than a substantive automated renderer test suite. The checked-in automated tests currently live under `scripts/wpt/*.test.mjs`.
 
 Run those script tests from the repository root:
@@ -202,7 +198,7 @@ Use repeated `--include` filters with `--limit-per-include` when you want a boun
 
 ## Win32 graphics demo
 
-The repository includes a no-WPF/no-WinForms demo that renders a URL with `Broiler.HTML.Graphics` directly into a `Broiler.Graphics.Direct2D` HWND surface:
+The repository includes a demo that renders a URL with `Broiler.HTML.Graphics` directly into a `Broiler.Graphics.Direct2D` HWND surface:
 
 ```bash
 dotnet run --project Source/Broiler.HTML.Graphics.Win32.Demo -- https://example.com/

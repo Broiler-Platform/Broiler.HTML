@@ -110,7 +110,7 @@ Exit gate:
 
 - normal rendering and all supported host packages have no Skia dependency;
 - fallback behavior is explicit and tested rather than discovered by reflection;
-- raster, text, SVG, image, WPF, pixel-diff, Acid, and WPT gates pass; and
+- raster, text, SVG, image, pixel-diff, Acid, and WPT gates pass; and
 - `docs/graphics-backend.md` and package metadata describe the final topology.
 
 ## 5. Release and review gates

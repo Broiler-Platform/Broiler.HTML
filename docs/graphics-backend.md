@@ -38,7 +38,7 @@ Changes to backend or compatibility behavior must run:
 - deterministic pixel-diff and repeated-render checks;
 - SVG, text shaping, font registration/fallback, clipping, gradient, transform, and
   compositing tests;
-- WPF and Win32 host smoke tests where applicable; and
+- Win32 host smoke tests where applicable; and
 - the owned HTML/CSS suite plus the pinned non-JS WPT selection.
 
 The current removal work and its exit gate are tracked in

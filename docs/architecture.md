@@ -8,7 +8,7 @@ Broiler.HTML is structured as a pipeline of small assemblies instead of a single
 2. `Broiler.HTML.CSS` parses stylesheets and computes CSS data.
 3. `Broiler.HTML.Dom` performs DOM-driven layout work.
 4. `Broiler.HTML.Rendering` converts laid-out content into painting operations.
-5. `Broiler.HTML.Image` and `Broiler.HTML.WPF` host the output in concrete backends.
+5. `Broiler.HTML.Image` hosts the output in a concrete backend.
 
 Supporting assemblies keep the pipeline reusable:
 
@@ -57,17 +57,6 @@ Use this assembly when you need deterministic image output, fixture generation, 
 - `LayoutShift`
 - `MissingContent`
 - `MinorDiff`
-
-### WPF hosting
-
-`Broiler.HTML.WPF` exposes the WPF-facing surface:
-
-- `HtmlRender`
-- `HtmlContainer`
-- `HtmlPanel`
-- `HtmlLabel`
-
-Use `HtmlRender` for direct drawing/image generation and `HtmlPanel` / `HtmlLabel` for control-based hosting.
 
 ### Backend extension point
 
