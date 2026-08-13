@@ -440,13 +440,32 @@ internal static partial class PaintWalker
 
             if (r.Width > 0 && r.Height > 0)
             {
+                // CSS Images 3 §5.5/§5.6: object-fit sizes the content against its intrinsic size
+                // and object-position places it, so the drawn rectangle is only the content box
+                // when object-fit is `fill` — which is the initial value, and returned as-is.
+                var placement = ObjectFitPlacement.Resolve(
+                    r, fragment.ImageIntrinsicSize, fragment.ImageIntrinsicRatio,
+                    fragment.Style.ObjectFit, fragment.Style.ObjectPosition,
+                    GetPositionEmSize(fragment.Style));
+
+                if (placement.IsEmpty)
+                    continue;
+
+                // The concrete object size can leave the content box — `cover` always does on one
+                // axis — and CSS Images 3 clips the overflow to it rather than scaling it away.
+                if (placement.NeedsClip)
+                    items.Add(new ClipItem { Bounds = r, ClipRect = r });
+
                 items.Add(new DrawImageItem
                 {
-                    Bounds = r,
+                    Bounds = placement.Dest,
                     ImageHandle = fragment.ImageHandle,
                     SourceRect = fragment.ImageSourceRect,
-                    DestRect = r,
+                    DestRect = placement.Dest,
                 });
+
+                if (placement.NeedsClip)
+                    items.Add(new RestoreItem { Bounds = r });
             }
         }
     }

@@ -270,28 +270,17 @@ internal static partial class PaintWalker
         if (string.IsNullOrEmpty(position))
             return;
 
-        var parts = position.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        string? xVal = null, yVal = null;
-        foreach (var p in parts)
-        {
-            if (IsHorizontalKeyword(p))
-                xVal = p;
-            else if (IsVerticalKeyword(p))
-                yVal = p;
-            else if (p.Equals("center", StringComparison.OrdinalIgnoreCase))
-            {
-                if (xVal == null) xVal = p;
-                else yVal ??= p;
-            }
-            else
-            {
-                if (xVal == null) xVal = p;
-                else yVal ??= p;
-            }
-        }
+        // `background-position` and `object-position` are the same <position> grammar, resolved by
+        // the same code — which is what brings the three- and four-component edge-offset forms
+        // (`top 25% left 25%`) here; reading the components positionally dropped them silently.
+        var offset = CssPositionValue.Resolve(
+            position,
+            new SizeF(containerWidth, containerHeight),
+            new SizeF(imageWidth, imageHeight),
+            emSize);
 
-        tileOrigin.X += ParsePositionValue(xVal, containerWidth, imageWidth, emSize);
-        tileOrigin.Y += ParsePositionValue(yVal, containerHeight, imageHeight, emSize);
+        tileOrigin.X += offset.X;
+        tileOrigin.Y += offset.Y;
     }
 
     /// <summary>
@@ -314,48 +303,6 @@ internal static partial class PaintWalker
         }
     }
 
-    /// <summary>Parses a single CSS background-position value (keyword, px, %, or length).</summary>
-    /// <param name="val">The position token (e.g. "right", "50%", "10px").</param>
-    /// <param name="containerSize">Width or height of the positioning area.</param>
-    /// <param name="imageSize">Width or height of the background image.</param>
-    /// <returns>Offset in pixels from the origin.</returns>
-    private static float ParsePositionValue(string val, float containerSize, float imageSize, float emSize)
-    {
-        if (string.IsNullOrEmpty(val)) return 0;
-
-        // CSS2.1 §14.2.1 keyword equivalences.
-        if (val.Equals("left", StringComparison.OrdinalIgnoreCase)
-            || val.Equals("top", StringComparison.OrdinalIgnoreCase))
-            return 0;
-        if (val.Equals("right", StringComparison.OrdinalIgnoreCase)
-            || val.Equals("bottom", StringComparison.OrdinalIgnoreCase))
-            return containerSize - imageSize;
-        if (val.Equals("center", StringComparison.OrdinalIgnoreCase))
-            return (containerSize - imageSize) / 2f;
-
-        if (val.EndsWith("px", StringComparison.OrdinalIgnoreCase))
-        {
-            if (float.TryParse(val.AsSpan(0, val.Length - 2), NumberStyles.Float, CultureInfo.InvariantCulture, out float px))
-                return px;
-        }
-        else if (val.EndsWith('%'))
-        {
-            // CSS2.1 §14.2.1: percentage positions use (container - image) as
-            // the reference length so that 100% places the image flush-right.
-            if (float.TryParse(val.AsSpan(0, val.Length - 1), NumberStyles.Float, CultureInfo.InvariantCulture, out float pct))
-                return (containerSize - imageSize) * pct / 100f;
-        }
-        else if (CssLengthParser.IsValidLength(val))
-        {
-            return (float)CssLengthParser.ParseLength(val, hundredPercent: 0, emFactor: emSize, defaultUnit: null);
-        }
-        else if (float.TryParse(val, NumberStyles.Float, CultureInfo.InvariantCulture, out float raw))
-        {
-            return raw;
-        }
-        return 0;
-    }
-
     private static float GetPositionEmSize(ComputedStyle style)
     {
         float fontSize;
@@ -376,14 +323,6 @@ internal static partial class PaintWalker
 
         return fontSize > 0 ? fontSize : DefaultFontSize;
     }
-
-    private static bool IsHorizontalKeyword(string val) =>
-        val.Equals("left", StringComparison.OrdinalIgnoreCase)
-        || val.Equals("right", StringComparison.OrdinalIgnoreCase);
-
-    private static bool IsVerticalKeyword(string val) =>
-        val.Equals("top", StringComparison.OrdinalIgnoreCase)
-        || val.Equals("bottom", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// CSS Backgrounds Level 4 <c>background-clip: border-area</c>:

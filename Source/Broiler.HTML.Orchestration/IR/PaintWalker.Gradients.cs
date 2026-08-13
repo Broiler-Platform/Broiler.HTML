@@ -117,32 +117,17 @@ internal static partial class PaintWalker
             float tileH = positioningArea.Height;
             ParseBackgroundSize(sizeStr, positioningArea.Width, positioningArea.Height, out tileW, out tileH);
 
-            // Apply background-position offset.
-            var posParts = posStr.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            if (posParts.Length >= 1)
-            {
-                string xVal = null, yVal = null;
-                foreach (var p in posParts)
-                {
-                    if (IsHorizontalKeyword(p))
-                        xVal = p;
-                    else if (IsVerticalKeyword(p))
-                        yVal = p;
-                    else if (p.Equals("center", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (xVal == null) xVal = p;
-                        else if (yVal == null) yVal = p;
-                    }
-                    else
-                    {
-                        if (xVal == null) xVal = p;
-                        else if (yVal == null) yVal = p;
-                    }
-                }
-                float emSize = GetPositionEmSize(style);
-                tileOrigin.X += ParsePositionValue(xVal, positioningArea.Width, tileW, emSize);
-                tileOrigin.Y += ParsePositionValue(yVal, positioningArea.Height, tileH, emSize);
-            }
+            // Apply background-position offset, through the same <position> resolver a background
+            // image and an object-position go through — one declaration must not mean two things
+            // depending on whether the layer behind it is a gradient or a bitmap.
+            var gradientOffset = CssPositionValue.Resolve(
+                posStr,
+                new SizeF(positioningArea.Width, positioningArea.Height),
+                new SizeF(tileW, tileH),
+                GetPositionEmSize(style));
+
+            tileOrigin.X += gradientOffset.X;
+            tileOrigin.Y += gradientOffset.Y;
 
             items.Add(new DrawTiledGradientItem
             {

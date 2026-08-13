@@ -64,7 +64,11 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
         bool bothIntrinsic = image.HasIntrinsicWidth && image.HasIntrinsicHeight;
         double width = bothIntrinsic ? image.IntrinsicWidth : DefaultObjectWidth;
         double height = bothIntrinsic ? image.IntrinsicHeight : DefaultObjectHeight;
-        return new ImageIntrinsics(width, height, image.HasIntrinsicRatio);
+
+        // The ratio and whether the size above is real are reported separately, because paint needs
+        // to tell "16×8" from "no size, but 2∶1" and the two report the same width and height here.
+        return new ImageIntrinsics(
+            width, height, image.HasIntrinsicRatio, image.IntrinsicAspectRatio, bothIntrinsic);
     }
 
     public BColor ParseColor(string value) => container.ParseColor(value);
