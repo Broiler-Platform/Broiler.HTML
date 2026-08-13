@@ -7,6 +7,8 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Broiler.Graphics;
+using Broiler.HTML.Orchestration.IR;
+using Broiler.Layout.IR;
 
 namespace Broiler.HTML.Image;
 
@@ -139,18 +141,15 @@ public static class BSvgRasterizer
         if (context.HasDegenerateViewBox)
             return bitmap;
 
-        using var canvas = bitmap.OpenRasterCanvas();
-        RenderRectangles(svgContent, context, canvas);
-        RenderCircles(svgContent, context, canvas);
-        RenderEllipses(svgContent, context, canvas);
-        RenderLines(svgContent, context, canvas);
-        RenderPaths(svgContent, context, canvas);
-
-        if (svgContent.Contains("<text", StringComparison.OrdinalIgnoreCase))
-        {
-            using var graphics = bitmap.OpenGraphics(new RectangleF(0, 0, width, height));
-            RenderText(svgContent, context, graphics);
-        }
+        // One SVG renderer, not two. This used to draw the document itself, with a regex pass per
+        // element type that knew only rect/circle/ellipse/line/path/text — so a <polygon>, the
+        // commonest shape after <path>, produced a fully transparent bitmap and the image simply did
+        // not appear. The same file rendered correctly as inline <svg> markup, because that path goes
+        // through Broiler.Layout's SvgRenderer. It now goes through that renderer too, replayed onto
+        // this bitmap by the same raster backend the inline path uses. See issue #1627.
+        var bounds = new RectangleF(0, 0, width, height);
+        using var graphics = bitmap.OpenGraphics(bounds);
+        SvgImageRaster.Render(svgContent, bounds, RGraphicsRasterBackend.Instance, graphics);
 
         return bitmap;
     }
