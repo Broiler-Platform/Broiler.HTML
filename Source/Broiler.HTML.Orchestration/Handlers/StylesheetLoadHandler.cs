@@ -88,7 +88,16 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         if (string.IsNullOrWhiteSpace(src))
             return src;
 
-        if (Uri.TryCreate(src, UriKind.Absolute, out _))
+        // Only a src that is absolute *and carries a real scheme* is already resolved. The
+        // UriKind.Absolute test alone is not that question on Unix: there, "/style.css" parses
+        // absolute, as file:///style.css, so a root-relative href looked already-resolved, was
+        // never rebased on the document URL, and was then read off the local filesystem instead of
+        // being fetched from the page's origin — the sheet silently did not apply (www.7-zip.org
+        // links its stylesheet that way). On Windows the same call returns false, which is why the
+        // page styled correctly there. A genuine file: URL still resolves as before, because the
+        // rebase below leaves an absolute file: src unchanged.
+        if (Uri.TryCreate(src, UriKind.Absolute, out var absolute)
+            && absolute.Scheme != Uri.UriSchemeFile)
             return src;
 
         if (!string.IsNullOrWhiteSpace(_htmlContainer.BaseUrl) &&
