@@ -219,10 +219,20 @@ internal sealed class DomParser
             // between the tags; they render the poster frame or first frame
             // instead.  Since this renderer cannot decode media streams, render
             // them as inline-block boxes with the default intrinsic dimensions
-            // (300×150 for video, 300×32 for audio) and a black background.
+            // (300×150 for video, 300×54 for audio with controls).
             bool isVideo = box.HtmlTag.Name.Equals("video", StringComparison.OrdinalIgnoreCase);
             bool isAudio = !isVideo && box.HtmlTag.Name.Equals("audio", StringComparison.OrdinalIgnoreCase);
-            if (isVideo || isAudio)
+            bool hasControls = (isVideo || isAudio) && box.HtmlTag.HasAttribute("controls");
+
+            // HTML rendering §15.4.7 UA stylesheet: `audio:not([controls])` is `display: none`.
+            // Broiler laid it out as a box and filled it black, so a page listing many <audio>
+            // elements — conformance-checkers/html/elements/audio/src-isvalid is 250 of them —
+            // came out as a wall of black bars where the reference browser draws nothing at all.
+            if (isAudio && !hasControls)
+            {
+                box.Display = CssConstants.None;
+            }
+            else if (isVideo || isAudio)
             {
                 box.Display = CssConstants.InlineBlock;
 
@@ -236,14 +246,19 @@ internal sealed class DomParser
                 if (string.IsNullOrEmpty(box.Height) || box.Height == CssConstants.Auto)
                 {
                     var attrH = box.HtmlTag.TryGetAttribute("height");
-                    box.Height = !string.IsNullOrEmpty(attrH) ? attrH + "px" : (isVideo ? "150px" : "32px");
+                    box.Height = !string.IsNullOrEmpty(attrH) ? attrH + "px" : (isVideo ? "150px" : "54px");
                 }
 
-                // Black background to approximate the default media player frame.
-                if (string.IsNullOrEmpty(box.BackgroundColor) ||
-                    box.BackgroundColor.Equals("transparent", StringComparison.OrdinalIgnoreCase))
+                // Only a media element showing controls paints anything without decodable media:
+                // HTML §4.8.9 says a <video> with no poster and no frame "represents nothing", and
+                // the reference browser paints its box transparent — the control bar is the sole
+                // thing on screen. The placeholder fill therefore follows `controls`, not the
+                // element: a dark scrim under a video's controls, the light bar under an audio's.
+                if (hasControls
+                    && (string.IsNullOrEmpty(box.BackgroundColor)
+                        || box.BackgroundColor.Equals("transparent", StringComparison.OrdinalIgnoreCase)))
                 {
-                    box.BackgroundColor = "black";
+                    box.BackgroundColor = isVideo ? "black" : "#f1f3f4";
                 }
 
                 // Hide all children (fallback content, <source>, <track>, etc.)
@@ -999,10 +1014,14 @@ internal sealed class DomParser
     /// HTML §4.8.9: a <c>&lt;video&gt;</c> is a replaced element. Broiler cannot decode video streams, so —
     /// like a supporting UA with no poster/frame to show — it paints as an inline-block replaced box at its
     /// used size (the CSS-default intrinsic 300×150, or an author CSS size / the <c>width</c>/<c>height</c>
-    /// presentation attributes) filled black, and its inline fallback content between the tags does not lay
+    /// presentation attributes), and its inline fallback content between the tags does not lay
     /// out or paint. Runs post-cascade so a cascade-time hide of a block fallback child cannot be re-shown
     /// (the same reason <see cref="CorrectIframeBoxes"/> is post-cascade). This is the native replacement for
     /// the bridge's <c>HtmlPostProcessor.ReplaceVideoWithPlaceholder</c> string rewrite.
+    /// <para>The box is filled only when the element shows <c>controls</c>. The spec says a video with
+    /// neither poster nor frame "represents nothing", and the reference browser paints its box
+    /// transparent — a black fill made every source-less <c>&lt;video&gt;</c> on a page a solid black
+    /// rectangle over whatever it sits on.</para>
     /// </summary>
     private static void CorrectVideoBoxes(CssBox box)
     {
@@ -1016,7 +1035,8 @@ internal sealed class DomParser
                 box.Width = PresentationLengthPx(box, "width", "300px");
             if (box.Height == CssConstants.Auto)
                 box.Height = PresentationLengthPx(box, "height", "150px");
-            box.BackgroundColor = "black";
+            if (box.HtmlTag.HasAttribute("controls"))
+                box.BackgroundColor = "black";
             foreach (var child in box.Boxes)
                 child.Display = CssConstants.None;
             return;
