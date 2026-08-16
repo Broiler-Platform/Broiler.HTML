@@ -11,7 +11,20 @@ public delegate void DownloadFileAsyncCallback(Uri imageUri, string filePath, Ex
 
 internal sealed class ImageDownloader : IDisposable
 {
-    private static readonly HttpClient SharedHttpClient = new();
+    // Synchronous image fetch on the render path (HtmlRender sets AvoidAsyncImagesLoading, so
+    // DownloadImageFromUrl runs inline on the layout thread). The default HttpClient timeout is
+    // 100 s, so a single unreachable http(s) <img> blocks the render for more than three times any
+    // per-test budget — a hang, not a render — and does it again on the next layout pass, since a
+    // failed URL is not remembered. Cap it short so an unreachable image fails fast and the page
+    // renders without it.
+    //
+    // This is the same fix StylesheetLoadHandler already carries for <link> (WPT #1147 Timeout
+    // cluster); images were simply missed when that one was made. It is what times out
+    // conformance-checkers/html/elements/img/src-isvalid.html, whose 88 <img> include IP literals
+    // and documentation addresses (http://192.0x00A80001, http://[2001::1]) that black-hole on a
+    // CI runner with real internet.
+    private static readonly HttpClient SharedHttpClient =
+        new() { Timeout = TimeSpan.FromSeconds(5) };
     private readonly Dictionary<string, List<DownloadFileAsyncCallback>> _imageDownloadCallbacks = [];
     private readonly CancellationTokenSource _cts = new();
 
