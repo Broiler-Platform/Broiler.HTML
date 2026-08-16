@@ -79,6 +79,17 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         }
         else
         {
+            // The host declines URLs it knows cannot resolve to anything (Broiler.Layout's
+            // OfflineSubresources; unset for a renderer with a network, so this is inert there).
+            // The cap below bounds an unreachable sheet, it does not make one free: a conformance
+            // run whose corpus is a directory on disk still spends five seconds per off-corpus
+            // <link> being told what it already knew, and a document with three of them —
+            // css/CSS2/cascade-import/cascade-import-009.xht links a CGI that pauses 2, 5 and 8
+            // seconds by design — spends half a thirty-second budget in this one method, once per
+            // container the document is laid out in.
+            if (Broiler.Layout.Engine.OfflineSubresources.Denies(src))
+                return string.Empty;
+
             return LoadStylesheetFromUri(uri);
         }
     }
