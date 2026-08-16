@@ -125,6 +125,14 @@ internal sealed class DomParser
             CorrectProgressBoxes(root, baseUrl);
             CorrectSelectMultipleBoxes(root, baseUrl);
 
+            // CSS2.1 §17.2.1 'generate missing parents': a table-row / row group /
+            // table-cell sitting outside the table box it requires is neither block nor
+            // inline, so block layout walked past it and it was dropped. Wrap it in the
+            // anonymous table (and row) the spec calls for before the inline/block
+            // corrections below, so the generated table takes part in them as the
+            // block-level box it is.
+            Broiler.Layout.Engine.AnonymousTableBoxes.Generate(root, baseUrl);
+
             bool followingBlock = true;
             CorrectLineBreaksBlocks(root, ref followingBlock);
             CorrectInlineBoxesParent(root, baseUrl);
