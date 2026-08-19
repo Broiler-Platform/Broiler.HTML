@@ -115,6 +115,17 @@ internal sealed class DomParser
 
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.BoxFixups))
         {
+            // CSS Display 3 §2.7 'blockification' and CSS Flexbox §3: a flex/grid container's
+            // in-flow children are items, an item's display is blockified, and `float` has no
+            // effect on one. Without it an inline-level item never reaches the block layout path
+            // at all and lays out as nothing — which is every <a> and <span> in a flex toolbar —
+            // and a floated one is taken out of flow, so the container sizes as if it were not
+            // there. Runs ahead of the box fix-ups below so each of them sees the display the
+            // item ends up with: an <img> item blockified to `block` is wrapped by
+            // CorrectImgBoxes, and a blockified item takes part in the inline/block corrections
+            // as the block-level box it has become.
+            Broiler.Layout.Engine.FlexGridItemBlockification.Generate(root);
+
             CorrectTextBoxes(root);
             CorrectImgBoxes(root, baseUrl);
             CorrectObjectBoxes(root);
@@ -1880,6 +1891,22 @@ internal sealed class DomParser
             if (posAncestor != null)
                 SetSplitAncestorDeep(rightBox, posAncestor);
         }
+        // CSS2.1 §9.2.1.1: breaking an inline box around a block replaces it with copies of
+        // itself on either side of the block — which is what leftbox and rightBox above are.
+        // When the block was the inline box's *only* content there is nothing on either side
+        // and neither copy is made, and the element was then left with no box at all: it is
+        // detached from its parent before the split and nothing re-attaches it. It still exists
+        // in the document, and everything keyed to the element rather than to its content still
+        // needs a box to read. A <body> broken this way is the canvas background's only source
+        // (CSS Backgrounds §2.11.2), so `<body style="display:inline;background:green">` holding
+        // one <p> rendered a white page instead of a green one.
+        if (leftbox == null && badBox.Boxes.Count == 0 && badBox.HtmlTag != null
+            && splitBox.ParentBox != null)
+        {
+            var emptyCopy = CssBoxHelper.CreateBox(leftBlock, baseUrl, badBox.HtmlTag);
+            emptyCopy.InheritStyle(badBox, true);
+        }
+
         else if (splitBox.ParentBox != null && parentBox.Boxes.Count > 1)
         {
             splitBox.SetBeforeBox(parentBox.Boxes[1]);
@@ -1949,6 +1976,18 @@ internal sealed class DomParser
             // static position is resolved during inline layout, so they must
             // not trigger the block-inside-inline correction either.
             if (childBox.Position is CssConstants.Absolute or CssConstants.Fixed)
+                continue;
+
+            // CSS2.1 §9.2.4: a display:none element generates no box at all, so it can no
+            // more make its parent "block inside inline" than an absent element could. It was
+            // counted as block-level here (only the inline-* displays answer IsInline), which
+            // is the one place this predicate disagreed with LayoutBoxUtils.ContainsInlinesOnly
+            // and ContainsVariantBoxes, both of which already skip it. The split it triggered
+            // then dissolved the hidden subtree into the surrounding flow and made it visible:
+            // on www.mediawiki.org the skin's no-JS search form and its collapsed "Appearance"
+            // menu, each display:none beside inline content, were laid out full-size at the top
+            // of the page and pushed the whole article down.
+            if (childBox.Display == CssConstants.None)
                 continue;
 
             if (!childBox.IsInline)
