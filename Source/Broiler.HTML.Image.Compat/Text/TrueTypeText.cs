@@ -23,6 +23,15 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
     private readonly object _sync = new();
     private readonly Dictionary<string, TrueTypeFont> _byFamily = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Faces found on the machine, keyed by family <em>and</em> style. A family names a whole
+    /// set of files — DejaVuSans.ttf, DejaVuSans-Bold.ttf, DejaVuSans-Oblique.ttf — so caching
+    /// one of them under the bare family name answers every later request with whichever style
+    /// happened to be asked for first. In practice that was the regular face, and
+    /// <c>font-weight: bold</c> and <c>font-style: italic</c> drew as regular text everywhere.
+    /// </summary>
+    private readonly Dictionary<(string Family, bool Bold, bool Italic), TrueTypeFont> _installed = new();
+
     private TrueTypeFont _fallback;
     private bool _fallbackLoaded;
 
@@ -110,12 +119,56 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
                 if (_byFamily.TryGetValue(family, out var font))
                     return font;
             }
+
+            // Not registered by the page or the host, but the machine may still have it. The
+            // index (Broiler.Layout.Text.SystemFontIndex) maps a CSS family — including a
+            // generic such as `serif` — onto an installed file; loading it here is what makes a
+            // document's font-family mean anything at all, rather than every family drawing in
+            // the single bundled fallback face.
+            if (TryLoadInstalledFace(family, style) is { } installed)
+                return installed;
         }
 
         // Unregistered/default family: fall back to the bundled font so that
         // text still renders glyphs (instead of nothing).  Returns
         // MissingTypeface only if the bundled font is unavailable.
         return (object)GetFallbackFont() ?? MissingTypeface.Instance;
+    }
+
+    /// <summary>
+    /// Loads the installed face for <paramref name="family"/> in the style that was asked for,
+    /// once, so the miss above happens at most once per family and style. A family the machine
+    /// does not have, or a file with no outlines this backend can rasterise, caches nothing and
+    /// lets the bundled fallback answer.
+    /// </summary>
+    private TrueTypeFont TryLoadInstalledFace(string family, BGraphicsFontStyle style)
+    {
+        bool bold = (style & BGraphicsFontStyle.Bold) != 0;
+        bool italic = (style & BGraphicsFontStyle.Italic) != 0;
+        var key = (Family: family, Bold: bold, Italic: italic);
+
+        lock (_sync)
+        {
+            if (_installed.TryGetValue(key, out var cached))
+                return cached;
+        }
+
+        if (!Broiler.Layout.Text.SystemFontIndex.TryResolve(family, bold, italic, out var path))
+            return null;
+
+        var font = TrueTypeFont.LoadFromFile(path);
+        if (font == null || !font.HasOutlines)
+            return null;
+
+        lock (_sync)
+        {
+            if (_installed.TryGetValue(key, out var raced))
+                return raced;
+
+            _installed[key] = font;
+        }
+
+        return font;
     }
 }
 

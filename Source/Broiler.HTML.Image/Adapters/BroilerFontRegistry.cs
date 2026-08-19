@@ -19,10 +19,21 @@ internal static class BroilerFontRegistry
 
     public static IReadOnlyCollection<string> GetSystemFontFamilies()
     {
+        // The installed families, which this registry could not name for itself: reading a font
+        // file's `name` table is what tells you the family CSS asks for it by, and that index
+        // lives in Broiler.Layout (Broiler.Layout.Text.SystemFontIndex). Without them the
+        // adapter advertised no family at all, so every font-family — including `serif` and
+        // `monospace` — resolved to the one fallback face the text backend carries.
+        var families = new HashSet<string>(
+            Broiler.Layout.Text.SystemFontIndex.Families,
+            StringComparer.OrdinalIgnoreCase);
+
         lock (Sync)
         {
-            return [.. LoadedFamilies];
+            families.UnionWith(LoadedFamilies);
         }
+
+        return [.. families];
     }
 
     public static void RegisterFontFile(string path, string? alias)
