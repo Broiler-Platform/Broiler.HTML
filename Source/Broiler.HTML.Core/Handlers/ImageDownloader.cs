@@ -23,8 +23,12 @@ internal sealed class ImageDownloader : IDisposable
     // conformance-checkers/html/elements/img/src-isvalid.html, whose 88 <img> include IP literals
     // and documentation addresses (http://192.0x00A80001, http://[2001::1]) that black-hole on a
     // CI runner with real internet.
+    //
+    // Identified, too: HttpClient sends no User-Agent unless given one, and a host that refuses an
+    // unidentified request refuses the image rather than serving a different one — every
+    // upload.wikimedia.org image on a mediawiki.org page came back 403 Forbidden.
     private static readonly HttpClient SharedHttpClient =
-        new() { Timeout = TimeSpan.FromSeconds(5) };
+        Broiler.Layout.Net.BroilerUserAgent.Apply(new HttpClient { Timeout = TimeSpan.FromSeconds(5) });
     private readonly Dictionary<string, List<DownloadFileAsyncCallback>> _imageDownloadCallbacks = [];
     private readonly CancellationTokenSource _cts = new();
 

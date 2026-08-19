@@ -601,7 +601,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         string tempPath = null;
         try
         {
-            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            // Identified: a host that refuses an unidentified request refuses the font file too.
+            using var client = Broiler.Layout.Net.BroilerUserAgent.Apply(
+                new HttpClient { Timeout = TimeSpan.FromSeconds(10) });
             byte[] bytes = client.GetByteArrayAsync(fontUri).GetAwaiter().GetResult();
             if (bytes == null || bytes.Length == 0)
                 return;

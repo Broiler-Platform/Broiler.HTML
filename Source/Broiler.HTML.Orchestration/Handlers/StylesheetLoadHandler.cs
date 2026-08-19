@@ -173,8 +173,12 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
     // any per-test budget — a hang, not a render.  Cap it short so an
     // unreachable sheet fails fast and the page renders without it (WPT #1147
     // Timeout cluster, e.g. CSS2/cascade-import-* linking delayed-file CGI URLs).
+    //
+    // Identified, too: HttpClient sends no User-Agent unless given one, and a host that refuses an
+    // unidentified request refuses the sheet rather than serving a different one — the load.php
+    // stylesheets of a mediawiki.org page came back 403 Forbidden, so the page rendered unstyled.
     private static readonly HttpClient SharedHttpClient =
-        new() { Timeout = TimeSpan.FromSeconds(5) };
+        Broiler.Layout.Net.BroilerUserAgent.Apply(new HttpClient { Timeout = TimeSpan.FromSeconds(5) });
 
     private string LoadStylesheetFromUri(Uri uri)
     {
