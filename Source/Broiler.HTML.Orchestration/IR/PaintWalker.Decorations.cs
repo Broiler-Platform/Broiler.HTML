@@ -371,8 +371,18 @@ internal static partial class PaintWalker
 
     /// <summary>
     /// Emits one shadow rectangle fill of <paramref name="color"/>, clipped to the box's rounded
-    /// corners (grown by <paramref name="cornerDelta"/>) when the element has a border radius.
+    /// corners (grown by <paramref name="cornerDelta"/>) when the element has a border radius, and
+    /// always clipped <em>out</em> of the border box itself.
     /// </summary>
+    /// <remarks>
+    /// CSS Backgrounds §7.1: an outer shadow is cast "as if the border box were opaque", and is
+    /// painted only outside the border edge. The fill used to be the whole offset rectangle, which
+    /// is invisible on a box with an opaque background — the background paints over it — and is
+    /// the entire box on one without. So the flat card shadows on <c>www.mediawiki.org</c>
+    /// (<c>box-shadow: 0 2px 2px rgba(0,0,0,.2)</c> over no background) filled each card solid
+    /// grey, and the page toolbar's one-pixel underline (<c>box-shadow: 0 1px &lt;colour&gt;</c>)
+    /// filled the whole tab strip with its own border colour.
+    /// </remarks>
     private static void EmitShadowFill(
         List<DisplayItem> items, Fragment fragment, RectangleF borderRect,
         RectangleF fillRect, float cornerDelta, BColor color, bool hasCornerRadius)
@@ -396,12 +406,57 @@ internal static partial class PaintWalker
                 CornerSw = Math.Max(0.0, style.ActualCornerSw + cornerDelta),
                 CornerSwY = Math.Max(0.0, GetEffectiveCornerRadiusY(style.CornerSwRadiusRaw, style.ActualCornerSw, borderRect) + cornerDelta),
             });
-            items.Add(new FillRectItem { Bounds = fillRect, Color = color });
+            EmitOutsideBorderBox(items, borderRect, fillRect, color);
             items.Add(new RestoreItem { Bounds = fillRect });
         }
         else
         {
+            EmitOutsideBorderBox(items, borderRect, fillRect, color);
+        }
+    }
+
+    /// <summary>
+    /// Fills the part of <paramref name="fillRect"/> that lies outside <paramref name="borderRect"/>,
+    /// as up to four strips: the bands above and below the border box across the full width, and
+    /// the columns to its left and right over the height they share.
+    /// </summary>
+    /// <remarks>
+    /// The strips are disjoint by construction, so a translucent shadow colour does not double up
+    /// where they meet — which it would if the frame were drawn as four overlapping rectangles.
+    /// A rounded box keeps a square bite taken out of it here; the caller's corner clip shapes the
+    /// outer edge, and the sliver a corner's curve would otherwise let through is at most a corner
+    /// radius across.
+    /// </remarks>
+    private static void EmitOutsideBorderBox(
+        List<DisplayItem> items, RectangleF borderRect, RectangleF fillRect, BColor color)
+    {
+        // Nothing to take out: the shadow lies entirely beside the box, so it is one rectangle.
+        if (borderRect.Width <= 0 || borderRect.Height <= 0 || !fillRect.IntersectsWith(borderRect))
+        {
             items.Add(new FillRectItem { Bounds = fillRect, Color = color });
+            return;
+        }
+
+        float left = fillRect.Left, right = fillRect.Right;
+        float top = fillRect.Top, bottom = fillRect.Bottom;
+        float holeLeft = Math.Max(left, borderRect.Left), holeRight = Math.Min(right, borderRect.Right);
+        float holeTop = Math.Max(top, borderRect.Top), holeBottom = Math.Min(bottom, borderRect.Bottom);
+
+        AddStrip(left, top, right, holeTop);              // above the box
+        AddStrip(left, holeBottom, right, bottom);        // below it
+        AddStrip(left, holeTop, holeLeft, holeBottom);    // to its left
+        AddStrip(holeRight, holeTop, right, holeBottom);  // to its right
+
+        void AddStrip(float x0, float y0, float x1, float y1)
+        {
+            if (x1 - x0 <= 0.01f || y1 - y0 <= 0.01f)
+                return;
+
+            items.Add(new FillRectItem
+            {
+                Bounds = new RectangleF(x0, y0, x1 - x0, y1 - y0),
+                Color = color,
+            });
         }
     }
 
