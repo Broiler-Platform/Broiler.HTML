@@ -588,6 +588,14 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         if (!NarrowToClip(ref startX, ref startY, ref endX, ref endY))
             return;
 
+        // A scaled draw needs a filter. Point sampling is exact when the destination is the
+        // source's own size, but at any other size it quantises every sample to one source
+        // pixel: at a 330->320 downscale it drops ten columns outright, and a photo comes out
+        // visibly different from what a browser draws even though the layout is right.
+        // Bilinear is what the reference engine's default scaling quality matches.
+        bool scaled = Math.Abs(translatedDest.Width - srcRect.Width) > 0.01f
+                   || Math.Abs(translatedDest.Height - srcRect.Height) > 0.01f;
+
         ForEachBand(startY, endY, startX, endX, (fromY, toY) =>
         {
             for (int y = fromY; y <= toY; y++)
@@ -602,12 +610,71 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
                     if (normalizedX < 0f || normalizedX >= 1f || normalizedY < 0f || normalizedY >= 1f)
                         continue;
 
-                    int srcX = Math.Clamp((int)Math.Floor(srcRect.Left + (normalizedX * srcRect.Width)), 0, source.Width - 1);
-                    int srcY = Math.Clamp((int)Math.Floor(srcRect.Top + (normalizedY * srcRect.Height)), 0, source.Height - 1);
-                    BlendPixel(CurrentTarget, x, y, source.GetPixel(srcX, srcY), blendMode: "normal");
+                    BColor sample;
+                    if (scaled)
+                    {
+                        sample = SampleBilinear(
+                            source,
+                            srcRect.Left + (normalizedX * srcRect.Width),
+                            srcRect.Top + (normalizedY * srcRect.Height));
+                    }
+                    else
+                    {
+                        int srcX = Math.Clamp((int)Math.Floor(srcRect.Left + (normalizedX * srcRect.Width)), 0, source.Width - 1);
+                        int srcY = Math.Clamp((int)Math.Floor(srcRect.Top + (normalizedY * srcRect.Height)), 0, source.Height - 1);
+                        sample = source.GetPixel(srcX, srcY);
+                    }
+
+                    BlendPixel(CurrentTarget, x, y, sample, blendMode: "normal");
                 }
             }
         });
+    }
+
+    /// <summary>
+    /// Bilinear sample of <paramref name="source"/> at a continuous pixel-centre coordinate.
+    /// Interpolation runs on premultiplied components so a transparent neighbour contributes its
+    /// coverage without dragging its colour in, which is what would fringe the edge of a scaled
+    /// sprite. Coordinates outside the bitmap clamp to the edge texel.
+    /// </summary>
+    private static BColor SampleBilinear(BBitmap source, float sampleX, float sampleY)
+    {
+        float x = sampleX - 0.5f;
+        float y = sampleY - 0.5f;
+        int x0 = (int)Math.Floor(x);
+        int y0 = (int)Math.Floor(y);
+        float tx = x - x0;
+        float ty = y - y0;
+
+        int left = Math.Clamp(x0, 0, source.Width - 1);
+        int right = Math.Clamp(x0 + 1, 0, source.Width - 1);
+        int top = Math.Clamp(y0, 0, source.Height - 1);
+        int bottom = Math.Clamp(y0 + 1, 0, source.Height - 1);
+
+        BColor topLeft = source.GetPixel(left, top);
+        BColor topRight = source.GetPixel(right, top);
+        BColor bottomLeft = source.GetPixel(left, bottom);
+        BColor bottomRight = source.GetPixel(right, bottom);
+
+        float w00 = (1f - tx) * (1f - ty);
+        float w10 = tx * (1f - ty);
+        float w01 = (1f - tx) * ty;
+        float w11 = tx * ty;
+
+        float alpha = (topLeft.A * w00) + (topRight.A * w10) + (bottomLeft.A * w01) + (bottomRight.A * w11);
+        if (alpha <= 0.5f)
+            return BColor.Transparent;
+
+        float red = (topLeft.R * topLeft.A * w00) + (topRight.R * topRight.A * w10)
+                  + (bottomLeft.R * bottomLeft.A * w01) + (bottomRight.R * bottomRight.A * w11);
+        float green = (topLeft.G * topLeft.A * w00) + (topRight.G * topRight.A * w10)
+                    + (bottomLeft.G * bottomLeft.A * w01) + (bottomRight.G * bottomRight.A * w11);
+        float blue = (topLeft.B * topLeft.A * w00) + (topRight.B * topRight.A * w10)
+                   + (bottomLeft.B * bottomLeft.A * w01) + (bottomRight.B * bottomRight.A * w11);
+
+        static byte ToByte(float value) => (byte)Math.Clamp((int)MathF.Round(value), 0, 255);
+
+        return new BColor(ToByte(red / alpha), ToByte(green / alpha), ToByte(blue / alpha), ToByte(alpha));
     }
 
     public void DrawPathStroke(IReadOnlyList<PointF> points, BColor color, float strokeWidth = 1f)
