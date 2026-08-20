@@ -944,6 +944,15 @@ internal sealed class DomParser
                 childBox.ParentBox = block;
                 childBox.Display = CssConstants.Inline;
 
+                // The wrapper is now the block-level box the element generates, so what `page`
+                // names travels with it. CSS Paged Media 3 §3.4 hangs a page name on a block-level
+                // box and nothing else, and the image is about to stop being one — leaving the name
+                // behind on the demoted inline means an `<img style="display:block; page:b">` is
+                // read as staying on its ancestor's page. `css-page/page-name-img-003` and `-004`
+                // are exactly that, against `-001` and `-002` where the image really is inline and
+                // its name really must be ignored.
+                block.Page = childBox.Page;
+
                 // CSS2.1 §10.3.4: a block-level replaced element resolves its
                 // horizontal margins with the non-replaced-block rules, so
                 // `margin-left/right:auto` can center it or push it to one side.
