@@ -20,7 +20,7 @@ internal static class HtmlParser
 {
     public static CssBox ParseDocument(string source, Uri baseUrl)
     {
-        var parsed = new HtmlDocumentParser().ParseDocument(source);
+        var parsed = HtmlDocumentParser.ParseDocument(source);
         return ParseDocument(parsed.Document, baseUrl);
     }
 
