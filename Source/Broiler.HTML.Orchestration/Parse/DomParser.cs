@@ -292,7 +292,31 @@ internal sealed class DomParser
             if (!isVideo && !isAudio &&
                 box.HtmlTag.Name.Equals("svg", StringComparison.OrdinalIgnoreCase))
             {
-                box.Display = CssConstants.InlineBlock;
+                // CSS Display 3 §2 / SVG 2 §7.1: `inline` is an *outermost* <svg>'s initial
+                // display, not a fixed one, and `inline-block` is how an inline replaced box is
+                // laid out here — so that substitution belongs to the initial value alone.
+                // Applying it to every value discarded the author's `display` outright:
+                // `svg { display: block }` — the ordinary way to take an SVG off the text
+                // baseline — laid the element out inline, so siblings sat side by side instead
+                // of stacking and `margin: 10px auto` computed to zero rather than centring it
+                // (css/compositing/line-with-svg-background is ten such block <svg>s and came
+                // out two to a row), and `svg { display: none }` was overridden into a visible
+                // box, so an author-hidden SVG painted.
+                //
+                // A *nested* <svg> is SVG content rather than a CSS box, and the loop below
+                // deliberately hides every child of the SVG it sits in. Reading the author's
+                // display off such a box would read that hiding back as `display: none` and
+                // drop the inner viewport for good, so only the outermost <svg> — the one that
+                // really is a replaced element in the host document — takes the cascaded value.
+                if (!HasSvgAncestor(box))
+                {
+                    if (box.Display == CssConstants.Inline)
+                        box.Display = CssConstants.InlineBlock;
+                }
+                else
+                {
+                    box.Display = CssConstants.InlineBlock;
+                }
 
                 ApplySvgReplacedSizing(box);
 
@@ -2171,6 +2195,28 @@ internal sealed class DomParser
             box.Width = "300px";
         if (heightIsAuto && !hasRatio)
             box.Height = "150px";
+    }
+
+    /// <summary>
+    /// True when <paramref name="box"/> sits inside another <c>&lt;svg&gt;</c> — i.e. it is a
+    /// nested SVG viewport rather than the outermost <c>&lt;svg&gt;</c> the host document lays
+    /// out as a replaced element. The distinction matters because the outer element hides every
+    /// box beneath it (SVG internals are not CSS-visible here), so a nested <c>&lt;svg&gt;</c>
+    /// arrives at the cascade already carrying <c>display: none</c> from its ancestor rather
+    /// than from the stylesheet.
+    /// </summary>
+    private static bool HasSvgAncestor(CssBox box)
+    {
+        for (var ancestor = box.ParentBox; ancestor != null; ancestor = ancestor.ParentBox)
+        {
+            if (ancestor.HtmlTag != null &&
+                ancestor.HtmlTag.Name.Equals("svg", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>Reads an outer <c>&lt;svg&gt;</c>'s <c>width</c>/<c>height</c>
