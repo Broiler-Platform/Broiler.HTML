@@ -13,6 +13,7 @@ internal static class CssDefaults
         ol, p, ul, center,
         dir, menu, pre   { display: block }
         li              { display: list-item }
+        legend          { display: block }
         head            { display: none }
         table           { display: table }
         tr              { display: table-row }
