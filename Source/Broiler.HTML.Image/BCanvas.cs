@@ -38,6 +38,18 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     private float _scaleX = 1f;
     private float _scaleY = 1f;
 
+    /// <summary>Whether the current mapping mirrors the X axis (a negative <see cref="_scaleX"/>).</summary>
+    /// <remarks>
+    /// <see cref="Translate(RectangleF)"/> normalises a mirrored rectangle so it encloses the right
+    /// pixels, which is all a solid fill needs. A primitive that samples <em>content</em> across
+    /// that rectangle — a bitmap, a tile phase, a gradient ramp — needs the mirror as well, or it
+    /// paints the unmirrored picture in the mirrored place. These two say which axes to reverse.
+    /// </remarks>
+    private bool FlipX => _scaleX < 0f;
+
+    /// <summary>Whether the current mapping mirrors the Y axis (a negative <see cref="_scaleY"/>).</summary>
+    private bool FlipY => _scaleY < 0f;
+
     /// <summary>
     /// A view of <paramref name="source"/>'s surface restricted to <paramref name="deviceTile"/>,
     /// carrying the transform and clip state <paramref name="source"/> has right now. See
@@ -120,6 +132,12 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
     /// including <em>non-uniform</em> scale (<c>scaleX</c>/<c>scaleY</c>/<c>scale(x, y)</c>) — are
     /// folded into <see cref="_scaleX"/>/<see cref="_scaleY"/>/<see cref="_translation"/> so
     /// transformed content actually rasterises instead of vanishing when the compat backend is a stub.
+    /// <para>
+    /// A <em>negative</em> factor is one of those: a mirror (<c>scaleX(-1)</c>, <c>scale(-1)</c>)
+    /// and the half-turn <c>rotate(180deg)</c> — whose <c>b</c>/<c>c</c> terms are zero — map each
+    /// axis onto itself reversed, which this canvas expresses. See <see cref="FlipX"/> for what the
+    /// primitives do with it.
+    /// </para>
     /// </summary>
     public bool TrySaveTransform(float[] matrix, float originX, float originY)
     {
@@ -191,13 +209,36 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         double cornerSe,
         double cornerSeY,
         double cornerSw,
-        double cornerSwY) =>
+        double cornerSwY)
+    {
+        // A mirrored axis moves each corner to the opposite side of the normalised rectangle, so
+        // the radii travel with it: the north-west corner of a horizontally mirrored box is drawn
+        // where north-east now is. Scaling a radius by a negative axis would also make it negative,
+        // which no corner can be.
+        float sx = MathF.Abs(_scaleX);
+        float sy = MathF.Abs(_scaleY);
+        var corners = new[]
+        {
+            ((float)cornerNw * sx, (float)cornerNwY * sy),
+            ((float)cornerNe * sx, (float)cornerNeY * sy),
+            ((float)cornerSe * sx, (float)cornerSeY * sy),
+            ((float)cornerSw * sx, (float)cornerSwY * sy),
+        };
+
+        // Indices into `corners` for NW, NE, SE, SW after the mirrors.
+        int nw = 0, ne = 1, se = 2, sw = 3;
+        if (FlipX)
+            (nw, ne, se, sw) = (ne, nw, sw, se);
+        if (FlipY)
+            (nw, ne, se, sw) = (sw, se, ne, nw);
+
         AddClip(ClipOperation.IncludeRounded(
             Translate(rect),
-            (float)cornerNw * _scaleX, (float)cornerNwY * _scaleY,
-            (float)cornerNe * _scaleX, (float)cornerNeY * _scaleY,
-            (float)cornerSe * _scaleX, (float)cornerSeY * _scaleY,
-            (float)cornerSw * _scaleX, (float)cornerSwY * _scaleY));
+            corners[nw].Item1, corners[nw].Item2,
+            corners[ne].Item1, corners[ne].Item2,
+            corners[se].Item1, corners[se].Item2,
+            corners[sw].Item1, corners[sw].Item2));
+    }
 
     public void PopClip()
     {
@@ -299,7 +340,9 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         var p2 = Translate(end);
         // Stroke width has no single value under non-uniform scale; use the geometric mean of the
         // axis scales (equal to the uniform scale when scaleX == scaleY, so byte-identical there).
-        float radius = Math.Max(0.5f, strokeWidth * MathF.Sqrt(_scaleX * _scaleY) / 2f);
+        // Absolute values: a mirrored axis is still the same magnification, and a single negative
+        // factor would make the product negative and the square root NaN.
+        float radius = Math.Max(0.5f, strokeWidth * MathF.Sqrt(MathF.Abs(_scaleX * _scaleY)) / 2f);
 
         int minX = (int)Math.Floor(Math.Min(p1.X, p2.X) - radius);
         int minY = (int)Math.Floor(Math.Min(p1.Y, p2.Y) - radius);
@@ -588,6 +631,9 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         if (!NarrowToClip(ref startX, ref startY, ref endX, ref endY))
             return;
 
+        bool flipX = FlipX;
+        bool flipY = FlipY;
+
         // A scaled draw needs a filter. Point sampling is exact when the destination is the
         // source's own size, but at any other size it quantises every sample to one source
         // pixel: at a 330->320 downscale it drops ten columns outright, and a photo comes out
@@ -609,6 +655,13 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
                     float normalizedY = ((y + 0.5f) - translatedDest.Top) / translatedDest.Height;
                     if (normalizedX < 0f || normalizedX >= 1f || normalizedY < 0f || normalizedY >= 1f)
                         continue;
+
+                    // Under a mirrored axis the destination rectangle was normalised, so walking it
+                    // left-to-right walks the source right-to-left: read the source from the far end.
+                    if (flipX)
+                        normalizedX = 1f - normalizedX;
+                    if (flipY)
+                        normalizedY = 1f - normalizedY;
 
                     BColor sample;
                     if (scaled)
@@ -702,6 +755,9 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
         if (!NarrowToClip(ref minX, ref minY, ref maxX, ref maxY))
             return;
 
+        bool flipX = FlipX;
+        bool flipY = FlipY;
+
         ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
             for (int y = fromY; y <= toY; y++)
@@ -713,12 +769,23 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
                     float sampleX = x + 0.5f;
                     float sampleY = y + 0.5f;
+
+                    // The tile phase runs along the element's own axes. A mirrored axis reverses
+                    // the offset from the tile origin, which mirrors both the tiling order and the
+                    // tile's own content — reading the source at the local coordinate does both.
+                    float phaseX = sampleX - translatedOrigin.X;
+                    float phaseY = sampleY - translatedOrigin.Y;
+                    if (flipX)
+                        phaseX = -phaseX;
+                    if (flipY)
+                        phaseY = -phaseY;
+
                     int srcX = Math.Clamp(
-                        (int)Math.Floor(srcRect.Left + PositiveModulo(sampleX - translatedOrigin.X, srcRect.Width)),
+                        (int)Math.Floor(srcRect.Left + PositiveModulo(phaseX, srcRect.Width)),
                         0,
                         source.Width - 1);
                     int srcY = Math.Clamp(
-                        (int)Math.Floor(srcRect.Top + PositiveModulo(sampleY - translatedOrigin.Y, srcRect.Height)),
+                        (int)Math.Floor(srcRect.Top + PositiveModulo(phaseY, srcRect.Height)),
                         0,
                         source.Height - 1);
                     BlendPixel(CurrentTarget, x, y, source.GetPixel(srcX, srcY), blendMode: "normal");
@@ -747,6 +814,13 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
             return;
         var normalizedPositions = NormalizeGradientPositions(colors.Count, positions);
         var (startPoint, endPoint) = GetGradientEndpoints(translatedRect, angle);
+
+        // The gradient line is stated in the element's own space. A mirrored axis reflects it
+        // inside the (already normalised) rectangle — reflecting the two endpoints is that same
+        // reflection, and it keeps the ramp attached to the edges the author aimed it at.
+        startPoint = MirrorInto(startPoint, translatedRect);
+        endPoint = MirrorInto(endPoint, translatedRect);
+
         float gradientX = endPoint.X - startPoint.X;
         float gradientY = endPoint.Y - startPoint.Y;
         float gradientLengthSquared = (gradientX * gradientX) + (gradientY * gradientY);
@@ -804,8 +878,10 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
         var normalizedPositions = NormalizeGradientPositions(colors.Count, positions);
 
-        float cx = translatedRect.Left + (centerX * translatedRect.Width);
-        float cy = translatedRect.Top + (centerY * translatedRect.Height);
+        // The centre is a fraction of the element's own box, so a mirrored axis measures it from
+        // the opposite edge of the (already normalised) rectangle.
+        float cx = translatedRect.Left + ((FlipX ? 1f - centerX : centerX) * translatedRect.Width);
+        float cy = translatedRect.Top + ((FlipY ? 1f - centerY : centerY) * translatedRect.Height);
 
         // Radii to farthest corner (elliptical, one per axis).
         float rx = Math.Max(Math.Abs(cx - translatedRect.Left), Math.Abs(cx - translatedRect.Right));
@@ -862,8 +938,13 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
         var normalizedPositions = NormalizeGradientPositions(colors.Count, positions);
 
-        float cx = translatedRect.Left + (centerX * translatedRect.Width);
-        float cy = translatedRect.Top + (centerY * translatedRect.Height);
+        // The centre is a fraction of the element's own box, so a mirrored axis measures it from
+        // the opposite edge of the (already normalised) rectangle.
+        float cx = translatedRect.Left + ((FlipX ? 1f - centerX : centerX) * translatedRect.Width);
+        float cy = translatedRect.Top + ((FlipY ? 1f - centerY : centerY) * translatedRect.Height);
+
+        bool flipX = FlipX;
+        bool flipY = FlipY;
 
         ForEachBand(minY, maxY, minX, maxX, (fromY, toY) =>
         {
@@ -876,6 +957,14 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
                     float dx = x + 0.5f - cx;
                     float dy = y + 0.5f - cy;
+
+                    // The sweep is measured in the element's own space. Reversing the offset on a
+                    // mirrored axis reflects the sweep with the element, so a single mirrored axis
+                    // reverses the colour order and mirroring both is the 180deg rotation it is.
+                    if (flipX)
+                        dx = -dx;
+                    if (flipY)
+                        dy = -dy;
 
                     // atan2(dx, -dy) yields 0 at 12 o'clock and increases clockwise.
                     float angleDeg = (float)(Math.Atan2(dx, -dy) * 180.0 / Math.PI);
@@ -941,8 +1030,47 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
 
     private BBitmap CurrentTarget => _layerStack.Count > 0 ? _layerStack.Peek().Bitmap : _rootBitmap;
 
-    private RectangleF Translate(RectangleF rect) =>
-        new(rect.X * _scaleX + _translation.X, rect.Y * _scaleY + _translation.Y, rect.Width * _scaleX, rect.Height * _scaleY);
+    /// <summary>
+    /// Maps a canvas-local rectangle to device space, normalised so the extents are non-negative.
+    /// </summary>
+    /// <remarks>
+    /// A negative axis scale — <c>scaleX(-1)</c>, <c>scale(-1)</c>, <c>rotate(180deg)</c> — mirrors
+    /// the rectangle about that axis, which leaves the mapped X/Y on what is now the far edge and
+    /// the extent negative. Every primitive here reads <c>Left</c>/<c>Top</c>/<c>Right</c>/
+    /// <c>Bottom</c> and walks the rows and columns between them, so an un-normalised rectangle
+    /// spans nothing and the mirrored element vanishes outright. Non-negative scale takes neither
+    /// branch, so its arithmetic is untouched.
+    /// </remarks>
+    private RectangleF Translate(RectangleF rect)
+    {
+        float x = rect.X * _scaleX + _translation.X;
+        float y = rect.Y * _scaleY + _translation.Y;
+        float width = rect.Width * _scaleX;
+        float height = rect.Height * _scaleY;
+
+        if (width < 0f)
+        {
+            x += width;
+            width = -width;
+        }
+
+        if (height < 0f)
+        {
+            y += height;
+            height = -height;
+        }
+
+        return new RectangleF(x, y, width, height);
+    }
+
+    /// <summary>
+    /// Reflects a device-space point inside <paramref name="bounds"/> across whichever axes the
+    /// current mapping mirrors. A point already in the rectangle stays in it.
+    /// </summary>
+    private PointF MirrorInto(PointF point, RectangleF bounds) =>
+        new(
+            FlipX ? bounds.Left + bounds.Right - point.X : point.X,
+            FlipY ? bounds.Top + bounds.Bottom - point.Y : point.Y);
 
     private PointF Translate(PointF point) =>
         new(point.X * _scaleX + _translation.X, point.Y * _scaleY + _translation.Y);
