@@ -385,32 +385,44 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
     public override void HintNextLayerCanUseRaster(bool canUseRaster) =>
         _nextLayerCanUseRaster = canUseRaster;
 
+    /// <summary>
+    /// Opens the compositing group for <c>0 &lt; opacity &lt; 1</c>. When the group's contents are
+    /// raster-compatible it becomes a real opacity layer; otherwise the contents are drawn
+    /// directly, at full opacity.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Drawing at the wrong opacity is a visible inaccuracy; the alternative it replaces was not
+    /// drawing at all. The fall-through used to open the layer on the compat backend, which
+    /// switches <see cref="CanUseRaster"/> off for every draw the group encloses — and against the
+    /// stub compat backend this image renderer ships with, every one of those draws lands nowhere.
+    /// The group and its whole subtree simply disappeared. <see cref="SaveTransformLayer"/> says
+    /// the same thing about the same fall-through, and <see cref="SaveFilterLayer"/> already
+    /// degrades this way.
+    /// </para>
+    /// <para>
+    /// What made the difference between an inaccuracy and a blank page is that a group is declared
+    /// non-raster by its <em>contents</em>: one <c>TransformItem</c> anywhere inside is enough
+    /// (<c>RGraphicsRasterBackend.IsRasterCompatibleItem</c>), however ordinary everything else in
+    /// it is. <c>duckduckgo.com</c> wraps its entire page in <c>#__next { isolation: isolate }</c>
+    /// and has transforms under it, so the start page rendered as an empty white viewport — the
+    /// blend-layer counterpart of this method, with <c>isolation</c>'s own <c>normal</c> blend.
+    /// </para>
+    /// </remarks>
     public override void SaveOpacityLayer(float opacity)
     {
         bool useRaster = _rasterCanvas is not null && _activeCompatLayerDepth == 0 && _nextLayerCanUseRaster;
         _nextLayerCanUseRaster = false;
         _rasterLayerStack.Push(useRaster);
         if (useRaster)
-        {
             _rasterCanvas!.SaveOpacityLayer(opacity);
-            return;
-        }
-
-        _activeCompatLayerDepth++;
-        ApplyCanvasOperation(canvas => _canvasCompat.SaveOpacityLayer(canvas, opacity));
     }
 
     public override void RestoreOpacityLayer()
     {
         bool usedRaster = _rasterLayerStack.Count > 0 && _rasterLayerStack.Pop();
         if (usedRaster)
-        {
             _rasterCanvas!.RestoreOpacityLayer();
-            return;
-        }
-
-        ApplyCanvasOperation(CompatCanvasOperations.Restore);
-        _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
     public override void SaveFilterLayer(string filter)
@@ -433,6 +445,17 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
             _rasterCanvas!.RestoreFilterLayer();
     }
 
+    /// <summary>
+    /// Opens the compositing group for a <c>mix-blend-mode</c>, and for the <c>normal</c>-blend
+    /// group <c>isolation: isolate</c> emits. When the group's contents are raster-compatible it
+    /// becomes a real blend layer; otherwise the contents are drawn directly, unblended.
+    /// </summary>
+    /// <remarks>
+    /// See <see cref="SaveOpacityLayer"/> for why the compat fall-through this replaces lost the
+    /// group's whole subtree. For an isolation group the degradation costs nothing at all: the mode
+    /// is <c>normal</c>, and isolation is only observable to a descendant that blends, so drawing
+    /// the contents straight onto the surface is what the layer would have composited anyway.
+    /// </remarks>
     public override void SaveBlendLayer(string blendMode)
     {
         bool useRaster = _rasterCanvas is not null
@@ -441,26 +464,14 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _nextLayerCanUseRaster = false;
         _rasterLayerStack.Push(useRaster);
         if (useRaster)
-        {
             _rasterCanvas!.SaveBlendLayer(blendMode);
-            return;
-        }
-
-        _activeCompatLayerDepth++;
-        ApplyCanvasOperation(canvas => _canvasCompat.SaveBlendLayer(canvas, blendMode));
     }
 
     public override void RestoreBlendLayer()
     {
         bool usedRaster = _rasterLayerStack.Count > 0 && _rasterLayerStack.Pop();
         if (usedRaster)
-        {
             _rasterCanvas!.RestoreBlendLayer();
-            return;
-        }
-
-        ApplyCanvasOperation(CompatCanvasOperations.Restore);
-        _activeCompatLayerDepth = Math.Max(0, _activeCompatLayerDepth - 1);
     }
 
     public override void SaveTransformLayer(float[] matrix, float originX, float originY)
