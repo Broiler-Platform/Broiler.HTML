@@ -439,6 +439,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // to close before a render-path worker pool exists rather than after.
         Layout.DocumentModeContext.CurrentQuirksMode =
             Layout.DocumentModeContext.IsQuirksHtml(htmlSource);
+        PublishCssDocumentMode(Layout.DocumentModeContext.CurrentQuirksMode);
 
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
         DomParser parser = new(new StylesheetLoadHandler(this));
@@ -467,7 +468,46 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (baseUrl != null)
             BaseUrl = baseUrl;
 
+        PublishCssDocumentMode(null);
+
         BuildBoundDocument();
+    }
+
+    /// <summary>
+    /// Mirrors this document's quirks-mode flag into <see cref="Broiler.CSS.CssDocumentMode"/>,
+    /// which the cascade reads for the quirks-only value relaxations (the unitless-length
+    /// quirk, https://quirks.spec.whatwg.org/#the-unitless-length-quirk).
+    /// </summary>
+    /// <param name="quirksMode">
+    /// The flag, or <see langword="null"/> to take it from <c>DocumentModeContext</c> — which is
+    /// what the bound-document path does, its caller (the DOM bridge, the WPT renderer) having
+    /// published it already.
+    /// </param>
+    /// <remarks>
+    /// The flag's canonical home is <c>Broiler.Layout.DocumentModeContext</c>, but the cascade
+    /// lives in Broiler.CSS.Dom, which cannot reference Broiler.Layout — the dependency runs the
+    /// other way. Mirroring here rather than from <c>DocumentModeContext</c>'s own setter keeps
+    /// the type Broiler.CSS owns out of the main repository, which has to build against the
+    /// pinned submodule pointers.
+    /// </remarks>
+    private static void PublishCssDocumentMode(bool? quirksMode)
+    {
+        if (quirksMode is { } known)
+        {
+            Broiler.CSS.CssDocumentMode.QuirksMode = known;
+            return;
+        }
+
+        // Reading an ambient slot this thread never established throws when the render-state
+        // assertion is armed, so ask first: an unestablished slot simply means nothing is known
+        // about the document mode, and standards mode is the safe reading.
+        bool established =
+            (Layout.AmbientRenderState.EstablishedOnThisThread
+                & Layout.AmbientRenderState.Slots.DocumentMode)
+            == Layout.AmbientRenderState.Slots.DocumentMode;
+
+        Broiler.CSS.CssDocumentMode.QuirksMode =
+            established && Layout.DocumentModeContext.CurrentQuirksMode;
     }
 
     private delegate CssBox CssTreeFactory(ref HtmlStyleSet styleSet);

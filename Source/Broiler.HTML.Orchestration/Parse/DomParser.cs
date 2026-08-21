@@ -1696,6 +1696,32 @@ internal sealed class DomParser
                 foreach (var childBox in box.Boxes)
                     CorrectBlockInsideInline(childBox, baseUrl);
             }
+            else
+            {
+                // A box whose only children are floats reaches here: ContainsInlinesOnly counts
+                // a float as inline-compatible (CSS2.1 §9.5) so it answers true, and
+                // ContainsInlinesOnlyDeep skips floats outright so the split never fires either
+                // -- the float's whole subtree was left uncorrected. A float establishes its own
+                // block formatting context, so correct it on its own. Acid1's <form> lives
+                // inside a floated <li> exactly like this, and the two block <p>s inside that
+                // inline form never got their anonymous blocks: the form's subtree -- both
+                // radio-button lines -- laid out at zero size and painted nothing.
+                //
+                // Absolutely positioned children are deliberately NOT descended into: both
+                // ContainsInlinesOnlyDeep and ContainsVariantBoxes treat them as transparent to
+                // the inline context (their static position is resolved during inline layout),
+                // and correcting inside one changes the inline bounding box the anchor pass
+                // reads as its containing block.
+                var floats = new List<CssBox>();
+                foreach (var childBox in box.Boxes)
+                {
+                    if (childBox.Float != CssConstants.None)
+                        floats.Add(childBox);
+                }
+
+                foreach (var childBox in floats)
+                    CorrectBlockInsideInline(childBox, baseUrl);
+            }
         }
         catch (Exception ex)
         {
@@ -1965,6 +1991,27 @@ internal sealed class DomParser
         if (!LayoutBoxUtils.ContainsInlinesOnly(box))
         {
             foreach (var childBox in box.Boxes)
+                CorrectInlineBoxesParent(childBox, baseUrl);
+        }
+        else
+        {
+            // ContainsInlinesOnly counts a float as inline-compatible (CSS2.1 §9.5), so a box
+            // whose children are all floats answers true and the recursion above skipped its
+            // whole subtree. A float establishes its own block formatting context and needs the
+            // same correction as any other block, so descend into it. Acid1's <ul> holds nothing
+            // but floated <li>s, which is why the <form> two levels down never had its inline
+            // run wrapped -- and, without that wrapper, never reached the block-inside-inline
+            // split either, so both radio-button lines laid out at zero size. Absolutely
+            // positioned children stay untouched, for the reason given in
+            // CorrectBlockInsideInline's matching branch.
+            var floats = new List<CssBox>();
+            foreach (var childBox in box.Boxes)
+            {
+                if (childBox.Float != CssConstants.None)
+                    floats.Add(childBox);
+            }
+
+            foreach (var childBox in floats)
                 CorrectInlineBoxesParent(childBox, baseUrl);
         }
     }
