@@ -962,7 +962,14 @@ internal sealed class DomParser
         for (int i = box.Boxes.Count - 1; i >= 0; i--)
         {
             var childBox = box.Boxes[i];
-            if (childBox is CssBoxImage && childBox.Display == CssConstants.Block)
+
+            // A row flex container's item is never wrapped: the wrapper would become the item, so
+            // every size the flex algorithm resolves would land on it and the image inside would
+            // keep the width it was declared with. See FlexGridItemBlockification.IsRowFlexItem,
+            // which is where that decision and the blockification that creates this `block`
+            // display live together.
+            if (childBox is CssBoxImage && childBox.Display == CssConstants.Block
+                && !Broiler.Layout.Engine.FlexGridItemBlockification.IsRowFlexItem(childBox))
             {
                 var block = CssBoxHelper.CreateBlock(childBox.ParentBox, baseUrl, null, childBox);
                 childBox.ParentBox = block;
