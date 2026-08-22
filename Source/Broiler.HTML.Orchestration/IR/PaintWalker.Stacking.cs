@@ -160,8 +160,17 @@ internal static partial class PaintWalker
             var matrix = ParseCssTransformMatrix(style.Transform, bounds);
             if (matrix != null)
             {
-                float originX = bounds.X + bounds.Width * 0.5f;
-                float originY = bounds.Y + bounds.Height * 0.5f;
+                // CSS Transforms 1 §8: the transform is applied about `transform-origin`, whose
+                // initial value is the box centre. The centre was used unconditionally here, so
+                // every declared origin was ignored and the painted position disagreed with the
+                // one the box's own script measured: `transform-origin: 0 0; transform: scale(0.5)`
+                // on a 100x100 box reports a rect at (0, 0) from getBoundingClientRect and painted
+                // it at (25, 25). The grammar lives in Broiler.Layout so the bridge's transform
+                // chain, the SVG renderer and this all read it the same way.
+                var origin = Layout.IR.CssTransformOrigin.Resolve(
+                    style.TransformOrigin, bounds, initialIsBoxCorner: false);
+                float originX = origin.X;
+                float originY = origin.Y;
                 items.Add(new TransformItem
                 {
                     Bounds = bounds,
