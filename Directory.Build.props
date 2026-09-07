@@ -17,7 +17,7 @@
        $(BroilerGraphicsPath) to the single root checkout first, so this conditional is skipped
        and every in-tree consumer resolves to the one shared Broiler.Graphics node. -->
   <PropertyGroup>
-    <BroilerGraphicsPath Condition="'$(BroilerGraphicsPath)' == ''">$(MSBuildThisFileDirectory)Broiler.Graphics\Broiler.Graphics\Broiler.Graphics.csproj</BroilerGraphicsPath>
+    <BroilerGraphicsPath Condition="'$(BroilerGraphicsPath)' == ''">$(MSBuildThisFileDirectory)Broiler.Graphics\src\Broiler.Graphics\Broiler.Graphics.csproj</BroilerGraphicsPath>
   </PropertyGroup>
 
   <!-- This submodule carries a nested Broiler.Graphics checkout used only as a
