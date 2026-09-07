@@ -636,15 +636,28 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private static bool IsHttp(Uri uri) =>
         uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
 
+    // One pool for the process, not one per @font-face.  An HttpClient *is* a connection pool,
+    // and the `using` this used to sit behind disposed it the moment the font bytes arrived —
+    // closing the keep-alive connection the font had just come in on while the pool still had a
+    // zero-byte read-ahead armed on it.  That read then fails with
+    // SocketError.OperationAborted, surfacing as `IOException: Unable to read data from the
+    // transport connection` on a thread-pool thread with none of our frames in it.  A page
+    // declaring several remote faces built and tore down one pool each, so it also reconnected
+    // to a host the previous face had finished talking to a moment earlier.  Same rule, and the
+    // same reason, as BrowserApp.PageHttpClient, ImageDownloader and StylesheetLoadHandler.
+    //
+    // Never disposed: it is owned by the process and outlives every container.
+    //
+    // Identified: a host that refuses an unidentified request refuses the font file too.
+    private static readonly HttpClient SharedFontHttpClient =
+        Broiler.Layout.Net.BroilerUserAgent.Apply(new HttpClient { Timeout = TimeSpan.FromSeconds(10) });
+
     private void TryLoadRemoteFont(Uri fontUri, string family)
     {
         string tempPath = null;
         try
         {
-            // Identified: a host that refuses an unidentified request refuses the font file too.
-            using var client = Broiler.Layout.Net.BroilerUserAgent.Apply(
-                new HttpClient { Timeout = TimeSpan.FromSeconds(10) });
-            byte[] bytes = client.GetByteArrayAsync(fontUri).GetAwaiter().GetResult();
+            byte[] bytes = SharedFontHttpClient.GetByteArrayAsync(fontUri).GetAwaiter().GetResult();
             if (bytes == null || bytes.Length == 0)
                 return;
 

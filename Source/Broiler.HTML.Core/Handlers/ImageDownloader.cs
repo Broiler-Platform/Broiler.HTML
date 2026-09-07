@@ -66,9 +66,26 @@ internal sealed class ImageDownloader : IDisposable
 
     public void Dispose()
     {
+        // Cancelling is the point, not a side effect: the render tree these callbacks target is
+        // being torn down, so a download still in flight has nowhere left to deliver to.  It does
+        // abort that request's socket, and the aborted read surfaces as `IOException: Unable to
+        // read data from the transport connection` (SocketError.OperationAborted) on a
+        // thread-pool thread — the price of stopping work whose result is already worthless.
         _cts.Cancel();
-        _cts.Dispose();
-        _imageDownloadCallbacks.Clear();
+
+        // Deliberately not disposed.  DownloadImageFromUrl hands _cts.Token to HttpClient.Send on
+        // a thread-pool thread, and disposing the source under an in-flight send throws
+        // ObjectDisposedException out of the token's registration — a race as wide as whatever the
+        // request has left to run.  A cancelled source with no timer and no WaitHandle holds
+        // nothing that needs reclaiming on this schedule; it is collected with the downloader once
+        // those sends finish.  Dispose stays idempotent, since Cancel on a cancelled source is a
+        // no-op.
+
+        // Under the lock the download path already takes.  The clear ran unsynchronised while
+        // DownloadImage and OnDownloadImageCompleted were free to be inside TryGetValue/Add on
+        // another thread, which is a torn Dictionary rather than merely a lost entry.
+        lock (_imageDownloadCallbacks)
+            _imageDownloadCallbacks.Clear();
     }
 
     private void DownloadImageFromUrl(Uri source, string tempPath, string filePath)
