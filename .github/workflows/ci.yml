@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A later push on the same branch cancels the earlier run: what is checked does
+# not change, only how many times an abandoned commit is checked.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Windows only, and not for want of trying a cheaper runner.
+    # Source/Broiler.HTML.slnx includes Broiler.Graphics.Direct2D and
+    # Broiler.HTML.Graphics.Win32.Demo, both of which target net10.0-windows, so
+    # there is no Linux leg of this solution to build.
+    name: Build (Windows)
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Recursive: Broiler.Graphics is referenced by the solution directly
+      # (../Broiler.Graphics/...), and it carries submodules of its own that its
+      # project references need.
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      # Build only. This repository has no xunit project: its suites are the
+      # html52 and WPT corpora under scripts/ and tests/, which are driven by
+      # the two workflow_dispatch workflows beside this one and are far too long
+      # to run per pull request. Compiling the head is still worth gating — a
+      # head that stops compiling is a defect a pull request introduced.
+      - name: Build
+        run: dotnet build Source/Broiler.HTML.slnx -c Release --nologo
