@@ -7,6 +7,7 @@ using System.Runtime.Versioning;
 using Broiler.Graphics;
 using Broiler.Graphics.Windows;
 using Broiler.HTML.Graphics;
+using Broiler.HTML.Image;
 
 namespace Broiler.HTML.Graphics.Win32.Demo;
 
@@ -185,7 +186,13 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
         _container.PerformLayout(viewport);
 
         _renderList?.Dispose();
-        _renderList = _container.CreateRenderList(Renderer, viewport);
+        // HtmlContainer.CreateRenderList is gone; the render list is built from a
+        // display list now. This is the same call the shipping browser makes in
+        // BrowserApp, which is where the working shape was taken from.
+        _renderList = HtmlGraphicsRenderListBuilder.Build(
+            Renderer,
+            _container.CreateDisplayList(),
+            viewport);
         _layoutDirty = false;
 
         return _renderList.RenderList;

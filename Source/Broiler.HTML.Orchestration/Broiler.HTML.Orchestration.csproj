@@ -10,9 +10,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Broiler.DOM\Broiler.Dom\Broiler.Dom.csproj" />
-    <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS\Broiler.CSS.csproj" />
-    <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS.Dom\Broiler.CSS.Dom.csproj" />
+    <ProjectReference Include="$(BroilerDomRoot)\Broiler.Dom\Broiler.Dom.csproj" />
+    <ProjectReference Include="$(BroilerCssRoot)\Broiler.CSS\Broiler.CSS.csproj" />
+    <ProjectReference Include="$(BroilerCssRoot)\Broiler.CSS.Dom\Broiler.CSS.Dom.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Dom\Broiler.HTML.Dom.csproj" />
   </ItemGroup>

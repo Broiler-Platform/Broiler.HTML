@@ -5,8 +5,8 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Broiler.DOM\Broiler.Dom.Html\Broiler.Dom.Html.csproj" />
-    <ProjectReference Include="..\..\..\Broiler.CSS\Broiler.CSS\Broiler.CSS.csproj" />
+    <ProjectReference Include="$(BroilerDomRoot)\Broiler.Dom.Html\Broiler.Dom.Html.csproj" />
+    <ProjectReference Include="$(BroilerCssRoot)\Broiler.CSS\Broiler.CSS.csproj" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>

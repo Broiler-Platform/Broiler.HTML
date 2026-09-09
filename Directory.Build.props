@@ -11,6 +11,72 @@
   <!-- Broiler NuGet packaging metadata (vendored; do not edit by hand). -->
   <Import Project="$(MSBuildThisFileDirectory)eng\Broiler.Packaging.props" />
 
+  <!-- Where the Broiler.CSS projects live. It defaults to the vendored submodule
+       so this repo builds on its own; a consumer with its own copy sets it in the
+       Directory.Build.props above, which is imported first, and then one assembly
+       of each name is built instead of several. -->
+  <PropertyGroup Condition="'$(BroilerCssRoot)' == ''">
+    <BroilerCssRoot>$(MSBuildThisFileDirectory)Broiler.CSS</BroilerCssRoot>
+  </PropertyGroup>
+
+  <!-- Where the Broiler.DOM projects live, on the same terms. -->
+  <PropertyGroup Condition="'$(BroilerDomRoot)' == ''">
+    <BroilerDomRoot>$(MSBuildThisFileDirectory)Broiler.DOM</BroilerDomRoot>
+  </PropertyGroup>
+
+  <!-- Where the Broiler.Layout projects live, on the same terms. This one is new:
+       until 2026-09-09 Broiler.Layout was a directory inside Broiler.Browser and
+       could only be reached as a sibling of this repository, which is precisely
+       why this repository could not build alone. -->
+  <PropertyGroup Condition="'$(BroilerLayoutRoot)' == ''">
+    <BroilerLayoutRoot>$(MSBuildThisFileDirectory)Broiler.Layout</BroilerLayoutRoot>
+  </PropertyGroup>
+
+  <!-- Where the Broiler.Media projects live. It defaults to the copy vendored
+       under Broiler.Graphics rather than to a submodule of its own, which is how
+       Broiler.Documents reaches Media too; the aggregate sets it above and the
+       whole chain collapses onto one checkout. -->
+  <PropertyGroup Condition="'$(BroilerGraphicsRoot)' == ''">
+    <BroilerGraphicsRoot>$(MSBuildThisFileDirectory)Broiler.Graphics</BroilerGraphicsRoot>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(BroilerMediaRoot)' == ''">
+    <BroilerMediaRoot>$(BroilerGraphicsRoot)\Broiler.Media</BroilerMediaRoot>
+  </PropertyGroup>
+
+  <!-- Which checkout each root actually resolved to, recorded into every assembly
+       this repository builds. The roots above are deliberately overridable, and a
+       consumer that overrides them is doing the right thing; what nobody can see
+       afterwards is that it happened. Building this repository from inside a
+       consumer's tree imports that consumer's Directory.Build.props above, so the
+       solution compiles against its components instead of this one's pinned
+       submodules, and passes while this repository's own CI would fail.
+
+       Broiler.Documents and Broiler.UI read these back in a test and fail when the
+       build did not use their own checkouts. This repository has no xunit project
+       to put such a test in - its suites are the html52 and WPT corpora, driven by
+       the workflow_dispatch workflows - so the values are recorded for a reader and
+       for `ildasm`, and nothing enforces them here yet. -->
+  <ItemGroup>
+    <AssemblyMetadata Include="BroilerCssRoot" Value="$(BroilerCssRoot)" />
+    <AssemblyMetadata Include="BroilerDomRoot" Value="$(BroilerDomRoot)" />
+    <AssemblyMetadata Include="BroilerLayoutRoot" Value="$(BroilerLayoutRoot)" />
+    <AssemblyMetadata Include="BroilerGraphicsRoot" Value="$(BroilerGraphicsRoot)" />
+    <AssemblyMetadata Include="BroilerMediaRoot" Value="$(BroilerMediaRoot)" />
+  </ItemGroup>
+
+  <!-- Broiler.CSS.Dom references the DOM kernel by PROJECT rather than by
+       directory, as $(BroilerDomPath), and Broiler.CSS defaults that to its own
+       nested Broiler.DOM checkout. Left alone in a standalone build here that
+       resolves to a checkout this repository does not initialise, so the
+       reference is skipped and Broiler.CSS.Dom fails to compile. Initialising it
+       instead would be worse: two Broiler.Dom assemblies from two checkouts, which
+       is the duplicate this whole mechanism exists to prevent. So point it at the
+       same root everything else here uses. An aggregate build sets it above and
+       this is skipped, exactly like the Graphics one below. -->
+  <PropertyGroup Condition="'$(BroilerDomPath)' == ''">
+    <BroilerDomPath>$(BroilerDomRoot)\Broiler.Dom\Broiler.Dom.csproj</BroilerDomPath>
+  </PropertyGroup>
+
   <!-- HtmlBridge Phase 1 (project-graph repair) item 4: default the canonical Broiler.Graphics
        kernel path to this submodule's nested Broiler.Graphics checkout for STANDALONE builds.
        In the in-tree main build the parent Directory.Build.props (imported above) sets

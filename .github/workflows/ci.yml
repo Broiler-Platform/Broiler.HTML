@@ -29,13 +29,27 @@ jobs:
         shell: bash
 
     steps:
-      # Recursive: Broiler.Graphics is referenced by the solution directly
-      # (../Broiler.Graphics/...), and it carries submodules of its own that its
-      # project references need.
+      # One level only, and by name. Broiler.Layout, Broiler.CSS and Broiler.DOM are
+      # submodules of this repository as of 2026-09-09; before that they were
+      # expected as sibling directories that existed only inside the Broiler.Browser
+      # aggregate, which is why this job could not compile.
+      #
+      # `recursive` is deliberately NOT used any more. Broiler.Media declares
+      # Broiler.Graphics as a submodule of its own, and Broiler.CSS carries a nested
+      # Broiler.DOM that the root properties in Directory.Build.props collapse away;
+      # fetching either is at best wasted and at worst a second checkout of a kernel
+      # this build is careful to have only one of. The two nested checkouts that are
+      # genuinely needed are named in the next step.
       - name: Check out
         uses: actions/checkout@v7
         with:
-          submodules: recursive
+          submodules: true
+
+      # Broiler.Graphics.csproj needs Broiler.Media.Image, and
+      # Broiler.Graphics.Direct2D needs Broiler.Input.Mouse. Both come from
+      # Broiler.Graphics's own nested checkouts.
+      - name: Check out the graphics submodule's own dependencies
+        run: git -C Broiler.Graphics submodule update --init --depth 1 Broiler.Media Broiler.Input
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v6
