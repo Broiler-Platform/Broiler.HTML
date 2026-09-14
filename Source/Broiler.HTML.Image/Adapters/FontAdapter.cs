@@ -1,15 +1,16 @@
 using System;
 using Broiler.Graphics;
-using DrawingFontStyle = Broiler.Graphics.FontStyle;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Text;
 
 namespace Broiler.HTML.Image.Adapters;
 
 internal sealed class FontAdapter(
     string family,
     double size,
-    DrawingFontStyle style,
+    FontStyle style,
     Func<object>? compatTypefaceFactory = null,
-    IFontCompatFactory? fontCompatFactory = null) : RFont
+    IFontCompatFactory? fontCompatFactory = null) : BFont
 {
     /// <summary>
     /// Ratio to convert typographic points to CSS pixels (96 DPI / 72 DPI).
@@ -41,7 +42,7 @@ internal sealed class FontAdapter(
     /// </summary>
     public override string Family => family;
 
-    public override DrawingFontStyle Style => style;
+    public override FontStyle Style => style;
 
     public override double Height
     {
@@ -67,7 +68,7 @@ internal sealed class FontAdapter(
 
     internal bool HasMaterializedRenderFont => _renderFont is not null;
 
-    public override double GetWhitespaceWidth(RGraphics graphics)
+    public override double GetWhitespaceWidth(BGraphics graphics)
     {
         if (_whitespaceWidth < 0)
             _whitespaceWidth = graphics.MeasureString(" ", this).Width;

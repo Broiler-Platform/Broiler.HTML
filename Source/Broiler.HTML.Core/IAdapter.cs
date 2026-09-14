@@ -1,5 +1,6 @@
 using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Text;
 using System.IO;
 
 namespace Broiler.HTML.Core;
@@ -16,27 +17,27 @@ internal interface IAdapter : IColorResolver
     /// <summary>
     /// Gets a cached font for the specified family, size, and style.
     /// </summary>
-    RFont GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures = null);
+    BFont GetFont(string family, double size, FontStyle style, string fontFeatures = null);
 
     /// <summary>
     /// Converts a platform-specific image object to an <see cref="RImage"/>.
     /// </summary>
-    RImage ConvertImage(object image);
+    BImage ConvertImage(object image);
 
     /// <summary>
     /// Creates an <see cref="RImage"/> from a stream.
     /// </summary>
-    RImage ImageFromStream(Stream stream);
+    BImage ImageFromStream(Stream stream);
 
     /// <summary>
     /// Gets the loading placeholder image.
     /// </summary>
-    RImage GetLoadingImage();
+    BImage GetLoadingImage();
 
     /// <summary>
     /// Gets the error placeholder image.
     /// </summary>
-    RImage GetLoadingFailedImage();
+    BImage GetLoadingFailedImage();
 
     /// <summary>
     /// Loads a font from a file path and registers it as an available font family.

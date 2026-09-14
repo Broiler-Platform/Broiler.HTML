@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Geometry;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class GraphicsPathAdapter : RGraphicsPath
+internal sealed class GraphicsPathAdapter : BGraphicsPath
 {
     private PointF _lastPoint;
     private readonly List<PointF> _flattenedPoints = [];
@@ -50,7 +52,7 @@ internal sealed class GraphicsPathAdapter : RGraphicsPath
         _flattenedPoints.Add(_lastPoint);
     }
 
-    public override void ArcTo(double x, double y, double size, Graphics.Corner corner)
+    public override void ArcTo(double x, double y, double size, Corner corner)
     {
         float left = (float)(Math.Min(x, _lastPoint.X) - (corner == Corner.TopRight || corner == Corner.BottomRight ? size : 0));
         float top = (float)(Math.Min(y, _lastPoint.Y) - (corner == Corner.BottomLeft || corner == Corner.BottomRight ? size : 0));
@@ -91,7 +93,7 @@ internal sealed class GraphicsPathAdapter : RGraphicsPath
         return _path;
     }
 
-    private static float GetStartAngle(Graphics.Corner corner)
+    private static float GetStartAngle(Corner corner)
     {
         return corner switch
         {

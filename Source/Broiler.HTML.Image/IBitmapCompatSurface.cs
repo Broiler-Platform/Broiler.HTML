@@ -1,5 +1,6 @@
 using System;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
 
 namespace Broiler.HTML.Image;
 

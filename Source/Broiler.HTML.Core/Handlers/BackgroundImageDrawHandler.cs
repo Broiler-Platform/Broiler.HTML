@@ -1,4 +1,5 @@
 ﻿using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
 using System;
 using System.Drawing;
 
@@ -8,7 +9,7 @@ internal sealed class BackgroundImageDrawHandler : IBackgroundImageDrawHandler
 {
     public static readonly BackgroundImageDrawHandler Instance = new();
 
-    public static void DrawBackgroundImage(RGraphics g, IBackgroundRenderData box, IImageLoadHandler imageLoadHandler, RectangleF rectangle)
+    public static void DrawBackgroundImage(BGraphics g, IBackgroundRenderData box, IImageLoadHandler imageLoadHandler, RectangleF rectangle)
     {
         if (imageLoadHandler.Image == null)
             return;
@@ -81,7 +82,7 @@ internal sealed class BackgroundImageDrawHandler : IBackgroundImageDrawHandler
         return new PointF((float)left, (float)top);
     }
 
-    private static void DrawRepeatX(RGraphics g, IImageLoadHandler imageLoadHandler, RectangleF rectangle, RectangleF srcRect, RectangleF destRect, SizeF imgSize)
+    private static void DrawRepeatX(BGraphics g, IImageLoadHandler imageLoadHandler, RectangleF rectangle, RectangleF srcRect, RectangleF destRect, SizeF imgSize)
     {
         while (destRect.X > rectangle.X)
             destRect.X -= imgSize.Width;
@@ -90,7 +91,7 @@ internal sealed class BackgroundImageDrawHandler : IBackgroundImageDrawHandler
         g.DrawRectangle(brush, rectangle.X, destRect.Y, rectangle.Width, srcRect.Height);
     }
 
-    private static void DrawRepeatY(RGraphics g, IImageLoadHandler imageLoadHandler, RectangleF rectangle, RectangleF srcRect, RectangleF destRect, SizeF imgSize)
+    private static void DrawRepeatY(BGraphics g, IImageLoadHandler imageLoadHandler, RectangleF rectangle, RectangleF srcRect, RectangleF destRect, SizeF imgSize)
     {
         while (destRect.Y > rectangle.Y)
             destRect.Y -= imgSize.Height;
@@ -99,7 +100,7 @@ internal sealed class BackgroundImageDrawHandler : IBackgroundImageDrawHandler
         g.DrawRectangle(brush, destRect.X, rectangle.Y, srcRect.Width, rectangle.Height);
     }
 
-    private static void DrawRepeat(RGraphics g, IImageLoadHandler imageLoadHandler, RectangleF rectangle, RectangleF srcRect, RectangleF destRect, SizeF imgSize)
+    private static void DrawRepeat(BGraphics g, IImageLoadHandler imageLoadHandler, RectangleF rectangle, RectangleF srcRect, RectangleF destRect, SizeF imgSize)
     {
         while (destRect.X > rectangle.X)
             destRect.X -= imgSize.Width;
@@ -111,6 +112,6 @@ internal sealed class BackgroundImageDrawHandler : IBackgroundImageDrawHandler
         g.DrawRectangle(brush, rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
     }
 
-    void IBackgroundImageDrawHandler.DrawBackgroundImage(RGraphics g, IBackgroundRenderData box, IImageLoadHandler imageHandler, RectangleF rectangle)
+    void IBackgroundImageDrawHandler.DrawBackgroundImage(BGraphics g, IBackgroundRenderData box, IImageLoadHandler imageHandler, RectangleF rectangle)
         => DrawBackgroundImage(g, box, imageHandler, rectangle);
 }

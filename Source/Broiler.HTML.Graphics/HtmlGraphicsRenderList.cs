@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Layout.IR;
 using Broiler.Graphics;
+using Broiler.Graphics.Rendering;
+using Broiler.Graphics.RenderList;
+using Broiler.Graphics.Resources;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Geometry;
+using Broiler.Graphics.Text;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Imaging;
 
 namespace Broiler.HTML.Graphics;
 
@@ -374,7 +382,7 @@ public static class HtmlGraphicsRenderListBuilder
     /// </remarks>
     private static BFontStyle ResolveFont(DrawTextItem item)
     {
-        if (item.FontHandle is RFont measured && measured.Size > 0)
+        if (item.FontHandle is BFont measured && measured.Size > 0)
         {
             return new BFontStyle(
                 string.IsNullOrWhiteSpace(measured.Family) ? FirstFontFamily(item.FontFamily) : measured.Family,

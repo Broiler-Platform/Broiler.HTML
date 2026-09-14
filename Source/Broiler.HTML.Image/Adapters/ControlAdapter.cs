@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
 using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
@@ -33,7 +34,7 @@ internal sealed class ControlAdapter(
         // The platform-neutral image/graphics frontend has no drag-drop service.
     }
 
-    public override void MeasureString(string str, RFont font, double maxWidth, out int charFit, out double charFitWidth)
+    public override void MeasureString(string str, BFont font, double maxWidth, out int charFit, out double charFitWidth)
     {
         using var bitmap = new BBitmap(1, 1);
         using var graphics = bitmap.OpenGraphics(new RectangleF(0, 0, 1, 1));

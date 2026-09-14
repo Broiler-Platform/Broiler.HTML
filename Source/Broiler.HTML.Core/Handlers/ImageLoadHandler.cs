@@ -8,19 +8,20 @@ using Broiler.Graphics;
 using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
+using Broiler.Graphics.Adapters;
 
 namespace Broiler.HTML.Rendering.Handlers;
 
 internal sealed class ImageLoadHandler : IImageLoadHandler
 {
     private readonly IHtmlContainerInt _htmlContainer;
-    private readonly ActionInt<RImage, RectangleF, bool> _loadCompleteCallback;
+    private readonly ActionInt<BImage, RectangleF, bool> _loadCompleteCallback;
     private RectangleF _imageRectangle;
     private bool _asyncCallback;
     private bool _releaseImageObject;
     private bool _disposed;
 
-    public ImageLoadHandler(IHtmlContainerInt htmlContainer, ActionInt<RImage, RectangleF, bool> loadCompleteCallback)
+    public ImageLoadHandler(IHtmlContainerInt htmlContainer, ActionInt<BImage, RectangleF, bool> loadCompleteCallback)
     {
         ArgumentNullException.ThrowIfNull(htmlContainer);
         ArgumentNullException.ThrowIfNull(loadCompleteCallback);
@@ -29,7 +30,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         _loadCompleteCallback = loadCompleteCallback;
     }
 
-    public RImage Image { get; private set; }
+    public BImage Image { get; private set; }
     public RectangleF Rectangle => _imageRectangle;
 
     public void LoadImage(string src, Dictionary<string, string> attributes, Uri baseUrl)
@@ -106,7 +107,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         ImageLoadComplete(false);
     }
 
-    private RImage GetImageFromData(string src)
+    private BImage GetImageFromData(string src)
     {
         var s = src[(src.IndexOf(':') + 1)..].Split([','], 2);
 

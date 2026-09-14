@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Drawing;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
 
 namespace Broiler.HTML.Orchestration;
 
 public static class HtmlRendererUtils
 {
-    public static SizeF MeasureHtmlByRestrictions(RGraphics g, HtmlContainerInt htmlContainer, SizeF minSize, SizeF maxSize)
+    public static SizeF MeasureHtmlByRestrictions(BGraphics g, HtmlContainerInt htmlContainer, SizeF minSize, SizeF maxSize)
     {
         // first layout without size restriction to know html actual size
         htmlContainer.PerformLayout(g);
@@ -33,7 +34,7 @@ public static class HtmlRendererUtils
         return new SizeF(finalWidth, finalHeight);
     }
 
-    public static SizeF Layout(RGraphics g, HtmlContainerInt htmlContainer, SizeF size, SizeF minSize, SizeF maxSize, bool autoSize, bool autoSizeHeightOnly)
+    public static SizeF Layout(BGraphics g, HtmlContainerInt htmlContainer, SizeF size, SizeF minSize, SizeF maxSize, bool autoSize, bool autoSizeHeightOnly)
     {
         if (autoSize)
             htmlContainer.MaxSize = new SizeF(0, 0);

@@ -6,6 +6,8 @@ using Broiler.Media.Image;
 using Broiler.Media.Image.Managed;
 using Broiler.HTML.Image.Adapters;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Imaging;
 
 namespace Broiler.HTML.Image;
 
@@ -107,7 +109,7 @@ public sealed class BBitmap : IDisposable
     internal static BBitmap FromPixelsNoCopy(int width, int height, byte[] pixels) =>
         new(width, height, pixels);
 
-    public Broiler.Graphics.BPixelBuffer ToPixelBuffer() =>
+    public BPixelBuffer ToPixelBuffer() =>
         new(Width, Height, (byte[])_pixels.Clone());
 
     internal BBitmap ResizeNearest(int width, int height)

@@ -20,6 +20,8 @@ using System.Net.Http;
 using Broiler.HTML.Orchestration.IR;
 using Broiler.Layout.Engine;
 using Broiler.Layout.Diagnostics;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Adapters;
 
 namespace Broiler.HTML.Orchestration;
 
@@ -963,7 +965,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// <summary>
     /// Returns box geometry for every laid-out box that originated from a canonical
     /// <see cref="Broiler.Dom.DomElement"/> (the <c>SetDocument</c> path), keyed by
-    /// that element. Call after <see cref="PerformLayout(RGraphics)"/>. Anonymous
+    /// that element. Call after <see cref="PerformLayout(BGraphics)"/>. Anonymous
     /// boxes and boxes from the legacy HTML-string parse path (no
     /// <c>SourceElement</c>) are skipped; when an element maps to several boxes the
     /// first encountered in document order wins.
@@ -1092,7 +1094,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             candidate.HtmlTag.Name.Equals("html", StringComparison.OrdinalIgnoreCase);
     }
 
-    public void PerformLayout(RGraphics g)
+    public void PerformLayout(BGraphics g)
     {
         ArgumentNullException.ThrowIfNull(g);
         LayoutPassCounter.RecordCall();
@@ -1150,7 +1152,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         LatestFragmentTree = FragmentTreeBuilder.Build(Root);
     }
 
-    public void PerformPaint(RGraphics g)
+    public void PerformPaint(BGraphics g)
     {
         ArgumentNullException.ThrowIfNull(g);
 
@@ -1237,7 +1239,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
     }
 
-    public void HandleMouseUp(object parent, PointF location, RMouseEvent e)
+    public void HandleMouseUp(object parent, PointF location, BMouseEvent e)
     {
         ArgumentNullException.ThrowIfNull(parent);
 
@@ -1295,7 +1297,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
     }
 
-    public void HandleKeyDown(object parent, RKeyEvent e)
+    public void HandleKeyDown(object parent, BKeyEvent e)
     {
         ArgumentNullException.ThrowIfNull(parent);
         ArgumentNullException.ThrowIfNull(e);
@@ -1605,22 +1607,22 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     PointF IHtmlContainerInt.RootLocation => Root?.Location ?? PointF.Empty;
 
-    RFont IHtmlContainerInt.GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
+    BFont IHtmlContainerInt.GetFont(string family, double size, Graphics.Text.FontStyle style, string fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
 
     BColor IHtmlContainerInt.ParseColor(string colorStr) => ParseCssColor(colorStr);
 
-    RImage IHtmlContainerInt.ConvertImage(object image) => Adapter.ConvertImage(image);
+    BImage IHtmlContainerInt.ConvertImage(object image) => Adapter.ConvertImage(image);
 
-    RImage IHtmlContainerInt.ImageFromStream(Stream stream) => Adapter.ImageFromStream(stream);
+    BImage IHtmlContainerInt.ImageFromStream(Stream stream) => Adapter.ImageFromStream(stream);
 
-    RImage IHtmlContainerInt.GetLoadingImage() => Adapter.GetLoadingImage();
+    BImage IHtmlContainerInt.GetLoadingImage() => Adapter.GetLoadingImage();
 
-    RImage IHtmlContainerInt.GetLoadingFailedImage() => Adapter.GetLoadingFailedImage();
+    BImage IHtmlContainerInt.GetLoadingFailedImage() => Adapter.GetLoadingFailedImage();
 
     void IHtmlContainerInt.DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception, bool> callback)
         => _imageDownloader?.DownloadImage(uri, filePath, async, (imageUri, fp, error, canceled) => callback(imageUri, fp, error, canceled));
 
-    IImageLoadHandler IHtmlContainerInt.CreateImageLoadHandler(ActionInt<RImage, RectangleF, bool> loadCompleteCallback)
+    IImageLoadHandler IHtmlContainerInt.CreateImageLoadHandler(ActionInt<BImage, RectangleF, bool> loadCompleteCallback)
         => new ImageLoadHandler(this, loadCompleteCallback);
 
     HtmlStyleSet IHtmlContainerInt.StyleSet => _styleSet;

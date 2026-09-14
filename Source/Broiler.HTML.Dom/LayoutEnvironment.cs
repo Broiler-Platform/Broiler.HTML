@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Text;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
 using Broiler.Layout;
@@ -24,7 +27,7 @@ namespace Broiler.HTML.Dom;
 /// </remarks>
 internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayoutEnvironment
 {
-    private RGraphics _graphics;
+    private BGraphics _graphics;
 
     // CSS default object size for a replaced element with no intrinsic size
     // (CSS Images §5.3 / CSS2 §10.3.2).
@@ -32,23 +35,23 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
     private const double DefaultObjectHeight = 150;
 
     /// <summary>Sets the graphics surface for the current layout pass (used by text measurement).</summary>
-    public void SetGraphics(RGraphics graphics) => _graphics = graphics;
+    public void SetGraphics(BGraphics graphics) => _graphics = graphics;
 
     public ILayoutFont GetFont(string family, double size, LayoutFontStyle style, string? fontFeatures = null)
         => container.GetFont(family, size, (FontStyle)(int)style, fontFeatures);
 
     public SizeF MeasureText(ILayoutFont font, string text)
-        => _graphics.MeasureString(text, (RFont)font);
+        => _graphics.MeasureString(text, (BFont)font);
 
     public void MeasureText(ILayoutFont font, string text, double maxWidth, out int charFit, out double charFitWidth)
-        => _graphics.MeasureString(text, (RFont)font, maxWidth, out charFit, out charFitWidth);
+        => _graphics.MeasureString(text, (BFont)font, maxWidth, out charFit, out charFitWidth);
 
     public double GetWhitespaceWidth(ILayoutFont font)
-        => ((RFont)font).GetWhitespaceWidth(_graphics);
+        => ((BFont)font).GetWhitespaceWidth(_graphics);
 
     public ImageIntrinsics GetImageIntrinsics(object imageHandle)
     {
-        var image = (RImage)imageHandle;
+        var image = (BImage)imageHandle;
 
         // Replaced-element sizing must use the image's *intrinsic* CSS size, not
         // its backing-bitmap size.  They differ for SVGs: the rasterizer may

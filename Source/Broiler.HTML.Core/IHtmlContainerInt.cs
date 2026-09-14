@@ -1,4 +1,6 @@
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Utils;
 using System;
@@ -86,7 +88,7 @@ internal interface IHtmlContainerInt
     /// Gets a cached font for the specified family, size, and style.
     /// Wraps the adapter's font creation/caching.
     /// </summary>
-    RFont GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures = null);
+    BFont GetFont(string family, double size, Graphics.Text.FontStyle style, string fontFeatures = null);
 
     /// <summary>
     /// Parses a colour string and returns the corresponding <see cref="Color"/>.
@@ -102,22 +104,22 @@ internal interface IHtmlContainerInt
     /// <summary>
     /// Converts a platform-specific image object to an <see cref="RImage"/>.
     /// </summary>
-    RImage ConvertImage(object image);
+    BImage ConvertImage(object image);
 
     /// <summary>
     /// Creates an <see cref="RImage"/> from a stream.
     /// </summary>
-    RImage ImageFromStream(Stream stream);
+    BImage ImageFromStream(Stream stream);
 
     /// <summary>
     /// Gets the loading placeholder image.
     /// </summary>
-    RImage GetLoadingImage();
+    BImage GetLoadingImage();
 
     /// <summary>
     /// Gets the error placeholder image.
     /// </summary>
-    RImage GetLoadingFailedImage();
+    BImage GetLoadingFailedImage();
 
     /// <summary>
     /// Downloads an image from a URI.
@@ -131,7 +133,7 @@ internal interface IHtmlContainerInt
     /// <remarks>
     /// See ADR-008, Phase 2 prerequisites, item 3.
     /// </remarks>
-    IImageLoadHandler CreateImageLoadHandler(ActionInt<RImage, RectangleF, bool> loadCompleteCallback);
+    IImageLoadHandler CreateImageLoadHandler(ActionInt<BImage, RectangleF, bool> loadCompleteCallback);
 
     /// <summary>The current origin-aware style set.</summary>
     HtmlStyleSet StyleSet { get; }

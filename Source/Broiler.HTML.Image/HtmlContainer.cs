@@ -8,6 +8,8 @@ using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 using Broiler.Layout.IR;
 using Broiler.HTML.Core;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Adapters;
 
 namespace Broiler.HTML.Image;
 
@@ -256,7 +258,7 @@ public sealed class HtmlContainer : IDisposable
     public void HandleMouseUp(PointF location, bool leftButton = true, bool rightButton = false)
     {
         var control = CreateControl(location, leftButton, rightButton);
-        HtmlContainerInt.HandleMouseUp(control, location, new RMouseEvent(leftButton));
+        HtmlContainerInt.HandleMouseUp(control, location, new BMouseEvent(leftButton));
     }
 
     public void HandleMouseMove(PointF mousePos, bool leftButton = false, bool rightButton = false)
@@ -274,7 +276,7 @@ public sealed class HtmlContainer : IDisposable
     public void HandleKeyDown(bool controlKey, bool aKeyCode, bool cKeyCode)
     {
         var control = CreateControl(PointF.Empty, false, false);
-        HtmlContainerInt.HandleKeyDown(control, new RKeyEvent(controlKey, aKeyCode, cKeyCode));
+        HtmlContainerInt.HandleKeyDown(control, new BKeyEvent(controlKey, aKeyCode, cKeyCode));
     }
 
     /// <summary>

@@ -1,3 +1,5 @@
+using Broiler.Graphics.Text;
+
 namespace Broiler.HTML.Image.Adapters;
 
 internal interface IFontTypefaceResolver
@@ -8,5 +10,5 @@ internal interface IFontTypefaceResolver
 
     bool HasMaterializedLoadedTypeface(string family);
 
-    object ResolveTypeface(string family, Graphics.FontStyle style);
+    object ResolveTypeface(string family, FontStyle style);
 }

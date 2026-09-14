@@ -3,6 +3,8 @@ using System;
 using System.Drawing;
 using System.IO;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Rendering;
 
 // OS-free stand-ins for the former GDI+ compatibility leaves. The default
 // "broiler" raster pipeline draws shapes, solid/gradient fills and images
@@ -135,9 +137,9 @@ internal sealed class StubPaintCompatFactory : IPaintCompatFactory
 
     public object CreateLinearGradientBrushPaint(RectangleF rect, BColor color1, BColor color2, double angle) => StubPaint.Instance;
 
-    public object CreatePenPaint(BColor color, float strokeWidth, Graphics.DashStyle dashStyle) => StubPaint.Instance;
+    public object CreatePenPaint(BColor color, float strokeWidth, DashStyle dashStyle) => StubPaint.Instance;
 
-    public void UpdatePenPaint(object paint, float strokeWidth, Graphics.DashStyle dashStyle) { }
+    public void UpdatePenPaint(object paint, float strokeWidth, DashStyle dashStyle) { }
 }
 
 /// <summary>Font-factory stub; carries the requested size so metrics stay sensible.</summary>
@@ -174,7 +176,7 @@ internal sealed class StubFontTypefaceResolver : IFontTypefaceResolver
 
     public bool HasMaterializedLoadedTypeface(string family) => false;
 
-    public object ResolveTypeface(string family, Graphics.FontStyle style) => StubTypeface.Instance;
+    public object ResolveTypeface(string family, Graphics.Text.FontStyle style) => StubTypeface.Instance;
 }
 
 /// <summary>Inert layout font carrying the size used for stub metrics.</summary>

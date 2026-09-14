@@ -1,4 +1,5 @@
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
 using System;
 using System.Drawing;
 
@@ -21,6 +22,6 @@ public abstract class RControl
     public abstract void SetCursorHand();
     public abstract void SetCursorIBeam();
     public abstract void DoDragDropCopy(object dragDropData);
-    public abstract void MeasureString(string str, RFont font, double maxWidth, out int charFit, out double charFitWidth);
+    public abstract void MeasureString(string str, BFont font, double maxWidth, out int charFit, out double charFitWidth);
     public abstract void Invalidate();
 }

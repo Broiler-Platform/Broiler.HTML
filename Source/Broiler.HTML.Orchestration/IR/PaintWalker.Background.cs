@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Globalization;
 using Broiler.CSS;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
 
 
@@ -192,7 +194,7 @@ internal static partial class PaintWalker
         List<DisplayItem> items,
         RectangleF viewport)
     {
-        if (imageHandle is not RImage image)
+        if (imageHandle is not BImage image)
             return;
 
         var effectiveBackgroundClip = GetEffectiveBackgroundClip(fragment, clip);

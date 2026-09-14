@@ -3,6 +3,10 @@ using System;
 using Broiler.Graphics;
 using Broiler.HTML.Core;
 using Broiler.CSS;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Geometry;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Rendering;
 
 
 namespace Broiler.HTML.Rendering.Handlers;
@@ -13,7 +17,7 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
 
     private static readonly PointF[] _borderPts = new PointF[4];
 
-    public static void DrawBoxBorders(RGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast)
+    public static void DrawBoxBorders(BGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast)
     {
         if (rect.Width <= 0 || rect.Height <= 0)
             return;
@@ -35,13 +39,13 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
             DrawBorder(Border.Right, box, g, rect, isFirst, true);
     }
 
-    public static void DrawBorder(Border border, RGraphics g, IBorderRenderData box, RBrush brush, RectangleF rectangle)
+    public static void DrawBorder(Border border, BGraphics g, IBorderRenderData box, BBrush brush, RectangleF rectangle)
     {
         SetInOutsetRectanglePoints(border, box, rectangle, true, true);
         g.DrawPolygon(brush, _borderPts);
     }
 
-    private static void DrawBorder(Border border, IBorderRenderData box, RGraphics g, RectangleF rect, bool isLineStart, bool isLineEnd)
+    private static void DrawBorder(Border border, IBorderRenderData box, BGraphics g, RectangleF rect, bool isLineStart, bool isLineEnd)
     {
         var style = GetStyle(border, box);
         var color = GetColor(border, box, style);
@@ -138,9 +142,9 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
         }
     }
 
-    private static RGraphicsPath GetRoundedBorderPath(RGraphics g, Border border, IBorderRenderData b, RectangleF r)
+    private static BGraphicsPath GetRoundedBorderPath(BGraphics g, Border border, IBorderRenderData b, RectangleF r)
     {
-        RGraphicsPath path = null;
+        BGraphicsPath path = null;
         switch (border)
         {
             case Border.Top:
@@ -224,7 +228,7 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
     /// This prevents visible anti-aliased seams along the diagonal edge where the
     /// two border trapezoids meet, which would otherwise let the background bleed through.
     /// </summary>
-    private static void FillBorderCorners(RGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast)
+    private static void FillBorderCorners(BGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast)
     {
         bool hasTop = IsBorderVisible(box.BorderTopStyle) && box.ActualBorderTopWidth > 0 && box.BorderTopStyle == CssConstants.Solid;
         bool hasRight = isLast && IsBorderVisible(box.BorderRightStyle) && box.ActualBorderRightWidth > 0 && box.BorderRightStyle == CssConstants.Solid;
@@ -256,7 +260,7 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
     private static bool IsBorderVisible(string style)
         => !string.IsNullOrEmpty(style) && style != CssConstants.None && style != CssConstants.Hidden;
 
-    private static RPen GetPen(RGraphics g, string style, BColor color, double width)
+    private static BPen GetPen(BGraphics g, string style, BColor color, double width)
     {
         var p = g.GetPen(color);
         p.Width = width;
@@ -304,9 +308,9 @@ internal sealed class BordersDrawHandler : IBordersDrawHandler
 
     private static BColor Darken(BColor c) => BColor.FromArgb(c.R / 2, c.G / 2, c.B / 2);
 
-    void IBordersDrawHandler.DrawBoxBorders(RGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast)
+    void IBordersDrawHandler.DrawBoxBorders(BGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast)
         => DrawBoxBorders(g, box, rect, isFirst, isLast);
 
-    void IBordersDrawHandler.DrawBorder(Border border, RGraphics g, IBorderRenderData box, RBrush brush, RectangleF rectangle)
+    void IBordersDrawHandler.DrawBorder(Border border, BGraphics g, IBorderRenderData box, BBrush brush, RectangleF rectangle)
         => DrawBorder(border, g, box, brush, rectangle);
 }

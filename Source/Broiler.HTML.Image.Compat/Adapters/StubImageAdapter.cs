@@ -6,6 +6,8 @@ using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 using Broiler.CSS;
 using Broiler.Media.Image;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
@@ -316,7 +318,7 @@ internal sealed class StubImageAdapter : RAdapter
         return -1;
     }
 
-    protected override RPen CreatePen(BColor color)
+    protected override BPen CreatePen(BColor color)
     {
         return new PenAdapter(
             (strokeWidth, dashStyle) => _paintCompatFactory.CreatePenPaint(color, strokeWidth, dashStyle),
@@ -326,7 +328,7 @@ internal sealed class StubImageAdapter : RAdapter
         };
     }
 
-    protected override RBrush CreateSolidBrush(BColor color)
+    protected override BBrush CreateSolidBrush(BColor color)
     {
         return new BrushAdapter(
             () => _paintCompatFactory.CreateSolidBrushPaint(color),
@@ -336,20 +338,20 @@ internal sealed class StubImageAdapter : RAdapter
         };
     }
 
-    protected override RBrush CreateLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle)
+    protected override BBrush CreateLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle)
     {
         return new BrushAdapter(
             () => _paintCompatFactory.CreateLinearGradientBrushPaint(rect, color1, color2, angle),
             dispose: true);
     }
 
-    protected override RImage ConvertImageInt(object image) =>
+    protected override BImage ConvertImageInt(object image) =>
         // There is no native bitmap type to convert without an OS graphics backend.
         // Callers should decode encoded image bytes through ImageFromStream instead.
         throw new NotSupportedException(
             "Converting a platform bitmap is not supported without an OS graphics backend; use ImageFromStream with encoded image data.");
 
-    protected override RImage ImageFromStreamInt(Stream memoryStream)
+    protected override BImage ImageFromStreamInt(Stream memoryStream)
     {
         // Read the stream into a byte array so we can inspect the content
         // before attempting a bitmap decode and can still route SVG input
@@ -403,7 +405,7 @@ internal sealed class StubImageAdapter : RAdapter
     /// explicit width AND height the intrinsic size is 300×150 (the default
     /// replaced element size).  This matches browser behaviour (Chromium).
     /// </summary>
-    private static RImage RasterizeSvg(byte[] data)
+    private static BImage RasterizeSvg(byte[] data)
     {
         var svgContent = System.Text.Encoding.UTF8.GetString(data);
 
@@ -804,12 +806,12 @@ internal sealed class StubImageAdapter : RAdapter
         return false;
     }
 
-    protected override RFont CreateFontInt(string family, double size, Graphics.FontStyle style)
+    protected override BFont CreateFontInt(string family, double size, Graphics.Text.FontStyle style)
     {
         return new FontAdapter(family, size, style, () => _typefaceResolver.ResolveTypeface(family, style));
     }
 
-    protected override RFont CreateFontInt(RFontFamily family, double size, Graphics.FontStyle style) => CreateFontInt(family.Name, size, style);
+    protected override BFont CreateFontInt(BFontFamily family, double size, Graphics.Text.FontStyle style) => CreateFontInt(family.Name, size, style);
 
     protected override object GetClipboardDataObjectInt(string html, string plainText) =>
         new ClipboardPayload(html, plainText);
@@ -820,7 +822,7 @@ internal sealed class StubImageAdapter : RAdapter
     protected override void SetToClipboardInt(string html, string plainText) =>
         LastClipboardPayload = new ClipboardPayload(html, plainText);
 
-    protected override void SetToClipboardInt(RImage image) =>
+    protected override void SetToClipboardInt(BImage image) =>
         LastClipboardPayload = image;
 
     protected override RContextMenu CreateContextMenuInt() => new StubContextMenuAdapter();

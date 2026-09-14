@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Text;
 using Broiler.HTML.Image.Adapters;
-using BGraphicsFontStyle = Broiler.Graphics.FontStyle;
 
 namespace Broiler.HTML.Image.Compat.Text;
 
@@ -110,7 +111,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
             return _byFamily.ContainsKey(family);
     }
 
-    public object ResolveTypeface(string family, BGraphicsFontStyle style)
+    public object ResolveTypeface(string family, FontStyle style)
     {
         if (!string.IsNullOrWhiteSpace(family))
         {
@@ -141,10 +142,10 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
     /// does not have, or a file with no outlines this backend can rasterise, caches nothing and
     /// lets the bundled fallback answer.
     /// </summary>
-    private TrueTypeFont TryLoadInstalledFace(string family, BGraphicsFontStyle style)
+    private TrueTypeFont TryLoadInstalledFace(string family, FontStyle style)
     {
-        bool bold = (style & BGraphicsFontStyle.Bold) != 0;
-        bool italic = (style & BGraphicsFontStyle.Italic) != 0;
+        bool bold = (style & FontStyle.Bold) != 0;
+        bool italic = (style & FontStyle.Italic) != 0;
         var key = (Family: family, Bold: bold, Italic: italic);
 
         lock (_sync)

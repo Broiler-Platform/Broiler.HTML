@@ -6,6 +6,8 @@ using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
 using Broiler.Graphics;
 using Broiler.Media.Image;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Imaging;
 
 namespace Broiler.HTML.Image;
 
@@ -236,7 +238,7 @@ public static class HtmlRender
     public static string LoadFontFromFile(string path, string cssName = null)
         => CompatProvider.ImageAdapter.LoadFontFromFile(path, cssName);
 
-    public static bool TryCreatePixelBuffer(object imageHandle, out Broiler.Graphics.BPixelBuffer pixelBuffer)
+    public static bool TryCreatePixelBuffer(object imageHandle, out BPixelBuffer pixelBuffer)
     {
         if (imageHandle is ImageAdapter imageAdapter)
         {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
 using static Broiler.Layout.IR.FragmentQuery;
 
@@ -195,7 +197,7 @@ internal static partial class PaintWalker
             // earlier layers composite on top, matching normal layer ordering.
             for (int i = handles.Length - 1; i >= 0; i--)
             {
-                if (handles[i] is not RImage layerImage)
+                if (handles[i] is not BImage layerImage)
                     continue;
 
                 var repeat = repeats.Count > 0

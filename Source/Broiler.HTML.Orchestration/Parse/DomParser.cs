@@ -15,6 +15,7 @@ using Broiler.CSS;
 using CssConstants = Broiler.CSS.CssConstants;
 using Broiler.Layout.Engine;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
 namespace Broiler.HTML.Orchestration.Parse;
 
 internal sealed class DomParser

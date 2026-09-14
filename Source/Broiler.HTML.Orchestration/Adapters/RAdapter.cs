@@ -1,5 +1,7 @@
 using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Text;
 using Broiler.HTML.Core;
 using System;
 using System.Collections.Concurrent;
@@ -10,12 +12,12 @@ namespace Broiler.HTML.Adapters;
 
 public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator, IAdapter
 {
-    private readonly ConcurrentDictionary<BColor, RBrush> _brushesCache = new();
-    private readonly ConcurrentDictionary<BColor, RPen> _penCache = new();
+    private readonly ConcurrentDictionary<BColor, BBrush> _brushesCache = new();
+    private readonly ConcurrentDictionary<BColor, BPen> _penCache = new();
     private readonly FontsHandler _fontsHandler;
 
-    private RImage _loadImage;
-    private RImage _errorImage;
+    private BImage _loadImage;
+    private BImage _errorImage;
 
     protected RAdapter() => _fontsHandler = new FontsHandler(this);
 
@@ -27,27 +29,27 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
         return GetColorInt(colorName);
     }
 
-    public RPen GetPen(BColor color) => _penCache.GetOrAdd(color, CreatePen);
+    public BPen GetPen(BColor color) => _penCache.GetOrAdd(color, CreatePen);
 
-    public RBrush GetSolidBrush(BColor color) => _brushesCache.GetOrAdd(color, CreateSolidBrush);
+    public BBrush GetSolidBrush(BColor color) => _brushesCache.GetOrAdd(color, CreateSolidBrush);
 
-    public RBrush GetLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle) => CreateLinearGradientBrush(rect, color1, color2, angle);
+    public BBrush GetLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle) => CreateLinearGradientBrush(rect, color1, color2, angle);
 
-    public RImage ConvertImage(object image) =>
+    public BImage ConvertImage(object image) =>
         // TODO:a remove this by creating better API.
         ConvertImageInt(image);
 
-    public RImage ImageFromStream(Stream memoryStream) => ImageFromStreamInt(memoryStream);
+    public BImage ImageFromStream(Stream memoryStream) => ImageFromStreamInt(memoryStream);
 
     public bool IsFontExists(string font) => _fontsHandler.IsFontExists(font);
 
-    public void AddFontFamily(RFontFamily fontFamily) => _fontsHandler.AddFontFamily(fontFamily);
+    public void AddFontFamily(BFontFamily fontFamily) => _fontsHandler.AddFontFamily(fontFamily);
 
     public void AddFontFamilyMapping(string fromFamily, string toFamily) => _fontsHandler.AddFontFamilyMapping(fromFamily, toFamily);
 
-    public RFont GetFont(string family, double size, Graphics.FontStyle style, string fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
+    public BFont GetFont(string family, double size, FontStyle style, string fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
 
-    public RImage GetLoadingImage()
+    public BImage GetLoadingImage()
     {
         if (_loadImage == null)
         {
@@ -60,7 +62,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
         return _loadImage;
     }
 
-    public RImage GetLoadingFailedImage()
+    public BImage GetLoadingFailedImage()
     {
         if (_errorImage == null)
         {
@@ -79,31 +81,31 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public void SetToClipboard(string html, string plainText) => SetToClipboardInt(html, plainText);
 
-    public void SetToClipboard(RImage image) => SetToClipboardInt(image);
+    public void SetToClipboard(BImage image) => SetToClipboardInt(image);
 
     public RContextMenu GetContextMenu() => CreateContextMenuInt();
 
-    public void SaveToFile(RImage image, string name, string extension, RControl control = null) => SaveToFileInt(image, name, extension, control);
+    public void SaveToFile(BImage image, string name, string extension, RControl control = null) => SaveToFileInt(image, name, extension, control);
 
-    RFont IFontCreator.CreateFont(string family, double size, Graphics.FontStyle style) => CreateFontInt(family, size, style);
+    BFont IFontCreator.CreateFont(string family, double size, FontStyle style) => CreateFontInt(family, size, style);
 
-    RFont IFontCreator.CreateFont(RFontFamily family, double size, Graphics.FontStyle style) => CreateFontInt(family, size, style);
+    BFont IFontCreator.CreateFont(BFontFamily family, double size, FontStyle style) => CreateFontInt(family, size, style);
 
     protected abstract BColor GetColorInt(string colorName);
 
-    protected abstract RPen CreatePen(BColor color);
+    protected abstract BPen CreatePen(BColor color);
 
-    protected abstract RBrush CreateSolidBrush(BColor color);
+    protected abstract BBrush CreateSolidBrush(BColor color);
 
-    protected abstract RBrush CreateLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle);
+    protected abstract BBrush CreateLinearGradientBrush(RectangleF rect, BColor color1, BColor color2, double angle);
 
-    protected abstract RImage ConvertImageInt(object image);
+    protected abstract BImage ConvertImageInt(object image);
 
-    protected abstract RImage ImageFromStreamInt(Stream memoryStream);
+    protected abstract BImage ImageFromStreamInt(Stream memoryStream);
 
-    protected abstract RFont CreateFontInt(string family, double size, Graphics.FontStyle style);
+    protected abstract BFont CreateFontInt(string family, double size, FontStyle style);
 
-    protected abstract RFont CreateFontInt(RFontFamily family, double size, Graphics.FontStyle style);
+    protected abstract BFont CreateFontInt(BFontFamily family, double size, FontStyle style);
 
     protected virtual object GetClipboardDataObjectInt(string html, string plainText) => throw new NotImplementedException();
 
@@ -111,11 +113,11 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     protected virtual void SetToClipboardInt(string html, string plainText) => throw new NotImplementedException();
 
-    protected virtual void SetToClipboardInt(RImage image) => throw new NotImplementedException();
+    protected virtual void SetToClipboardInt(BImage image) => throw new NotImplementedException();
 
     protected virtual RContextMenu CreateContextMenuInt() => throw new NotImplementedException();
 
-    protected virtual void SaveToFileInt(RImage image, string name, string extension, RControl control = null) => throw new NotImplementedException();
+    protected virtual void SaveToFileInt(BImage image, string name, string extension, RControl control = null) => throw new NotImplementedException();
 
     /// <summary>
     /// Loads a font from a file path and registers it as an available font family.

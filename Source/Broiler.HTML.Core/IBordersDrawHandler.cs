@@ -1,4 +1,7 @@
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Geometry;
 using System.Drawing;
 
 namespace Broiler.HTML.Core;
@@ -47,10 +50,10 @@ internal interface IBordersDrawHandler
     /// <summary>
     /// Draws all visible borders for a box within the given rectangle.
     /// </summary>
-    void DrawBoxBorders(RGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast);
+    void DrawBoxBorders(BGraphics g, IBorderRenderData box, RectangleF rect, bool isFirst, bool isLast);
 
     /// <summary>
     /// Draws a single border side using the specified brush.
     /// </summary>
-    void DrawBorder(Border border, RGraphics g, IBorderRenderData box, RBrush brush, RectangleF rectangle);
+    void DrawBorder(Border border, BGraphics g, IBorderRenderData box, BBrush brush, RectangleF rectangle);
 }

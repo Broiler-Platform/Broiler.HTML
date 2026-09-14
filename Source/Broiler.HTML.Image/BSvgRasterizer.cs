@@ -7,6 +7,9 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Text;
 using Broiler.HTML.Orchestration.IR;
 using Broiler.Layout.IR;
 
@@ -281,7 +284,7 @@ public static class BSvgRasterizer
         }
     }
 
-    private static void RenderText(string svgContent, SvgRenderContext context, RGraphics graphics)
+    private static void RenderText(string svgContent, SvgRenderContext context, BGraphics graphics)
     {
         foreach (Match match in Regex.Matches(svgContent, @"<text\b([^>]*)>(.*?)</text>", RegexOptions.IgnoreCase | RegexOptions.Singleline))
         {

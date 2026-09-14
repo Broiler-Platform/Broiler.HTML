@@ -1,4 +1,8 @@
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Geometry;
+using Broiler.Graphics.Rendering;
 using Broiler.Layout.IR;
 using System;
 using System.Collections.Generic;
@@ -17,7 +21,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
 
     public void Render(DisplayList list, object surface)
     {
-        if (surface is not RGraphics g)
+        if (surface is not BGraphics g)
             throw new ArgumentException("Surface must be an RGraphics instance.", nameof(surface));
 
         // Multithreading item #5. Tiles are offered the whole list and replay it into disjoint
@@ -57,7 +61,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         return true;
     }
 
-    private static void Replay(DisplayList list, RGraphics g)
+    private static void Replay(DisplayList list, BGraphics g)
     {
         var culler = g as IBoundsCullingSurface;
 
@@ -322,7 +326,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         || blendMode.Equals("difference", StringComparison.OrdinalIgnoreCase)
         || blendMode.Equals("plus-lighter", StringComparison.OrdinalIgnoreCase);
 
-    private static void RenderFillRect(RGraphics g, FillRectItem item)
+    private static void RenderFillRect(BGraphics g, FillRectItem item)
     {
         using var brush = g.GetSolidBrush(item.Color);
         // CSS2.1 §14.2: backgrounds extend to the padding edge.
@@ -335,7 +339,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         g.DrawRectangle(brush, item.Bounds.X, item.Bounds.Y, item.Bounds.Width, item.Bounds.Height);
     }
 
-    private static void RenderDrawBorder(RGraphics g, DrawBorderItem item)
+    private static void RenderDrawBorder(BGraphics g, DrawBorderItem item)
     {
         var bounds = item.Bounds;
         var widths = item.Widths;
@@ -467,7 +471,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     /// This prevents visible anti-aliased seams along the diagonal edge where the
     /// two border trapezoids meet, which would otherwise let the background bleed through.
     /// </summary>
-    private static void FillBorderCorners(RGraphics g, DrawBorderItem item)
+    private static void FillBorderCorners(BGraphics g, DrawBorderItem item)
     {
         var bounds = item.Bounds;
         var widths = item.Widths;
@@ -540,7 +544,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         || string.Equals(style, "groove", StringComparison.OrdinalIgnoreCase)
         || string.Equals(style, "ridge", StringComparison.OrdinalIgnoreCase);
 
-    private static void DrawDoubleBorderSide(RGraphics g, DrawBorderItem item, Border side)
+    private static void DrawDoubleBorderSide(BGraphics g, DrawBorderItem item, Border side)
     {
         // Snap border bounds to integer pixel coordinates so that fractional
         // layout positions do not cause sub-pixel coverage that adds an extra
@@ -614,12 +618,12 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static void RenderDrawText(RGraphics g, DrawTextItem item)
+    private static void RenderDrawText(BGraphics g, DrawTextItem item)
     {
         if (string.IsNullOrEmpty(item.Text))
             return;
 
-        if (item.FontHandle is RFont font)
+        if (item.FontHandle is BFont font)
         {
             var origin = item.Origin;
             var size = new SizeF(item.Bounds.Width, item.Bounds.Height);
@@ -658,9 +662,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static void RenderDrawImage(RGraphics g, DrawImageItem item)
+    private static void RenderDrawImage(BGraphics g, DrawImageItem item)
     {
-        if (item.ImageHandle is not RImage image)
+        if (item.ImageHandle is not BImage image)
             return;
 
         if (item.SourceRect != RectangleF.Empty)
@@ -669,9 +673,9 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
             g.DrawImage(image, item.DestRect);
     }
 
-    private static void RenderDrawTiledImage(RGraphics g, DrawTiledImageItem item)
+    private static void RenderDrawTiledImage(BGraphics g, DrawTiledImageItem item)
     {
-        if (item.ImageHandle is not RImage image)
+        if (item.ImageHandle is not BImage image)
             return;
 
         var srcRect = item.SourceRect == RectangleF.Empty
@@ -759,8 +763,8 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     }
 
     private static void DrawSpace(
-        RGraphics g,
-        RImage image,
+        BGraphics g,
+        BImage image,
         RectangleF fill,
         RectangleF clip,
         RectangleF positioningArea,
@@ -832,8 +836,8 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     }
 
     private static void DrawClippedImage(
-        RGraphics g,
-        RImage image,
+        BGraphics g,
+        BImage image,
         RectangleF destRect,
         RectangleF srcRect,
         RectangleF clipRect)
@@ -867,7 +871,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         g.DrawImage(image, visibleDest, visibleSrc);
     }
 
-    private static void RenderDrawTiledGradient(RGraphics g, DrawTiledGradientItem item)
+    private static void RenderDrawTiledGradient(BGraphics g, DrawTiledGradientItem item)
     {
         int tileW = (int)Math.Max(1, item.TileWidth);
         int tileH = (int)Math.Max(1, item.TileHeight);
@@ -1122,7 +1126,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     private static double Lerp(double start, double end, double t) => start + (end - start) * t;
     private static int ClampByte(double value) => (int)Math.Clamp(Math.Round(value), 0d, 255d);
 
-    private static void RenderDrawLine(RGraphics g, DrawLineItem item)
+    private static void RenderDrawLine(BGraphics g, DrawLineItem item)
     {
         var pen = g.GetPen(item.Color);
         pen.Width = item.Width;
@@ -1135,7 +1139,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         g.DrawLine(pen, item.Start.X, item.Start.Y, item.End.X, item.End.Y);
     }
 
-    private static void RenderSvgRect(RGraphics g, DrawSvgRectItem item)
+    private static void RenderSvgRect(BGraphics g, DrawSvgRectItem item)
     {
         double x = item.Bounds.X + item.X;
         double y = item.Bounds.Y + item.Y;
@@ -1149,7 +1153,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static void RenderSvgEllipse(RGraphics g, DrawSvgEllipseItem item)
+    private static void RenderSvgEllipse(BGraphics g, DrawSvgEllipseItem item)
     {
         if (item.Rx <= 0 || item.Ry <= 0)
             return;
@@ -1175,11 +1179,11 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static void RenderSvgText(RGraphics g, DrawSvgTextItem item)
+    private static void RenderSvgText(BGraphics g, DrawSvgTextItem item)
     {
         if (string.IsNullOrEmpty(item.Text))
             return;
-        if (item.FontHandle is RFont font)
+        if (item.FontHandle is BFont font)
         {
             var origin = new PointF(item.Bounds.X + item.X, item.Bounds.Y + item.Y);
             var size = new SizeF(item.Bounds.Width, item.Bounds.Height);
@@ -1187,7 +1191,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static void RenderSvgLine(RGraphics g, DrawSvgLineItem item)
+    private static void RenderSvgLine(BGraphics g, DrawSvgLineItem item)
     {
         if (!item.Stroke.IsEmpty && item.Stroke.A > 0 && item.StrokeWidth > 0)
         {
@@ -1199,7 +1203,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static void RenderSvgPolygon(RGraphics g, DrawSvgPolygonItem item)
+    private static void RenderSvgPolygon(BGraphics g, DrawSvgPolygonItem item)
     {
         if (item.Points.Count < 2)
             return;
@@ -1218,7 +1222,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         }
     }
 
-    private static void RenderSvgPolyline(RGraphics g, DrawSvgPolylineItem item)
+    private static void RenderSvgPolyline(BGraphics g, DrawSvgPolylineItem item)
     {
         if (item.Points.Count < 2)
             return;
@@ -1244,7 +1248,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
         return absolute;
     }
 
-    private static RPen CreateBorderPen(RGraphics g, string style, BColor color, double width)
+    private static BPen CreateBorderPen(BGraphics g, string style, BColor color, double width)
     {
         var pen = g.GetPen(color);
         pen.Width = width;

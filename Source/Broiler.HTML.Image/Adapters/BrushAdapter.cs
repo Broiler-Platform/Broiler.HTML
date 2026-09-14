@@ -1,10 +1,12 @@
 using System.Drawing;
 using System;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class BrushAdapter : RBrush
+internal sealed class BrushAdapter : BBrush
 {
     private readonly Func<object>? _paintFactory;
     private readonly bool _dispose;

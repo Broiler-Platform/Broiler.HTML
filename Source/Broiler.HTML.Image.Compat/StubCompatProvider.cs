@@ -1,5 +1,6 @@
 using System;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Image.Compat.Text;

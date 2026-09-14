@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
+using Broiler.Graphics.Adapters;
+using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBoundsCullingSurface
+internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBoundsCullingSurface
 {
     private readonly Func<object> _canvasFactory;
     private readonly BCanvas? _rasterCanvas;
@@ -89,7 +91,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
     public bool IsCulled(RectangleF bounds) => _rasterCanvas?.IsCulled(bounds) ?? false;
 
     /// <inheritdoc />
-    public RGraphics CreateTileView(Rectangle tile)
+    public BGraphics CreateTileView(Rectangle tile)
     {
         var canvas = _rasterCanvas
             ?? throw new InvalidOperationException("This surface has no raster canvas to tile.");
@@ -188,13 +190,13 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
     {
     }
 
-    public override SizeF MeasureString(string str, RFont font) =>
+    public override SizeF MeasureString(string str, BFont font) =>
         _textShaper.MeasureString((FontAdapter)font, str);
 
-    public override void MeasureString(string str, RFont font, double maxWidth, out int charFit, out double charFitWidth) =>
+    public override void MeasureString(string str, BFont font, double maxWidth, out int charFit, out double charFitWidth) =>
         _textShaper.MeasureString((FontAdapter)font, str, maxWidth, out charFit, out charFitWidth);
 
-    public override void DrawString(string str, RFont font, BColor color, PointF point, SizeF size, bool rtl)
+    public override void DrawString(string str, BFont font, BColor color, PointF point, SizeF size, bool rtl)
     {
         float glyphRotation = VerticalGlyphContext.RotationDeg;
         if (CanUseRaster && _textShaper.TryDrawString(_rasterCanvas!, (FontAdapter)font, str, color, point, glyphRotation))
@@ -204,7 +206,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _textShaper.DrawString(canvas, (FontAdapter)font, str, color, point);
     }
 
-    public override void DrawGradientString(string str, RFont font, RectangleF rect, PointF point, SizeF size, bool rtl, BColor[] colors, float[] positions, float angle)
+    public override void DrawGradientString(string str, BFont font, RectangleF rect, PointF point, SizeF size, bool rtl, BColor[] colors, float[] positions, float angle)
     {
         if (colors == null || colors.Length == 0)
             return;
@@ -216,7 +218,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _textShaper.DrawGradientString(canvas, (FontAdapter)font, str, rect, point, size, colors, positions, angle);
     }
 
-    public override RBrush GetTextureBrush(RImage image, RectangleF dstRect, PointF translateTransformLocation)
+    public override BBrush GetTextureBrush(BImage image, RectangleF dstRect, PointF translateTransformLocation)
     {
         var imgAdapter = (ImageAdapter)image;
         return new BrushAdapter(
@@ -229,9 +231,9 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         };
     }
 
-    public override RGraphicsPath GetGraphicsPath() => new GraphicsPathAdapter();
+    public override BGraphicsPath GetGraphicsPath() => new GraphicsPathAdapter();
 
-    public override void DrawLine(RPen pen, double x1, double y1, double x2, double y2)
+    public override void DrawLine(BPen pen, double x1, double y1, double x2, double y2)
     {
         var penAdapter = (PenAdapter)pen;
         if (CanUseRaster && penAdapter.HasSimpleStroke)
@@ -263,7 +265,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _canvasCompat.DrawLine(EnsureCanvas(), (float)x1, (float)y1, (float)x2, (float)y2, penAdapter.Paint);
     }
 
-    public override void DrawRectangle(RPen pen, double x, double y, double width, double height)
+    public override void DrawRectangle(BPen pen, double x, double y, double width, double height)
     {
         var penAdapter = (PenAdapter)pen;
         if (CanUseRaster && penAdapter.HasSimpleStroke)
@@ -297,7 +299,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _canvasCompat.DrawRectangle(EnsureCanvas(), new RectangleF((float)x, (float)y, (float)width, (float)height), penAdapter.Paint);
     }
 
-    public override void DrawRectangle(RBrush brush, double x, double y, double width, double height)
+    public override void DrawRectangle(BBrush brush, double x, double y, double width, double height)
     {
         var brushAdapter = (BrushAdapter)brush;
         if (CanUseRaster
@@ -322,7 +324,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _canvasCompat.DrawRectangle(EnsureCanvas(), new RectangleF((float)x, (float)y, (float)width, (float)height), brushAdapter.Paint);
     }
 
-    public override void DrawImage(RImage image, RectangleF destRect, RectangleF srcRect)
+    public override void DrawImage(BImage image, RectangleF destRect, RectangleF srcRect)
     {
         var imgAdapter = (ImageAdapter)image;
         if (CanUseRaster)
@@ -334,7 +336,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _canvasCompat.DrawImage(EnsureCanvas(), imgAdapter.Bitmap, destRect, srcRect);
     }
 
-    public override void DrawImage(RImage image, RectangleF destRect)
+    public override void DrawImage(BImage image, RectangleF destRect)
     {
         var imgAdapter = (ImageAdapter)image;
         if (CanUseRaster)
@@ -349,7 +351,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _canvasCompat.DrawImage(EnsureCanvas(), imgAdapter.Bitmap, destRect);
     }
 
-    public override void DrawPath(RPen pen, RGraphicsPath path)
+    public override void DrawPath(BPen pen, BGraphicsPath path)
     {
         var penAdapter = (PenAdapter)pen;
         var pathAdapter = (GraphicsPathAdapter)path;
@@ -362,7 +364,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _canvasCompat.DrawPath(EnsureCanvas(), pathAdapter, penAdapter.Paint);
     }
 
-    public override void DrawPath(RBrush brush, RGraphicsPath path)
+    public override void DrawPath(BBrush brush, BGraphicsPath path)
     {
         var brushAdapter = (BrushAdapter)brush;
         var pathAdapter = (GraphicsPathAdapter)path;
@@ -375,7 +377,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         _canvasCompat.DrawPath(EnsureCanvas(), pathAdapter, brushAdapter.Paint);
     }
 
-    public override void DrawPolygon(RBrush brush, PointF[] points)
+    public override void DrawPolygon(BBrush brush, PointF[] points)
     {
         if (points == null || points.Length == 0)
             return;
@@ -552,7 +554,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
 
     public override void PopViewportScale() => _rasterCanvas?.Restore();
 
-    public override RImage? CreateLinearGradientTile(int width, int height, BColor[] colors, float[] positions, float angle)
+    public override BImage? CreateLinearGradientTile(int width, int height, BColor[] colors, float[] positions, float angle)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
             return null;
@@ -568,7 +570,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         return new ImageAdapter(bitmap);
     }
 
-    public override RImage? CreateRadialGradientTile(int width, int height, BColor[] colors, float[] positions, float centerX, float centerY)
+    public override BImage? CreateRadialGradientTile(int width, int height, BColor[] colors, float[] positions, float centerX, float centerY)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
             return null;
@@ -584,7 +586,7 @@ internal sealed class GraphicsAdapter : RGraphics, ITileParallelSurface, IBounds
         return new ImageAdapter(bitmap);
     }
 
-    public override RImage? CreateConicGradientTile(int width, int height, BColor[] colors, float[] positions, float centerX, float centerY, float fromAngle)
+    public override BImage? CreateConicGradientTile(int width, int height, BColor[] colors, float[] positions, float centerX, float centerY, float fromAngle)
     {
         if (width <= 0 || height <= 0 || colors == null || colors.Length == 0)
             return null;

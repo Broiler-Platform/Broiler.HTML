@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
 using Bevel = Broiler.Layout.Engine.BorderBevel;
 

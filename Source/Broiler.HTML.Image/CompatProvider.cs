@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading;
 using Broiler.Graphics;
+using Broiler.Graphics.Color;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
 
