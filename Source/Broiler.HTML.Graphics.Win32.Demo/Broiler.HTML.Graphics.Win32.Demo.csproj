@@ -16,6 +16,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Broiler.Graphics.Windows" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Broiler.HTML.Graphics\Broiler.HTML.Graphics.csproj" />
   </ItemGroup>
 </Project>

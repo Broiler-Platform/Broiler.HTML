@@ -71,9 +71,8 @@ The image renderer's current raster/fallback selection and the remaining
 The repository currently supports these repeatable checks directly:
 
 ```bash
-cd Source
 dotnet build Broiler.HTML.slnx
-dotnet test Broiler.HTML.slnx
+npm test
 ```
 
 For visual compliance work, render a fixture with `Broiler.HTML.Image.HtmlRender`, compare it with `PixelDiffRunner`, and classify failures with `MismatchClassifier`. The repository-level wrappers for that flow are `Broiler.HTML.Tool compare` and `scripts/wpt/run-non-js.mjs`.

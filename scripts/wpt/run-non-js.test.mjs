@@ -382,11 +382,12 @@ test('non-JS WPT workflow inventories the full non-JS corpus and applies the doc
   assert.match(workflow, /Run focused non-JS WPT render\/diff batch/);
 });
 
-test('non-JS WPT workflow checks out the Broiler.Graphics submodule', async () => {
+test('non-JS WPT workflow restores the Broiler packages rather than checking out submodules', async () => {
   const workflow = await readFile(path.join(repositoryRoot, '.github', 'workflows', 'wpt-non-js.yml'), 'utf8');
 
-  assert.match(workflow, /submodules:\s*recursive/);
-  assert.match(workflow, /Broiler\.Graphics\/Broiler\.Graphics\/Broiler\.Graphics\.csproj/);
+  assert.doesNotMatch(workflow, /submodules:/);
+  assert.match(workflow, /NuGetPackageSourceCredentials_github:/);
+  assert.match(workflow, /dotnet build Broiler\.HTML\.slnx/);
 });
 
 test('non-JS WPT workflow samples multiple renderer-focused WPT areas', async () => {

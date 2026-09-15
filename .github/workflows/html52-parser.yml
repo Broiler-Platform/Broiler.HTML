@@ -5,6 +5,12 @@ on:
 
 permissions:
   contents: read
+  packages: read
+
+env:
+  # The Broiler.* dependencies restore from GitHub Packages, which needs credentials
+  # even for public packages.
+  NuGetPackageSourceCredentials_github: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }};ValidAuthenticationTypes=Basic
 
 jobs:
   html52:
@@ -13,28 +19,20 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         timeout-minutes: 5
-        with:
-          submodules: recursive
-
-      - name: Verify Broiler.Graphics submodule
-        timeout-minutes: 2
-        run: |
-          git submodule status --recursive
-          test -f Broiler.Graphics/Broiler.Graphics/Broiler.Graphics.csproj
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         timeout-minutes: 5
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: '10.0.x'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         timeout-minutes: 5
         with:
-          node-version: 20
+          node-version: '24'
           cache: npm
 
       - name: Install npm dependencies
@@ -85,7 +83,7 @@ jobs:
 
       - name: Upload HTML 5.2 suite artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         timeout-minutes: 5
         with:
           name: html52-suite-artifacts

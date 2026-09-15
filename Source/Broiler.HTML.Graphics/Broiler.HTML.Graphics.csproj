@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.11" />
+    <PackageReference Include="Broiler.Media.Image.Managed" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,11 @@ using System.IO;
 using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using Broiler.Graphics;
+using Broiler.Graphics.Color;
+using Broiler.Graphics.Geometry;
+using Broiler.Graphics.Rendering;
+using Broiler.Graphics.RenderList;
+using Broiler.Graphics.Windowing;
 using Broiler.Graphics.Windows;
 using Broiler.HTML.Graphics;
 using Broiler.HTML.Image;
@@ -49,7 +53,8 @@ internal static class Program
             "Usage:\n" +
             "  Broiler.HTML.Graphics.Win32.Demo.exe [url]\n\n" +
             "Example:\n" +
-            "  Broiler.HTML.Graphics.Win32.Demo.exe https://example.com/";
+            "  Broiler.HTML.Graphics.Win32.Demo.exe https://example.com/\n\n" +
+            "Press F5 in the window to reload the page.";
 
         MessageBox(IntPtr.Zero, usage, "Broiler.HTML.Graphics Win32 Demo", MbIconInformation | MbOk);
     }
@@ -101,73 +106,54 @@ internal static class Program
     private static extern int MessageBox(IntPtr hwnd, string text, string caption, uint type);
 }
 
+/// <summary>
+/// Renders one page into the whole client area.
+/// </summary>
+/// <remarks>
+/// Broiler.Graphics dropped its native edit and button controls after 0.1.0-preview.1, so
+/// the address bar this window used to have is gone: the page comes from the command line,
+/// and F5 reloads it.
+/// </remarks>
 [SupportedOSPlatform("windows7.0")]
 internal sealed class RenderedUrlWindow : Direct2DWindow
 {
     private const int DesiredClientWidth = 1024;
     private const int DesiredClientHeight = 768;
-    private const double ToolbarHeight = 44;
-    private const double ControlMargin = 8;
-    private const double ButtonWidth = 88;
-    private const double ControlHeight = 28;
+    private const int VirtualKeyF5 = 0x74;
 
-    private readonly string _initialSource;
+    private readonly string _source;
     private readonly HtmlContainer _container = new();
-    private BEditControl? _urlEdit;
-    private BButtonControl? _loadButton;
+
+    // Null whenever the layout has to be redone; BuildRenderList rebuilds it on demand.
     private HtmlGraphicsRenderList? _renderList;
-    private bool _layoutDirty = true;
     private bool _hasContent;
 
     public RenderedUrlWindow(string source)
         : base(new BWindowOptions
         {
-            Title = "Broiler.HTML.Graphics Direct2D",
+            Title = $"{source} - Broiler.HTML.Graphics Direct2D",
             ClientWidth = DesiredClientWidth,
             ClientHeight = DesiredClientHeight,
             ClearColor = BColor.White,
             RenderOptions = new BRenderOptions(Antialias: true, VSync: true, SubpixelText: true),
         })
     {
-        _initialSource = source;
+        _source = source;
         _container.AvoidAsyncImagesLoading = true;
         _container.AvoidImagesLateLoading = true;
     }
 
-    protected override void OnCreated()
+    protected override void OnCreated() => LoadPage();
+
+    protected override void OnKeyDown(BKeyEventArgs e)
     {
-        _urlEdit = CreateEditControl(new BControlOptions
-        {
-            Text = _initialSource,
-            Bounds = UrlEditBounds(ClientSize),
-        });
-        _urlEdit.Submitted += (_, _) => LoadFromEdit();
-
-        _loadButton = CreateButtonControl(new BControlOptions
-        {
-            Text = "Load",
-            Bounds = LoadButtonBounds(ClientSize),
-        });
-        _loadButton.Clicked += (_, _) => LoadFromEdit();
-
-        LayoutControls(ClientSize);
-        LoadUrl(_initialSource);
-        _urlEdit.Focus();
+        if (e.VirtualKey == VirtualKeyF5)
+            LoadPage();
     }
 
-    protected override void OnResized(BSize clientSize, double dpiScale)
-    {
-        LayoutControls(clientSize);
-        MarkLayoutDirty();
-    }
+    protected override void OnResized(BSize clientSize, double dpiScale) => DiscardRenderList();
 
-    protected override void OnGraphicsResourcesReleasing()
-    {
-        MarkLayoutDirty();
-    }
-
-    protected override BRect GetRenderBounds(BSize clientSize) =>
-        new(0, ToolbarHeight, clientSize.Width, Math.Max(0, clientSize.Height - ToolbarHeight));
+    protected override void OnGraphicsResourcesReleasing() => DiscardRenderList();
 
     protected override BFrameContext CreateFrameContext(long frameIndex) =>
         new(ResolveClearColor(), frameIndex, Options.RenderOptions);
@@ -177,7 +163,7 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
         if (!_hasContent || clientSize.IsEmpty || Renderer is null)
             return null;
 
-        if (!_layoutDirty && _renderList is not null)
+        if (_renderList is not null)
             return _renderList.RenderList;
 
         var viewport = new RectangleF(0, 0, (float)clientSize.Width, (float)clientSize.Height);
@@ -185,7 +171,6 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
         _container.MaxSize = viewport.Size;
         _container.PerformLayout(viewport);
 
-        _renderList?.Dispose();
         // HtmlContainer.CreateRenderList is gone; the render list is built from a
         // display list now. This is the same call the shipping browser makes in
         // BrowserApp, which is where the working shape was taken from.
@@ -193,7 +178,6 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
             Renderer,
             _container.CreateDisplayList(),
             viewport);
-        _layoutDirty = false;
 
         return _renderList.RenderList;
     }
@@ -202,84 +186,32 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
     {
         if (disposing)
         {
-            _urlEdit?.Dispose();
-            _urlEdit = null;
-            _loadButton?.Dispose();
-            _loadButton = null;
-            _renderList?.Dispose();
-            _renderList = null;
+            DiscardRenderList();
             _container.Dispose();
         }
 
         base.Dispose(disposing);
     }
 
-    private void LoadFromEdit()
+    private void LoadPage()
     {
-        if (_urlEdit is not null)
-            LoadUrl(_urlEdit.Text);
-    }
-
-    private void LoadUrl(string source)
-    {
-        if (string.IsNullOrWhiteSpace(source))
-            return;
-
-        SetControlsEnabled(false);
         try
         {
-            string html = Program.LoadHtml(source, out string baseUrl);
+            string html = Program.LoadHtml(_source, out string baseUrl);
             _container.SetHtmlWithStyleSet(html, baseUrl: baseUrl);
             _hasContent = true;
 
-            if (_urlEdit is not null && !string.Equals(_urlEdit.Text, source, StringComparison.Ordinal))
-                _urlEdit.Text = source;
-
-            MarkLayoutDirty();
+            DiscardRenderList();
             Invalidate();
         }
         catch (Exception ex)
         {
             Program.ShowError(NativeHandle, ex.Message);
         }
-        finally
-        {
-            SetControlsEnabled(true);
-        }
     }
 
-    private void SetControlsEnabled(bool enabled)
+    private void DiscardRenderList()
     {
-        if (_urlEdit is not null)
-            _urlEdit.Enabled = enabled;
-        if (_loadButton is not null)
-            _loadButton.Enabled = enabled;
-    }
-
-    private void LayoutControls(BSize clientSize)
-    {
-        if (_urlEdit is null || _loadButton is null)
-            return;
-
-        _urlEdit.Bounds = UrlEditBounds(clientSize);
-        _loadButton.Bounds = LoadButtonBounds(clientSize);
-    }
-
-    private static BRect UrlEditBounds(BSize clientSize)
-    {
-        double width = Math.Max(1, clientSize.Width - (ControlMargin * 3) - ButtonWidth);
-        return new BRect(ControlMargin, ControlMargin, width, ControlHeight);
-    }
-
-    private static BRect LoadButtonBounds(BSize clientSize)
-    {
-        double x = Math.Max(ControlMargin, clientSize.Width - ControlMargin - ButtonWidth);
-        return new BRect(x, ControlMargin, ButtonWidth, ControlHeight);
-    }
-
-    private void MarkLayoutDirty()
-    {
-        _layoutDirty = true;
         _renderList?.Dispose();
         _renderList = null;
     }
@@ -287,8 +219,6 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
     private BColor ResolveClearColor()
     {
         BColor background = _container.GetRootBackgroundColor();
-        return !background.IsEmpty && background.A > 0
-            ? new BColor(background.R, background.G, background.B, background.A)
-            : BColor.White;
+        return !background.IsEmpty && background.A > 0 ? background : BColor.White;
     }
 }

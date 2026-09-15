@@ -1,6 +1,21 @@
-**/bin/
-**/obj/
+# Build output
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+
+# Node tooling
 /node_modules/
-/artifacts/
-.vs
-Broiler.HTML.Graphics.Win32.Demo
+
+# Test / publish artifacts
+[Pp]ublish/
+artifacts/
+test-results/
+*.binlog
+
+# NuGet pack output (packages are published from CI/local artifacts, never committed)
+*.nupkg
+*.snupkg

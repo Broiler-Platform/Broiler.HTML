@@ -10,8 +10,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Broiler.CSS" Version="0.1.0-preview.2" />
-    <PackageReference Include="Broiler.Graphics" Version="0.1.0-preview.3" />
-    <PackageReference Include="Broiler.Layout" Version="0.1.0-preview.2" />
+    <PackageReference Include="Broiler.CSS" />
+    <PackageReference Include="Broiler.Graphics" />
+    <PackageReference Include="Broiler.Layout" />
   </ItemGroup>
 </Project>
