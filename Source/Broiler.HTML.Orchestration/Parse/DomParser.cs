@@ -1941,7 +1941,7 @@ internal sealed class DomParser
             // The block being hoisted to parentBox was originally a
             // descendant of a positioned inline.  Record the link.
             if (posAncestor != null)
-                SetSplitAncestorDeep(splitBox, posAncestor);
+                PropagateSplitPositionedAncestor(splitBox, posAncestor);
         }
 
         if (badBox.Boxes.Count > 0)
@@ -1972,7 +1972,7 @@ internal sealed class DomParser
 
             // Also tag the right-side anonymous block.
             if (posAncestor != null)
-                SetSplitAncestorDeep(rightBox, posAncestor);
+                PropagateSplitPositionedAncestor(rightBox, posAncestor);
         }
         // CSS2.1 §9.2.1.1: breaking an inline box around a block replaces it with copies of
         // itself on either side of the block — which is what leftbox and rightBox above are.
@@ -1996,19 +1996,6 @@ internal sealed class DomParser
             if (splitBox.HtmlTag != null && splitBox.HtmlTag.Name == "br" && (leftbox != null || leftBlock.Boxes.Count > 1))
                 splitBox.Display = CssConstants.Inline;
         }
-    }
-
-    /// <summary>
-    /// Set <see cref="CssBox.SplitPositionedAncestor"/> on a box and all
-    /// its descendants, stopping at boxes that are themselves positioned.
-    /// </summary>
-    private static void SetSplitAncestorDeep(CssBox box, CssBox ancestor)
-    {
-        if (box.Position is CssConstants.Relative or CssConstants.Absolute or CssConstants.Fixed)
-            return;
-        box.SplitPositionedAncestor ??= ancestor;
-        foreach (var child in box.Boxes)
-            SetSplitAncestorDeep(child, ancestor);
     }
 
     private static void CorrectInlineBoxesParent(CssBox box, Uri baseUrl)

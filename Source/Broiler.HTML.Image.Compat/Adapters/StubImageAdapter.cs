@@ -50,12 +50,6 @@ internal sealed class StubImageAdapter : RAdapter
 
     public static StubImageAdapter Instance { get; } = new();
 
-    internal bool HasDeferredLoadedTypefacePath(string family) =>
-        _typefaceResolver.HasDeferredLoadedTypefacePath(family);
-
-    internal bool HasMaterializedLoadedTypeface(string family) =>
-        _typefaceResolver.HasMaterializedLoadedTypeface(family);
-
     /// <summary>
     /// Loads a TrueType/OpenType font from a file path and registers it as
     /// an available font family.  Optionally maps a CSS name to the loaded
@@ -816,18 +810,19 @@ internal sealed class StubImageAdapter : RAdapter
     protected override object GetClipboardDataObjectInt(string html, string plainText) =>
         new ClipboardPayload(html, plainText);
 
-    protected override void SetToClipboardInt(string text) =>
-        LastClipboardPayload = new ClipboardPayload(null, text);
+    protected override void SetToClipboardInt(string text)
+    {
+    }
 
-    protected override void SetToClipboardInt(string html, string plainText) =>
-        LastClipboardPayload = new ClipboardPayload(html, plainText);
+    protected override void SetToClipboardInt(string html, string plainText)
+    {
+    }
 
-    protected override void SetToClipboardInt(BImage image) =>
-        LastClipboardPayload = image;
+    protected override void SetToClipboardInt(BImage image)
+    {
+    }
 
     protected override RContextMenu CreateContextMenuInt() => new StubContextMenuAdapter();
-
-    internal static object LastClipboardPayload { get; private set; }
 
     private sealed record ClipboardPayload(string Html, string PlainText);
 

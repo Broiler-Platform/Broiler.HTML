@@ -1615,10 +1615,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     BImage IHtmlContainerInt.ImageFromStream(Stream stream) => Adapter.ImageFromStream(stream);
 
-    BImage IHtmlContainerInt.GetLoadingImage() => Adapter.GetLoadingImage();
-
-    BImage IHtmlContainerInt.GetLoadingFailedImage() => Adapter.GetLoadingFailedImage();
-
     void IHtmlContainerInt.DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception, bool> callback)
         => _imageDownloader?.DownloadImage(uri, filePath, async, (imageUri, fp, error, canceled) => callback(imageUri, fp, error, canceled));
 

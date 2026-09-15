@@ -6,17 +6,12 @@ this repository.
 
 ## Backend selection
 
-`Broiler.HTML.Image.BGraphicsBackend` exposes the current diagnostic identity:
-
-- `broiler` — the normal Broiler raster pipeline;
-- `stub` — an internal, per-thread compatibility fallback used by controlled tests.
-
-There is no public environment-variable switch. The internal override is deliberately
-not a production backend-selection API.
+`Broiler.HTML.Image.BGraphicsBackend` reports the diagnostic identity of the raster path,
+which is always `broiler`, the Broiler raster pipeline. There is no environment-variable
+switch and no internal override.
 
 `BGraphicsBackend.CurrentId`, `CurrentDisplayName`, and `CurrentLabel` are the stable
-diagnostic surface. Test artifacts should record the label so a fallback result cannot
-be mistaken for normal raster evidence.
+diagnostic surface, and test artifacts should record the label.
 
 ## Compatibility provider
 

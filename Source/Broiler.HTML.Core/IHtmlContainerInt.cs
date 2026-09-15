@@ -112,16 +112,6 @@ internal interface IHtmlContainerInt
     BImage ImageFromStream(Stream stream);
 
     /// <summary>
-    /// Gets the loading placeholder image.
-    /// </summary>
-    BImage GetLoadingImage();
-
-    /// <summary>
-    /// Gets the error placeholder image.
-    /// </summary>
-    BImage GetLoadingFailedImage();
-
-    /// <summary>
     /// Downloads an image from a URI.
     /// </summary>
     void DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception, bool> callback);

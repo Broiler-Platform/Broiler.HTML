@@ -1,4 +1,3 @@
-using System;
 using Broiler.Graphics;
 using Broiler.Graphics.Color;
 
@@ -7,15 +6,10 @@ namespace Broiler.HTML.Image.Compat;
 /// <summary>
 /// OS-free bitmap compat surface. The managed raster pipeline owns the real
 /// pixels, so pixel writes here are ignored and the surface never materializes a
-/// platform bitmap. Materialization entry points throw, since they cannot be
-/// satisfied without an OS/native graphics backend.
+/// platform bitmap.
 /// </summary>
 internal sealed class StubBitmapCompatSurface : IBitmapCompatSurface
 {
-    private const string Message =
-        "No OS graphics backend is available to materialize a platform bitmap; " +
-        "the managed Broiler raster pipeline is the active renderer.";
-
     public bool IsMaterialized => false;
 
     public void SetPixel(int x, int y, BColor color)
@@ -28,13 +22,7 @@ internal sealed class StubBitmapCompatSurface : IBitmapCompatSurface
         // See SetPixel.
     }
 
-    public object AsBitmap() => throw new NotSupportedException(Message);
-
-    public object ToBitmapCopy() => throw new NotSupportedException(Message);
-
     public object OpenCanvas() => new StubCanvas();
-
-    public void DrawPictureToFit(object picture, int width, int height) => throw new NotSupportedException(Message);
 
     public void SyncToPrimaryBuffer()
     {

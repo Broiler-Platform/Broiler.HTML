@@ -101,16 +101,6 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
         return family;
     }
 
-    public bool HasDeferredLoadedTypefacePath(string family) => false;
-
-    public bool HasMaterializedLoadedTypeface(string family)
-    {
-        if (string.IsNullOrWhiteSpace(family))
-            return false;
-        lock (_sync)
-            return _byFamily.ContainsKey(family);
-    }
-
     public object ResolveTypeface(string family, FontStyle style)
     {
         if (!string.IsNullOrWhiteSpace(family))

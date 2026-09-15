@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 
 namespace Broiler.HTML.Image;
 
@@ -10,9 +9,6 @@ namespace Broiler.HTML.Image;
 public static class BGraphicsBackend
 {
     internal const string BroilerRasterId = "broiler";
-    internal const string StubFallbackId = "stub";
-
-    private static readonly AsyncLocal<string?> BackendOverride = new();
 
     /// <summary>
     /// Stable machine-readable identifier for the current backend.
@@ -31,27 +27,10 @@ public static class BGraphicsBackend
 
     internal static bool UseBroilerRasterPipeline => string.Equals(CurrentId, BroilerRasterId, StringComparison.Ordinal);
 
-    internal static IDisposable OverrideForCurrentThread(string? backendId)
-    {
-        var previous = BackendOverride.Value;
-        BackendOverride.Value = backendId;
-        return new BackendOverrideScope(previous);
-    }
-
     private static BackendDefinition ResolveCurrent()
     {
-        return Resolve(BackendOverride.Value);
+        return new BackendDefinition(BroilerRasterId, "Broiler raster");
     }
-
-    private static BackendDefinition Resolve(string? configuredBackend) =>
-        string.Equals(configuredBackend, StubFallbackId, StringComparison.OrdinalIgnoreCase)
-            ? new BackendDefinition(StubFallbackId, "Stub compatibility fallback (no OS backend)")
-            : new BackendDefinition(BroilerRasterId, "Broiler raster");
 
     private readonly record struct BackendDefinition(string Id, string DisplayName);
-
-    private sealed class BackendOverrideScope(string? previous) : IDisposable
-    {
-        public void Dispose() => BackendOverride.Value = previous;
-    }
 }

@@ -16,8 +16,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("1.5.2.0")]
 [assembly: InternalsVisibleTo("Broiler.HTML.Core")]
 [assembly: InternalsVisibleTo("Broiler.HTML.Image.Compat")]
-[assembly: InternalsVisibleTo("Broiler.HTML.Image.Tests")]
-[assembly: InternalsVisibleTo("Broiler.Cli.Tests")]
-// Sets BRasterParallelism.MaxDegreeOfParallelism to measure raster thread scaling (multithreading
-// item #4); see tests/render-stages/Broiler.Render.Stage.Benchmarks/RasterScaling.cs.
-[assembly: InternalsVisibleTo("Broiler.Render.Stage.Benchmarks")]

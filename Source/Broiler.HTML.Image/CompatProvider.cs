@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using System.Threading;
 using Broiler.Graphics;
 using Broiler.Graphics.Color;
 using Broiler.HTML.Adapters;
@@ -39,7 +38,6 @@ internal static class CompatProvider
     private const string CompatBootstrapperTypeName = "Broiler.HTML.Image.Compat.StubCompatBootstrapper";
     private const string CompatBootstrapperMethodName = "EnsureRegistered";
 
-    private static readonly AsyncLocal<ICompatProvider?> ProviderOverride = new();
     private static readonly object DefaultProviderSync = new();
     private static ICompatProvider? _defaultProvider;
     private static int _defaultLoadAttempted;
@@ -55,15 +53,6 @@ internal static class CompatProvider
     internal static IFontCompatFactory FontCompatFactory => Current.FontCompatFactory;
 
     internal static IPaintCompatFactory PaintCompatFactory => Current.PaintCompatFactory;
-
-    internal static IDisposable OverrideForCurrentThread(ICompatProvider provider)
-    {
-        ArgumentNullException.ThrowIfNull(provider);
-
-        var previous = ProviderOverride.Value;
-        ProviderOverride.Value = provider;
-        return new ProviderOverrideScope(previous);
-    }
 
     internal static IFontTypefaceResolver CreateFontTypefaceResolver() =>
         Current.CreateFontTypefaceResolver();
@@ -83,7 +72,7 @@ internal static class CompatProvider
         _defaultProvider = provider;
     }
 
-    private static ICompatProvider Current => ProviderOverride.Value ?? EnsureDefaultProvider();
+    private static ICompatProvider Current => EnsureDefaultProvider();
 
     private static ICompatProvider EnsureDefaultProvider()
     {
@@ -116,10 +105,5 @@ internal static class CompatProvider
                 ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName}.{CompatBootstrapperMethodName}.");
             method.Invoke(null, null);
         }
-    }
-
-    private sealed class ProviderOverrideScope(ICompatProvider? previous) : IDisposable
-    {
-        public void Dispose() => ProviderOverride.Value = previous;
     }
 }

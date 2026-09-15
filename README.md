@@ -33,21 +33,15 @@ release of HTML Renderer, and the upstream authors have not reviewed or endorsed
 
 ## Solution layout
 
-The solution file is `Broiler.HTML.slnx` at the repository root and the codebase is organized into these main assemblies:
+The solution file is `Broiler.HTML.slnx` at the repository root and the codebase is organized into these assemblies. CSS, the DOM, layout and graphics come from the Broiler.CSS, Broiler.DOM, Broiler.Layout and Broiler.Graphics packages.
 
-- `Broiler.HTML.Primitives` - shared primitive types
-- `Broiler.HTML.Utils` - common utilities and resource helpers
-- `Broiler.HTML.Adapters` - backend-neutral adapter abstractions
-- `Broiler.HTML.Core` - core entities and deterministic IR helpers
-- `Broiler.HTML.CSS` - CSS parsing and stylesheet handling
-- `Broiler.HTML.Dom` - DOM/layout processing
-- `Broiler.HTML.Orchestration` - HTML parsing and renderer orchestration
-- `Broiler.HTML.Rendering` - paint-time handlers and rendering logic
-- `Broiler.HTML.Graphics` - Broiler.Graphics bitmap and render-list frontend
+- `Broiler.HTML.Core` - shared entities, handler contracts, and image download and loading
+- `Broiler.HTML.Dom` - HTML parsing into the Broiler DOM and the layout environment
+- `Broiler.HTML.Orchestration` - box-tree construction, the HTML container, and painting into a display list
+- `Broiler.HTML.Graphics` - Broiler.Graphics render-list frontend
 - `Broiler.HTML.Graphics.Win32.Demo` - simple Win32 URL rendering demo using the Direct2D backend in `Broiler.Graphics.Windows`
 - `Broiler.HTML.Image` / `Broiler.HTML.Image.Compat` - image rendering,
   deterministic comparison, and the remaining backend-neutral compatibility seam
-- `Broiler.HTML` - shared public surface used by platform adapters
 
 ## Public API highlights
 

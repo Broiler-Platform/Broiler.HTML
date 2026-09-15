@@ -30,16 +30,6 @@ internal interface IAdapter : IColorResolver
     BImage ImageFromStream(Stream stream);
 
     /// <summary>
-    /// Gets the loading placeholder image.
-    /// </summary>
-    BImage GetLoadingImage();
-
-    /// <summary>
-    /// Gets the error placeholder image.
-    /// </summary>
-    BImage GetLoadingFailedImage();
-
-    /// <summary>
     /// Loads a font from a file path and registers it as an available font family.
     /// </summary>
     /// <param name="path">Absolute path to a font file.</param>

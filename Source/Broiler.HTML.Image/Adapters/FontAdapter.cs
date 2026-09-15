@@ -12,23 +12,15 @@ internal sealed class FontAdapter(
     Func<object>? compatTypefaceFactory = null,
     IFontCompatFactory? fontCompatFactory = null) : BFont
 {
-    /// <summary>
-    /// Ratio to convert typographic points to CSS pixels (96 DPI / 72 DPI).
-    /// </summary>
-    private const double PtToCssPx = 96.0 / 72.0;
     private readonly IFontCompatFactory _fontCompatFactory = fontCompatFactory ?? CompatProvider.FontCompatFactory;
     private double _height = -1;
     private double _underlineOffset = -1;
     private double _whitespaceWidth = -1;
     private object? _typeface;
     private object? _font;
-    private object? _renderFont;
 
     /// <summary>Layout font (pt-based) – used for metrics and text measurement.</summary>
     public object Font => _font ??= _fontCompatFactory.CreateFont(Typeface, (float)size);
-
-    /// <summary>Render font (CSS px-based) – used for drawing glyphs at correct size.</summary>
-    public object RenderFont => _renderFont ??= _fontCompatFactory.CreateFont(Typeface, (float)(size * PtToCssPx));
 
     public object Typeface => _typeface ??= compatTypefaceFactory?.Invoke()
         ?? throw new InvalidOperationException("Font compatibility typeface factory was not configured.");
@@ -63,10 +55,6 @@ internal sealed class FontAdapter(
     }
 
     public override double LeftPadding => Height / 6.0;
-
-    internal bool HasMaterializedLayoutFont => _font is not null;
-
-    internal bool HasMaterializedRenderFont => _renderFont is not null;
 
     public override double GetWhitespaceWidth(BGraphics graphics)
     {

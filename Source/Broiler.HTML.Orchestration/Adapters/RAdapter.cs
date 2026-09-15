@@ -16,9 +16,6 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
     private readonly ConcurrentDictionary<BColor, BPen> _penCache = new();
     private readonly FontsHandler _fontsHandler;
 
-    private BImage _loadImage;
-    private BImage _errorImage;
-
     protected RAdapter() => _fontsHandler = new FontsHandler(this);
 
     public HtmlStyleSet DefaultStyleSet => HtmlStyleSet.Default;
@@ -48,32 +45,6 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
     public void AddFontFamilyMapping(string fromFamily, string toFamily) => _fontsHandler.AddFontFamilyMapping(fromFamily, toFamily);
 
     public BFont GetFont(string family, double size, FontStyle style, string fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
-
-    public BImage GetLoadingImage()
-    {
-        if (_loadImage == null)
-        {
-            var stream = typeof(FontsHandler).Assembly.GetManifestResourceStream("TheArtOfDev.HtmlRenderer.Core.Utils.ImageLoad.png");
-
-            if (stream != null)
-                _loadImage = ImageFromStream(stream);
-        }
-
-        return _loadImage;
-    }
-
-    public BImage GetLoadingFailedImage()
-    {
-        if (_errorImage == null)
-        {
-            var stream = typeof(FontsHandler).Assembly.GetManifestResourceStream("TheArtOfDev.HtmlRenderer.Core.Utils.ImageError.png");
-
-            if (stream != null)
-                _errorImage = ImageFromStream(stream);
-        }
-
-        return _errorImage;
-    }
 
     public object GetClipboardDataObject(string html, string plainText) => GetClipboardDataObjectInt(html, plainText);
 
