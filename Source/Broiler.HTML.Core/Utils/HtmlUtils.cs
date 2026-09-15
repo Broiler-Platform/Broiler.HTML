@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Broiler.HTML.Utils;
+namespace Broiler.HTML.Core.Utils;
 
 internal static class HtmlUtils
 {

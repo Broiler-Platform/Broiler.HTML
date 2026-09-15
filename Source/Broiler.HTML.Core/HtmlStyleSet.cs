@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Broiler.CSS;
 
 namespace Broiler.HTML.Core;
 
@@ -12,20 +13,16 @@ namespace Broiler.HTML.Core;
 /// </remarks>
 public sealed class HtmlStyleSet
 {
-    private static readonly CSS.CssStyleSheet EmptySheet = new([], []);
-    private static readonly CSS.CssStyleSheet DefaultUserAgentSheet =
-        new CSS.CssParser().ParseStyleSheet(CssDefaults.DefaultStyleSheet);
+    private static readonly CssStyleSheet EmptySheet = new([], []);
+    private static readonly CssStyleSheet DefaultUserAgentSheet = new CssParser().ParseStyleSheet(CssDefaults.DefaultStyleSheet);
 
-    private readonly Lazy<CSS.CssStyleSheet> _combinedStyleSheet;
+    private readonly Lazy<CssStyleSheet> _combinedStyleSheet;
 
-    public HtmlStyleSet(
-        CSS.CssStyleSheet? authorStyleSheet = null,
-        CSS.CssStyleSheet? userAgentStyleSheet = null)
+    public HtmlStyleSet(CssStyleSheet? authorStyleSheet = null, CssStyleSheet? userAgentStyleSheet = null)
     {
         AuthorStyleSheet = authorStyleSheet ?? EmptySheet;
         UserAgentStyleSheet = userAgentStyleSheet ?? EmptySheet;
-        _combinedStyleSheet = new Lazy<CSS.CssStyleSheet>(
-            () => CombineSheets(UserAgentStyleSheet, AuthorStyleSheet));
+        _combinedStyleSheet = new Lazy<CssStyleSheet>(() => CombineSheets(UserAgentStyleSheet, AuthorStyleSheet));
     }
 
     /// <summary>Gets an empty style set.</summary>
@@ -35,37 +32,31 @@ public sealed class HtmlStyleSet
     public static HtmlStyleSet Default { get; } = new(userAgentStyleSheet: DefaultUserAgentSheet);
 
     /// <summary>Gets author-origin rules.</summary>
-    public CSS.CssStyleSheet AuthorStyleSheet { get; }
+    public CssStyleSheet AuthorStyleSheet { get; }
 
     /// <summary>Gets user-agent-origin rules.</summary>
-    public CSS.CssStyleSheet UserAgentStyleSheet { get; }
+    public CssStyleSheet UserAgentStyleSheet { get; }
 
     /// <summary>
     /// Gets a combined model view for inspection and serialization. Runtime cascade
     /// must use the origin-specific properties above.
     /// </summary>
-    public CSS.CssStyleSheet StyleSheet => _combinedStyleSheet.Value;
+    public CssStyleSheet StyleSheet => _combinedStyleSheet.Value;
 
     /// <summary>Parses author CSS and optionally includes renderer defaults.</summary>
     public static HtmlStyleSet Parse(string? stylesheet, bool includeDefaults = true)
     {
-        var author = new CSS.CssParser().ParseStyleSheet(stylesheet);
+        var author = new CssParser().ParseStyleSheet(stylesheet);
         return new HtmlStyleSet(author, includeDefaults ? DefaultUserAgentSheet : EmptySheet);
     }
 
     /// <summary>Returns a style set with additional author-origin rules appended.</summary>
-    public HtmlStyleSet AppendAuthorStyleSheet(CSS.CssStyleSheet styleSheet)
+    public HtmlStyleSet AppendAuthorStyleSheet(CssStyleSheet styleSheet)
     {
         ArgumentNullException.ThrowIfNull(styleSheet);
-        return new HtmlStyleSet(
-            CombineSheets(AuthorStyleSheet, styleSheet),
-            UserAgentStyleSheet);
+        return new HtmlStyleSet(CombineSheets(AuthorStyleSheet, styleSheet), UserAgentStyleSheet);
     }
 
-    private static CSS.CssStyleSheet CombineSheets(
-        CSS.CssStyleSheet first,
-        CSS.CssStyleSheet second) =>
-        new(
-            first.Rules.Concat(second.Rules),
-            first.Diagnostics.Concat(second.Diagnostics));
+    private static CssStyleSheet CombineSheets(CssStyleSheet first, CssStyleSheet second) =>
+        new(first.Rules.Concat(second.Rules), first.Diagnostics.Concat(second.Diagnostics));
 }

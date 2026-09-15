@@ -3,8 +3,8 @@ using Broiler.Dom;
 using System;
 using System.Collections.Generic;
 using Broiler.Layout.Engine;
-using Broiler.HTML.Utils;
 using Broiler.Layout;
+using Broiler.HTML.Core.Utils;
 
 namespace Broiler.HTML.Dom.Parse;
 
@@ -38,8 +38,7 @@ internal static class HtmlParser
     /// projects that document's tree into it. <c>null</c> keeps the legacy behaviour where
     /// the sub-document is materialised as an in-tree subtree.
     /// </summary>
-    public static CssBox ParseDocument(
-        DomDocument document, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
+    public static CssBox ParseDocument(DomDocument document, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -63,8 +62,7 @@ internal static class HtmlParser
         return root;
     }
 
-    private static void AppendCanonicalNode(
-        DomNode node, CssBox parent, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
+    private static void AppendCanonicalNode(DomNode node, CssBox parent, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
     {
         // Match text by canonical node type, not concrete class, and read it through
         // DomNode.NodeValue. The renderer's own parse path produces Broiler.Dom.DomText,

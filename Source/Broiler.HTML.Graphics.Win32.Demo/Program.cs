@@ -10,7 +10,6 @@ using Broiler.Graphics.Rendering;
 using Broiler.Graphics.RenderList;
 using Broiler.Graphics.Windowing;
 using Broiler.Graphics.Windows;
-using Broiler.HTML.Graphics;
 using Broiler.HTML.Image;
 
 namespace Broiler.HTML.Graphics.Win32.Demo;
@@ -56,7 +55,7 @@ internal static class Program
             "  Broiler.HTML.Graphics.Win32.Demo.exe https://example.com/\n\n" +
             "Press F5 in the window to reload the page.";
 
-        MessageBox(IntPtr.Zero, usage, "Broiler.HTML.Graphics Win32 Demo", MbIconInformation | MbOk);
+        _ = MessageBox(IntPtr.Zero, usage, "Broiler.HTML.Graphics Win32 Demo", MbIconInformation | MbOk);
     }
 
     internal static string LoadHtml(string source, out string baseUrl)
@@ -89,10 +88,7 @@ internal static class Program
         return File.ReadAllText(path);
     }
 
-    internal static void ShowError(IntPtr hwnd, string message)
-    {
-        MessageBox(hwnd, message, "Broiler.HTML.Graphics Win32 Demo", MbIconError | MbOk);
-    }
+    internal static void ShowError(IntPtr hwnd, string message) => _ = MessageBox(hwnd, message, "Broiler.HTML.Graphics Win32 Demo", MbIconError | MbOk);
 
     private const uint MbOk = 0x00000000;
     private const uint MbIconError = 0x00000010;
@@ -128,15 +124,14 @@ internal sealed class RenderedUrlWindow : Direct2DWindow
     private HtmlGraphicsRenderList? _renderList;
     private bool _hasContent;
 
-    public RenderedUrlWindow(string source)
-        : base(new BWindowOptions
-        {
-            Title = $"{source} - Broiler.HTML.Graphics Direct2D",
-            ClientWidth = DesiredClientWidth,
-            ClientHeight = DesiredClientHeight,
-            ClearColor = BColor.White,
-            RenderOptions = new BRenderOptions(Antialias: true, VSync: true, SubpixelText: true),
-        })
+    public RenderedUrlWindow(string source) : base(new BWindowOptions
+    {
+        Title = $"{source} - Broiler.HTML.Graphics Direct2D",
+        ClientWidth = DesiredClientWidth,
+        ClientHeight = DesiredClientHeight,
+        ClearColor = BColor.White,
+        RenderOptions = new BRenderOptions(Antialias: true, VSync: true, SubpixelText: true),
+    })
     {
         _source = source;
         _container.AvoidAsyncImagesLoading = true;

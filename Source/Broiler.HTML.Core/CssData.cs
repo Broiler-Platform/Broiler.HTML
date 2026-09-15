@@ -1,4 +1,5 @@
 using System;
+using Broiler.CSS;
 
 namespace Broiler.HTML.Core;
 
@@ -14,5 +15,5 @@ public sealed class CssData
     public HtmlStyleSet StyleSet { get; private set; }
 
     /// <summary>Gets the combined shared stylesheet model.</summary>
-    public CSS.CssStyleSheet StyleSheet => StyleSet.StyleSheet;
+    public CssStyleSheet StyleSheet => StyleSet.StyleSheet;
 }

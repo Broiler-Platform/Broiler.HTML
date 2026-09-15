@@ -5,12 +5,11 @@ using Broiler.Layout;
 using Broiler.Layout.IR;
 using Broiler.CSS;
 using Broiler.HTML.Dom;
-using CommonUtils = Broiler.HTML.Utils.CommonUtils;
+using CommonUtils = Broiler.HTML.Core.Utils.CommonUtils;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Orchestration.Handlers;
 using Broiler.HTML.Orchestration.Parse;
 using Broiler.HTML.Rendering.Handlers;
-using Broiler.HTML.Utils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,6 +20,8 @@ using Broiler.Layout.Engine;
 using Broiler.Layout.Diagnostics;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Adapters;
+using Broiler.HTML.Core.Handlers;
+using Broiler.HTML.Core.Utils;
 
 namespace Broiler.HTML.Orchestration;
 

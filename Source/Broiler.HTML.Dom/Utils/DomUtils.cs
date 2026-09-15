@@ -7,7 +7,7 @@ using Broiler.HTML.Core;
 using Broiler.Layout.Engine;
 using System.Net;
 using Broiler.CSS;
-using Broiler.HTML.Utils;
+using Broiler.HTML.Core.Utils;
 
 
 namespace Broiler.HTML.Dom.Utils;

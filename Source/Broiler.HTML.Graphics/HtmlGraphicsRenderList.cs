@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Broiler.Layout.IR;
-using Broiler.Graphics;
 using Broiler.Graphics.Rendering;
 using Broiler.Graphics.RenderList;
 using Broiler.Graphics.Resources;
@@ -438,15 +437,8 @@ public static class HtmlGraphicsRenderListBuilder
         return "Segoe UI";
     }
 
-    private static void DrawImage(
-        BRenderList list,
-        IBroilerRenderer renderer,
-        List<BImageHandle> images,
-        Dictionary<object, BImageHandle> imageCache,
-        object? imageHandle,
-        RectangleF source,
-        RectangleF destination,
-        double opacity)
+    private static void DrawImage(BRenderList list, IBroilerRenderer renderer, List<BImageHandle> images,
+        Dictionary<object, BImageHandle> imageCache, object? imageHandle, RectangleF source, RectangleF destination, double opacity)
     {
         if (imageHandle == null || !IsDrawable(destination) || opacity <= 0)
             return;
@@ -461,13 +453,8 @@ public static class HtmlGraphicsRenderListBuilder
         list.DrawImage(image, ToRect(source), ToRect(destination), opacity);
     }
 
-    private static void DrawTiledImage(
-        BRenderList list,
-        IBroilerRenderer renderer,
-        List<BImageHandle> images,
-        Dictionary<object, BImageHandle> imageCache,
-        DrawTiledImageItem item,
-        double opacity)
+    private static void DrawTiledImage(BRenderList list, IBroilerRenderer renderer, List<BImageHandle> images,
+        Dictionary<object, BImageHandle> imageCache, DrawTiledImageItem item, double opacity)
     {
         if (item.ImageHandle == null || !IsDrawable(item.FillRect) || opacity <= 0)
             return;
@@ -510,11 +497,7 @@ public static class HtmlGraphicsRenderListBuilder
         {
             for (float x = startX; x < fill.Right; x += repeatX ? tileWidth : Math.Max(tileWidth, fill.Width + tileWidth))
             {
-                list.DrawImage(
-                    image,
-                    ToRect(source),
-                    ToRect(new RectangleF(x, y, tileWidth, tileHeight)),
-                    opacity);
+                list.DrawImage(image, ToRect(source), ToRect(new RectangleF(x, y, tileWidth, tileHeight)), opacity);
 
                 if (!repeatX)
                     break;
@@ -527,11 +510,8 @@ public static class HtmlGraphicsRenderListBuilder
         list.PopClip();
     }
 
-    private static BImageHandle GetImage(
-        IBroilerRenderer renderer,
-        List<BImageHandle> images,
-        Dictionary<object, BImageHandle> imageCache,
-        object imageHandle)
+    private static BImageHandle GetImage(IBroilerRenderer renderer, List<BImageHandle> images, 
+        Dictionary<object, BImageHandle> imageCache, object imageHandle)
     {
         if (imageCache.TryGetValue(imageHandle, out BImageHandle cached))
             return cached;

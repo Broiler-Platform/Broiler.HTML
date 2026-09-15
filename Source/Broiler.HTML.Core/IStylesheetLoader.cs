@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Broiler.CSS;
 
 namespace Broiler.HTML.Core;
 
@@ -16,5 +17,5 @@ internal interface IStylesheetLoader
     /// <param name="attributes">The HTML attributes of the link element.</param>
     /// <param name="stylesheet">The loaded stylesheet text, or null.</param>
     /// <param name="styleSheet">The loaded shared stylesheet model, or null.</param>
-    void LoadStylesheet(string src, Dictionary<string, string> attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet styleSheet);
+    void LoadStylesheet(string src, Dictionary<string, string> attributes, out string stylesheet, out CssStyleSheet styleSheet);
 }

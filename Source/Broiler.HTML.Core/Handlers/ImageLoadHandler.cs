@@ -4,13 +4,11 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Drawing;
-using Broiler.Graphics;
-using Broiler.HTML.Utils;
 using Broiler.HTML.Core.Entities;
-using Broiler.HTML.Core;
 using Broiler.Graphics.Adapters;
+using Broiler.HTML.Core.Utils;
 
-namespace Broiler.HTML.Rendering.Handlers;
+namespace Broiler.HTML.Core.Handlers;
 
 internal sealed class ImageLoadHandler : IImageLoadHandler
 {
@@ -132,6 +130,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         byte[] imageData = base64PartsCount > 0
             ? Convert.FromBase64String(Uri.UnescapeDataString(s[1].Trim()))
             : new UTF8Encoding().GetBytes(Uri.UnescapeDataString(s[1].Trim()));
+
         return _htmlContainer.ImageFromStream(new MemoryStream(imageData));
     }
 
@@ -141,6 +140,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
 
         bool isRootRelativePath = path.StartsWith('/')
             && !path.StartsWith("//", StringComparison.Ordinal);
+
         if (uri != null
             && uri.IsAbsoluteUri == false
             && baseUrl != null

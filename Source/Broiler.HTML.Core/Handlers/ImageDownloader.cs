@@ -4,8 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
+using Broiler.Layout.Net;
 
-namespace Broiler.HTML.Rendering.Handlers;
+namespace Broiler.HTML.Core.Handlers;
 
 public delegate void DownloadFileAsyncCallback(Uri imageUri, string filePath, Exception error, bool canceled);
 
@@ -27,8 +28,7 @@ internal sealed class ImageDownloader : IDisposable
     // Identified, too: HttpClient sends no User-Agent unless given one, and a host that refuses an
     // unidentified request refuses the image rather than serving a different one — every
     // upload.wikimedia.org image on a mediawiki.org page came back 403 Forbidden.
-    private static readonly HttpClient SharedHttpClient =
-        Broiler.Layout.Net.BroilerUserAgent.Apply(new HttpClient { Timeout = TimeSpan.FromSeconds(5) });
+    private static readonly HttpClient SharedHttpClient = BroilerUserAgent.Apply(new HttpClient { Timeout = TimeSpan.FromSeconds(5) });
 
     // Far above any image a page displays, and still a bound: the body is streamed to disk, and
     // a response that does not stop would otherwise fill it.
@@ -107,8 +107,10 @@ internal sealed class ImageDownloader : IDisposable
             response.EnsureSuccessStatusCode();
 
             string contentType = response.Content.Headers.ContentType?.MediaType;
+
             if (contentType == null || !contentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Failed to load image, not image content type: " + contentType);
+
             if (response.Content.Headers.ContentLength > MaxImageBytes)
                 throw new InvalidDataException($"Failed to load image, larger than {MaxImageBytes} bytes");
 
@@ -122,6 +124,7 @@ internal sealed class ImageDownloader : IDisposable
             tempPath = Path.GetTempFileName();
             using var body = response.Content.ReadAsStream(bodyBudget.Token);
             using var file = File.Create(tempPath);
+
             CopyBounded(body, file);
         }
         catch (OperationCanceledException)
@@ -185,11 +188,12 @@ internal sealed class ImageDownloader : IDisposable
         }
     }
 
-    private static void CopyBounded(Stream source, Stream destination)
+    private static void CopyBounded(Stream source, FileStream destination)
     {
         var buffer = new byte[81920];
         long total = 0;
         int read;
+
         while ((read = source.Read(buffer, 0, buffer.Length)) > 0)
         {
             total += read;

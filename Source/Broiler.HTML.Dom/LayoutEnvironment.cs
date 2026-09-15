@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Text;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
+using Broiler.HTML.Core.Utils;
 using Broiler.Layout;
 
 namespace Broiler.HTML.Dom;
@@ -40,14 +40,12 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
     public ILayoutFont GetFont(string family, double size, LayoutFontStyle style, string? fontFeatures = null)
         => container.GetFont(family, size, (FontStyle)(int)style, fontFeatures);
 
-    public SizeF MeasureText(ILayoutFont font, string text)
-        => _graphics.MeasureString(text, (BFont)font);
+    public SizeF MeasureText(ILayoutFont font, string text) => _graphics.MeasureString(text, (BFont)font);
 
     public void MeasureText(ILayoutFont font, string text, double maxWidth, out int charFit, out double charFitWidth)
         => _graphics.MeasureString(text, (BFont)font, maxWidth, out charFit, out charFitWidth);
 
-    public double GetWhitespaceWidth(ILayoutFont font)
-        => ((BFont)font).GetWhitespaceWidth(_graphics);
+    public double GetWhitespaceWidth(ILayoutFont font) => ((BFont)font).GetWhitespaceWidth(_graphics);
 
     public ImageIntrinsics GetImageIntrinsics(object imageHandle)
     {
@@ -104,8 +102,7 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
     public ILayoutImageLoader CreateImageLoader(Action<object?, RectangleF, bool> onComplete)
         => new LayoutImageLoader(container.CreateImageLoadHandler((image, rect, async) => onComplete(image, rect, async)));
 
-    public string FormatListMarker(int number, string style)
-        => HTML.Utils.CommonUtils.ConvertToAlphaNumber(number, style);
+    public string FormatListMarker(int number, string style) => Core.Utils.CommonUtils.ConvertToAlphaNumber(number, style);
 
     /// <summary>
     /// Wraps the renderer's <see cref="IImageLoadHandler"/> as a backend-neutral
@@ -117,12 +114,9 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
 
         public RectangleF Rectangle => handler.Rectangle;
 
-        public void LoadImage(string src, IReadOnlyDictionary<string, string>? attributes, Uri baseUrl)
-            => handler.LoadImage(
-                src,
-                attributes as Dictionary<string, string>
-                    ?? (attributes is null ? null : new Dictionary<string, string>(attributes)),
-                baseUrl);
+        public void LoadImage(string src, IReadOnlyDictionary<string, string>? attributes, Uri baseUrl) =>
+            handler.LoadImage(src, attributes as Dictionary<string, string> ?? 
+                (attributes is null ? null : new Dictionary<string, string>(attributes)), baseUrl);
 
         public void Dispose() => handler.Dispose();
     }

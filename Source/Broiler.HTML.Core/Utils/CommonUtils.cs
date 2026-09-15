@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Broiler.CSS;
 
-namespace Broiler.HTML.Utils;
+namespace Broiler.HTML.Core.Utils;
 
 internal delegate void ActionInt<in T>(T obj);
 internal delegate void ActionInt<in T1, in T2>(T1 arg1, T2 arg2);

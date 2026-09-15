@@ -4,8 +4,7 @@ using System.Globalization;
 using System.Linq;
 using Broiler.HTML.Dom.Parse;
 using Broiler.HTML.Dom;
-using HtmlConstants = Broiler.HTML.Utils.HtmlConstants;
-using Broiler.HTML.Utils;
+using HtmlConstants = Broiler.HTML.Core.Utils.HtmlConstants;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
 
@@ -16,6 +15,7 @@ using CssConstants = Broiler.CSS.CssConstants;
 using Broiler.Layout.Engine;
 using Broiler.Graphics;
 using Broiler.Graphics.Color;
+using Broiler.HTML.Core.Utils;
 namespace Broiler.HTML.Orchestration.Parse;
 
 internal sealed class DomParser
