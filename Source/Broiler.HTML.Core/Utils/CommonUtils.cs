@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using Broiler.CSS;
 
@@ -56,7 +57,11 @@ internal static class CommonUtils
         "ア", "イ", "ウ", "エ", "オ", "カ", "キ", "ク", "ケ", "コ", "サ", "シ", "ス", "セ", "ソ", "タ", "チ", "ツ", "テ", "ト", "ナ", "ニ", "ヌ", "ネ", "ノ", "ハ", "ヒ", "フ", "ヘ", "ホ", "マ", "ミ", "ム", "メ", "モ", "ヤ", "ユ", "ヨ", "ラ", "リ", "ル", "レ", "ロ", "ワ", "ヰ", "ヱ", "ヲ", "ン"
     ];
 
-    public static string _tempPath;
+    // How long a downloaded image is reused, across runs, before it is fetched again. Files older
+    // than this are also removed the first time a process uses the cache directory.
+    private static readonly TimeSpan ImageCacheLifetime = TimeSpan.FromDays(1);
+
+    private static string _tempPath;
 
     public static Uri TryGetUri(string path)
     {
@@ -110,7 +115,7 @@ internal static class CommonUtils
             return null;
 
         string uriUntilSlash = absoluteUri[..lastSlash];
-        fileNameBuilder.Append(uriUntilSlash.GetHashCode());
+        fileNameBuilder.Append(StableHash(uriUntilSlash));
         fileNameBuilder.Append('_');
 
         string restOfUri = absoluteUri[(lastSlash + 1)..];
@@ -151,16 +156,59 @@ internal static class CommonUtils
 
         var validFileName = GetValidFileName(fileNameBuilder.ToString());
         if (validFileName.Length > 25)
-            validFileName = validFileName[..24] + validFileName[24..].GetHashCode() + Path.GetExtension(validFileName);
+            validFileName = validFileName[..24] + StableHash(validFileName[24..]) + Path.GetExtension(validFileName);
 
         if (_tempPath == null)
         {
-            _tempPath = Path.Combine(Path.GetTempPath(), "HtmlRenderer");
-            if (!Directory.Exists(_tempPath))
-                Directory.CreateDirectory(_tempPath);
+            var tempPath = Path.Combine(Path.GetTempPath(), "HtmlRenderer");
+            Directory.CreateDirectory(tempPath);
+            RemoveExpiredFiles(tempPath);
+            _tempPath = tempPath;
         }
 
-        return new FileInfo(Path.Combine(_tempPath, validFileName));
+        var file = new FileInfo(Path.Combine(_tempPath, validFileName));
+        if (file.Exists && DateTime.UtcNow - file.LastWriteTimeUtc > ImageCacheLifetime)
+        {
+            // Removing it is what makes the caller download it again. If another process has it
+            // open it stays, and is used once more.
+            TryDelete(file);
+            file.Refresh();
+        }
+
+        return file;
+    }
+
+    // string.GetHashCode is randomised per process, so a name built from it never found the file
+    // an earlier run had cached, and every run added another copy that nothing removed.
+    private static string StableHash(string value) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value)), 0, 8);
+
+    private static void RemoveExpiredFiles(string directory)
+    {
+        try
+        {
+            foreach (var file in new DirectoryInfo(directory).EnumerateFiles())
+            {
+                if (DateTime.UtcNow - file.LastWriteTimeUtc > ImageCacheLifetime)
+                    TryDelete(file);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[HtmlRenderer] CommonUtils.RemoveExpiredFiles failed for '{directory}': {ex.Message}");
+        }
+    }
+
+    private static void TryDelete(FileInfo file)
+    {
+        try
+        {
+            file.Delete();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[HtmlRenderer] CommonUtils could not delete cached file '{file.FullName}': {ex.Message}");
+        }
     }
 
     private static string GetValidFileName(string source)
