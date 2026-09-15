@@ -13,13 +13,13 @@ namespace Broiler.HTML.Core.Handlers;
 internal sealed class ImageLoadHandler : IImageLoadHandler
 {
     private readonly IHtmlContainerInt _htmlContainer;
-    private readonly ActionInt<BImage, RectangleF, bool> _loadCompleteCallback;
+    private readonly ActionInt<BImage?, RectangleF, bool> _loadCompleteCallback;
     private RectangleF _imageRectangle;
     private bool _asyncCallback;
     private bool _releaseImageObject;
     private bool _disposed;
 
-    public ImageLoadHandler(IHtmlContainerInt htmlContainer, ActionInt<BImage, RectangleF, bool> loadCompleteCallback)
+    public ImageLoadHandler(IHtmlContainerInt htmlContainer, ActionInt<BImage?, RectangleF, bool> loadCompleteCallback)
     {
         ArgumentNullException.ThrowIfNull(htmlContainer);
         ArgumentNullException.ThrowIfNull(loadCompleteCallback);
@@ -28,7 +28,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         _loadCompleteCallback = loadCompleteCallback;
     }
 
-    public BImage Image { get; private set; }
+    public BImage? Image { get; private set; }
     public RectangleF Rectangle => _imageRectangle;
 
     public void LoadImage(string src, Dictionary<string, string> attributes, Uri baseUrl)
@@ -72,7 +72,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     }
 
 
-    private void OnHtmlImageLoadEventCallback(string path, object image, RectangleF imageRectangle, Uri baseUrl)
+    private void OnHtmlImageLoadEventCallback(string path, object? image, RectangleF imageRectangle, Uri baseUrl)
     {
         if (_disposed)
             return;
@@ -105,7 +105,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         ImageLoadComplete(false);
     }
 
-    private BImage GetImageFromData(string src)
+    private BImage? GetImageFromData(string src)
     {
         var s = src[(src.IndexOf(':') + 1)..].Split([','], 2);
 
@@ -214,7 +214,12 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     private void SetImageFromUrl(Uri source)
     {
         var filePath = CommonUtils.GetLocalfileName(source);
-        if (filePath.Exists && filePath.Length > 0)
+        if (filePath == null)
+        {
+            _htmlContainer.ReportError(HtmlRenderErrorType.Image, "Failed load image, invalid source: " + source);
+            ImageLoadComplete(false);
+        }
+        else if (filePath.Exists && filePath.Length > 0)
         {
             SetImageFromFile(filePath);
         }
@@ -224,7 +229,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         }
     }
 
-    private void OnDownloadImageCompleted(Uri imageUri, string filePath, Exception error, bool canceled)
+    private void OnDownloadImageCompleted(Uri imageUri, string filePath, Exception? error, bool canceled)
     {
         if (canceled || _disposed)
             return;

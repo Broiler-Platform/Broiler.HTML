@@ -8,7 +8,7 @@ using Broiler.Layout.Net;
 
 namespace Broiler.HTML.Core.Handlers;
 
-public delegate void DownloadFileAsyncCallback(Uri imageUri, string filePath, Exception error, bool canceled);
+public delegate void DownloadFileAsyncCallback(Uri imageUri, string filePath, Exception? error, bool canceled);
 
 internal sealed class ImageDownloader : IDisposable
 {
@@ -47,7 +47,7 @@ internal sealed class ImageDownloader : IDisposable
 
         lock (_imageDownloadCallbacks)
         {
-            if (_imageDownloadCallbacks.TryGetValue(filePath, out List<DownloadFileAsyncCallback> value))
+            if (_imageDownloadCallbacks.TryGetValue(filePath, out List<DownloadFileAsyncCallback>? value))
             {
                 download = false;
                 value.Add(cachedFileCallback);
@@ -93,8 +93,8 @@ internal sealed class ImageDownloader : IDisposable
 
     private void DownloadImageFromUrl(Uri source, string filePath)
     {
-        string tempPath = null;
-        Exception error = null;
+        string? tempPath = null;
+        Exception? error = null;
         bool cancelled = false;
 
         try
@@ -106,7 +106,7 @@ internal sealed class ImageDownloader : IDisposable
             using var response = SharedHttpClient.Send(request, HttpCompletionOption.ResponseHeadersRead, _cts.Token);
             response.EnsureSuccessStatusCode();
 
-            string contentType = response.Content.Headers.ContentType?.MediaType;
+            string? contentType = response.Content.Headers.ContentType?.MediaType;
 
             if (contentType == null || !contentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("Failed to load image, not image content type: " + contentType);
@@ -144,13 +144,14 @@ internal sealed class ImageDownloader : IDisposable
         OnDownloadImageCompleted(source, tempPath, filePath, error, cancelled);
     }
 
-    private void OnDownloadImageCompleted(Uri source, string tempPath, string filePath, Exception error, bool cancelled)
+    private void OnDownloadImageCompleted(Uri source, string? tempPath, string filePath, Exception? error, bool cancelled)
     {
         if (!cancelled && error == null)
         {
             try
             {
-                File.Move(tempPath, filePath, overwrite: true);
+                // A download that neither failed nor was cancelled has written its temp file.
+                File.Move(tempPath!, filePath, overwrite: true);
             }
             catch (Exception ex)
             {
@@ -165,7 +166,7 @@ internal sealed class ImageDownloader : IDisposable
         if (tempPath != null)
             TryDeleteFile(tempPath);
 
-        List<DownloadFileAsyncCallback> callbacksList;
+        List<DownloadFileAsyncCallback>? callbacksList;
         lock (_imageDownloadCallbacks)
         {
             if (_imageDownloadCallbacks.TryGetValue(filePath, out callbacksList))

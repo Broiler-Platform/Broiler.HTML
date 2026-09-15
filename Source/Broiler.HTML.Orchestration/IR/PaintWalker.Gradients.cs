@@ -455,7 +455,7 @@ internal static partial class PaintWalker
         // if it's a length/percentage, but we need to be careful with
         // parenthesised color functions like rgba(0,0,0,1).
         string colorStr = stopStr;
-        string posHint = null;
+        string? posHint = null;
 
         // Find the last space at depth 0 to separate color from position.
         int depth = 0;

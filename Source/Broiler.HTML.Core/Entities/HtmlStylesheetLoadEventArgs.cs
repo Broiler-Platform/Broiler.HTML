@@ -14,11 +14,11 @@ public sealed class HtmlStylesheetLoadEventArgs : EventArgs
 
     public string Src { get; }
     public Dictionary<string, string> Attributes { get; }
-    public string SetSrc { get; set; }
-    public string SetStyleSheet { get; set; }
+    public string? SetSrc { get; set; }
+    public string? SetStyleSheet { get; set; }
 
-    public CssStyleSheet SetStyleSheetModel { get; set; }
+    public CssStyleSheet? SetStyleSheetModel { get; set; }
 
     [Obsolete("Use SetStyleSheetModel with Broiler.CSS.CssStyleSheet.")]
-    public CssData SetStyleSheetData { get; set; }
+    public CssData? SetStyleSheetData { get; set; }
 }

@@ -184,9 +184,9 @@ internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBounds
             cornerSw, cornerSwY);
     }
 
-    public override object SetAntiAliasSmoothingMode() => null;
+    public override object? SetAntiAliasSmoothingMode() => null;
 
-    public override void ReturnPreviousSmoothingMode(object prevMode)
+    public override void ReturnPreviousSmoothingMode(object? prevMode)
     {
     }
 

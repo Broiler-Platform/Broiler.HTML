@@ -10,8 +10,8 @@ internal sealed class ControlAdapter(
     PointF mouseLocation,
     bool leftMouseButton,
     bool rightMouseButton,
-    Action invalidate = null,
-    Action<GraphicsCursor> cursorChanged = null) : RControl(CompatProvider.ImageAdapter)
+    Action? invalidate = null,
+    Action<GraphicsCursor>? cursorChanged = null) : RControl(CompatProvider.ImageAdapter)
 {
     private PointF _mouseLocation = mouseLocation;
     private bool _leftMouseButton = leftMouseButton;

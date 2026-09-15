@@ -18,7 +18,7 @@ internal interface IHtmlContainerInt
     /// <summary>
     /// Reports an error during rendering.
     /// </summary>
-    void ReportError(HtmlRenderErrorType type, string message, Exception exception = null);
+    void ReportError(HtmlRenderErrorType type, string message, Exception? exception = null);
 
     /// <summary>
     /// The scroll offset of the container.
@@ -87,7 +87,7 @@ internal interface IHtmlContainerInt
     /// Gets a cached font for the specified family, size, and style.
     /// Wraps the adapter's font creation/caching.
     /// </summary>
-    BFont GetFont(string family, double size, Graphics.Text.FontStyle style, string fontFeatures = null);
+    BFont GetFont(string family, double size, Graphics.Text.FontStyle style, string? fontFeatures = null);
 
     /// <summary>
     /// Parses a colour string and returns the corresponding <see cref="BColor"/>.
@@ -108,12 +108,12 @@ internal interface IHtmlContainerInt
     /// <summary>
     /// Creates an <see cref="BImage"/> from a stream.
     /// </summary>
-    BImage ImageFromStream(Stream stream);
+    BImage? ImageFromStream(Stream stream);
 
     /// <summary>
     /// Downloads an image from a URI.
     /// </summary>
-    void DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception, bool> callback);
+    void DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception?, bool> callback);
 
     /// <summary>
     /// Creates a new <see cref="IImageLoadHandler"/> for loading images with
@@ -122,7 +122,7 @@ internal interface IHtmlContainerInt
     /// <remarks>
     /// See ADR-008, Phase 2 prerequisites, item 3.
     /// </remarks>
-    IImageLoadHandler CreateImageLoadHandler(ActionInt<BImage, RectangleF, bool> loadCompleteCallback);
+    IImageLoadHandler CreateImageLoadHandler(ActionInt<BImage?, RectangleF, bool> loadCompleteCallback);
 
     /// <summary>The current origin-aware style set.</summary>
     HtmlStyleSet StyleSet { get; }

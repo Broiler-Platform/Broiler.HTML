@@ -26,9 +26,9 @@ internal sealed class StubImageAdapter : RAdapter
     private readonly IPaintCompatFactory _paintCompatFactory;
 
     internal StubImageAdapter(
-        IFontTypefaceResolver typefaceResolver = null,
-        IReadOnlyCollection<string> systemFonts = null,
-        IPaintCompatFactory paintCompatFactory = null)
+        IFontTypefaceResolver? typefaceResolver = null,
+        IReadOnlyCollection<string>? systemFonts = null,
+        IPaintCompatFactory? paintCompatFactory = null)
     {
         _typefaceResolver = typefaceResolver ?? CompatProvider.CreateFontTypefaceResolver();
         _paintCompatFactory = paintCompatFactory ?? CompatProvider.PaintCompatFactory;
@@ -64,7 +64,7 @@ internal sealed class StubImageAdapter : RAdapter
     /// <returns>
     /// The registered family name (the alias when provided), or <c>null</c> on failure.
     /// </returns>
-    public override string LoadFontFromFile(string path, string mapFromName = null)
+    public override string? LoadFontFromFile(string path, string? mapFromName = null)
     {
         var familyName = _typefaceResolver.RegisterFontFile(path, mapFromName);
         if (string.IsNullOrWhiteSpace(familyName))
@@ -345,7 +345,7 @@ internal sealed class StubImageAdapter : RAdapter
         throw new NotSupportedException(
             "Converting a platform bitmap is not supported without an OS graphics backend; use ImageFromStream with encoded image data.");
 
-    protected override BImage ImageFromStreamInt(Stream memoryStream)
+    protected override BImage? ImageFromStreamInt(Stream memoryStream)
     {
         // Read the stream into a byte array so we can inspect the content
         // before attempting a bitmap decode and can still route SVG input
@@ -399,7 +399,7 @@ internal sealed class StubImageAdapter : RAdapter
     /// explicit width AND height the intrinsic size is 300×150 (the default
     /// replaced element size).  This matches browser behaviour (Chromium).
     /// </summary>
-    private static BImage RasterizeSvg(byte[] data)
+    private static BImage? RasterizeSvg(byte[] data)
     {
         var svgContent = System.Text.Encoding.UTF8.GetString(data);
 

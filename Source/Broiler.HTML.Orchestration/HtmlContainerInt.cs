@@ -9,9 +9,9 @@ using CommonUtils = Broiler.HTML.Core.Utils.CommonUtils;
 using Broiler.HTML.Dom.Utils;
 using Broiler.HTML.Orchestration.Handlers;
 using Broiler.HTML.Orchestration.Parse;
-using Broiler.HTML.Rendering.Handlers;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
@@ -27,8 +27,8 @@ namespace Broiler.HTML.Orchestration;
 
 public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 {
-    private HTML.Core.Core.ISelectionHandler _selectionHandler;
-    private ImageDownloader _imageDownloader;
+    private HTML.Core.Core.ISelectionHandler? _selectionHandler;
+    private ImageDownloader? _imageDownloader;
     private HtmlStyleSet _styleSet;
     private bool _loadComplete;
     private int _marginTop;
@@ -36,15 +36,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private int _marginLeft;
     private int _marginRight;
     private readonly IHandlerFactory _handlerFactory;
-    private Broiler.Dom.DomDocument _boundDocument;
+    private Broiler.Dom.DomDocument? _boundDocument;
     private ulong _boundDocumentVersion;
-    private HtmlStyleSet _boundBaseStyleSet;
+    private HtmlStyleSet? _boundBaseStyleSet;
 
     // Multithreading roadmap item #14. The version counter above says "something changed";
     // this says whether any of it reached the render tree. See
     // Broiler.Layout.Engine.RenderTreeInvalidation for what it can and cannot answer, and for
     // why the type is in the main repository rather than here.
-    private Broiler.Layout.Engine.RenderTreeInvalidation _boundDocumentInvalidation;
+    private Broiler.Layout.Engine.RenderTreeInvalidation? _boundDocumentInvalidation;
 
     /// <summary>
     /// HtmlBridge Phase 4 (P4.4b): host callback mapping a nested-browsing-context container
@@ -54,18 +54,18 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// sub-document (no in-tree <c>#subdoc-root</c> child) still lays out and composes geometry.
     /// Null on the renderer's own parse paths.
     /// </summary>
-    public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument> ContentDocumentResolver { get; set; }
+    public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument?>? ContentDocumentResolver { get; set; }
 
     /// <summary>
     /// The most recent fragment tree snapshot, built after layout completes.
     /// </summary>
-    internal Fragment LatestFragmentTree { get; private set; }
+    internal Fragment? LatestFragmentTree { get; private set; }
 
     /// <summary>
     /// The most recent display list produced by the paint path.
     /// Populated after each <see cref="PerformPaint"/> call.
     /// </summary>
-    internal DisplayList LatestDisplayList { get; private set; }
+    internal DisplayList? LatestDisplayList { get; private set; }
 
     internal HtmlContainerInt(IAdapter adapter, IHandlerFactory handlerFactory)
     {
@@ -74,22 +74,23 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         Adapter = adapter;
         _handlerFactory = handlerFactory;
+        _styleSet = adapter.DefaultStyleSet;
     }
 
     internal IAdapter Adapter { get; }
 
-    public event EventHandler LoadComplete;
+    public event EventHandler? LoadComplete;
     /// <summary>
     /// Raised when a link or submit control is clicked. Setting
     /// <see cref="HtmlLinkClickedEventArgs.Handled"/> stops the container scrolling to a
     /// same-document fragment itself; opening any other target is always the host's job.
     /// </summary>
-    public event EventHandler<HtmlLinkClickedEventArgs> LinkClicked;
-    public event EventHandler<HtmlRefreshEventArgs> Refresh;
-    public event EventHandler<HtmlScrollEventArgs> ScrollChange;
-    public event EventHandler<HtmlRenderErrorEventArgs> RenderError;
-    public event EventHandler<HtmlStylesheetLoadEventArgs> StylesheetLoad;
-    public event EventHandler<HtmlImageLoadEventArgs> ImageLoad;
+    public event EventHandler<HtmlLinkClickedEventArgs>? LinkClicked;
+    public event EventHandler<HtmlRefreshEventArgs>? Refresh;
+    public event EventHandler<HtmlScrollEventArgs>? ScrollChange;
+    public event EventHandler<HtmlRenderErrorEventArgs>? RenderError;
+    public event EventHandler<HtmlStylesheetLoadEventArgs>? StylesheetLoad;
+    public event EventHandler<HtmlImageLoadEventArgs>? ImageLoad;
 
     public bool AvoidGeometryAntialias { get; set; }
 
@@ -120,7 +121,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// When set, relative paths (e.g. <c>./page.html</c>, <c>../section/index.html</c>)
     /// are resolved against this URL before navigation.
     /// </summary>
-    public string BaseUrl { get; set; }
+    public string? BaseUrl { get; set; }
 
     public SizeF ActualSize { get; set; }
 
@@ -162,7 +163,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             _marginBottom = _marginLeft = _marginTop = _marginRight = value;
     }
 
-    internal CssBox Root { get; private set; }
+    internal CssBox? Root { get; private set; }
 
     /// <summary>
     /// Returns the canvas background propagated from the root or body box.
@@ -419,12 +420,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     }
 
     [Obsolete("Use SetHtmlWithStyleSet.")]
-    public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null)
+    public void SetHtml(string htmlSource, CssData? baseCssData = null, string? baseUrl = null)
     {
         SetHtmlWithStyleSet(htmlSource, baseCssData?.StyleSet, baseUrl);
     }
 
-    public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet baseStyleSet = null, string baseUrl = null)
+    public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null)
     {
         Clear();
         _boundDocument = null;
@@ -457,12 +458,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     }
 
     [Obsolete("Use SetDocumentWithStyleSet.")]
-    public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null)
+    public void SetDocument(Broiler.Dom.DomDocument document, CssData? baseCssData = null, string? baseUrl = null)
     {
         SetDocumentWithStyleSet(document, baseCssData?.StyleSet, baseUrl);
     }
 
-    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet baseStyleSet = null, string baseUrl = null)
+    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -520,8 +521,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private delegate CssBox CssTreeFactory(ref HtmlStyleSet styleSet);
 
     private void InitialiseRoot(
-        HtmlStyleSet baseStyleSet,
-        string baseUrl,
+        HtmlStyleSet? baseStyleSet,
+        string? baseUrl,
         CssTreeFactory createTree)
     {
         _loadComplete = false;
@@ -544,7 +545,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     private void BuildBoundDocument()
     {
-        if (_boundDocument == null)
+        var document = _boundDocument;
+        if (document == null)
             return;
 
         DisposeRenderTree();
@@ -553,8 +555,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         InitialiseRoot(
             _boundBaseStyleSet,
             BaseUrl,
-            (ref styleSet) => parser.GenerateCssTree(_boundDocument, this, ref styleSet, baseUri));
-        _boundDocumentVersion = _boundDocument.Version;
+            (ref styleSet) => parser.GenerateCssTree(document, this, ref styleSet, baseUri));
+        _boundDocumentVersion = document.Version;
         _boundDocumentInvalidation?.MarkRebuilt(BuildCascadeDependencies());
     }
 
@@ -594,7 +596,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// local files or HTTP(S) resources (e.g. the WPT server serves fonts over
     /// http); remote sources are fetched with a short timeout.
     /// </summary>
-    private void LoadFontFacesFromStyleSet(string baseUrl)
+    private void LoadFontFacesFromStyleSet(string? baseUrl)
     {
         var fontFaces = RendererStyleQueries.GetFontFaces(_styleSet.StyleSheet);
         if (fontFaces.Count == 0)
@@ -607,7 +609,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
             var src = face.Source.Trim('\'', '"');
 
-            string resolvedFile = ResolveLocalFontPath(src, baseUrl);
+            string? resolvedFile = ResolveLocalFontPath(src, baseUrl);
             if (!string.IsNullOrEmpty(resolvedFile) && File.Exists(resolvedFile))
             {
                 Adapter.LoadFontFromFile(resolvedFile, face.Family);
@@ -615,12 +617,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             }
 
             // Remote source: resolve to an absolute HTTP(S) URL and fetch it.
-            if (TryResolveHttpFontUrl(src, baseUrl, out Uri fontUri))
+            if (TryResolveHttpFontUrl(src, baseUrl, out Uri? fontUri))
                 TryLoadRemoteFont(fontUri, face.Family);
         }
     }
 
-    private static bool TryResolveHttpFontUrl(string src, string baseUrl, out Uri fontUri)
+    private static bool TryResolveHttpFontUrl(string src, string? baseUrl, [NotNullWhen(true)] out Uri? fontUri)
     {
         fontUri = null;
         if (Uri.TryCreate(src, UriKind.Absolute, out var abs) && IsHttp(abs))
@@ -661,7 +663,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     private void TryLoadRemoteFont(Uri fontUri, string family)
     {
-        string tempPath = null;
+        string? tempPath = null;
         try
         {
             byte[] bytes = SharedFontHttpClient.GetByteArrayAsync(fontUri).GetAwaiter().GetResult();
@@ -690,7 +692,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// <paramref name="baseUrl"/>.  Returns an absolute file system path,
     /// or <c>null</c> if resolution fails.
     /// </summary>
-    private static string ResolveLocalFontPath(string src, string baseUrl)
+    private static string? ResolveLocalFontPath(string src, string? baseUrl)
     {
         // Already absolute file path
         if (Path.IsPathRooted(src) && File.Exists(src))
@@ -702,7 +704,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             // Try as file URI
             if (Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri) && baseUri.IsFile)
             {
-                string dir = Path.GetDirectoryName(baseUri.LocalPath);
+                string? dir = Path.GetDirectoryName(baseUri.LocalPath);
                 if (!string.IsNullOrEmpty(dir))
                 {
                     string combined = Path.GetFullPath(Path.Combine(dir, src));
@@ -712,7 +714,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             }
 
             // Try as plain file system path
-            string baseDir = Path.GetDirectoryName(baseUrl);
+            string? baseDir = Path.GetDirectoryName(baseUrl);
             if (!string.IsNullOrEmpty(baseDir))
             {
                 string combined = Path.GetFullPath(Path.Combine(baseDir, src));
@@ -753,7 +755,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         family = RendererStyleQueries.UnescapeIdentifier(family.Trim().Trim('"', '\''));
 
         // @font-face feature defaults declared for this family.
-        string faceFeatures = null;
+        string? faceFeatures = null;
         foreach (var face in RendererStyleQueries.GetFontFaces(_styleSet.StyleSheet))
                 if (!string.IsNullOrEmpty(face.FeatureSettings)
                     && string.Equals(face.Family, family, StringComparison.OrdinalIgnoreCase))
@@ -780,7 +782,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         box.FontFeatureSettings = sb.Length > 0 ? sb.ToString() : null;
     }
 
-    private static void ApplyFeatureSettings(Dictionary<string, bool> enabled, string settings)
+    private static void ApplyFeatureSettings(Dictionary<string, bool> enabled, string? settings)
     {
         if (string.IsNullOrWhiteSpace(settings) || settings.Trim() == "normal")
             return;
@@ -903,7 +905,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return DomUtils.GenerateHtml(Root, styleGen);
     }
 
-    public string GetAttributeAt(PointF location, string attribute)
+    public string? GetAttributeAt(PointF location, string attribute)
     {
         ArgumentNullException.ThrowIfNull(attribute);
 
@@ -911,10 +913,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return cssBox != null ? DomUtils.GetAttribute(cssBox, attribute) : null;
     }
 
-    public FormInputElementData<RectangleF> GetEditableInputAt(PointF location) =>
+    public FormInputElementData<RectangleF>? GetEditableInputAt(PointF location) =>
         GetEditableInputAtDocumentPoint(OffsetByScroll(location));
 
-    public FormInputElementData<RectangleF> GetEditableInputAtDocumentPoint(PointF documentLocation)
+    public FormInputElementData<RectangleF>? GetEditableInputAtDocumentPoint(PointF documentLocation)
     {
         EnsureBoundDocumentCurrent();
 
@@ -952,7 +954,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return linkElements;
     }
 
-    public string GetLinkAt(PointF location)
+    public string? GetLinkAt(PointF location)
     {
         var link = DomUtils.GetLinkBox(Root, OffsetByScroll(location));
         return link?.HrefLink;
@@ -1074,7 +1076,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// above the document element, so the <c>html</c> box is looked up when one
     /// is present; otherwise the root box's own value stands.
     /// </summary>
-    private string GetRootWritingMode()
+    private string? GetRootWritingMode()
     {
         var box = Root;
         if (box == null)
@@ -1388,15 +1390,18 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         // Resolve the target URL: for <a> links use href, for form submit
         // buttons walk up to the enclosing <form> and use its action attribute.
-        string targetUrl = link.HrefLink;
+        string? targetUrl = link.HrefLink;
         if (string.IsNullOrEmpty(targetUrl) && IsFormSubmitControl(link))
         {
             targetUrl = FindFormAction(link);
         }
 
-        EventHandler<HtmlLinkClickedEventArgs> clickHandler = LinkClicked;
+        EventHandler<HtmlLinkClickedEventArgs>? clickHandler = LinkClicked;
         if (clickHandler != null)
         {
+            if (link.HtmlTag == null)
+                throw new InvalidOperationException("Link box has no HTML tag.");
+
             var args = new HtmlLinkClickedEventArgs(ResolveHref(targetUrl ?? string.Empty), (Dictionary<string, string>)link.HtmlTag.Attributes);
             try
             {
@@ -1418,7 +1423,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // a custom protocol handler - on any click no handler had marked handled.
         if (targetUrl == "#")
         {
-            EventHandler<HtmlScrollEventArgs> scrollHandler = ScrollChange;
+            EventHandler<HtmlScrollEventArgs>? scrollHandler = ScrollChange;
             if (scrollHandler != null)
             {
                 scrollHandler(this, new HtmlScrollEventArgs(PointF.Empty));
@@ -1427,7 +1432,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
         else if (targetUrl.StartsWith('#') && targetUrl.Length > 1)
         {
-            EventHandler<HtmlScrollEventArgs> scrollHandler = ScrollChange;
+            EventHandler<HtmlScrollEventArgs>? scrollHandler = ScrollChange;
             if (scrollHandler != null)
             {
                 var rect = GetElementRectangle(targetUrl[1..]);
@@ -1440,12 +1445,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
     }
 
-    private CssBox GetEditableInputBoxAt(PointF documentLocation)
+    private CssBox? GetEditableInputBoxAt(PointF documentLocation)
     {
         return GetEditableInputBoxAt(Root, documentLocation);
     }
 
-    private static CssBox GetEditableInputBoxAt(CssBox box, PointF documentLocation)
+    private static CssBox? GetEditableInputBoxAt(CssBox? box, PointF documentLocation)
     {
         if (box == null || box.Visibility != CssConstants.Visible)
             return null;
@@ -1490,6 +1495,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     private static FormInputElementData<RectangleF> CreateFormInputElementData(CssBox box, RectangleF rect)
     {
+        if (box.HtmlTag == null)
+            throw new InvalidOperationException("Form input box has no HTML tag.");
+
         bool isTextArea = IsTextArea(box);
         var type = isTextArea
             ? "textarea"
@@ -1529,7 +1537,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         value ??= string.Empty;
         if (!IsTextArea(box))
-            box.HtmlTag.SetAttribute("value", value);
+            (box.HtmlTag ?? throw new InvalidOperationException("Form input box has no HTML tag.")).SetAttribute("value", value);
 
         box.SetGeneratedTextContent(value);
     }
@@ -1557,7 +1565,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// enclosing <c>&lt;form&gt;</c> element and returns its <c>action</c>
     /// attribute value.  Returns <c>null</c> if no form is found.
     /// </summary>
-    private static string FindFormAction(CssBox box)
+    private static string? FindFormAction(CssBox box)
     {
         var current = box.ParentBox;
         while (current != null)
@@ -1596,7 +1604,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     #region IHtmlContainerInt
 
-    void IHtmlContainerInt.ReportError(HtmlRenderErrorType type, string message, Exception exception)
+    void IHtmlContainerInt.ReportError(HtmlRenderErrorType type, string message, Exception? exception)
         => ReportError(type);
 
     BColor IHtmlContainerInt.SelectionForeColor => SelectionForeColor;
@@ -1608,18 +1616,18 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     PointF IHtmlContainerInt.RootLocation => Root?.Location ?? PointF.Empty;
 
-    BFont IHtmlContainerInt.GetFont(string family, double size, Graphics.Text.FontStyle style, string fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
+    BFont IHtmlContainerInt.GetFont(string family, double size, Graphics.Text.FontStyle style, string? fontFeatures) => Adapter.GetFont(family, size, style, fontFeatures);
 
     BColor IHtmlContainerInt.ParseColor(string colorStr) => ParseCssColor(colorStr);
 
     BImage IHtmlContainerInt.ConvertImage(object image) => Adapter.ConvertImage(image);
 
-    BImage IHtmlContainerInt.ImageFromStream(Stream stream) => Adapter.ImageFromStream(stream);
+    BImage? IHtmlContainerInt.ImageFromStream(Stream stream) => Adapter.ImageFromStream(stream);
 
-    void IHtmlContainerInt.DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception, bool> callback)
+    void IHtmlContainerInt.DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception?, bool> callback)
         => _imageDownloader?.DownloadImage(uri, filePath, async, (imageUri, fp, error, canceled) => callback(imageUri, fp, error, canceled));
 
-    IImageLoadHandler IHtmlContainerInt.CreateImageLoadHandler(ActionInt<BImage, RectangleF, bool> loadCompleteCallback)
+    IImageLoadHandler IHtmlContainerInt.CreateImageLoadHandler(ActionInt<BImage?, RectangleF, bool> loadCompleteCallback)
         => new ImageLoadHandler(this, loadCompleteCallback);
 
     HtmlStyleSet IHtmlContainerInt.StyleSet => _styleSet;
@@ -1654,7 +1662,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 ImageLoad = null;
             }
 
-            _styleSet = null;
+            _styleSet = Adapter.DefaultStyleSet;
 
             Root?.Dispose();
             Root = null;

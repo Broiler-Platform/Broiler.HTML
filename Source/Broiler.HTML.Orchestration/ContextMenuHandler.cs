@@ -24,10 +24,10 @@ internal sealed class ContextMenuHandler : IDisposable
     private readonly SelectionHandler _selectionHandler;
     private readonly HtmlContainerInt _htmlContainer;
     private readonly RAdapter _adapter;
-    private RContextMenu _contextMenu;
-    private RControl _parentControl;
-    private CssRect _currentRect;
-    private CssBox _currentLink;
+    private RContextMenu? _contextMenu;
+    private RControl? _parentControl;
+    private CssRect? _currentRect;
+    private CssBox? _currentLink;
 
     static ContextMenuHandler()
     {
@@ -163,7 +163,7 @@ internal sealed class ContextMenuHandler : IDisposable
         _adapter = (RAdapter)htmlContainer.Adapter;
     }
 
-    public void ShowContextMenu(RControl parent, CssRect rect, CssBox link)
+    public void ShowContextMenu(RControl parent, CssRect? rect, CssBox? link)
     {
         try
         {
@@ -192,7 +192,7 @@ internal sealed class ContextMenuHandler : IDisposable
                     _contextMenu.AddItem(_saveImage, rect.Image != null, OnSaveImageClick);
                     if (_htmlContainer.IsSelectionEnabled)
                     {
-                        _contextMenu.AddItem(_copyImageLink, !string.IsNullOrEmpty(_currentRect.OwnerBox.GetAttribute("src")), OnCopyImageLinkClick);
+                        _contextMenu.AddItem(_copyImageLink, !string.IsNullOrEmpty(rect.OwnerBox.GetAttribute("src")), OnCopyImageLinkClick);
                         _contextMenu.AddItem(_copyImage, rect.Image != null, OnCopyImageClick);
                     }
 
@@ -237,11 +237,12 @@ internal sealed class ContextMenuHandler : IDisposable
         }
     }
 
-    private void OnOpenLinkClick(object sender, EventArgs eventArgs)
+    private void OnOpenLinkClick(object? sender, EventArgs eventArgs)
     {
         try
         {
-            _htmlContainer.HandleLinkClicked(_parentControl, _parentControl.MouseLocation, _currentLink);
+            if (_parentControl != null && _currentLink != null)
+                _htmlContainer.HandleLinkClicked(_parentControl, _parentControl.MouseLocation, _currentLink);
         }
         catch (HtmlLinkClickedException)
         {
@@ -257,11 +258,12 @@ internal sealed class ContextMenuHandler : IDisposable
         }
     }
 
-    private void OnCopyLinkClick(object sender, EventArgs eventArgs)
+    private void OnCopyLinkClick(object? sender, EventArgs eventArgs)
     {
         try
         {
-            _adapter.SetToClipboard(_currentLink.HrefLink);
+            if (_currentLink != null)
+                _adapter.SetToClipboard(_currentLink.HrefLink);
         }
         catch (Exception)
         {
@@ -273,12 +275,15 @@ internal sealed class ContextMenuHandler : IDisposable
         }
     }
 
-    private void OnSaveImageClick(object sender, EventArgs eventArgs)
+    private void OnSaveImageClick(object? sender, EventArgs eventArgs)
     {
         try
         {
-            var imageSrc = _currentRect.OwnerBox.GetAttribute("src");
-            _adapter.SaveToFile((BImage)_currentRect.Image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
+            if (_currentRect != null)
+            {
+                var imageSrc = _currentRect.OwnerBox.GetAttribute("src");
+                _adapter.SaveToFile((BImage)_currentRect.Image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
+            }
         }
         catch (Exception)
         {
@@ -290,11 +295,12 @@ internal sealed class ContextMenuHandler : IDisposable
         }
     }
 
-    private void OnCopyImageLinkClick(object sender, EventArgs eventArgs)
+    private void OnCopyImageLinkClick(object? sender, EventArgs eventArgs)
     {
         try
         {
-            _adapter.SetToClipboard(_currentRect.OwnerBox.GetAttribute("src"));
+            if (_currentRect != null)
+                _adapter.SetToClipboard(_currentRect.OwnerBox.GetAttribute("src"));
         }
         catch (Exception)
         {
@@ -306,11 +312,12 @@ internal sealed class ContextMenuHandler : IDisposable
         }
     }
 
-    private void OnCopyImageClick(object sender, EventArgs eventArgs)
+    private void OnCopyImageClick(object? sender, EventArgs eventArgs)
     {
         try
         {
-            _adapter.SetToClipboard((BImage)_currentRect.Image);
+            if (_currentRect != null)
+                _adapter.SetToClipboard((BImage)_currentRect.Image);
         }
         catch (Exception)
         {
@@ -322,7 +329,7 @@ internal sealed class ContextMenuHandler : IDisposable
         }
     }
 
-    private void OnCopyClick(object sender, EventArgs eventArgs)
+    private void OnCopyClick(object? sender, EventArgs eventArgs)
     {
         try
         {
@@ -338,11 +345,12 @@ internal sealed class ContextMenuHandler : IDisposable
         }
     }
 
-    private void OnSelectAllClick(object sender, EventArgs eventArgs)
+    private void OnSelectAllClick(object? sender, EventArgs eventArgs)
     {
         try
         {
-            _selectionHandler.SelectAll(_parentControl);
+            if (_parentControl != null)
+                _selectionHandler.SelectAll(_parentControl);
         }
         catch (Exception)
         {

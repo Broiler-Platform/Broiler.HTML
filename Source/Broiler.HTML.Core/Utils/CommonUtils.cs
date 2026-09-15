@@ -61,9 +61,9 @@ internal static class CommonUtils
     // than this are also removed the first time a process uses the cache directory.
     private static readonly TimeSpan ImageCacheLifetime = TimeSpan.FromDays(1);
 
-    private static string _tempPath;
+    private static string? _tempPath;
 
-    public static Uri TryGetUri(string path)
+    public static Uri? TryGetUri(string path)
     {
         try
         {
@@ -80,7 +80,7 @@ internal static class CommonUtils
         return null;
     }
 
-    public static TValue GetFirstValueOrDefault<TKey, TValue>(IDictionary<TKey, TValue> dic, TValue defaultValue = default)
+    public static TValue? GetFirstValueOrDefault<TKey, TValue>(IDictionary<TKey, TValue>? dic, TValue? defaultValue = default)
     {
         if (dic != null)
         {
@@ -91,7 +91,7 @@ internal static class CommonUtils
         return defaultValue;
     }
 
-    public static FileInfo TryGetFileInfo(string path)
+    public static FileInfo? TryGetFileInfo(string path)
     {
         try
         {
@@ -105,7 +105,7 @@ internal static class CommonUtils
         return null;
     }
 
-    public static FileInfo GetLocalfileName(Uri imageUri)
+    public static FileInfo? GetLocalfileName(Uri imageUri)
     {
         StringBuilder fileNameBuilder = new();
         string absoluteUri = imageUri.AbsoluteUri;

@@ -36,7 +36,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
         // TODO:a remove this by creating better API.
         ConvertImageInt(image);
 
-    public BImage ImageFromStream(Stream memoryStream) => ImageFromStreamInt(memoryStream);
+    public BImage? ImageFromStream(Stream memoryStream) => ImageFromStreamInt(memoryStream);
 
     public bool IsFontExists(string font) => _fontsHandler.IsFontExists(font);
 
@@ -44,7 +44,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public void AddFontFamilyMapping(string fromFamily, string toFamily) => _fontsHandler.AddFontFamilyMapping(fromFamily, toFamily);
 
-    public BFont GetFont(string family, double size, FontStyle style, string fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
+    public BFont GetFont(string family, double size, FontStyle style, string? fontFeatures = null) => _fontsHandler.GetCachedFont(family, size, style, fontFeatures);
 
     public object GetClipboardDataObject(string html, string plainText) => GetClipboardDataObjectInt(html, plainText);
 
@@ -56,7 +56,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public RContextMenu GetContextMenu() => CreateContextMenuInt();
 
-    public void SaveToFile(BImage image, string name, string extension, RControl control = null) => SaveToFileInt(image, name, extension, control);
+    public void SaveToFile(BImage image, string name, string extension, RControl? control = null) => SaveToFileInt(image, name, extension, control);
 
     BFont IFontCreator.CreateFont(string family, double size, FontStyle style) => CreateFontInt(family, size, style);
 
@@ -72,7 +72,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     protected abstract BImage ConvertImageInt(object image);
 
-    protected abstract BImage ImageFromStreamInt(Stream memoryStream);
+    protected abstract BImage? ImageFromStreamInt(Stream memoryStream);
 
     protected abstract BFont CreateFontInt(string family, double size, FontStyle style);
 
@@ -88,7 +88,7 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     protected virtual RContextMenu CreateContextMenuInt() => throw new NotImplementedException();
 
-    protected virtual void SaveToFileInt(BImage image, string name, string extension, RControl control = null) => throw new NotImplementedException();
+    protected virtual void SaveToFileInt(BImage image, string name, string extension, RControl? control = null) => throw new NotImplementedException();
 
     /// <summary>
     /// Loads a font from a file path and registers it as an available font family.
@@ -97,5 +97,5 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
     /// <param name="path">Absolute path to a .ttf or .otf font file.</param>
     /// <param name="mapFromName">Optional CSS family name to map to the loaded font.</param>
     /// <returns>The loaded font family name, or <c>null</c> if loading failed.</returns>
-    public virtual string LoadFontFromFile(string path, string mapFromName = null) => null;
+    public virtual string? LoadFontFromFile(string path, string? mapFromName = null) => null;
 }
