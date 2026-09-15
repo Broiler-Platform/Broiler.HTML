@@ -13,7 +13,6 @@ using Broiler.HTML.Rendering.Handlers;
 using Broiler.HTML.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
@@ -79,6 +78,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     internal IAdapter Adapter { get; }
 
     public event EventHandler LoadComplete;
+    /// <summary>
+    /// Raised when a link or submit control is clicked. Setting
+    /// <see cref="HtmlLinkClickedEventArgs.Handled"/> stops the container scrolling to a
+    /// same-document fragment itself; opening any other target is always the host's job.
+    /// </summary>
     public event EventHandler<HtmlLinkClickedEventArgs> LinkClicked;
     public event EventHandler<HtmlRefreshEventArgs> Refresh;
     public event EventHandler<HtmlScrollEventArgs> ScrollChange;
@@ -1408,6 +1412,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (string.IsNullOrEmpty(targetUrl))
             return;
 
+        // Only same-document fragments are acted on here. Everything else used to go to
+        // Process.Start with UseShellExecute, which ran whatever a document linked to - a file: URL,
+        // a custom protocol handler - on any click no handler had marked handled.
         if (targetUrl == "#")
         {
             EventHandler<HtmlScrollEventArgs> scrollHandler = ScrollChange;
@@ -1429,13 +1436,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                     HandleMouseMove(parent, location);
                 }
             }
-        }
-        else
-        {
-            var href = ResolveHref(targetUrl);
-            var nfo = new ProcessStartInfo(href) { UseShellExecute = true };
-            Process.Start(nfo);
-
         }
     }
 
