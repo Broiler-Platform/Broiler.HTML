@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace Broiler.HTML.Core.Entities;
 
-public delegate void HtmlImageLoadCallback(string path, object? image, RectangleF imageRectangle, Uri baseUrl);
+public delegate void HtmlImageLoadCallback(string? path, object? image, RectangleF imageRectangle, Uri baseUrl);
 
 public sealed class HtmlImageLoadEventArgs : EventArgs
 {
@@ -22,6 +22,15 @@ public sealed class HtmlImageLoadEventArgs : EventArgs
     public Dictionary<string, string> Attributes { get; }
     public bool Handled { get; set; }
     public Uri BaseUri { get; set; }
+
+    /// <summary>
+    /// Marks the image as handled with no image to show, so the load completes without one.
+    /// </summary>
+    public void Callback()
+    {
+        Handled = true;
+        _callback(null, null, RectangleF.Empty, BaseUri);
+    }
 
     public void Callback(string path)
     {

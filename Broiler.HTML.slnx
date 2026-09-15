@@ -6,4 +6,5 @@
   <Project Path="Source/Broiler.HTML.Image.Compat/Broiler.HTML.Image.Compat.csproj" />
   <Project Path="Source/Broiler.HTML.Image/Broiler.HTML.Image.csproj" />
   <Project Path="Source/Broiler.HTML.Orchestration/Broiler.HTML.Orchestration.csproj" />
+  <Project Path="Source/Broiler.HTML.Tool/Broiler.HTML.Tool.csproj" />
 </Solution>
