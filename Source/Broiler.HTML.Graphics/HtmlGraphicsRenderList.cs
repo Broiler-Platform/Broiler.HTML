@@ -516,7 +516,7 @@ public static class HtmlGraphicsRenderListBuilder
         if (imageCache.TryGetValue(imageHandle, out BImageHandle cached))
             return cached;
 
-        if (!Image.HtmlRender.TryCreatePixelBuffer(imageHandle, out BPixelBuffer pixels))
+        if (!Image.HtmlRender.TryCreatePixelBuffer(imageHandle, out BPixelBuffer? pixels))
             return BImageHandle.Invalid;
 
         BImageHandle image = renderer.CreateImage(pixels);

@@ -59,15 +59,12 @@ internal sealed class DomParser
     {
         CssBox root;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
-            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer?.ContentDocumentResolver);
+            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer.ContentDocumentResolver);
         return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
     }
 
     private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
-        if (root == null)
-            return root;
-
         root.ContainerInt = htmlContainer;
         // Bind the layout environment at construction so font/colour and the
         // initial-containing-block inputs resolve through it (roadmap §4, Phase 4 prep).
@@ -78,9 +75,9 @@ internal sealed class DomParser
 
         // Resolve every stylesheet, inline declaration, generated pseudo-element,
         // animation, and ::selection rule through the shared model and style engine.
-        var viewport = htmlContainer?.ViewportSize ?? default;
+        var viewport = htmlContainer.ViewportSize;
         var canonicalDocument = SharedRendererCascade.FindCanonicalDocument(root);
-        Broiler.CSS.Dom.CssStyleEngine engine;
+        Broiler.CSS.Dom.CssStyleEngine? engine;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.CascadeResolve))
         {
             engine = SharedRendererCascade.BuildEngine(
@@ -176,7 +173,7 @@ internal sealed class DomParser
             // `HTMLLinkElement.disabled` / `HTMLStyleElement.disabled` (set from
             // script) are reflected onto the element as a `disabled` attribute, so
             // skip collecting rules from a <link>/<style> that carries it.
-            bool sheetDisabled = box.GetAttribute("disabled", null) != null;
+            bool sheetDisabled = box.HtmlTag.TryGetAttribute("disabled") != null;
 
             // Check for the <link rel=stylesheet> tag
             // Per CSS2.1 §6.4.1, the rel attribute is a space-separated list;
@@ -185,7 +182,7 @@ internal sealed class DomParser
                 box.HtmlTag.Name.Equals("link", StringComparison.OrdinalIgnoreCase) &&
                 ContainsStylesheetRel(box.GetAttribute("rel", string.Empty)))
             {
-                _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), (Dictionary<string, string>)box.HtmlTag.Attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet stylesheetModel);
+                _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), (Dictionary<string, string>)box.HtmlTag.Attributes, out string? stylesheet, out Broiler.CSS.CssStyleSheet? stylesheetModel);
                 if (stylesheet != null)
                     styleSet = styleSet.AppendAuthorStyleSheet(new Broiler.CSS.CssParser().ParseStyleSheet(stylesheet));
                 else if (stylesheetModel != null)
@@ -211,7 +208,7 @@ internal sealed class DomParser
         CssBox box,
         HtmlStyleSet styleSet,
         Uri baseUrl,
-        CSS.Dom.CssStyleEngine engine,
+        CSS.Dom.CssStyleEngine? engine,
         bool hasBeforeRules,
         bool hasAfterRules)
     {
@@ -377,7 +374,8 @@ internal sealed class DomParser
         // HTML §4.11.1: Closed <details> elements expose their first
         // <summary> but keep the rest of the subtree hidden until the open
         // attribute is present.
-        if (!box.HtmlTag.Name.Equals("details", StringComparison.OrdinalIgnoreCase) ||
+        if (box.HtmlTag == null ||
+            !box.HtmlTag.Name.Equals("details", StringComparison.OrdinalIgnoreCase) ||
             box.HtmlTag.HasAttribute("open"))
         {
             return;
@@ -400,7 +398,8 @@ internal sealed class DomParser
 
     private static void ApplySummaryDisclosureMarker(CssBox box, Uri baseUrl)
     {
-        if (!box.HtmlTag.Name.Equals("summary", StringComparison.OrdinalIgnoreCase) ||
+        if (box.HtmlTag == null ||
+            !box.HtmlTag.Name.Equals("summary", StringComparison.OrdinalIgnoreCase) ||
             box.ParentBox?.HtmlTag == null ||
             !box.ParentBox.HtmlTag.Name.Equals("details", StringComparison.OrdinalIgnoreCase))
         {
@@ -427,7 +426,7 @@ internal sealed class DomParser
     private static void SetTextSelectionStyle(
         HtmlContainerInt htmlContainer,
         CssBox root,
-        Broiler.CSS.Dom.CssStyleEngine engine)
+        Broiler.CSS.Dom.CssStyleEngine? engine)
     {
         htmlContainer.SelectionForeColor = BColor.Empty;
         htmlContainer.SelectionBackColor = BColor.Empty;
@@ -448,7 +447,7 @@ internal sealed class DomParser
     /// </summary>
     private static void ApplyPseudoElementBoxes(
         CssBox box,
-        Broiler.CSS.Dom.CssStyleEngine engine,
+        Broiler.CSS.Dom.CssStyleEngine? engine,
         Uri baseUrl,
         bool hasBeforeRules,
         bool hasAfterRules)
@@ -484,8 +483,8 @@ internal sealed class DomParser
         Uri baseUrl)
     {
         // Determine content value — skip generation for "none" and "normal".
-        string contentValue = null;
-        if (properties.TryGetValue("content", out string cv))
+        string? contentValue = null;
+        if (properties.TryGetValue("content", out string? cv))
             contentValue = cv;
 
         if (contentValue == null || contentValue == "none" || contentValue == "normal")
@@ -570,7 +569,7 @@ internal sealed class DomParser
     /// above ordinary page content — replacing the bridge's synthesized backdrop <c>&lt;div&gt;</c>
     /// (which mutated the box tree). A no-op on the baked path, where the marker is absent.
     /// </summary>
-    private static void GenerateNativeBackdrops(CssBox root, Broiler.CSS.Dom.CssStyleEngine engine, Uri baseUrl)
+    private static void GenerateNativeBackdrops(CssBox root, Broiler.CSS.Dom.CssStyleEngine? engine, Uri baseUrl)
     {
         // Collect first — inserting siblings mutates the parents' child lists.
         var targets = new List<CssBox>();
@@ -587,13 +586,13 @@ internal sealed class DomParser
             CollectBackdropTargets(child, targets);
     }
 
-    private static void CreateNativeBackdropBox(CssBox dialogBox, Broiler.CSS.Dom.CssStyleEngine engine, Uri baseUrl)
+    private static void CreateNativeBackdropBox(CssBox dialogBox, Broiler.CSS.Dom.CssStyleEngine? engine, Uri baseUrl)
     {
         var parent = dialogBox.ParentBox;
-        if (parent == null)
+        if (parent == null || dialogBox.HtmlTag == null)
             return;
 
-        var bg = dialogBox.HtmlTag.TryGetAttribute(BackdropBgAttr, "transparent");
+        var bg = dialogBox.HtmlTag.TryGetAttribute(BackdropBgAttr) ?? "transparent";
         int order = 0;
         var orderRaw = dialogBox.HtmlTag.TryGetAttribute(TopLayerOrderMarkerAttr);
         if (!string.IsNullOrEmpty(orderRaw))
@@ -851,7 +850,7 @@ internal sealed class DomParser
         // unparseable "autopx", which every consumer resolved to zero — an
         // `<svg width="auto">` collapsed to a zero-width box and painted nothing
         // instead of falling back to the element's auto sizing.
-        if (htmlLength != null && htmlLength.Trim().Equals(CssConstants.Auto, StringComparison.OrdinalIgnoreCase))
+        if (htmlLength.Trim().Equals(CssConstants.Auto, StringComparison.OrdinalIgnoreCase))
             return CssConstants.Auto;
 
         return CssLengthParser.IsValidLength(htmlLength)
@@ -947,7 +946,7 @@ internal sealed class DomParser
                 else
                 {
                     // remove text box that has no 
-                    childBox.ParentBox.Boxes.RemoveAt(i);
+                    box.Boxes.RemoveAt(i);
                 }
             }
             else
@@ -979,7 +978,7 @@ internal sealed class DomParser
                 bool fillsStretchedItem =
                     Broiler.Layout.Engine.FlexGridItemBlockification.IsStretchedColumnFlexItem(childBox);
 
-                var block = CssBoxHelper.CreateBlock(childBox.ParentBox, baseUrl, null, childBox);
+                var block = CssBoxHelper.CreateBlock(box, baseUrl, before: childBox);
                 childBox.ParentBox = block;
                 childBox.Display = CssConstants.Inline;
 
@@ -1438,7 +1437,7 @@ internal sealed class DomParser
         var cells = new List<CssBox>();
         foreach (var child in frameset.Boxes)
         {
-            string name = child.HtmlTag?.Name;
+            string? name = child.HtmlTag?.Name;
             if (string.Equals(name, "frame", StringComparison.OrdinalIgnoreCase)
                 || string.Equals(name, "frameset", StringComparison.OrdinalIgnoreCase))
                 cells.Add(child);
@@ -1643,7 +1642,7 @@ internal sealed class DomParser
         }
 
         int lastBr = -1;
-        CssBox brBox;
+        CssBox? brBox;
 
         do
         {
@@ -1729,11 +1728,12 @@ internal sealed class DomParser
                 while (tempRightBox != null)
                 {
                     // loop on the created temp right box for the fixed box until no more need (optimization remove recursion)
-                    CssBox newTempRightBox = null;
+                    CssBox? newTempRightBox = null;
                     if (LayoutBoxUtils.ContainsInlinesOnly(tempRightBox) && !ContainsInlinesOnlyDeep(tempRightBox))
                         newTempRightBox = CorrectBlockInsideInlineImp(tempRightBox, baseUrl);
 
-                    tempRightBox.ParentBox.SetAllBoxes(tempRightBox);
+                    var tempParent = tempRightBox.ParentBox ?? throw new InvalidOperationException("Split box has no parent box.");
+                    tempParent.SetAllBoxes(tempRightBox);
                     tempRightBox.ParentBox = null;
                     tempRightBox = newTempRightBox;
                 }
@@ -1781,7 +1781,7 @@ internal sealed class DomParser
     /// Rearrange the DOM of the box to have block box with boxes before the inner block box and after.
     /// </summary>
     /// <param name="box">the box that has the problem</param>
-    private static CssBox CorrectBlockInsideInlineImp(CssBox box, Uri baseUrl)
+    private static CssBox? CorrectBlockInsideInlineImp(CssBox box, Uri baseUrl)
     {
         // CSS2.1 §9.2.1.1: When an inline element contains a block-level
         // child, the inline is broken around the block into anonymous block
@@ -1861,7 +1861,7 @@ internal sealed class DomParser
             if (box.Boxes.Count > minBoxes)
             {
                 // create temp box to handle the tail elements and then get them back so no deep hierarchy is created
-                var tempRightBox = CssBoxHelper.CreateBox(box, baseUrl, null, box.Boxes[minBoxes]);
+                var tempRightBox = CssBoxHelper.CreateBox(box, baseUrl, before: box.Boxes[minBoxes]);
                 while (box.Boxes.Count > minBoxes + 1)
                     box.Boxes[minBoxes + 1].ParentBox = tempRightBox;
 
@@ -1912,7 +1912,7 @@ internal sealed class DomParser
         if (badBox.Position is CssConstants.Relative or CssConstants.Absolute or CssConstants.Fixed)
             posAncestor = badBox;
 
-        CssBox leftbox = null;
+        CssBox? leftbox = null;
         while (badBox.Boxes[0].IsInline && ContainsInlinesOnlyDeep(badBox.Boxes[0]))
         {
             if (leftbox == null)
@@ -2016,7 +2016,7 @@ internal sealed class DomParser
             {
                 if (box.Boxes[i].IsInline)
                 {
-                    var newbox = CssBoxHelper.CreateBlock(box, baseUrl, null, box.Boxes[i++]);
+                    var newbox = CssBoxHelper.CreateBlock(box, baseUrl, before: box.Boxes[i++]);
                     while (i < box.Boxes.Count && box.Boxes[i].IsInline)
                         box.Boxes[i].ParentBox = newbox;
                 }

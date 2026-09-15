@@ -27,7 +27,7 @@ namespace Broiler.HTML.Dom;
 /// </remarks>
 internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayoutEnvironment
 {
-    private BGraphics _graphics;
+    private BGraphics? _graphics;
 
     // CSS default object size for a replaced element with no intrinsic size
     // (CSS Images §5.3 / CSS2 §10.3.2).
@@ -37,15 +37,17 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
     /// <summary>Sets the graphics surface for the current layout pass (used by text measurement).</summary>
     public void SetGraphics(BGraphics graphics) => _graphics = graphics;
 
+    private BGraphics Graphics => _graphics ?? throw new InvalidOperationException("No graphics surface has been set for the current layout pass.");
+
     public ILayoutFont GetFont(string family, double size, LayoutFontStyle style, string? fontFeatures = null)
         => container.GetFont(family, size, (FontStyle)(int)style, fontFeatures);
 
-    public SizeF MeasureText(ILayoutFont font, string text) => _graphics.MeasureString(text, (BFont)font);
+    public SizeF MeasureText(ILayoutFont font, string text) => Graphics.MeasureString(text, (BFont)font);
 
     public void MeasureText(ILayoutFont font, string text, double maxWidth, out int charFit, out double charFitWidth)
-        => _graphics.MeasureString(text, (BFont)font, maxWidth, out charFit, out charFitWidth);
+        => Graphics.MeasureString(text, (BFont)font, maxWidth, out charFit, out charFitWidth);
 
-    public double GetWhitespaceWidth(ILayoutFont font) => ((BFont)font).GetWhitespaceWidth(_graphics);
+    public double GetWhitespaceWidth(ILayoutFont font) => ((BFont)font).GetWhitespaceWidth(Graphics);
 
     public ImageIntrinsics GetImageIntrinsics(object imageHandle)
     {
@@ -116,7 +118,7 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
 
         public void LoadImage(string src, IReadOnlyDictionary<string, string>? attributes, Uri baseUrl) =>
             handler.LoadImage(src, attributes as Dictionary<string, string> ?? 
-                (attributes is null ? null : new Dictionary<string, string>(attributes)), baseUrl);
+                (attributes is null ? new Dictionary<string, string>() : new Dictionary<string, string>(attributes)), baseUrl);
 
         public void Dispose() => handler.Dispose();
     }

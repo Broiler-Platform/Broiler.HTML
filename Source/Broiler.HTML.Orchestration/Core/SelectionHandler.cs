@@ -17,8 +17,8 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
     private readonly RAdapter _adapter;
     private readonly ContextMenuHandler _contextMenuHandler;
     private PointF _selectionStartPoint;
-    private CssRect _selectionStart;
-    private CssRect _selectionEnd;
+    private CssRect? _selectionStart;
+    private CssRect? _selectionEnd;
     private int _selectionStartIndex = -1;
     private int _selectionEndIndex = -1;
     private double _selectionStartOffset = -1;
@@ -30,7 +30,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
     private bool _mouseDownOnSelectedWord;
     private bool _cursorChanged;
     private DateTime _lastMouseDown;
-    private object _dragDropData;
+    private object? _dragDropData;
 
     public SelectionHandler(CssBox root)
     {
@@ -216,8 +216,8 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
             _adapter.SetToClipboard(html, plainText);
     }
 
-    public string GetSelectedText() => _htmlContainer.IsSelectionEnabled ? DomUtils.GetSelectedPlainText(_root) : null;
-    public string GetSelectedHtml() => _htmlContainer.IsSelectionEnabled ? DomUtils.GenerateHtml(_root, HtmlGenerationStyle.Inline, true) : null;
+    public string? GetSelectedText() => _htmlContainer.IsSelectionEnabled ? DomUtils.GetSelectedPlainText(_root) : null;
+    public string? GetSelectedHtml() => _htmlContainer.IsSelectionEnabled ? DomUtils.GenerateHtml(_root, HtmlGenerationStyle.Inline, true) : null;
     public int GetSelectingStartIndex(CssRect word) => word == (_backwardSelection ? _selectionEnd : _selectionStart) ? (_backwardSelection ? _selectionEndIndex : _selectionStartIndex) : -1;
     public int GetSelectedEndIndexOffset(CssRect word) => word == (_backwardSelection ? _selectionStart : _selectionEnd) ? (_backwardSelection ? _selectionStartIndex : _selectionEndIndex) : -1;
     public double GetSelectedStartOffset(CssRect word) => word == (_backwardSelection ? _selectionEnd : _selectionStart) ? (_backwardSelection ? _selectionEndOffset : _selectionStartOffset) : -1;
@@ -286,7 +286,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         
         if (CheckNonEmptySelection(loc, allowPartialSelect))
         {
-            CheckSelectionDirection();
+            CheckSelectionDirection(_selectionStart, _selectionEnd);
             SelectWordsInRange(_root, _backwardSelection ? _selectionEnd : _selectionStart, _backwardSelection ? _selectionStart : _selectionEnd);
         }
         else
@@ -414,19 +414,19 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         }
     }
 
-    private void CheckSelectionDirection()
+    private void CheckSelectionDirection(CssRect selectionStart, CssRect selectionEnd)
     {
-        if (_selectionStart == _selectionEnd)
+        if (selectionStart == selectionEnd)
         {
             _backwardSelection = _selectionStartIndex > _selectionEndIndex;
         }
-        else if (DomUtils.GetCssLineBoxByWord(_selectionStart) == DomUtils.GetCssLineBoxByWord(_selectionEnd))
+        else if (DomUtils.GetCssLineBoxByWord(selectionStart) == DomUtils.GetCssLineBoxByWord(selectionEnd))
         {
-            _backwardSelection = _selectionStart.Left > _selectionEnd.Left;
+            _backwardSelection = selectionStart.Left > selectionEnd.Left;
         }
         else
         {
-            _backwardSelection = _selectionStart.Top >= _selectionEnd.Bottom;
+            _backwardSelection = selectionStart.Top >= selectionEnd.Bottom;
         }
     }
 }

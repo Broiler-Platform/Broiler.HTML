@@ -17,7 +17,7 @@ internal interface IAdapter : IColorResolver
     /// <summary>
     /// Gets a cached font for the specified family, size, and style.
     /// </summary>
-    BFont GetFont(string family, double size, FontStyle style, string fontFeatures = null);
+    BFont GetFont(string family, double size, FontStyle style, string? fontFeatures = null);
 
     /// <summary>
     /// Converts a platform-specific image object to an <see cref="BImage"/>.
@@ -27,7 +27,7 @@ internal interface IAdapter : IColorResolver
     /// <summary>
     /// Creates an <see cref="BImage"/> from a stream.
     /// </summary>
-    BImage ImageFromStream(Stream stream);
+    BImage? ImageFromStream(Stream stream);
 
     /// <summary>
     /// Loads a font from a file path and registers it as an available font family.
@@ -35,5 +35,5 @@ internal interface IAdapter : IColorResolver
     /// <param name="path">Absolute path to a font file.</param>
     /// <param name="mapFromName">Optional CSS family name to map to the loaded font.</param>
     /// <returns>The loaded font family name, or <c>null</c> if loading failed.</returns>
-    string LoadFontFromFile(string path, string mapFromName = null);
+    string? LoadFontFromFile(string path, string? mapFromName = null);
 }

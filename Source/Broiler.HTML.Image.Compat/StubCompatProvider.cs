@@ -36,7 +36,7 @@ internal sealed class StubCompatProvider : ICompatProvider
         int height,
         Func<int, int, BColor> readPrimaryPixel,
         Action<int, int, BColor> writePrimaryPixel,
-        object initialBitmap = null,
+        object? initialBitmap = null,
         bool ownsBitmap = true) =>
         new StubBitmapCompatSurface();
 }

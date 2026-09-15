@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace Broiler.HTML.Core.Entities;
 
-public delegate void HtmlImageLoadCallback(string path, object image, RectangleF imageRectangle, Uri baseUrl);
+public delegate void HtmlImageLoadCallback(string path, object? image, RectangleF imageRectangle, Uri baseUrl);
 
 public sealed class HtmlImageLoadEventArgs : EventArgs
 {

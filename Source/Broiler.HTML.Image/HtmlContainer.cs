@@ -123,16 +123,16 @@ public sealed class HtmlContainer : IDisposable
     /// When set, relative paths (e.g. <c>./page.html</c>, <c>../section/index.html</c>)
     /// are resolved against this URL before navigation.
     /// </summary>
-    public string BaseUrl
+    public string? BaseUrl
     {
         get => HtmlContainerInt.BaseUrl;
         set => HtmlContainerInt.BaseUrl = value;
     }
 
     [Obsolete("Use SetHtmlWithStyleSet.")]
-    public void SetHtml(string htmlSource, CssData baseCssData = null, string baseUrl = null) => HtmlContainerInt.SetHtml(htmlSource, baseCssData, baseUrl);
+    public void SetHtml(string htmlSource, CssData? baseCssData = null, string? baseUrl = null) => HtmlContainerInt.SetHtml(htmlSource, baseCssData, baseUrl);
 
-    public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet baseStyleSet = null, string baseUrl = null) =>
+    public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
         HtmlContainerInt.SetHtmlWithStyleSet(htmlSource, baseStyleSet, baseUrl);
 
     /// <summary>
@@ -140,10 +140,10 @@ public sealed class HtmlContainer : IDisposable
     /// snapshot is rebuilt lazily when the document version changes.
     /// </summary>
     [Obsolete("Use SetDocumentWithStyleSet.")]
-    public void SetDocument(Broiler.Dom.DomDocument document, CssData baseCssData = null, string baseUrl = null) =>
+    public void SetDocument(Broiler.Dom.DomDocument document, CssData? baseCssData = null, string? baseUrl = null) =>
         HtmlContainerInt.SetDocument(document, baseCssData, baseUrl);
 
-    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet baseStyleSet = null, string baseUrl = null) =>
+    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
         HtmlContainerInt.SetDocumentWithStyleSet(document, baseStyleSet, baseUrl);
 
     /// <summary>
@@ -152,7 +152,7 @@ public sealed class HtmlContainer : IDisposable
     /// DOM→box builder so a severed sub-document (no in-tree <c>#subdoc-root</c> child) is still
     /// projected into the box tree. Null on the renderer's own parse paths.
     /// </summary>
-    public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument> ContentDocumentResolver
+    public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument?>? ContentDocumentResolver
     {
         get => HtmlContainerInt.ContentDocumentResolver;
         set => HtmlContainerInt.ContentDocumentResolver = value;
@@ -160,18 +160,18 @@ public sealed class HtmlContainer : IDisposable
 
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => HtmlContainerInt.GetHtml(styleGen);
 
-    public string GetAttributeAt(PointF location, string attribute) => HtmlContainerInt.GetAttributeAt(location, attribute);
+    public string? GetAttributeAt(PointF location, string attribute) => HtmlContainerInt.GetAttributeAt(location, attribute);
 
-    public FormInputElementData<RectangleF> GetEditableInputAt(PointF location) =>
+    public FormInputElementData<RectangleF>? GetEditableInputAt(PointF location) =>
         HtmlContainerInt.GetEditableInputAt(location);
 
-    public FormInputElementData<RectangleF> GetEditableInputAtDocumentPoint(PointF documentLocation) =>
+    public FormInputElementData<RectangleF>? GetEditableInputAtDocumentPoint(PointF documentLocation) =>
         HtmlContainerInt.GetEditableInputAtDocumentPoint(documentLocation);
 
     public bool SetEditableInputValueAtDocumentPoint(PointF documentLocation, string value) =>
         HtmlContainerInt.SetEditableInputValueAtDocumentPoint(documentLocation, value);
 
-    public string GetLinkAt(PointF location) => HtmlContainerInt.GetLinkAt(location);
+    public string? GetLinkAt(PointF location) => HtmlContainerInt.GetLinkAt(location);
 
     public void PerformLayout()
     {

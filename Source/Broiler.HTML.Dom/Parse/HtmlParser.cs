@@ -104,7 +104,7 @@ internal static class HtmlParser
         if (node is not DomElement element)
             return;
 
-        Dictionary<string, string> attrs = null;
+        Dictionary<string, string>? attrs = null;
         if (element.Attributes.Count > 0)
         {
             attrs = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);

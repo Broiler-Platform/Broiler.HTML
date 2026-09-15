@@ -274,7 +274,8 @@ public sealed class BBitmap : IDisposable
             onDispose: SyncPixelsFromCompatBitmapIfMaterialized,
             initialCanvasOperation: static (canvas, state) =>
             {
-                var offset = (PointF)state;
+                // The state is always the boxed `translation` passed below, never null.
+                var offset = (PointF)state!;
                 CompatCanvasOperations.Save(canvas);
                 CompatCanvasOperations.Translate(canvas, offset.X, offset.Y);
             },

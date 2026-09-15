@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using Broiler.Graphics;
@@ -33,7 +34,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
     /// </summary>
     private readonly Dictionary<(string Family, bool Bold, bool Italic), TrueTypeFont> _installed = new();
 
-    private TrueTypeFont _fallback;
+    private TrueTypeFont? _fallback;
     private bool _fallbackLoaded;
 
     /// <summary>
@@ -41,7 +42,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
     /// families.  Loaded lazily from the embedded resource; <c>null</c> if the
     /// resource is missing or fails to parse.
     /// </summary>
-    private TrueTypeFont GetFallbackFont()
+    private TrueTypeFont? GetFallbackFont()
     {
         lock (_sync)
         {
@@ -69,7 +70,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
         }
     }
 
-    public string RegisterFontFile(string path, string alias = null)
+    public string? RegisterFontFile(string path, string? alias = null)
     {
         if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             return null;
@@ -123,7 +124,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
         // Unregistered/default family: fall back to the bundled font so that
         // text still renders glyphs (instead of nothing).  Returns
         // MissingTypeface only if the bundled font is unavailable.
-        return (object)GetFallbackFont() ?? MissingTypeface.Instance;
+        return (object?)GetFallbackFont() ?? MissingTypeface.Instance;
     }
 
     /// <summary>
@@ -132,7 +133,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
     /// does not have, or a file with no outlines this backend can rasterise, caches nothing and
     /// lets the bundled fallback answer.
     /// </summary>
-    private TrueTypeFont TryLoadInstalledFace(string family, FontStyle style)
+    private TrueTypeFont? TryLoadInstalledFace(string family, FontStyle style)
     {
         bool bold = (style & FontStyle.Bold) != 0;
         bool italic = (style & FontStyle.Italic) != 0;
@@ -325,7 +326,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         return canvas.IsRowBandCulled(point.Y - em, point.Y + (em * 2f));
     }
 
-    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string features = null, float glyphRotationDeg = 0f)
+    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string? features = null, float glyphRotationDeg = 0f)
     {
         float penX = point.X;
         float baselineY = point.Y + ttf.Ascender * scale;
@@ -411,7 +412,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         canvas.FillGlyphContours(userContours, color);
     }
 
-    private static float MeasureAdvances(TrueTypeFont ttf, string text, float scale, string features = null)
+    private static float MeasureAdvances(TrueTypeFont ttf, string text, float scale, string? features = null)
     {
         float width = 0f;
 
@@ -432,7 +433,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         return width;
     }
 
-    private static bool TryGetFont(FontAdapter font, out TrueTypeFont ttf, out float scale)
+    private static bool TryGetFont(FontAdapter font, [NotNullWhen(true)] out TrueTypeFont? ttf, out float scale)
     {
         if (font.Typeface is TrueTypeFont parsed && parsed.HasOutlines)
         {

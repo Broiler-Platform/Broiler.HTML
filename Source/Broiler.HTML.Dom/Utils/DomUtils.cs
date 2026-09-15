@@ -31,20 +31,20 @@ internal sealed class DomUtils
         return false;
     }
 
-    public static string GetAttribute(CssBox box, string attribute)
+    public static string? GetAttribute(CssBox? box, string attribute)
     {
-        string value = null;
+        string? value = null;
 
         while (box != null && value == null)
         {
-            value = box.GetAttribute(attribute, null);
+            value = box.HtmlTag?.TryGetAttribute(attribute);
             box = box.ParentBox;
         }
 
         return value;
     }
 
-    public static CssBox GetCssBox(CssBox box, PointF location, bool visible = true)
+    public static CssBox? GetCssBox(CssBox? box, PointF location, bool visible = true)
     {
         if (box == null || visible && box.Visibility != CssConstants.Visible || !box.Bounds.IsEmpty && !box.Bounds.Contains(location))
             return null;
@@ -58,7 +58,7 @@ internal sealed class DomUtils
         return null;
     }
 
-    public static void GetAllLinkBoxes(CssBox box, List<CssBox> linkBoxes)
+    public static void GetAllLinkBoxes(CssBox? box, List<CssBox> linkBoxes)
     {
         if (box == null)
             return;
@@ -70,7 +70,7 @@ internal sealed class DomUtils
             GetAllLinkBoxes(childBox, linkBoxes);
     }
 
-    public static CssBox GetLinkBox(CssBox box, PointF location)
+    public static CssBox? GetLinkBox(CssBox? box, PointF location)
     {
         if (box == null)
             return null;
@@ -94,7 +94,7 @@ internal sealed class DomUtils
         return null;
     }
 
-    public static CssBox GetBoxById(CssBox box, string id)
+    public static CssBox? GetBoxById(CssBox? box, string id)
     {
         if (box == null || string.IsNullOrEmpty(id))
             return null;
@@ -112,9 +112,9 @@ internal sealed class DomUtils
         return null;
     }
 
-    public static CssLineBox GetCssLineBox(CssBox box, PointF location)
+    public static CssLineBox? GetCssLineBox(CssBox? box, PointF location)
     {
-        CssLineBox line = null;
+        CssLineBox? line = null;
 
         if (box == null)
             return line;
@@ -143,7 +143,7 @@ internal sealed class DomUtils
         return line;
     }
 
-    public static CssRect GetCssBoxWord(CssBox box, PointF location)
+    public static CssRect? GetCssBoxWord(CssBox? box, PointF location)
     {
         if (box == null || box.Visibility != CssConstants.Visible)
             return null;
@@ -171,7 +171,7 @@ internal sealed class DomUtils
         return null;
     }
 
-    public static CssRect GetCssBoxWord(CssLineBox lineBox, PointF location)
+    public static CssRect? GetCssBoxWord(CssLineBox lineBox, PointF location)
     {
         foreach (var rects in lineBox.Rectangles)
         {
@@ -192,7 +192,7 @@ internal sealed class DomUtils
     {
         var box = word.OwnerBox;
         while (box.LineBoxes.Count == 0)
-            box = box.ParentBox;
+            box = box.ParentBox ?? throw new InvalidOperationException("Word is not inside a box with line boxes.");
 
         foreach (var lineBox in box.LineBoxes)
         {
@@ -213,14 +213,21 @@ internal sealed class DomUtils
         return sb.ToString(0, lastWordIndex).Trim();
     }
 
-    public static string GenerateHtml(CssBox root, HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline, bool onlySelected = false)
+    public static string GenerateHtml(CssBox? root, HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline, bool onlySelected = false)
     {
         var sb = new StringBuilder();
 
         if (root != null)
         {
-            var selectedBoxes = onlySelected ? CollectSelectedBoxes(root) : null;
-            var selectionRoot = onlySelected ? GetSelectionRoot(root, selectedBoxes) : null;
+            Dictionary<CssBox, bool>? selectedBoxes = null;
+            CssBox? selectionRoot = null;
+
+            if (onlySelected)
+            {
+                selectedBoxes = CollectSelectedBoxes(root);
+                selectionRoot = GetSelectionRoot(root, selectedBoxes);
+            }
+
             WriteHtml(sb, root, styleGen, selectedBoxes, selectionRoot);
         }
 
@@ -344,7 +351,7 @@ internal sealed class DomUtils
         while (true)
         {
             bool foundRoot = false;
-            CssBox selectedChild = null;
+            CssBox? selectedChild = null;
 
             foreach (var childBox in selectionRootRun.Boxes)
             {
@@ -374,11 +381,12 @@ internal sealed class DomUtils
         if (ContainsNamedBox(selectionRoot))
             return selectionRoot;
 
+        // The tree root has no parent to go up to; it then stays the selection root.
         selectionRootRun = selectionRoot.ParentBox;
-        while (selectionRootRun.ParentBox != null && selectionRootRun.HtmlTag == null)
+        while (selectionRootRun is { ParentBox: not null, HtmlTag: null })
             selectionRootRun = selectionRootRun.ParentBox;
 
-        if (selectionRootRun.HtmlTag != null)
+        if (selectionRootRun?.HtmlTag != null)
             selectionRoot = selectionRootRun;
 
         return selectionRoot;
@@ -395,14 +403,14 @@ internal sealed class DomUtils
         return false;
     }
 
-    private static void WriteHtml(StringBuilder sb, CssBox box, HtmlGenerationStyle styleGen, Dictionary<CssBox, bool> selectedBoxes, CssBox selectionRoot)
+    private static void WriteHtml(StringBuilder sb, CssBox box, HtmlGenerationStyle styleGen, Dictionary<CssBox, bool>? selectedBoxes, CssBox? selectionRoot)
     {
         if (box.HtmlTag != null && selectedBoxes != null && !selectedBoxes.ContainsKey(box))
             return;
 
         if (box.HtmlTag != null)
         {
-            if (box.HtmlTag.Name != "link" || !box.HtmlTag.Attributes.TryGetValue("href", out string value) ||
+            if (box.HtmlTag.Name != "link" || !box.HtmlTag.Attributes.TryGetValue("href", out string? value) ||
                 (!value.StartsWith("property", StringComparison.Ordinal) && !value.StartsWith("method", StringComparison.Ordinal)))
             {
                 WriteHtmlTag(sb, box, styleGen);
@@ -443,6 +451,9 @@ internal sealed class DomUtils
 
     private static void WriteHtmlTag(StringBuilder sb, CssBox box, HtmlGenerationStyle styleGen)
     {
+        if (box.HtmlTag == null)
+            throw new InvalidOperationException("Only a box with an HTML tag is written as a tag.");
+
         sb.Append($"<{box.HtmlTag.Name}");
 
         // Preserve authored inline declarations. Stylesheet rules remain represented by

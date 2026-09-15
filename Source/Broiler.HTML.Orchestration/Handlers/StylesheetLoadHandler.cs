@@ -18,7 +18,7 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         _htmlContainer = htmlContainer;
     }
 
-    public void LoadStylesheet(string src, Dictionary<string, string> attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet styleSheet)
+    public void LoadStylesheet(string src, Dictionary<string, string> attributes, out string? stylesheet, out Broiler.CSS.CssStyleSheet? styleSheet)
     {
         stylesheet = null;
         styleSheet = null;
@@ -219,7 +219,7 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
                 var offset2 = stylesheet[endIdx - 1] == '\'' ? 1 : 0;
                 var urlStr = stylesheet.Substring(idx + offset1, endIdx - idx - offset1 - offset2);
 
-                if (Uri.TryCreate(urlStr, UriKind.Relative, out Uri url))
+                if (Uri.TryCreate(urlStr, UriKind.Relative, out Uri? url))
                 {
                     url = new Uri(baseUri, url);
                     stylesheet = stylesheet.Remove(idx + 4, endIdx - idx - 4);

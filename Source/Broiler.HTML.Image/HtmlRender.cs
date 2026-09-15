@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Orchestration;
@@ -115,10 +116,10 @@ public static class HtmlRender
     [Obsolete("Use RenderToImageWithStyleSet.")]
     public static BBitmap RenderToImage(string html, int width, int height,
         BColor backgroundColor = default,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
-        string baseUrl = null) =>
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null) =>
         RenderToImageCore(
             html,
             width,
@@ -132,10 +133,10 @@ public static class HtmlRender
     [Obsolete("Use RenderToImageAutoSizedWithStyleSet.")]
     public static BBitmap RenderToImageAutoSized(string html, int maxWidth = 0, int maxHeight = 0,
         BColor backgroundColor = default,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
-        string baseUrl = null) =>
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null) =>
         RenderToImageAutoSizedCore(
             html,
             maxWidth,
@@ -149,10 +150,10 @@ public static class HtmlRender
     [Obsolete("Use RenderToImageAtAnchorWithStyleSet.")]
     public static BBitmap? RenderToImageAtAnchor(string html, string elementId, int width, int height,
         BColor backgroundColor = default,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
-        string baseUrl = null) =>
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null) =>
         RenderToImageAtAnchorCore(
             html,
             elementId,
@@ -167,9 +168,9 @@ public static class HtmlRender
     [Obsolete("Use RenderToPngWithStyleSet.")]
     public static byte[] RenderToPng(string html, int width, int height,
         BColor backgroundColor,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null)
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null)
         => RenderToPngCore(html, width, height, backgroundColor, GetStyleSet(cssData), stylesheetLoad, imageLoad);
 
     [Obsolete("Use RenderToFileWithStyleSet.")]
@@ -177,9 +178,9 @@ public static class HtmlRender
         ImageEncodeFormat format,
         int quality = 90,
         BColor backgroundColor = default,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null, string baseUrl = null)
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null, string? baseUrl = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
@@ -202,10 +203,10 @@ public static class HtmlRender
         ImageEncodeFormat format = ImageEncodeFormat.Png,
         int quality = 90,
         BColor backgroundColor = default,
-        CssData cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad = null,
-        string baseUrl = null)
+        CssData? cssData = null,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
+        string? baseUrl = null)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath);
 
@@ -235,10 +236,10 @@ public static class HtmlRender
     /// <returns>
     /// The font's own family name, or <c>null</c> if loading failed.
     /// </returns>
-    public static string LoadFontFromFile(string path, string cssName = null)
+    public static string? LoadFontFromFile(string path, string? cssName = null)
         => CompatProvider.ImageAdapter.LoadFontFromFile(path, cssName);
 
-    public static bool TryCreatePixelBuffer(object imageHandle, out BPixelBuffer pixelBuffer)
+    public static bool TryCreatePixelBuffer(object imageHandle, [MaybeNullWhen(false)] out BPixelBuffer pixelBuffer)
     {
         if (imageHandle is ImageAdapter imageAdapter)
         {
@@ -256,10 +257,10 @@ public static class HtmlRender
 
     private static BBitmap RenderToImageCore(string html, int width, int height,
         BColor? backgroundColor,
-        HtmlStyleSet styleSet,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad,
-        string baseUrl,
+        HtmlStyleSet? styleSet,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad,
+        string? baseUrl,
         int embedDepth = 0,
         float viewportZoom = 1f)
     {
@@ -327,8 +328,8 @@ public static class HtmlRender
     private static void CompositeEmbeddedDocuments(
         Layout.IR.Fragment fragment,
         BBitmap target,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad,
         int embedDepth)
     {
         if (!string.IsNullOrEmpty(fragment.EmbeddedDocumentHtml))
@@ -429,10 +430,10 @@ public static class HtmlRender
 
     private static BBitmap RenderToImageAutoSizedCore(string html, int maxWidth, int maxHeight,
         BColor? backgroundColor,
-        HtmlStyleSet styleSet,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad,
-        string baseUrl)
+        HtmlStyleSet? styleSet,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad,
+        string? baseUrl)
     {
         if (string.IsNullOrEmpty(html))
             return new BBitmap(1, 1);
@@ -479,9 +480,9 @@ public static class HtmlRender
 
     private static byte[] RenderToPngCore(string html, int width, int height,
         BColor? backgroundColor,
-        HtmlStyleSet styleSet,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad)
+        HtmlStyleSet? styleSet,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad)
     {
         using var bitmap = RenderToImageCore(html, width, height, backgroundColor, styleSet, stylesheetLoad, imageLoad, null);
         return bitmap.Encode(ImageEncodeFormat.Png, 100);
@@ -489,10 +490,10 @@ public static class HtmlRender
 
     private static BBitmap? RenderToImageAtAnchorCore(string html, string elementId, int width, int height,
         BColor? backgroundColor,
-        HtmlStyleSet styleSet,
-        EventHandler<HtmlStylesheetLoadEventArgs> stylesheetLoad,
-        EventHandler<HtmlImageLoadEventArgs> imageLoad,
-        string baseUrl)
+        HtmlStyleSet? styleSet,
+        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad,
+        EventHandler<HtmlImageLoadEventArgs>? imageLoad,
+        string? baseUrl)
     {
         ArgumentException.ThrowIfNullOrEmpty(elementId);
 

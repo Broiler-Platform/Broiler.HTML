@@ -17,7 +17,7 @@ internal interface ISelectionHandler : IDisposable
     void SelectWord(object parent, PointF loc);
     void SelectAll(object parent);
     void CopySelectedHtml();
-    string GetSelectedText();
-    string GetSelectedHtml();
+    string? GetSelectedText();
+    string? GetSelectedHtml();
     void ClearSelection();
 }
