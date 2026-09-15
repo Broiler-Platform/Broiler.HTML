@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using Broiler.Graphics;
 using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
@@ -504,7 +505,7 @@ internal static partial class PaintWalker
         // back on top.
         if (negativeZ != null && !skipBlockBackgrounds)
         {
-            negativeZ.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
+            SortByStackLevel(negativeZ);
             foreach (var child in negativeZ)
                 PaintPositionedChild(child);
         }
@@ -554,7 +555,7 @@ internal static partial class PaintWalker
         // painted above the in-flow content.
         if (positioned != null)
         {
-            positioned.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
+            SortByStackLevel(positioned);
             foreach (var child in positioned)
                 PaintPositionedChild(child);
         }
@@ -764,7 +765,7 @@ internal static partial class PaintWalker
         }
         if (negativeZ != null)
         {
-            negativeZ.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
+            SortByStackLevel(negativeZ);
             foreach (var child in negativeZ)
             {
                 if (child.Style.Position == "fixed" && viewport.Width > 0 && viewport.Height > 0)
@@ -933,12 +934,28 @@ internal static partial class PaintWalker
 
         if (positioned != null)
         {
-            positioned.Sort((a, b) => a.StackLevel.CompareTo(b.StackLevel));
+            SortByStackLevel(positioned);
             foreach (var child in positioned)
             {
                 var skipBg = propagatedFrom ?? (earlyBgFragments != null && earlyBgFragments.Contains(child) ? child : null);
                 PaintFragment(child, items, skipBg, viewport, bgClipTextColor: bgClipTextColor);
             }
         }
+    }
+
+    /// <summary>
+    /// Orders one stacking context's children by stack level. CSS 2.1 Appendix E paints children
+    /// of equal stack level in tree order, which is the order these lists are collected in.
+    /// <c>List.Sort</c> is not stable and reordered them - three elements are enough, two
+    /// <c>z-index: 1</c> siblings after a <c>z-index: 0</c> one - while <c>OrderBy</c> is.
+    /// </summary>
+    private static void SortByStackLevel(List<Fragment> fragments)
+    {
+        if (fragments.Count < 2)
+            return;
+
+        var ordered = fragments.OrderBy(fragment => fragment.StackLevel).ToArray();
+        for (int i = 0; i < ordered.Length; i++)
+            fragments[i] = ordered[i];
     }
 }
