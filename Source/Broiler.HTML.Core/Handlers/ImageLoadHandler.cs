@@ -72,7 +72,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     }
 
 
-    private void OnHtmlImageLoadEventCallback(string path, object? image, RectangleF imageRectangle, Uri baseUrl)
+    private void OnHtmlImageLoadEventCallback(string? path, object? image, RectangleF imageRectangle, Uri baseUrl)
     {
         if (_disposed)
             return;
