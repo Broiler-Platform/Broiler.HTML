@@ -729,10 +729,10 @@ internal sealed class StubImageAdapter : RAdapter
     /// </summary>
     private static double ParseSvgLengthAttribute(string tag, string name)
     {
-        // Match name="value" but avoid matching longer attribute names
-        // (e.g. "width" should not match "stroke-width").
+        // Match name="value" but not a longer attribute ending in it: "stroke-width" must not be
+        // read as "width". '-' is not a word character, so the look-behind has to name it.
         var m = System.Text.RegularExpressions.Regex.Match(
-            tag, @"(?<!\w)" + name + @"\s*=\s*[""']([^""']+)[""']",
+            tag, @"(?<![\w-])" + name + @"\s*=\s*[""']([^""']+)[""']",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (!m.Success) return -1;
 
@@ -774,14 +774,14 @@ internal sealed class StubImageAdapter : RAdapter
 
         var rectTag = rectMatches[0].Value;
         bool fillsViewport =
-            System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"\bwidth\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
-            && System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"\bheight\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"(?<![\w-])width\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            && System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"(?<![\w-])height\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (!fillsViewport)
             return false;
 
         var fillMatch = System.Text.RegularExpressions.Regex.Match(
             rectTag,
-            @"\bfill\s*=\s*[""']([^""']+)[""']",
+            @"(?<![\w-])fill\s*=\s*[""']([^""']+)[""']",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (!fillMatch.Success)
             return false;
