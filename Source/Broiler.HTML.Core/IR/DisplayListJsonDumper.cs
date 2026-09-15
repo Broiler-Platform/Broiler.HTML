@@ -159,6 +159,7 @@ public static class DisplayListJsonDumper
             case RestoreOpacityItem:
             case RestoreBlendModeItem:
             case RestoreTransformItem:
+            case RestoreFilterItem:
                 // No additional properties; keep bounds as the final field.
                 break;
 
@@ -169,6 +170,11 @@ public static class DisplayListJsonDumper
 
             case BlendModeItem blend:
                 sb.Append(pad2).Append("\"mode\": \"").Append(EscapeJsonString(blend.Mode)).Append('"');
+                sb.AppendLine();
+                break;
+
+            case FilterItem filter:
+                sb.Append(pad2).Append("\"filter\": \"").Append(EscapeJsonString(filter.Filter)).Append('"');
                 sb.AppendLine();
                 break;
 
@@ -285,9 +291,10 @@ public static class DisplayListJsonDumper
 
     private static bool HasExtraProperties(DisplayItem item) => item switch
     {
-        RestoreItem or RestoreOpacityItem or RestoreBlendModeItem or RestoreTransformItem => false,
+        RestoreItem or RestoreOpacityItem or RestoreBlendModeItem or RestoreTransformItem
+            or RestoreFilterItem => false,
         FillRectItem or DrawBorderItem or DrawTextItem or DrawImageItem or DrawTiledImageItem
-            or ClipItem or OpacityItem or BlendModeItem or DrawLineItem or DrawTiledGradientItem
+            or ClipItem or OpacityItem or BlendModeItem or FilterItem or DrawLineItem or DrawTiledGradientItem
             or TransformItem or DrawSvgRectItem or DrawSvgEllipseItem or DrawSvgTextItem
             or DrawSvgLineItem or DrawSvgPolygonItem or DrawSvgPolylineItem => true,
         _ => false
@@ -306,6 +313,8 @@ public static class DisplayListJsonDumper
         RestoreOpacityItem => "RestoreOpacity",
         BlendModeItem => "BlendMode",
         RestoreBlendModeItem => "RestoreBlendMode",
+        FilterItem => "Filter",
+        RestoreFilterItem => "RestoreFilter",
         DrawLineItem => "DrawLine",
         DrawTiledGradientItem => "DrawTiledGradient",
         TransformItem => "Transform",

@@ -187,11 +187,28 @@ internal static partial class PaintWalker
             }
         }
 
+        // CSS Compositing §3: mix-blend-mode creates a compositing layer
+        // that blends with the backdrop using the specified blend mode.
+        // CSS Compositing §3.1: The root element's mix-blend-mode must not
+        // be applied when compositing with the canvas (root uses normal).
+        // Blending is the last step (Compositing 1 §3: filter, clip, mask, opacity, then blend),
+        // so this layer wraps the filter and opacity layers. Nested inside them it composited
+        // into their still-empty surface instead of the backdrop, and blended with nothing:
+        // multiply and screen painted as normal. It stays inside the transform, whose layer the
+        // raster path cannot hold (IsRasterCompatibleItem).
+        bool hasBlendMode = !isRoot
+            && !string.IsNullOrEmpty(style.MixBlendMode)
+            && !style.MixBlendMode.Equals("normal", StringComparison.OrdinalIgnoreCase);
+        if (hasBlendMode)
+        {
+            items.Add(new BlendModeItem { Bounds = bounds, Mode = style.MixBlendMode });
+        }
+
         // Filter Effects §1: a non-none `filter` renders the element into a compositing group
         // that the filter is applied to. Only the colour-matrix functions are modelled here
         // (invert/grayscale/brightness/contrast/sepia/saturate/opacity/hue-rotate); a filter with
         // none of those (e.g. blur only) is left to render unfiltered rather than emitting an
-        // effect-free layer. Wraps opacity/blend so it filters the element's composited result.
+        // effect-free layer. Wraps opacity so it filters the element's composited result.
         bool hasFilter = !isRoot
             && !string.IsNullOrEmpty(style.Filter)
             && !style.Filter.Equals("none", StringComparison.OrdinalIgnoreCase)
@@ -209,18 +226,6 @@ internal static partial class PaintWalker
         if (hasOpacity)
         {
             items.Add(new OpacityItem { Bounds = bounds, Opacity = fragmentOpacity });
-        }
-
-        // CSS Compositing §3: mix-blend-mode creates a compositing layer
-        // that blends with the backdrop using the specified blend mode.
-        // CSS Compositing §3.1: The root element's mix-blend-mode must not
-        // be applied when compositing with the canvas (root uses normal).
-        bool hasBlendMode = !isRoot
-            && !string.IsNullOrEmpty(style.MixBlendMode)
-            && !style.MixBlendMode.Equals("normal", StringComparison.OrdinalIgnoreCase);
-        if (hasBlendMode)
-        {
-            items.Add(new BlendModeItem { Bounds = bounds, Mode = style.MixBlendMode });
         }
 
         // CSS Compositing §2.2: isolation: isolate creates an isolation group.
@@ -347,10 +352,6 @@ internal static partial class PaintWalker
         if (!asInlineContent)
             EmitOutline(fragment, items);
 
-        // Restore blend mode layer (must come after clip restore, before opacity restore)
-        if (hasBlendMode)
-            items.Add(new RestoreBlendModeItem { Bounds = bounds });
-
         // Restore isolation layer
         if (hasIsolation)
             items.Add(new RestoreBlendModeItem { Bounds = bounds });
@@ -360,9 +361,13 @@ internal static partial class PaintWalker
             items.Add(new RestoreOpacityItem { Bounds = bounds });
 
 
-        // Restore filter layer (wraps opacity/blend, applied to the composited element)
+        // Restore filter layer (wraps opacity, applied to the composited element)
         if (hasFilter)
             items.Add(new RestoreFilterItem { Bounds = bounds });
+
+        // Restore blend mode layer (wraps filter and opacity: blending comes last)
+        if (hasBlendMode)
+            items.Add(new RestoreBlendModeItem { Bounds = bounds });
         // Restore transform layer (outermost layer)
         if (hasTransform)
             items.Add(new RestoreTransformItem { Bounds = bounds });

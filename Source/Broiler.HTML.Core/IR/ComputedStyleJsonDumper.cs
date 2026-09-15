@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.Json;
 
+using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
 
 namespace Broiler.HTML.Core.IR;
@@ -65,6 +66,7 @@ public static class ComputedStyleJsonDumper
         double number => Round(number),
         decimal number => decimal.Round(number, 2),
         Enum enumValue => enumValue.ToString(),
+        BColor color => ColorToString(color),
         Color color => ColorToString(color),
         BoxEdges edges => new SortedDictionary<string, object?>(StringComparer.Ordinal)
         {
@@ -85,6 +87,17 @@ public static class ComputedStyleJsonDumper
     }
 
     private static double? Round(double value) => double.IsFinite(value) ? Math.Round(value, 2) : null;
+
+    // Computed colors are BColor since layout moved to Broiler.Layout; without this they fell
+    // through to ToString() and dumped as "#FF000000". Same format as the System.Drawing branch.
+    private static string? ColorToString(BColor color)
+    {
+        if (color.IsEmpty)
+            return null;
+        if (color.A == 255)
+            return string.Create(CultureInfo.InvariantCulture, $"#{color.R:X2}{color.G:X2}{color.B:X2}");
+        return string.Create(CultureInfo.InvariantCulture, $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
+    }
 
     private static string? ColorToString(Color color)
     {
