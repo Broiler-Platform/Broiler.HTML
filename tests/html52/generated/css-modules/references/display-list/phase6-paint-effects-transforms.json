@@ -63,14 +63,14 @@
       "cornerSwY": 0
     },
     {
-      "$type": "Opacity",
-      "bounds": { "x": 40, "y": 44, "width": 166, "height": 96 },
-      "opacity": 0.76
-    },
-    {
       "$type": "BlendMode",
       "bounds": { "x": 40, "y": 44, "width": 166, "height": 96 },
       "mode": "multiply"
+    },
+    {
+      "$type": "Opacity",
+      "bounds": { "x": 40, "y": 44, "width": 166, "height": 96 },
+      "opacity": 0.76
     },
     {
       "$type": "FillRect",
@@ -79,13 +79,13 @@
     },
     {
       "$type": "DrawText",
-      "bounds": { "x": 66, "y": 74, "width": 53.77, "height": 18.56 },
+      "bounds": { "x": 48, "y": 52, "width": 50.65, "height": 18.56 },
       "text": "Opacity",
       "fontFamily": "serif",
       "fontSize": 16,
-      "fontWeight": "normal",
+      "fontWeight": "400",
       "color": "#212529",
-      "origin": { "x": 66, "y": 74 },
+      "origin": { "x": 48, "y": 52 },
       "isRtl": false,
       "glyphRotationDeg": 0,
       "textShadowOffsetX": 0,
@@ -93,23 +93,28 @@
       "textShadowColor": "#00000000",
       "gradientAngle": 180,
       "gradientInterpolationSpace": "srgb",
-      "gradientBounds": { "x": 66, "y": 74, "width": 53.77, "height": 18.56 },
+      "gradientBounds": { "x": 48, "y": 52, "width": 50.65, "height": 18.56 },
       "gradientStops": []
-    },
-    {
-      "$type": "RestoreBlendMode",
-      "bounds": { "x": 40, "y": 44, "width": 166, "height": 96 }
     },
     {
       "$type": "RestoreOpacity",
       "bounds": { "x": 40, "y": 44, "width": 166, "height": 96 }
     },
     {
+      "$type": "RestoreBlendMode",
+      "bounds": { "x": 40, "y": 44, "width": 166, "height": 96 }
+    },
+    {
       "$type": "Transform",
       "bounds": { "x": 146, "y": 64, "width": 166, "height": 96 },
       "matrix": [1.07, 0.13, -0.13, 1.07, 18, -8],
-      "originX": 229,
-      "originY": 112
+      "originX": 166,
+      "originY": 82
+    },
+    {
+      "$type": "Filter",
+      "bounds": { "x": 146, "y": 64, "width": 166, "height": 96 },
+      "filter": "brightness(1.08) contrast(.92)"
     },
     {
       "$type": "FillRect",
@@ -118,13 +123,13 @@
     },
     {
       "$type": "DrawText",
-      "bounds": { "x": 278, "y": 114, "width": 74.91, "height": 18.56 },
+      "bounds": { "x": 154, "y": 72, "width": 67.53, "height": 18.56 },
       "text": "Transform",
       "fontFamily": "serif",
       "fontSize": 16,
-      "fontWeight": "normal",
+      "fontWeight": "400",
       "color": "#212529",
-      "origin": { "x": 278, "y": 114 },
+      "origin": { "x": 154, "y": 72 },
       "isRtl": false,
       "glyphRotationDeg": 0,
       "textShadowOffsetX": 0,
@@ -132,8 +137,12 @@
       "textShadowColor": "#00000000",
       "gradientAngle": 180,
       "gradientInterpolationSpace": "srgb",
-      "gradientBounds": { "x": 278, "y": 114, "width": 74.91, "height": 18.56 },
+      "gradientBounds": { "x": 154, "y": 72, "width": 67.53, "height": 18.56 },
       "gradientStops": []
+    },
+    {
+      "$type": "RestoreFilter",
+      "bounds": { "x": 146, "y": 64, "width": 166, "height": 96 }
     },
     {
       "$type": "RestoreTransform",
@@ -145,19 +154,24 @@
       "mode": "screen"
     },
     {
+      "$type": "Filter",
+      "bounds": { "x": 272, "y": 86, "width": 166, "height": 96 },
+      "filter": "saturate(1.2) opacity(.9)"
+    },
+    {
       "$type": "FillRect",
       "bounds": { "x": 272, "y": 86, "width": 166, "height": 96 },
       "color": "#FF8787"
     },
     {
       "$type": "DrawText",
-      "bounds": { "x": 530, "y": 158, "width": 35.77, "height": 18.56 },
+      "bounds": { "x": 280, "y": 94, "width": 34.66, "height": 18.56 },
       "text": "Filter",
       "fontFamily": "serif",
       "fontSize": 16,
-      "fontWeight": "normal",
+      "fontWeight": "400",
       "color": "#212529",
-      "origin": { "x": 530, "y": 158 },
+      "origin": { "x": 280, "y": 94 },
       "isRtl": false,
       "glyphRotationDeg": 0,
       "textShadowOffsetX": 0,
@@ -165,8 +179,12 @@
       "textShadowColor": "#00000000",
       "gradientAngle": 180,
       "gradientInterpolationSpace": "srgb",
-      "gradientBounds": { "x": 530, "y": 158, "width": 35.77, "height": 18.56 },
+      "gradientBounds": { "x": 280, "y": 94, "width": 34.66, "height": 18.56 },
       "gradientStops": []
+    },
+    {
+      "$type": "RestoreFilter",
+      "bounds": { "x": 272, "y": 86, "width": 166, "height": 96 }
     },
     {
       "$type": "RestoreBlendMode",
@@ -204,11 +222,11 @@
     },
     {
       "$type": "DrawText",
-      "bounds": { "x": 30, "y": 232, "width": 19.49, "height": 18.56 },
+      "bounds": { "x": 30, "y": 232, "width": 19.55, "height": 18.56 },
       "text": "3D",
       "fontFamily": "serif",
       "fontSize": 16,
-      "fontWeight": "normal",
+      "fontWeight": "400",
       "color": "#000000",
       "origin": { "x": 30, "y": 232 },
       "isRtl": false,
@@ -218,18 +236,18 @@
       "textShadowColor": "#00000000",
       "gradientAngle": 180,
       "gradientInterpolationSpace": "srgb",
-      "gradientBounds": { "x": 30, "y": 232, "width": 19.49, "height": 18.56 },
+      "gradientBounds": { "x": 30, "y": 232, "width": 19.55, "height": 18.56 },
       "gradientStops": []
     },
     {
       "$type": "DrawText",
-      "bounds": { "x": 53.79, "y": 232, "width": 70.59, "height": 18.56 },
+      "bounds": { "x": 53.55, "y": 232, "width": 62.2, "height": 18.56 },
       "text": "transform",
       "fontFamily": "serif",
       "fontSize": 16,
-      "fontWeight": "normal",
+      "fontWeight": "400",
       "color": "#000000",
-      "origin": { "x": 53.79, "y": 232 },
+      "origin": { "x": 53.55, "y": 232 },
       "isRtl": false,
       "glyphRotationDeg": 0,
       "textShadowOffsetX": 0,
@@ -237,18 +255,18 @@
       "textShadowColor": "#00000000",
       "gradientAngle": 180,
       "gradientInterpolationSpace": "srgb",
-      "gradientBounds": { "x": 53.79, "y": 232, "width": 70.59, "height": 18.56 },
+      "gradientBounds": { "x": 53.55, "y": 232, "width": 62.2, "height": 18.56 },
       "gradientStops": []
     },
     {
       "$type": "DrawText",
-      "bounds": { "x": 128.68, "y": 232, "width": 41, "height": 18.56 },
+      "bounds": { "x": 119.76, "y": 232, "width": 36.43, "height": 18.56 },
       "text": "probe",
       "fontFamily": "serif",
       "fontSize": 16,
-      "fontWeight": "normal",
+      "fontWeight": "400",
       "color": "#000000",
-      "origin": { "x": 128.68, "y": 232 },
+      "origin": { "x": 119.76, "y": 232 },
       "isRtl": false,
       "glyphRotationDeg": 0,
       "textShadowOffsetX": 0,
@@ -256,7 +274,7 @@
       "textShadowColor": "#00000000",
       "gradientAngle": 180,
       "gradientInterpolationSpace": "srgb",
-      "gradientBounds": { "x": 128.68, "y": 232, "width": 41, "height": 18.56 },
+      "gradientBounds": { "x": 119.76, "y": 232, "width": 36.43, "height": 18.56 },
       "gradientStops": []
     }
   ]
