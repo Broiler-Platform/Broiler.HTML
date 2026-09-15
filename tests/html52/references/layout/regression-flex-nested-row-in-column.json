@@ -2,7 +2,7 @@
   "x": 0,
   "y": 0,
   "width": 800,
-  "height": 70,
+  "height": 60,
   "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
   "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
   "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
@@ -14,7 +14,7 @@
       "x": 0,
       "y": 0,
       "width": 800,
-      "height": 70,
+      "height": 60,
       "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
       "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
       "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
@@ -67,7 +67,7 @@
           "x": 0,
           "y": 0,
           "width": 800,
-          "height": 70,
+          "height": 60,
           "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
           "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
           "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
@@ -79,7 +79,7 @@
               "x": 0,
               "y": 0,
               "width": 700,
-              "height": 70,
+              "height": 60,
               "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
               "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
               "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
@@ -88,7 +88,7 @@
               "lines": [
                 {
                   "x": 0,
-                  "y": 10,
+                  "y": 0,
                   "width": 700,
                   "height": 60,
                   "baseline": 0,
@@ -106,7 +106,7 @@
               "children": [
                 {
                   "x": 0,
-                  "y": 10,
+                  "y": 0,
                   "width": 700,
                   "height": 60,
                   "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },

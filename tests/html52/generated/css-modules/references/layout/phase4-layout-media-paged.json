@@ -130,7 +130,7 @@
                 {
                   "x": 30,
                   "y": 18,
-                  "width": 146,
+                  "width": 186,
                   "height": 38,
                   "margin": { "top": 0, "right": 0, "bottom": 0, "left": 12 },
                   "border": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
@@ -197,14 +197,14 @@
                         {
                           "x": 27,
                           "y": 111,
-                          "width": 77.11,
+                          "width": 75.97,
                           "height": 20.88,
                           "baseline": 0,
                           "inlines": [
                             {
                               "x": 27,
                               "y": 111,
-                              "width": 77.11,
+                              "width": 75.97,
                               "height": 20.88,
                               "text": "Fragment"
                             }
@@ -214,7 +214,7 @@
                       "children": [
                         {
                           "x": 0,
-                          "y": 0,
+                          "y": 8,
                           "width": 0,
                           "height": 0,
                           "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
@@ -241,42 +241,42 @@
                         {
                           "x": 27,
                           "y": 139,
-                          "width": 251.03,
+                          "width": 224.81,
                           "height": 18.56,
                           "baseline": 0,
                           "inlines": [
                             {
                               "x": 27,
                               "y": 139,
-                              "width": 44.8,
+                              "width": 39.99,
                               "height": 18.56,
                               "text": "Stable"
                             },
                             {
-                              "x": 76.09,
+                              "x": 70.99,
                               "y": 139,
-                              "width": 101.05,
+                              "width": 89.74,
                               "height": 18.56,
                               "text": "fragmentation"
                             },
                             {
-                              "x": 181.44,
+                              "x": 164.73,
                               "y": 139,
-                              "width": 41,
+                              "width": 36.43,
                               "height": 18.56,
                               "text": "probe"
                             },
                             {
-                              "x": 226.73,
+                              "x": 205.16,
                               "y": 139,
-                              "width": 26.89,
+                              "width": 23.99,
                               "height": 18.56,
                               "text": "text"
                             },
                             {
-                              "x": 257.92,
+                              "x": 233.16,
                               "y": 139,
-                              "width": 20.11,
+                              "width": 18.66,
                               "height": 18.56,
                               "text": "for"
                             }
@@ -285,35 +285,35 @@
                         {
                           "x": 27,
                           "y": 159,
-                          "width": 179.03,
+                          "width": 160.84,
                           "height": 18.56,
                           "baseline": 0,
                           "inlines": [
                             {
                               "x": 27,
                               "y": 159,
-                              "width": 43.34,
+                              "width": 39.99,
                               "height": 18.56,
                               "text": "layout"
                             },
                             {
-                              "x": 74.64,
+                              "x": 70.99,
                               "y": 159,
-                              "width": 26.56,
+                              "width": 23.1,
                               "height": 18.56,
                               "text": "and"
                             },
                             {
-                              "x": 105.5,
+                              "x": 98.09,
                               "y": 159,
-                              "width": 45.67,
+                              "width": 40.86,
                               "height": 18.56,
                               "text": "render"
                             },
                             {
-                              "x": 155.47,
+                              "x": 142.95,
                               "y": 159,
-                              "width": 50.56,
+                              "width": 44.89,
                               "height": 18.56,
                               "text": "output."
                             }
@@ -323,7 +323,7 @@
                       "children": [
                         {
                           "x": 0,
-                          "y": 0,
+                          "y": 8,
                           "width": 0,
                           "height": 0,
                           "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
