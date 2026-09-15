@@ -9,10 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="$(BroilerDomRoot)\Broiler.Dom\Broiler.Dom.csproj" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.11" />
   </ItemGroup>
 
   <ItemGroup>

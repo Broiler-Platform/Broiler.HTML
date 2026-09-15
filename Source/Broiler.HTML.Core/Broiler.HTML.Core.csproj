@@ -10,11 +10,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="$(BroilerCssRoot)\Broiler.CSS\Broiler.CSS.csproj" />
-    <!-- Phase 1 item 4: resolve the canonical Broiler.Graphics kernel through
-         $(BroilerGraphicsPath) (this submodule's nested checkout for standalone builds; the
-         single root checkout in the main solution) instead of a hard-coded ..\..\.. path. -->
-    <ProjectReference Include="$(BroilerGraphicsPath)" />
-    <ProjectReference Include="$(BroilerLayoutRoot)\Broiler.Layout\Broiler.Layout.csproj" />
+    <PackageReference Include="Broiler.CSS" Version="0.1.0-preview.2" />
+    <PackageReference Include="Broiler.Graphics" Version="0.1.0-preview.3" />
+    <PackageReference Include="Broiler.Layout" Version="0.1.0-preview.2" />
   </ItemGroup>
 </Project>

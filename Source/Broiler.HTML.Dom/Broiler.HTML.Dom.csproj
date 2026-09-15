@@ -5,11 +5,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="$(BroilerDomRoot)\Broiler.Dom.Html\Broiler.Dom.Html.csproj" />
-    <ProjectReference Include="$(BroilerCssRoot)\Broiler.CSS\Broiler.CSS.csproj" />
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Broiler.Dom.Html" Version="0.1.0-preview.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
