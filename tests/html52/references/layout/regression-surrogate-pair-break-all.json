@@ -2,7 +2,7 @@
   "x": 0,
   "y": 0,
   "width": 800,
-  "height": 84,
+  "height": 104,
   "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
   "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
   "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
@@ -14,7 +14,7 @@
       "x": 0,
       "y": 0,
       "width": 800,
-      "height": 84,
+      "height": 104,
       "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
       "border": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
       "padding": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
@@ -89,21 +89,21 @@
                 {
                   "x": 33,
                   "y": 37,
-                  "width": 26.3,
+                  "width": 34.01,
                   "height": 27.84,
                   "baseline": 0,
                   "inlines": [
                     {
                       "x": 33,
                       "y": 37,
-                      "width": 10.64,
+                      "width": 18,
                       "height": 27.84,
                       "text": "😀"
                     },
                     {
-                      "x": 43.64,
+                      "x": 51,
                       "y": 37,
-                      "width": 15.66,
+                      "width": 16.01,
                       "height": 27.84,
                       "text": "A"
                     }
@@ -113,7 +113,7 @@
               "children": [
                 {
                   "x": 0,
-                  "y": 0,
+                  "y": 4,
                   "width": 0,
                   "height": 0,
                   "margin": { "top": 0, "right": 0, "bottom": 0, "left": 0 },
