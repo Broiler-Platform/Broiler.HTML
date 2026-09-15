@@ -1523,8 +1523,29 @@ internal sealed class BCanvas(BBitmap bitmap) : IDisposable
             return;
 
         var destination = bitmap.GetPixel(x, y);
-        var blendedSource = ApplyBlendMode(source, destination, blendMode);
+        var blendedSource = MixWithBackdropAlpha(source, ApplyBlendMode(source, destination, blendMode), destination.A);
         bitmap.SetPixel(x, y, CompositeSourceOver(blendedSource, destination));
+    }
+
+    // Compositing and Blending 1 §5: a blend result only counts as far as there is a backdrop,
+    // Cs' = (1 - αb)·Cs + αb·B(Cb, Cs). ApplyBlendMode computes B from the backdrop's colour
+    // whatever its alpha, so over a transparent layer `multiply` blended with black. For the
+    // "normal" mode B is the source itself, and an opaque backdrop keeps the result unchanged.
+    private static BColor MixWithBackdropAlpha(BColor source, BColor blended, byte backdropAlpha)
+    {
+        if (backdropAlpha == 255)
+            return blended;
+
+        if (backdropAlpha == 0)
+            return source;
+
+        int inverse = 255 - backdropAlpha;
+        return new BColor(
+            // +127 is the integer equivalent of adding 0.5 before dividing by 255.
+            (byte)((inverse * source.R + backdropAlpha * blended.R + 127) / 255),
+            (byte)((inverse * source.G + backdropAlpha * blended.G + 127) / 255),
+            (byte)((inverse * source.B + backdropAlpha * blended.B + 127) / 255),
+            source.A);
     }
 
     private static BColor ApplyBlendMode(BColor source, BColor destination, string blendMode)

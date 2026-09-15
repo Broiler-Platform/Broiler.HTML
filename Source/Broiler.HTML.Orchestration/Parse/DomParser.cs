@@ -396,6 +396,12 @@ internal sealed class DomParser
         }
     }
 
+    // CSS Lists names ▾ (U+25BE) and ▸ (U+25B8) for disclosure-open/closed, but common fonts
+    // (Arial, Times New Roman) have neither and nothing falls back per glyph, so they drew as
+    // empty boxes. ▼ (U+25BC) and ► (U+25BA) are in the WGL4 set those fonts do cover.
+    private const string OpenDisclosureMarker = "▼ ";
+    private const string ClosedDisclosureMarker = "► ";
+
     private static void ApplySummaryDisclosureMarker(CssBox box, Uri baseUrl)
     {
         if (box.HtmlTag == null ||
@@ -409,13 +415,13 @@ internal sealed class DomParser
         if (box.Boxes.Count > 0 &&
             box.Boxes[0].HtmlTag == null &&
             box.Boxes[0].Text.Length > 0 &&
-            (box.Boxes[0].Text.Span.SequenceEqual("▸ ".AsSpan()) ||
-             box.Boxes[0].Text.Span.SequenceEqual("▾ ".AsSpan())))
+            (box.Boxes[0].Text.Span.SequenceEqual(ClosedDisclosureMarker.AsSpan()) ||
+             box.Boxes[0].Text.Span.SequenceEqual(OpenDisclosureMarker.AsSpan())))
         {
             return;
         }
 
-        var markerText = box.ParentBox.HtmlTag.HasAttribute("open") ? "▾ " : "▸ ";
+        var markerText = box.ParentBox.HtmlTag.HasAttribute("open") ? OpenDisclosureMarker : ClosedDisclosureMarker;
         var markerBox = box.Boxes.Count > 0
             ? CssBoxHelper.CreateBox(box, baseUrl, before: box.Boxes[0])
             : CssBoxHelper.CreateBox(box, baseUrl);
@@ -850,8 +856,17 @@ internal sealed class DomParser
         // unparseable "autopx", which every consumer resolved to zero — an
         // `<svg width="auto">` collapsed to a zero-width box and painted nothing
         // instead of falling back to the element's auto sizing.
-        if (htmlLength.Trim().Equals(CssConstants.Auto, StringComparison.OrdinalIgnoreCase))
+        var trimmed = htmlLength.Trim();
+        if (trimmed.Equals(CssConstants.Auto, StringComparison.OrdinalIgnoreCase))
             return CssConstants.Auto;
+
+        // HTML dimension attributes (width, height, border, cellspacing, cellpadding, hspace,
+        // vspace) give a bare number in CSS pixels. IsValidLength accepts that bare number as a
+        // CSS length, so it went through without a unit and resolved to zero: cellspacing="6"
+        // produced no spacing at all.
+        if (double.TryParse(trimmed, System.Globalization.NumberStyles.AllowDecimalPoint,
+                System.Globalization.CultureInfo.InvariantCulture, out _))
+            return $"{trimmed}px";
 
         return CssLengthParser.IsValidLength(htmlLength)
             ? htmlLength
