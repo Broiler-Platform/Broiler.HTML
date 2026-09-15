@@ -167,7 +167,7 @@ internal sealed class DomParser
         // `:host(:focus) { background-color: #ccc }` in a template, and Broiler painted 99% of the
         // canvas #ccc against a reference that is 98% white.
         if (box.HtmlTag != null &&
-            box.HtmlTag.Name.Equals("template", StringComparison.CurrentCultureIgnoreCase))
+            box.HtmlTag.Name.Equals("template", StringComparison.OrdinalIgnoreCase))
             return;
 
         if (box.HtmlTag != null)
@@ -182,7 +182,7 @@ internal sealed class DomParser
             // Per CSS2.1 §6.4.1, the rel attribute is a space-separated list;
             // match if any token equals "stylesheet" (e.g. rel="appendix stylesheet").
             if (!sheetDisabled &&
-                box.HtmlTag.Name.Equals("link", StringComparison.CurrentCultureIgnoreCase) &&
+                box.HtmlTag.Name.Equals("link", StringComparison.OrdinalIgnoreCase) &&
                 ContainsStylesheetRel(box.GetAttribute("rel", string.Empty)))
             {
                 _stylesheetLoader.LoadStylesheet(box.GetAttribute("href", string.Empty), (Dictionary<string, string>)box.HtmlTag.Attributes, out string stylesheet, out Broiler.CSS.CssStyleSheet stylesheetModel);
@@ -194,7 +194,7 @@ internal sealed class DomParser
 
             // Check for the <style> tag
             if (!sheetDisabled &&
-                box.HtmlTag.Name.Equals("style", StringComparison.CurrentCultureIgnoreCase) && box.Boxes.Count > 0)
+                box.HtmlTag.Name.Equals("style", StringComparison.OrdinalIgnoreCase) && box.Boxes.Count > 0)
             {
                 foreach (var child in box.Boxes)
                     styleSet = styleSet.AppendAuthorStyleSheet(
@@ -752,15 +752,15 @@ internal sealed class DomParser
             {
                 case HtmlConstants.Align:
                     if (value == HtmlConstants.Left || value == HtmlConstants.Center || value == HtmlConstants.Right || value == HtmlConstants.Justify)
-                        box.TextAlign = value.ToLower();
+                        box.TextAlign = value.ToLowerInvariant();
                     else
-                        box.VerticalAlign = value.ToLower();
+                        box.VerticalAlign = value.ToLowerInvariant();
                     break;
                 case HtmlConstants.Background:
-                    box.BackgroundImage = value.ToLower();
+                    box.BackgroundImage = value.ToLowerInvariant();
                     break;
                 case HtmlConstants.Bgcolor:
-                    box.BackgroundColor = value.ToLower();
+                    box.BackgroundColor = value.ToLowerInvariant();
                     break;
                 case HtmlConstants.Border:
                     if (!string.IsNullOrEmpty(value) && value != "0")
@@ -786,7 +786,7 @@ internal sealed class DomParser
                     }
                     break;
                 case HtmlConstants.Bordercolor:
-                    box.BorderLeftColor = box.BorderTopColor = box.BorderRightColor = box.BorderBottomColor = value.ToLower();
+                    box.BorderLeftColor = box.BorderTopColor = box.BorderRightColor = box.BorderBottomColor = value.ToLowerInvariant();
                     break;
                 case HtmlConstants.Cellspacing:
                     box.BorderSpacing = TranslateLength(value);
@@ -796,10 +796,10 @@ internal sealed class DomParser
                     ApplyTablePadding(box, value);
                     break;
                 case HtmlConstants.Color:
-                    box.Color = value.ToLower();
+                    box.Color = value.ToLowerInvariant();
                     break;
                 case HtmlConstants.Dir:
-                    box.Direction = value.ToLower();
+                    box.Direction = value.ToLowerInvariant();
                     break;
                 case HtmlConstants.Face:
                     box.FontFamily = RendererStyleQueries.UnescapeIdentifier(
@@ -833,7 +833,7 @@ internal sealed class DomParser
                     }
                     break;
                 case HtmlConstants.Valign:
-                    box.VerticalAlign = value.ToLower();
+                    box.VerticalAlign = value.ToLowerInvariant();
                     break;
                 case HtmlConstants.Vspace:
                     box.MarginTop = box.MarginBottom = TranslateLength(value);
@@ -1036,21 +1036,6 @@ internal sealed class DomParser
         }
     }
 
-    /// <summary>
-    /// Implements the <c>&lt;object&gt;</c> fallback chain (HTML4 §13.3):
-    /// when an <c>&lt;object&gt;</c> element's <c>data</c> attribute points to a
-    /// supported image (<c>data:image/…</c>), it is rendered as a replaced image
-    /// and its children (fallback content) are removed.  Otherwise, children
-    /// are kept as fallback content.
-    /// </summary>
-    /// <summary>
-    /// Lays out <c>&lt;frameset&gt;</c> / <c>&lt;frame&gt;</c> as a nested-browsing-
-    /// context grid (HTML §"the frameset element"): the frameset partitions its area
-    /// per its <c>cols</c>/<c>rows</c> attributes and each frame (or nested frameset)
-    /// fills one cell.  A cell's document is rasterised by the image renderer.  The
-    /// outermost frameset fills the viewport; nested framesets fill their parent cell.
-    /// <c>&lt;noframes&gt;</c> fallback content is hidden because frames are supported.
-    /// </summary>
     /// <summary>
     /// HTML §4.8.5: an <c>&lt;iframe&gt;</c> is a replaced element hosting a nested browsing context.
     /// UAs that support iframes never render the inline fallback content between the tags — the loaded
@@ -1410,6 +1395,14 @@ internal sealed class DomParser
             CorrectSelectMultipleBoxes(child, baseUrl);
     }
 
+    /// <summary>
+    /// Lays out <c>&lt;frameset&gt;</c> / <c>&lt;frame&gt;</c> as a nested-browsing-
+    /// context grid (HTML §"the frameset element"): the frameset partitions its area
+    /// per its <c>cols</c>/<c>rows</c> attributes and each frame (or nested frameset)
+    /// fills one cell.  A cell's document is rasterised by the image renderer.  The
+    /// outermost frameset fills the viewport; nested framesets fill their parent cell.
+    /// <c>&lt;noframes&gt;</c> fallback content is hidden because frames are supported.
+    /// </summary>
     private static void CorrectFramesetBoxes(CssBox box)
     {
         bool isFrameset = box.HtmlTag != null
@@ -1581,6 +1574,13 @@ internal sealed class DomParser
         return result;
     }
 
+    /// <summary>
+    /// Implements the <c>&lt;object&gt;</c> fallback chain (HTML4 §13.3):
+    /// when an <c>&lt;object&gt;</c> element's <c>data</c> attribute points to a
+    /// supported image (<c>data:image/…</c>), it is rendered as a replaced image
+    /// and its children (fallback content) are removed.  Otherwise, children
+    /// are kept as fallback content.
+    /// </summary>
     private static void CorrectObjectBoxes(CssBox box)
     {
         for (int i = box.Boxes.Count - 1; i >= 0; i--)
@@ -1941,7 +1941,7 @@ internal sealed class DomParser
             // The block being hoisted to parentBox was originally a
             // descendant of a positioned inline.  Record the link.
             if (posAncestor != null)
-                SetSplitAncestorDeep(splitBox, posAncestor);
+                PropagateSplitPositionedAncestor(splitBox, posAncestor);
         }
 
         if (badBox.Boxes.Count > 0)
@@ -1972,7 +1972,7 @@ internal sealed class DomParser
 
             // Also tag the right-side anonymous block.
             if (posAncestor != null)
-                SetSplitAncestorDeep(rightBox, posAncestor);
+                PropagateSplitPositionedAncestor(rightBox, posAncestor);
         }
         // CSS2.1 §9.2.1.1: breaking an inline box around a block replaces it with copies of
         // itself on either side of the block — which is what leftbox and rightBox above are.
@@ -1996,19 +1996,6 @@ internal sealed class DomParser
             if (splitBox.HtmlTag != null && splitBox.HtmlTag.Name == "br" && (leftbox != null || leftBlock.Boxes.Count > 1))
                 splitBox.Display = CssConstants.Inline;
         }
-    }
-
-    /// <summary>
-    /// Set <see cref="CssBox.SplitPositionedAncestor"/> on a box and all
-    /// its descendants, stopping at boxes that are themselves positioned.
-    /// </summary>
-    private static void SetSplitAncestorDeep(CssBox box, CssBox ancestor)
-    {
-        if (box.Position is CssConstants.Relative or CssConstants.Absolute or CssConstants.Fixed)
-            return;
-        box.SplitPositionedAncestor ??= ancestor;
-        foreach (var child in box.Boxes)
-            SetSplitAncestorDeep(child, ancestor);
     }
 
     private static void CorrectInlineBoxesParent(CssBox box, Uri baseUrl)

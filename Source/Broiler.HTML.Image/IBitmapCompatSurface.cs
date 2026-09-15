@@ -12,13 +12,7 @@ internal interface IBitmapCompatSurface : IDisposable
 
     void Clear(BColor color);
 
-    object AsBitmap();
-
-    object ToBitmapCopy();
-
     object OpenCanvas();
-
-    void DrawPictureToFit(object picture, int width, int height);
 
     void SyncToPrimaryBuffer();
 }

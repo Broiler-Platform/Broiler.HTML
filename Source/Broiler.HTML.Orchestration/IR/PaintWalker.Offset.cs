@@ -59,6 +59,7 @@ internal static partial class PaintWalker
                 Origin = new PointF(t.Origin.X + dx, t.Origin.Y + dy),
                 FontHandle = t.FontHandle,
                 IsRtl = t.IsRtl,
+                GlyphRotationDeg = t.GlyphRotationDeg,
                 TextShadowOffsetX = t.TextShadowOffsetX,
                 TextShadowOffsetY = t.TextShadowOffsetY,
                 TextShadowColor = t.TextShadowColor,
@@ -140,6 +141,68 @@ internal static partial class PaintWalker
                 Width = l.Width,
                 DashStyle = l.DashStyle,
             },
+            // SVG geometry is relative to Bounds, so moving the bounds moves the shape.
+            DrawSvgRectItem sr => new DrawSvgRectItem
+            {
+                Bounds = ob,
+                X = sr.X,
+                Y = sr.Y,
+                Width = sr.Width,
+                Height = sr.Height,
+                Fill = sr.Fill,
+                Stroke = sr.Stroke,
+                StrokeWidth = sr.StrokeWidth,
+            },
+            DrawSvgEllipseItem se => new DrawSvgEllipseItem
+            {
+                Bounds = ob,
+                Cx = se.Cx,
+                Cy = se.Cy,
+                Rx = se.Rx,
+                Ry = se.Ry,
+                Fill = se.Fill,
+                Stroke = se.Stroke,
+                StrokeWidth = se.StrokeWidth,
+            },
+            DrawSvgLineItem sl => new DrawSvgLineItem
+            {
+                Bounds = ob,
+                X1 = sl.X1,
+                Y1 = sl.Y1,
+                X2 = sl.X2,
+                Y2 = sl.Y2,
+                Stroke = sl.Stroke,
+                StrokeWidth = sl.StrokeWidth,
+            },
+            DrawSvgPolygonItem sp => new DrawSvgPolygonItem
+            {
+                Bounds = ob,
+                Points = sp.Points,
+                Fill = sp.Fill,
+                Stroke = sp.Stroke,
+                StrokeWidth = sp.StrokeWidth,
+            },
+            DrawSvgPolylineItem spl => new DrawSvgPolylineItem
+            {
+                Bounds = ob,
+                Points = spl.Points,
+                Fill = spl.Fill,
+                Stroke = spl.Stroke,
+                StrokeWidth = spl.StrokeWidth,
+            },
+            DrawSvgTextItem st => new DrawSvgTextItem
+            {
+                Bounds = ob,
+                Text = st.Text,
+                X = st.X,
+                Y = st.Y,
+                FontSize = st.FontSize,
+                FontFamily = st.FontFamily,
+                Fill = st.Fill,
+                FontHandle = st.FontHandle,
+            },
+            FilterItem fi => new FilterItem { Bounds = ob, Filter = fi.Filter },
+            RestoreFilterItem => new RestoreFilterItem { Bounds = ob },
             _ => item,
         };
     }

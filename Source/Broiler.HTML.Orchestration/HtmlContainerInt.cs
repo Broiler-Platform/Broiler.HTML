@@ -13,7 +13,6 @@ using Broiler.HTML.Rendering.Handlers;
 using Broiler.HTML.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net.Http;
@@ -79,6 +78,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     internal IAdapter Adapter { get; }
 
     public event EventHandler LoadComplete;
+    /// <summary>
+    /// Raised when a link or submit control is clicked. Setting
+    /// <see cref="HtmlLinkClickedEventArgs.Handled"/> stops the container scrolling to a
+    /// same-document fragment itself; opening any other target is always the host's job.
+    /// </summary>
     public event EventHandler<HtmlLinkClickedEventArgs> LinkClicked;
     public event EventHandler<HtmlRefreshEventArgs> Refresh;
     public event EventHandler<HtmlScrollEventArgs> ScrollChange;
@@ -958,7 +962,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         ArgumentException.ThrowIfNullOrEmpty(elementId);
         EnsureBoundDocumentCurrent();
 
-        var box = DomUtils.GetBoxById(Root, elementId.ToLower());
+        var box = DomUtils.GetBoxById(Root, elementId.ToLowerInvariant());
         return box != null ? CommonUtils.GetFirstValueOrDefault(box.Rectangles, box.Bounds) : null;
     }
 
@@ -1408,6 +1412,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (string.IsNullOrEmpty(targetUrl))
             return;
 
+        // Only same-document fragments are acted on here. Everything else used to go to
+        // Process.Start with UseShellExecute, which ran whatever a document linked to - a file: URL,
+        // a custom protocol handler - on any click no handler had marked handled.
         if (targetUrl == "#")
         {
             EventHandler<HtmlScrollEventArgs> scrollHandler = ScrollChange;
@@ -1430,19 +1437,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 }
             }
         }
-        else
-        {
-            var href = ResolveHref(targetUrl);
-            var nfo = new ProcessStartInfo(href) { UseShellExecute = true };
-            Process.Start(nfo);
-
-        }
     }
 
-    /// <summary>
-    /// Returns <c>true</c> if the given box represents a form submit control
-    /// (<c>&lt;input type="submit"&gt;</c>, <c>&lt;button&gt;</c>, etc.).
-    /// </summary>
     private CssBox GetEditableInputBoxAt(PointF documentLocation)
     {
         return GetEditableInputBoxAt(Root, documentLocation);
@@ -1537,6 +1533,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         box.SetGeneratedTextContent(value);
     }
 
+    /// <summary>
+    /// Returns <c>true</c> if the given box represents a form submit control
+    /// (<c>&lt;input type="submit"&gt;</c>, <c>&lt;button&gt;</c>, etc.).
+    /// </summary>
     private static bool IsFormSubmitControl(CssBox box)
     {
         if (box.HtmlTag == null) return false;
@@ -1614,10 +1614,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     BImage IHtmlContainerInt.ConvertImage(object image) => Adapter.ConvertImage(image);
 
     BImage IHtmlContainerInt.ImageFromStream(Stream stream) => Adapter.ImageFromStream(stream);
-
-    BImage IHtmlContainerInt.GetLoadingImage() => Adapter.GetLoadingImage();
-
-    BImage IHtmlContainerInt.GetLoadingFailedImage() => Adapter.GetLoadingFailedImage();
 
     void IHtmlContainerInt.DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception, bool> callback)
         => _imageDownloader?.DownloadImage(uri, filePath, async, (imageUri, fp, error, canceled) => callback(imageUri, fp, error, canceled));

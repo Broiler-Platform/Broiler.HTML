@@ -1,7 +1,5 @@
 using Broiler.HTML.Image.Adapters;
-using System;
 using System.Drawing;
-using System.IO;
 using Broiler.Graphics;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Rendering;
@@ -13,61 +11,6 @@ using Broiler.Graphics.Rendering;
 // throwing, except where a result genuinely cannot be produced.
 
 namespace Broiler.HTML.Image.Compat;
-
-/// <summary>
-/// Text metrics and drawing stub. Measurement returns a deterministic estimate
-/// so layout stays sensible; glyph drawing is skipped until a real text backend
-/// is registered.
-/// </summary>
-internal sealed class StubTextShaper : ITextShaper
-{
-    private const double PtToCssPx = 96.0 / 72.0;
-    private const double AverageGlyphWidthRatio = 0.5;
-
-    public SizeF MeasureString(FontAdapter font, string text)
-    {
-        float height = (float)font.Height;
-        if (string.IsNullOrEmpty(text))
-            return new SizeF(0f, height);
-
-        return new SizeF(text.Length * GlyphWidth(font), height);
-    }
-
-    public void MeasureString(FontAdapter font, string text, double maxWidth, out int charFit, out double charFitWidth)
-    {
-        int length = text?.Length ?? 0;
-        float glyphWidth = GlyphWidth(font);
-        if (length == 0 || glyphWidth <= 0f)
-        {
-            charFit = length;
-            charFitWidth = 0;
-            return;
-        }
-
-        int fit = (int)Math.Floor(maxWidth / glyphWidth);
-        fit = Math.Clamp(fit, 0, length);
-        charFit = fit;
-        charFitWidth = fit * glyphWidth;
-    }
-
-    // Returning true tells the raster path the text was handled, so it is skipped
-    // cleanly instead of falling back to the (removed) GDI canvas.
-    public bool TryDrawString(BCanvas canvas, FontAdapter font, string text, BColor color, PointF point, float glyphRotationDeg = 0f) => true;
-
-    public bool TryDrawGradientString(BCanvas canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, BColor[] colors, float[] positions, float angle) => true;
-
-    public void DrawString(object canvas, FontAdapter font, string text, BColor color, PointF point)
-    {
-        // No text backend: glyphs are not rendered.
-    }
-
-    public void DrawGradientString(object canvas, FontAdapter font, string text, RectangleF rect, PointF point, SizeF size, BColor[] colors, float[] positions, float angle)
-    {
-        // No text backend: glyphs are not rendered.
-    }
-
-    private static float GlyphWidth(FontAdapter font) => (float)(font.Size * PtToCssPx * AverageGlyphWidthRatio);
-}
 
 /// <summary>Canvas-fallback stub; every operation is a no-op.</summary>
 internal sealed class StubCanvasCompat : ICanvasCompat
@@ -142,57 +85,8 @@ internal sealed class StubPaintCompatFactory : IPaintCompatFactory
     public void UpdatePenPaint(object paint, float strokeWidth, DashStyle dashStyle) { }
 }
 
-/// <summary>Font-factory stub; carries the requested size so metrics stay sensible.</summary>
-internal sealed class StubFontCompatFactory : IFontCompatFactory
-{
-    private const double PtToCssPx = 96.0 / 72.0;
-    private const double LineHeightRatio = 1.16;
-    private const double UnderlineRatio = 0.85;
-
-    public static StubFontCompatFactory Instance { get; } = new();
-
-    public object CreateFont(object typeface, float size) => new StubFont(size);
-
-    public FontCompatMetrics GetMetrics(object font)
-    {
-        double sizePt = font is StubFont f ? f.SizePt : 0.0;
-        double heightPx = sizePt * PtToCssPx * LineHeightRatio;
-        return new FontCompatMetrics(heightPx, heightPx * UnderlineRatio);
-    }
-}
-
-/// <summary>Typeface-resolver stub; records family names but resolves to a sentinel.</summary>
-internal sealed class StubFontTypefaceResolver : IFontTypefaceResolver
-{
-    public string RegisterFontFile(string path, string alias = null)
-    {
-        if (!string.IsNullOrWhiteSpace(alias))
-            return alias;
-
-        return string.IsNullOrWhiteSpace(path) ? null : Path.GetFileNameWithoutExtension(path);
-    }
-
-    public bool HasDeferredLoadedTypefacePath(string family) => false;
-
-    public bool HasMaterializedLoadedTypeface(string family) => false;
-
-    public object ResolveTypeface(string family, Graphics.Text.FontStyle style) => StubTypeface.Instance;
-}
-
-/// <summary>Inert layout font carrying the size used for stub metrics.</summary>
-internal sealed class StubFont(float sizePt)
-{
-    public float SizePt { get; } = sizePt;
-}
-
 /// <summary>Shared inert paint sentinel.</summary>
 internal sealed class StubPaint
 {
     public static StubPaint Instance { get; } = new();
-}
-
-/// <summary>Shared inert typeface sentinel.</summary>
-internal sealed class StubTypeface
-{
-    public static StubTypeface Instance { get; } = new();
 }

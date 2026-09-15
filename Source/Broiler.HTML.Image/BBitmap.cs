@@ -245,7 +245,6 @@ public sealed class BBitmap : IDisposable
     /// against.
     /// </remarks>
     internal bool SupportsConcurrentPixelWrites => !_compatSurface.IsMaterialized;
-    internal int CompatSyncInvocationCount { get; private set; }
 
     internal object OpenCanvas() => _compatSurface.OpenCanvas();
 
@@ -282,22 +281,9 @@ public sealed class BBitmap : IDisposable
             initialCanvasOperationState: translation);
     }
 
-    internal void DrawPictureToFit(object picture)
-    {
-        ArgumentNullException.ThrowIfNull(picture);
-        _compatSurface.DrawPictureToFit(picture, Width, Height);
-        SyncPixelsFromCompatBitmap();
-    }
-
-    internal object AsCompatBitmap() => EnsureCompatBitmap();
-
-    internal object ToCompatBitmapCopy() => _compatSurface.ToBitmapCopy();
-
     public void Dispose() => _compatSurface.Dispose();
 
     private int GetPixelIndex(int x, int y) => checked(((y * Width) + x) * 4);
-
-    private object EnsureCompatBitmap() => _compatSurface.AsBitmap();
 
     private void SyncPixelsFromCompatBitmapIfMaterialized()
     {
@@ -309,7 +295,6 @@ public sealed class BBitmap : IDisposable
 
     private void SyncPixelsFromCompatBitmap()
     {
-        CompatSyncInvocationCount++;
         _compatSurface.SyncToPrimaryBuffer();
     }
 

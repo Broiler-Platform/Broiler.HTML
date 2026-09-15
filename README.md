@@ -33,21 +33,15 @@ release of HTML Renderer, and the upstream authors have not reviewed or endorsed
 
 ## Solution layout
 
-The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized into these main assemblies:
+The solution file is `Broiler.HTML.slnx` at the repository root and the codebase is organized into these assemblies. CSS, the DOM, layout and graphics come from the Broiler.CSS, Broiler.DOM, Broiler.Layout and Broiler.Graphics packages.
 
-- `Broiler.HTML.Primitives` - shared primitive types
-- `Broiler.HTML.Utils` - common utilities and resource helpers
-- `Broiler.HTML.Adapters` - backend-neutral adapter abstractions
-- `Broiler.HTML.Core` - core entities and deterministic IR helpers
-- `Broiler.HTML.CSS` - CSS parsing and stylesheet handling
-- `Broiler.HTML.Dom` - DOM/layout processing
-- `Broiler.HTML.Orchestration` - HTML parsing and renderer orchestration
-- `Broiler.HTML.Rendering` - paint-time handlers and rendering logic
-- `Broiler.HTML.Graphics` - Broiler.Graphics bitmap and render-list frontend
-- `Broiler.HTML.Graphics.Win32.Demo` - simple Win32 URL rendering demo using `Broiler.Graphics.Direct2D`
+- `Broiler.HTML.Core` - shared entities, handler contracts, and image download and loading
+- `Broiler.HTML.Dom` - HTML parsing into the Broiler DOM and the layout environment
+- `Broiler.HTML.Orchestration` - box-tree construction, the HTML container, and painting into a display list
+- `Broiler.HTML.Graphics` - Broiler.Graphics render-list frontend
+- `Broiler.HTML.Graphics.Win32.Demo` - simple Win32 URL rendering demo using the Direct2D backend in `Broiler.Graphics.Windows`
 - `Broiler.HTML.Image` / `Broiler.HTML.Image.Compat` - image rendering,
   deterministic comparison, and the remaining backend-neutral compatibility seam
-- `Broiler.HTML` - shared public surface used by platform adapters
 
 ## Public API highlights
 
@@ -60,15 +54,29 @@ The solution file is `Source/Broiler.HTML.slnx` and the codebase is organized in
 
 ## Build and validation
 
-Run the repository build from the solution directory:
+Run the repository build from the repository root:
 
 ```bash
-cd Source
 dotnet build Broiler.HTML.slnx
-dotnet test Broiler.HTML.slnx
 ```
 
-The current solution does not contain checked-in .NET test projects yet, so `dotnet test` currently acts as a repository validation command rather than a substantive automated renderer test suite. The checked-in automated tests currently live under `scripts/wpt/*.test.mjs`.
+The Broiler components this renderer builds on - Broiler.CSS, Broiler.Dom.Html, Broiler.Graphics, Broiler.Layout and Broiler.Media - are NuGet packages from the Broiler-Platform GitHub Packages feed, pinned in `Directory.Packages.props`. GitHub Packages needs credentials even for public packages. Supply a token with `read:packages` through NuGet's environment variable for the `github` source rather than writing it into `NuGet.config`:
+
+```bash
+export NuGetPackageSourceCredentials_github="Username=<github-user>;Password=<token>;ValidAuthenticationTypes=Basic"
+```
+
+NuGet never re-downloads a package id and version it already has in its global cache, so a locally packed build of the same version will shadow the published one. Remove the stale entry from `~/.nuget/packages` if a restore resolves types that the feed package does not have.
+
+The solution does not contain .NET test projects yet. The checked-in automated tests live under `scripts/wpt/*.test.mjs`.
+
+### Continuous integration and publishing
+
+`.github/workflows/ci.yml` follows the other Broiler components. On every push to `main` and every pull request it builds `Release` on Ubuntu and Windows, runs the script tests and the HTML 5.2 corpus consistency checks, then packs and verifies every package on Ubuntu and attaches them as `nuget-packages`. In GitHub Actions the job token reaches NuGet through `NuGetPackageSourceCredentials_github`. Each Broiler dependency must grant this repository Actions read access, because `packages: read` alone does not reach packages owned by another repository.
+
+`.github/workflows/publish.yml` resolves the next free `0.1.0-preview.N`, reruns CI with that version, proves that a consumer can restore the packages from the destination feed, and pushes them. Dispatch it manually to publish to GitHub Packages or nuget.org (`dry-run` is on by default), or push a `v*` tag to publish to nuget.org.
+
+The HTML 5.2 and non-JS WPT render/diff suites are the two manually dispatched workflows beside them.
 
 Run those script tests from the repository root:
 
@@ -161,7 +169,7 @@ npm run wpt:prepare -- --output ./artifacts/wpt-source --source /path/to/existin
 Run a focused batch against the prepared WPT tree:
 
 ```bash
-dotnet build Source/Broiler.HTML.slnx
+dotnet build Broiler.HTML.slnx
 npm run wpt:run -- --wpt-root ./artifacts/wpt-source --include css/CSS2 --include css/css-backgrounds --include css/css-text --include html/rendering --limit-per-include 2 --width 800 --height 600
 ```
 
@@ -198,13 +206,13 @@ Use repeated `--include` filters with `--limit-per-include` when you want a boun
 
 ## Win32 graphics demo
 
-The repository includes a demo that renders a URL with `Broiler.HTML.Graphics` directly into a `Broiler.Graphics.Direct2D` HWND surface:
+The repository includes a demo that renders a URL with `Broiler.HTML.Graphics` directly into a Direct2D HWND surface from `Broiler.Graphics.Windows`. Press F5 in the window to reload the page:
 
 ```bash
 dotnet run --project Source/Broiler.HTML.Graphics.Win32.Demo -- https://example.com/
 ```
 
-The repository also includes a GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It checks out the `Broiler.Graphics` submodule, prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a bounded render/diff sample across CSS2, modern CSS modules, and HTML rendering/semantics directories. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
+The repository also includes a manually dispatched GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It restores the Broiler packages from GitHub Packages, prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a bounded render/diff sample across CSS2, modern CSS modules, and HTML rendering/semantics directories. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
 
 When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configured, the CI job also opens a new GitHub issue for the most common failure signature in that run. The automation uses `ISSUE_TOKEN` only for GitHub Issues API calls that create the issue and expects a fine-grained PAT or GitHub App token with **Issues: Write** access to this repository.
 

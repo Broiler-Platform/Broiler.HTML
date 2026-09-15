@@ -53,7 +53,8 @@ async function main(argv = process.argv.slice(2)) {
     if (options.check) {
       const current = await readTextIfExists(options.documentPath);
       const expected = updateMarkedSection(current, dashboard);
-      if (current !== expected) {
+      // A Windows checkout with core.autocrlf hands back CRLF; only the content is checked.
+      if (current.replaceAll('\r\n', '\n') !== expected.replaceAll('\r\n', '\n')) {
         console.error(`${toRepositoryRelative(options.documentPath)} is out of date. Run npm run html52:dashboard.`);
         return 1;
       }

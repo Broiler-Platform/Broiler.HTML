@@ -63,6 +63,7 @@ public static class HtmlGraphicsRenderListBuilder
         var imageCache = new Dictionary<object, BImageHandle>();
         var opacityStack = new Stack<double>();
         var clipStack = new Stack<bool>();
+        int transformDepth = 0;
         var unsupported = new SortedSet<string>(StringComparer.Ordinal);
         double opacity = 1.0;
 
@@ -143,9 +144,16 @@ public static class HtmlGraphicsRenderListBuilder
                     break;
                 case TransformItem transform:
                     list.PushTransform(ToMatrix(transform));
+                    transformDepth++;
                     break;
                 case RestoreTransformItem:
-                    list.PopTransform();
+                    // Like an unmatched RestoreItem, an unmatched restore is dropped: BRenderList
+                    // rejects a pop without its push.
+                    if (transformDepth > 0)
+                    {
+                        list.PopTransform();
+                        transformDepth--;
+                    }
                     break;
                 case OpacityItem opacityItem:
                     opacityStack.Push(opacity);
@@ -178,6 +186,17 @@ public static class HtmlGraphicsRenderListBuilder
                     break;
             }
         }
+
+        // Close whatever the display list left open, so the pop below closes the viewport clip it
+        // belongs to rather than the innermost clip still pushed.
+        while (clipStack.Count > 0)
+        {
+            if (clipStack.Pop())
+                list.PopClip();
+        }
+
+        for (; transformDepth > 0; transformDepth--)
+            list.PopTransform();
 
         if (IsDrawable(clip))
             list.PopClip();

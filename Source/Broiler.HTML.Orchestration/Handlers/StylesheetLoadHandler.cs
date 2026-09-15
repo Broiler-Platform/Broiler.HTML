@@ -51,7 +51,7 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
                 stylesheet = LoadStylesheet(src);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
         }
@@ -193,7 +193,7 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         {
             stylesheet = CorrectRelativeUrls(stylesheet, uri);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
         }

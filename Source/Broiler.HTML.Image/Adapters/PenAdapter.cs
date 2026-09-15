@@ -19,8 +19,6 @@ internal sealed class PenAdapter(Func<float, DashStyle, object> paintFactory, Ac
 
     public BColor? SolidColor { get; init; }
 
-    internal bool HasMaterializedPaint => _paint is not null;
-
     public bool HasSimpleStroke => SolidColor.HasValue && _dashStyle == DashStyle.Solid;
 
     // RPen.DashStyle is set-only, but the raster path has to read the style back to reduce a

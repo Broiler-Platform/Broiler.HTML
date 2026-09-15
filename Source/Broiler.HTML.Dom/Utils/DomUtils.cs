@@ -403,7 +403,7 @@ internal sealed class DomUtils
         if (box.HtmlTag != null)
         {
             if (box.HtmlTag.Name != "link" || !box.HtmlTag.Attributes.TryGetValue("href", out string value) ||
-                (!value.StartsWith("property") && !value.StartsWith("method")))
+                (!value.StartsWith("property", StringComparison.Ordinal) && !value.StartsWith("method", StringComparison.Ordinal)))
             {
                 WriteHtmlTag(sb, box, styleGen);
                 if (box == selectionRoot)
@@ -437,13 +437,13 @@ internal sealed class DomUtils
         {
             if (box == selectionRoot)
                 sb.Append("<!--EndFragment-->");
-            sb.AppendFormat($"</{box.HtmlTag.Name}>");
+            sb.Append($"</{box.HtmlTag.Name}>");
         }
     }
 
     private static void WriteHtmlTag(StringBuilder sb, CssBox box, HtmlGenerationStyle styleGen)
     {
-        sb.AppendFormat($"<{box.HtmlTag.Name}");
+        sb.Append($"<{box.HtmlTag.Name}");
 
         // Preserve authored inline declarations. Stylesheet rules remain represented by
         // their class/id attributes; the renderer no longer maintains a second selector
@@ -464,7 +464,7 @@ internal sealed class DomUtils
                 }
                 else
                 {
-                    sb.AppendFormat($"{att.Key}=\"{att.Value}\" ");
+                    sb.Append($"{att.Key}=\"{WebUtility.HtmlEncode(att.Value)}\" ");
                 }
             }
 
@@ -474,17 +474,14 @@ internal sealed class DomUtils
         // if inline style insert the style tag with all collected style properties
         if (styleGen == HtmlGenerationStyle.Inline && tagStyles.Count > 0)
         {
-            if (tagStyles.Count > 0)
-            {
-                sb.Append(" style=\"");
-                foreach (var style in tagStyles)
-                    sb.AppendFormat($"{style.Key}: {style.Value}; ");
-                sb.Remove(sb.Length - 1, 1);
-                sb.Append('"');
-            }
+            sb.Append(" style=\"");
+            foreach (var style in tagStyles)
+                sb.Append($"{style.Key}: {WebUtility.HtmlEncode(style.Value)}; ");
+            sb.Remove(sb.Length - 1, 1);
+            sb.Append('"');
         }
 
-        sb.AppendFormat($"{(box.HtmlTag.IsSingle ? "/" : "")}>");
+        sb.Append(box.HtmlTag.IsSingle ? "/>" : ">");
     }
 
     private static void WriteStylesheet(StringBuilder sb, HtmlStyleSet styleSet)

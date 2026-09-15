@@ -50,12 +50,6 @@ internal sealed class StubImageAdapter : RAdapter
 
     public static StubImageAdapter Instance { get; } = new();
 
-    internal bool HasDeferredLoadedTypefacePath(string family) =>
-        _typefaceResolver.HasDeferredLoadedTypefacePath(family);
-
-    internal bool HasMaterializedLoadedTypeface(string family) =>
-        _typefaceResolver.HasMaterializedLoadedTypeface(family);
-
     /// <summary>
     /// Loads a TrueType/OpenType font from a file path and registers it as
     /// an available font family.  Optionally maps a CSS name to the loaded
@@ -729,10 +723,10 @@ internal sealed class StubImageAdapter : RAdapter
     /// </summary>
     private static double ParseSvgLengthAttribute(string tag, string name)
     {
-        // Match name="value" but avoid matching longer attribute names
-        // (e.g. "width" should not match "stroke-width").
+        // Match name="value" but not a longer attribute ending in it: "stroke-width" must not be
+        // read as "width". '-' is not a word character, so the look-behind has to name it.
         var m = System.Text.RegularExpressions.Regex.Match(
-            tag, @"(?<!\w)" + name + @"\s*=\s*[""']([^""']+)[""']",
+            tag, @"(?<![\w-])" + name + @"\s*=\s*[""']([^""']+)[""']",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (!m.Success) return -1;
 
@@ -774,14 +768,14 @@ internal sealed class StubImageAdapter : RAdapter
 
         var rectTag = rectMatches[0].Value;
         bool fillsViewport =
-            System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"\bwidth\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
-            && System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"\bheight\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"(?<![\w-])width\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            && System.Text.RegularExpressions.Regex.IsMatch(rectTag, @"(?<![\w-])height\s*=\s*[""']100%[""']", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (!fillsViewport)
             return false;
 
         var fillMatch = System.Text.RegularExpressions.Regex.Match(
             rectTag,
-            @"\bfill\s*=\s*[""']([^""']+)[""']",
+            @"(?<![\w-])fill\s*=\s*[""']([^""']+)[""']",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         if (!fillMatch.Success)
             return false;
@@ -816,18 +810,19 @@ internal sealed class StubImageAdapter : RAdapter
     protected override object GetClipboardDataObjectInt(string html, string plainText) =>
         new ClipboardPayload(html, plainText);
 
-    protected override void SetToClipboardInt(string text) =>
-        LastClipboardPayload = new ClipboardPayload(null, text);
+    protected override void SetToClipboardInt(string text)
+    {
+    }
 
-    protected override void SetToClipboardInt(string html, string plainText) =>
-        LastClipboardPayload = new ClipboardPayload(html, plainText);
+    protected override void SetToClipboardInt(string html, string plainText)
+    {
+    }
 
-    protected override void SetToClipboardInt(BImage image) =>
-        LastClipboardPayload = image;
+    protected override void SetToClipboardInt(BImage image)
+    {
+    }
 
     protected override RContextMenu CreateContextMenuInt() => new StubContextMenuAdapter();
-
-    internal static object LastClipboardPayload { get; private set; }
 
     private sealed record ClipboardPayload(string Html, string PlainText);
 

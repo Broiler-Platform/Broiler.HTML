@@ -4,24 +4,20 @@
 
 Broiler.HTML is structured as a pipeline of small assemblies instead of a single monolith:
 
-1. `Broiler.HTML.Orchestration` parses incoming HTML and coordinates document setup.
-2. `Broiler.HTML.CSS` parses stylesheets and computes CSS data.
-3. `Broiler.HTML.Dom` performs DOM-driven layout work.
-4. `Broiler.HTML.Rendering` converts laid-out content into painting operations.
-5. `Broiler.HTML.Image` hosts the output in a concrete backend.
+1. `Broiler.HTML.Dom` parses incoming HTML into the Broiler DOM and hosts the layout environment.
+2. `Broiler.HTML.Orchestration` builds the styled box tree with the `Broiler.CSS` cascade, lays it out with `Broiler.Layout`, and paints the laid-out fragments into a display list.
+3. `Broiler.HTML.Image` rasterizes a display list into a bitmap, and `Broiler.HTML.Graphics` translates one into a `Broiler.Graphics` render list.
 
 Supporting assemblies keep the pipeline reusable:
 
-- `Broiler.HTML.Adapters` defines the backend-neutral contracts.
-- `Broiler.HTML.Core` exposes shared entities plus deterministic IR/JSON helpers.
-- `Broiler.HTML.Primitives` and `Broiler.HTML.Utils` hold low-level reusable types and helpers.
-- `Broiler.HTML.Image.Compat` supplies the compatibility/image backend used for deterministic output and fixture comparison.
+- `Broiler.HTML.Core` exposes shared entities, handler contracts, and image download and loading.
+- `Broiler.HTML.Image.Compat` supplies the fallback text, font and image services used for deterministic output and fixture comparison.
 
 ## Compliance-oriented surfaces already present in the repo
 
 The current codebase already exposes pieces needed for standards/compliance work:
 
-- deterministic rendering configuration in `Broiler.HTML.Core/Core/IR`
+- deterministic rendering configuration in `Broiler.HTML.Core/IR`
 - image rendering entry points in `Broiler.HTML.Image/HtmlRender.cs`
 - pixel comparison in `Broiler.HTML.Image/PixelDiffRunner.cs`
 - mismatch triage in `Broiler.HTML.Image/MismatchClassifier.cs`
@@ -71,9 +67,8 @@ The image renderer's current raster/fallback selection and the remaining
 The repository currently supports these repeatable checks directly:
 
 ```bash
-cd Source
 dotnet build Broiler.HTML.slnx
-dotnet test Broiler.HTML.slnx
+npm test
 ```
 
 For visual compliance work, render a fixture with `Broiler.HTML.Image.HtmlRender`, compare it with `PixelDiffRunner`, and classify failures with `MismatchClassifier`. The repository-level wrappers for that flow are `Broiler.HTML.Tool compare` and `scripts/wpt/run-non-js.mjs`.

@@ -16,7 +16,7 @@ namespace Broiler.HTML.Dom;
 /// layout component. It
 /// forwards layout's metric, font, colour, refresh and initial-containing-block
 /// requests to the owning <see cref="IHtmlContainerInt"/> and the active
-/// <see cref="RGraphics"/> surface, so the layout code depends only on the
+/// <see cref="BGraphics"/> surface, so the layout code depends only on the
 /// backend-neutral environment interface.
 /// </summary>
 /// <remarks>

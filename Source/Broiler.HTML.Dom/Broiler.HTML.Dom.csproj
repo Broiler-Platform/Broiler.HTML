@@ -10,7 +10,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Broiler.Dom.Html" Version="0.1.0-preview.2" />
+    <PackageReference Include="Broiler.Dom.Html" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />

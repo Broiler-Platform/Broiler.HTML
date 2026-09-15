@@ -5,61 +5,86 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      package-version:
+        description: Resolved preview version for a publish run
+        type: string
+        default: ''
 
 permissions:
   contents: read
+  packages: read
 
-# A later push on the same branch cancels the earlier run: what is checked does
-# not change, only how many times an abandoned commit is checked.
+env:
+  PACKAGE_VERSION: ${{ inputs.package-version }}
+  # Broiler.CSS, Broiler.Dom.Html, Broiler.Graphics, Broiler.Layout and Broiler.Media restore
+  # from GitHub Packages, which needs credentials even for public packages.
+  NuGetPackageSourceCredentials_github: Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }};ValidAuthenticationTypes=Basic
+
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    # Windows only, and not for want of trying a cheaper runner.
-    # Source/Broiler.HTML.slnx includes Broiler.Graphics.Direct2D and
-    # Broiler.HTML.Graphics.Win32.Demo, both of which target net10.0-windows, so
-    # there is no Linux leg of this solution to build.
-    name: Build (Windows)
-    runs-on: windows-latest
-
+    name: ${{ matrix.os }} / Release
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: bash
-
+    strategy:
+      fail-fast: false
+      matrix:
+        # The libraries are platform-neutral net10.0. The Win32 demo targets
+        # net10.0-windows, which EnableWindowsTargeting lets the Ubuntu leg compile too.
+        os: [ubuntu-latest, windows-latest]
     steps:
-      # One level only, and by name. Broiler.Layout, Broiler.CSS and Broiler.DOM are
-      # submodules of this repository as of 2026-09-09; before that they were
-      # expected as sibling directories that existed only inside the Broiler.Browser
-      # aggregate, which is why this job could not compile.
-      #
-      # `recursive` is deliberately NOT used any more. Broiler.Media declares
-      # Broiler.Graphics as a submodule of its own, and Broiler.CSS carries a nested
-      # Broiler.DOM that the root properties in Directory.Build.props collapse away;
-      # fetching either is at best wasted and at worst a second checkout of a kernel
-      # this build is careful to have only one of. The two nested checkouts that are
-      # genuinely needed are named in the next step.
       - name: Check out
         uses: actions/checkout@v7
-        with:
-          submodules: true
-
-      # Broiler.Graphics.csproj needs Broiler.Media.Image, and
-      # Broiler.Graphics.Direct2D needs Broiler.Input.Mouse. Both come from
-      # Broiler.Graphics's own nested checkouts.
-      - name: Check out the graphics submodule's own dependencies
-        run: git -C Broiler.Graphics submodule update --init --depth 1 Broiler.Media Broiler.Input
 
       - name: Set up .NET
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
-      # Build only. This repository has no xunit project: its suites are the
-      # html52 and WPT corpora under scripts/ and tests/, which are driven by
-      # the two workflow_dispatch workflows beside this one and are far too long
-      # to run per pull request. Compiling the head is still worth gating — a
-      # head that stops compiling is a defect a pull request introduced.
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - name: Test preview version selection
+        run: node --test eng/resolve-preview-version.test.mjs
+
       - name: Build
-        run: dotnet build Source/Broiler.HTML.slnx -c Release --nologo
+        run: |
+          args=()
+          if [ -n "$PACKAGE_VERSION" ]; then
+            args+=("-p:Version=$PACKAGE_VERSION" "-p:PackageVersion=$PACKAGE_VERSION")
+          fi
+          dotnet build Broiler.HTML.slnx -c Release --nologo "${args[@]}"
+
+      # There is no .NET test project. What this repository does check in is the WPT
+      # and HTML 5.2 tooling and its corpus, and none of these need a renderer or
+      # node_modules. The render/diff suites stay in the two workflow_dispatch workflows.
+      - name: Test
+        run: |
+          npm test
+          npm run html52:validate
+          npm run html52:coverage -- --output "${RUNNER_TEMP}/html52-coverage" --fail-on-uncovered
+          npm run html52:css-coverage:check
+          npm run html52:css-registry:check
+          npm run html52:dashboard:check
+
+      - name: Pack and verify every package
+        if: matrix.os == 'ubuntu-latest'
+        shell: pwsh
+        run: ./eng/pack.ps1 -Version $env:PACKAGE_VERSION
+
+      - name: Upload packages
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v7
+        with:
+          name: nuget-packages
+          path: artifacts/*
+          if-no-files-found: error

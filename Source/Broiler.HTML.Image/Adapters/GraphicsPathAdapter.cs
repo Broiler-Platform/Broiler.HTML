@@ -22,8 +22,6 @@ internal sealed class GraphicsPathAdapter : BGraphicsPath
 
     public IReadOnlyList<PointF> FlattenedPoints => _flattenedPoints;
 
-    internal bool HasMaterializedPath => _path is not null;
-
     public override void Start(double x, double y)
     {
         _lastPoint = new PointF((float)x, (float)y);

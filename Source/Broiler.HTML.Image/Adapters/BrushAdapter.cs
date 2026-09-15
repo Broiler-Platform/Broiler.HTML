@@ -35,8 +35,6 @@ internal sealed class BrushAdapter : BBrush
 
     public PointF? TextureOrigin { get; init; }
 
-    internal bool HasMaterializedPaint => _paint is not null;
-
     public override void Dispose()
     {
         if (_dispose)
