@@ -91,7 +91,7 @@ internal interface IHtmlContainerInt
     BFont GetFont(string family, double size, Graphics.Text.FontStyle style, string fontFeatures = null);
 
     /// <summary>
-    /// Parses a colour string and returns the corresponding <see cref="Color"/>.
+    /// Parses a colour string and returns the corresponding <see cref="BColor"/>.
     /// Wraps the CSS parser's colour resolution.
     /// </summary>
     BColor ParseColor(string colorStr);
@@ -102,12 +102,12 @@ internal interface IHtmlContainerInt
     void RaiseHtmlImageLoadEvent(HtmlImageLoadEventArgs args);
 
     /// <summary>
-    /// Converts a platform-specific image object to an <see cref="RImage"/>.
+    /// Converts a platform-specific image object to an <see cref="BImage"/>.
     /// </summary>
     BImage ConvertImage(object image);
 
     /// <summary>
-    /// Creates an <see cref="RImage"/> from a stream.
+    /// Creates an <see cref="BImage"/> from a stream.
     /// </summary>
     BImage ImageFromStream(Stream stream);
 

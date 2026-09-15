@@ -68,7 +68,7 @@ public sealed class HtmlContainer : IDisposable
 
     /// <summary>
     /// The most recent <see cref="Fragment"/> tree built after layout.
-    /// Available after <see cref="PerformLayout"/> has been called.
+    /// Available after <see cref="PerformLayout(RectangleF)"/> has been called.
     /// </summary>
     public Fragment? LatestFragmentTree => HtmlContainerInt.LatestFragmentTree;
 
@@ -223,7 +223,7 @@ public sealed class HtmlContainer : IDisposable
     /// Returns the bounding rectangle of the element with the specified <paramref name="elementId"/>,
     /// or <c>null</c> if no such element exists.  Useful for scrolling to an anchor target
     /// (e.g.&nbsp;<c>#top</c>).
-    /// Requires <see cref="SetHtml"/> and <see cref="PerformLayout"/> to have been called first.
+    /// Requires <see cref="SetHtmlWithStyleSet"/> and <see cref="PerformLayout(RectangleF)"/> to have been called first.
     /// </summary>
     public RectangleF? GetElementRectangle(string elementId) => HtmlContainerInt.GetElementRectangle(elementId);
 
@@ -233,7 +233,7 @@ public sealed class HtmlContainer : IDisposable
     /// returns per-element box geometry from the real layout tree, keyed by the canonical
     /// <see cref="Broiler.Dom.DomElement"/>. Intended for consumers (for example the script
     /// bridge) that need accurate element geometry without constructing a graphics backend.
-    /// Requires the document to have been bound via <see cref="SetDocument"/>/<see cref="SetDocumentWithStyleSet"/>.
+    /// Requires the document to have been bound via <see cref="SetDocumentWithStyleSet"/>.
     /// </summary>
     public IReadOnlyDictionary<Broiler.Dom.DomElement, Broiler.Layout.BoxGeometry> GetLayoutGeometry(SizeF viewport)
     {
@@ -244,7 +244,7 @@ public sealed class HtmlContainer : IDisposable
 
     /// <summary>
     /// Returns all links found in the parsed HTML document.
-    /// Requires <see cref="SetHtml"/> to have been called first.
+    /// Requires <see cref="SetHtmlWithStyleSet"/> to have been called first.
     /// Each link includes its <c>id</c>, <c>href</c>, and bounding rectangle.
     /// </summary>
     public List<LinkElementData<RectangleF>> GetLinks() => HtmlContainerInt.GetLinks();
@@ -281,8 +281,8 @@ public sealed class HtmlContainer : IDisposable
 
     /// <summary>
     /// Returns the computed background color of the root CSS box, or
-    /// <see cref="Color.Empty"/> when the root has no explicit (non-transparent)
-    /// background.  Requires <see cref="SetHtml"/> to have been called first.
+    /// <see cref="BColor.Empty"/> when the root has no explicit (non-transparent)
+    /// background.  Requires <see cref="SetHtmlWithStyleSet"/> to have been called first.
     /// Per the CSS 2.1 canvas background model (§14.2), the canvas background
     /// is taken from the root element; if that is transparent, the body
     /// element's background is used instead.

@@ -962,7 +962,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         ArgumentException.ThrowIfNullOrEmpty(elementId);
         EnsureBoundDocumentCurrent();
 
-        var box = DomUtils.GetBoxById(Root, elementId.ToLower());
+        var box = DomUtils.GetBoxById(Root, elementId.ToLowerInvariant());
         return box != null ? CommonUtils.GetFirstValueOrDefault(box.Rectangles, box.Bounds) : null;
     }
 
@@ -1439,10 +1439,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
     }
 
-    /// <summary>
-    /// Returns <c>true</c> if the given box represents a form submit control
-    /// (<c>&lt;input type="submit"&gt;</c>, <c>&lt;button&gt;</c>, etc.).
-    /// </summary>
     private CssBox GetEditableInputBoxAt(PointF documentLocation)
     {
         return GetEditableInputBoxAt(Root, documentLocation);
@@ -1537,6 +1533,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         box.SetGeneratedTextContent(value);
     }
 
+    /// <summary>
+    /// Returns <c>true</c> if the given box represents a form submit control
+    /// (<c>&lt;input type="submit"&gt;</c>, <c>&lt;button&gt;</c>, etc.).
+    /// </summary>
     private static bool IsFormSubmitControl(CssBox box)
     {
         if (box.HtmlTag == null) return false;

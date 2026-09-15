@@ -466,7 +466,7 @@ internal static partial class PaintWalker
     }
 
     /// <summary>
-    /// Parses a CSS color value (rgba, rgb, hex, named) into a <see cref="Color"/>.
+    /// Parses a CSS color value (rgba, rgb, hex, named) into a <see cref="BColor"/>.
     /// </summary>
     private static BColor ParseCssColor(string colorStr)
     {

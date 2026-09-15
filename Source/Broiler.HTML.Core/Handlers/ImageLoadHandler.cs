@@ -45,7 +45,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
             {
                 if (!string.IsNullOrEmpty(src))
                 {
-                    if (src.StartsWith("data:image", StringComparison.CurrentCultureIgnoreCase))
+                    if (src.StartsWith("data:image", StringComparison.OrdinalIgnoreCase))
                     {
                         SetFromInlineData(src);
                     }

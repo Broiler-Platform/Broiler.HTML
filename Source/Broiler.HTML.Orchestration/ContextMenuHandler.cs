@@ -240,7 +240,7 @@ internal sealed class ContextMenuHandler : IDisposable
                 _contextMenu.Show(parent, parent.MouseLocation);
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
@@ -275,7 +275,7 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             throw;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
@@ -291,7 +291,7 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             _adapter.SetToClipboard(_currentLink.HrefLink);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
@@ -308,7 +308,7 @@ internal sealed class ContextMenuHandler : IDisposable
             var imageSrc = _currentRect.OwnerBox.GetAttribute("src");
             _adapter.SaveToFile((BImage)_currentRect.Image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
@@ -324,7 +324,7 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             _adapter.SetToClipboard(_currentRect.OwnerBox.GetAttribute("src"));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
@@ -340,7 +340,7 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             _adapter.SetToClipboard((BImage)_currentRect.Image);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
@@ -356,7 +356,7 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             _selectionHandler.CopySelectedHtml();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }
@@ -372,7 +372,7 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             _selectionHandler.SelectAll(_parentControl);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
         }

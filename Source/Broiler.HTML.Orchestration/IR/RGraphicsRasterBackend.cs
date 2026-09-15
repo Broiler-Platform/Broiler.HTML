@@ -12,7 +12,7 @@ namespace Broiler.HTML.Orchestration.IR;
 
 /// <summary>
 /// <see cref="IRasterBackend"/> implementation that replays a <see cref="DisplayList"/>
-/// onto an <see cref="RGraphics"/> surface. Bridges the new IR paint pipeline back to
+/// onto an <see cref="BGraphics"/> surface. Bridges the new IR paint pipeline back to
 /// the existing platform adapters.
 /// </summary>
 internal sealed class RGraphicsRasterBackend : IRasterBackend
@@ -22,7 +22,7 @@ internal sealed class RGraphicsRasterBackend : IRasterBackend
     public void Render(DisplayList list, object surface)
     {
         if (surface is not BGraphics g)
-            throw new ArgumentException("Surface must be an RGraphics instance.", nameof(surface));
+            throw new ArgumentException("Surface must be a BGraphics instance.", nameof(surface));
 
         // Multithreading item #5. Tiles are offered the whole list and replay it into disjoint
         // regions of the surface; the driver hands it back when this surface or this budget cannot
