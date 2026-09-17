@@ -9,9 +9,10 @@ internal static class CssDefaults
         dl, dt, fieldset, form,
         frame, frameset,
         h1, h2, h3, h4,
-        h5, h6, noframes,
+        h5, h6, listing,
         ol, p, ul, center,
-        dir, menu, pre   { display: block }
+        dir, menu, pre,
+        plaintext, xmp   { display: block }
         li              { display: list-item }
         legend          { display: block }
         head            { display: none }
@@ -34,7 +35,8 @@ internal static class CssDefaults
         blockquote, ul,
         fieldset, form,
         ol, dl, dir,
-        menu            { margin: 1em 0 }
+        menu, listing,
+        plaintext, xmp  { margin: 1em 0 }
         h5              { font-size: .83em; margin: 1.5em 0 }
         h6              { font-size: .75em; margin: 1.67em 0 }
         h1, h2, h3, h4,
@@ -43,9 +45,23 @@ internal static class CssDefaults
         blockquote      { margin-left: 40px; margin-right: 40px }
         i, cite, em,
         var, address    { font-style: italic }
-        pre, tt, code,
+        /* HTML §15.3.3 (Flow content) gives listing, plaintext and xmp pre's rendering:
+           display: block, margin-block: 1em, font-family: monospace, white-space: pre.
+           They join pre's display group above and p's margin group (margin-block written as
+           `margin: 1em 0`, as for p, which has the same rule), and pre in the two rules below.
+           The HTML Standard tokenizes xmp as RAWTEXT and plaintext as PLAINTEXT (Broiler.Dom.Html
+           does so from its tokenizer update on), so their content is literal text whose line
+           breaks only survive with white-space: pre. Two known gaps, tracked in docs/roadmap.md.
+           The tree builder drops a line feed right after a pre or listing start tag, but
+           Broiler.Dom.Html keeps it, so white-space: pre paints it as an empty first line; pre
+           already had this, and listing now has it too. And pre's legacy `font-size: 10pt;
+           margin-top: 15px` further down stays pre-only, so pre still renders smaller than
+           listing, plaintext and xmp, with no bottom margin. */
+        listing, plaintext,
+        pre, xmp, tt, code,
         kbd, samp       { font-family: monospace }
-        pre             { white-space: pre }
+        listing, plaintext,
+        pre, xmp        { white-space: pre }
         button, textarea,
         input, select   { display: inline-block; border: 1px solid #767676;
                           padding: 1px 2px; background-color: #ffffff;
@@ -63,7 +79,12 @@ internal static class CssDefaults
                           background-color: #f0f0f0; text-align: center; }
         select           { min-width: 60px; height: 1.4em; }
         button           { padding: 1px 6px; background-color: #f0f0f0; text-align: center; }
-        textarea         { min-width: 170px; min-height: 3em; }
+        /* HTML §15.3.10 (Form controls): textarea { white-space: pre-wrap }. Its text content
+           is the control's value, so its line breaks and indentation must show. Known gap,
+           tracked in docs/roadmap.md: the tree builder drops a line feed right after the
+           textarea start tag, but Broiler.Dom.Html keeps it, so content that starts on the
+           line after the tag paints an empty first line. */
+        textarea         { min-width: 170px; min-height: 3em; white-space: pre-wrap; }
         big             { font-size: 1.17em }
         small, sub, sup { font-size: .83em }
         sub             { vertical-align: sub }
@@ -149,6 +170,19 @@ internal static class CssDefaults
         script, link,
         meta, area,
         base, param     { display:none }
+        /* HTML §15.3.1 (Hidden elements) hides noembed and noframes everywhere, not only a
+           frameset's noframes (which DomParser also hides). The HTML Standard tokenizes both
+           as RAWTEXT (Broiler.Dom.Html does so from its tokenizer update on), so a visible box
+           would paint their fallback markup as literal text. datalist, from the same list, is
+           a suggestion source, not content. basefont and rp from that list are left out on
+           purpose: Broiler.Dom.Html does not parse basefont as a void element, so it contains
+           its following siblings and hiding it would hide them too; and with no ruby layout
+           the rp parentheses are the only separator between an rt and its base text.
+           Broiler.CSS.Dom's CssUserAgentDefaults.DisplayValues leaves both out for the same
+           reasons; hide them in both sheets together (docs/roadmap.md). */
+        datalist,
+        noembed,
+        noframes        { display: none }
         /* The bevel base, not the bevel: Engine.BorderBevel darkens the top and left of an
            `inset` border, turning this into the #9A9A9A/#EEEEEE pair browsers paint. CSS makes
            the initial border-color `currentColor`, which bevels black-on-black; every engine

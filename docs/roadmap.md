@@ -8,7 +8,7 @@ created them are implemented. Their historical plans have been removed.
 
 The checked-in dashboard currently reports:
 
-- 167 active repository-owned cases and no quarantine;
+- 168 active repository-owned cases and no quarantine;
 - 176 HTML/CSS coverage items, 175 covered or explicitly classified;
 - 131 CSS current-work rows, 130 at their declared static-renderer target oracle;
 - one inventory-only parse target for CSS Linked Parameters Level 1; and
@@ -113,7 +113,37 @@ Exit gate:
 - raster, text, SVG, image, pixel-diff, Acid, and WPT gates pass; and
 - `docs/graphics-backend.md` and package metadata describe the final topology.
 
-## 5. Release and review gates
+## 5. Close the user-agent stylesheet gaps
+
+`Broiler.HTML.Core/CssDefaults.cs` departs from the HTML Standard's rendering section
+where the parser or layout cannot yet support the spec rule, or where legacy rules remain:
+
+- **Line feed after `pre`, `listing` and `textarea` start tags.** The tree builder
+  (§13.2.6.4.7 "in body") ignores a U+000A token right after these start tags.
+  Broiler.Dom.Html keeps it, and `white-space: pre`/`pre-wrap` paints it as an empty first
+  line. `pre` already does this; `listing` and `textarea` do it since they got their
+  §15.3.3 and §15.3.10 `white-space` rules. Fix it in Broiler.Dom.Html's tree builder, not
+  here: a renderer-side strip would drop a second line feed once the parser is fixed.
+  Then add a `layout` case whose `pre`, `listing` and `textarea` content starts on the
+  line after the tag.
+- **`pre` legacy sizing.** `pre` keeps `font-size: 10pt; margin-top: 15px` and has no
+  bottom margin. §15.3.3 gives `listing`, `plaintext`, `pre` and `xmp` the same rule
+  (`margin-block: 1em`, no font size), and the other three follow it. Align `pre` and triage
+  the changed references, including `pre-whitespace.png`, and the WPT results.
+- **`basefont` and `rp` are not hidden.** §15.3.1 hides both. Broiler.Dom.Html does not
+  parse `basefont` (or `bgsound` and `keygen`) as a void element, so hiding a `basefont`
+  would hide the siblings it swallows. Without ruby layout (section 1), the `rp`
+  parentheses are the only separator between an `rt` and its base text; hiding them
+  changes the ruby references. Broiler.CSS.Dom's `CssUserAgentDefaults.DisplayValues`
+  leaves both out for the same reasons, so change both sheets together.
+
+Exit gate:
+
+- none of the departures above remains in `CssDefaults.cs`, and Broiler.CSS.Dom's
+  `CssUserAgentDefaults` matches it; and
+- owned cases pin the leading-line-feed, `pre` sizing, `basefont` and `rp` behavior.
+
+## 6. Release and review gates
 
 Before a preview release:
 
