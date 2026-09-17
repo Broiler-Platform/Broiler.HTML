@@ -3097,6 +3097,43 @@
       "status": "active"
     },
     {
+      "id": "html52-css-ua-defaults-text-only-elements-001",
+      "title": "Compute UA defaults for noembed, noframes, datalist, xmp, listing, plaintext and textarea",
+      "cluster": "css",
+      "subcluster": "phase6-coverage-close",
+      "featureId": "css-ua-defaults-presentational-hints",
+      "spec": [
+        {
+          "section": "10.3.1",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#hidden-elements"
+        },
+        {
+          "section": "10.3.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#non-replaced-elements-flow-content"
+        },
+        {
+          "section": "10.3.11",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#form-controls"
+        }
+      ],
+      "input": "cases/css/ua-defaults-text-only-elements.html",
+      "assertions": [
+        "noembed, noframes and datalist compute display: none, so their fallback text never paints.",
+        "xmp, listing and plaintext compute display: block, font-family: monospace, white-space: pre and 16px top and bottom margins.",
+        "textarea computes white-space: pre-wrap."
+      ],
+      "expectations": {
+        "computedStyle": "references/computed-style/ua-defaults-text-only-elements.json"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
       "id": "html52-xhtml-xml-prolog-namespaces-001",
       "title": "Parse XHTML-shaped document with XML prolog and namespace attributes",
       "cluster": "xhtml",
