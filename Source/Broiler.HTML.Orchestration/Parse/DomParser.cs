@@ -1196,17 +1196,22 @@ internal sealed class DomParser
             : fallback;
     }
 
-    private const double DefaultProgressTrackLengthPx = 120;
+    private const string DefaultProgressTrackLengthPx = "120px";
 
     /// <summary>
     /// HTML §4.10.13/4.10.14: <c>&lt;progress&gt;</c> / <c>&lt;meter&gt;</c> are replaced form controls.
-    /// Broiler has no native control chrome, so — matching the bridge's
-    /// <c>HtmlPostProcessor.ReplaceProgressLikeWithPlaceholder</c> fallback — a post-cascade pass renders each
-    /// as a bordered <c>inline-block</c> track with an absolutely-positioned fill bar proportional to
-    /// <c>value</c> (honouring writing-mode / direction for vertical and reversed bars) and hides the
-    /// element's fallback text. Runs post-cascade so the injected fill box and forced track geometry are not
-    /// re-cascaded. Native replacement for the string rewrite; matches its exact colours/sizes so retiring the
-    /// fallback (once the pointer is bumped) does not change rendering.
+    /// Broiler has no native control chrome, so a post-cascade pass renders each as a bordered
+    /// <c>inline-block</c> track with an absolutely-positioned fill bar proportional to <c>value</c>
+    /// (honouring writing-mode / direction for vertical and reversed bars) and hides the element's
+    /// fallback text, which a UA that supports the control never renders. Runs post-cascade so the
+    /// injected fill box is not re-cascaded.
+    /// <para>HTML §15 expresses the rendering of these controls as a user-agent-origin style sheet, so
+    /// every property below is a default that an author declaration outranks, and each is filled in
+    /// only where the cascade left it at its initial value — the way <see cref="CorrectCanvasBoxes"/>
+    /// guards the display and <see cref="CorrectVideoBoxes"/> the sizing. Written unconditionally, as
+    /// this was, it threw away every author declaration on the element: <c>progress { width: 220px }</c>
+    /// rendered 120px wide and <c>progress { display: none }</c> came back as an inline-block, because
+    /// a display:none box is still in the tree when this pass walks it.</para>
     /// </summary>
     private static void CorrectProgressBoxes(CssBox box, Uri baseUrl)
     {
@@ -1221,25 +1226,44 @@ internal sealed class DomParser
             bool reverseInline = string.Equals(box.Direction, "rtl", StringComparison.OrdinalIgnoreCase);
             double ratio = ResolveProgressValueRatio(box, isMeter);
 
-            // Track (host) box — forced geometry/appearance, matching the string fallback.
-            box.Display = CssConstants.InlineBlock;
-            box.BoxSizing = "border-box";
-            box.Position = CssConstants.Relative;
-            box.Overflow = CssConstants.Hidden;
-            box.PaddingLeft = box.PaddingRight = box.PaddingTop = box.PaddingBottom = "0";
-            SetUniformBorder(box, "1px", "solid", "#767676");
-            box.BackgroundColor = isMeter ? "#e6e6e6" : "#f0f0f0";
-            box.VerticalAlign = "middle";
-            box.Width = vertical ? "16px" : "120px";
-            box.Height = vertical ? "120px" : "16px";
+            // Track (host) box — the UA-origin geometry and appearance, each one yielding to the
+            // author declaration that claimed the same property.
+            if (box.Display == CssConstants.Inline)
+                box.Display = CssConstants.InlineBlock;
+            if (string.IsNullOrEmpty(box.BoxSizing) || box.BoxSizing.Equals("content-box", StringComparison.OrdinalIgnoreCase))
+                box.BoxSizing = "border-box";
+            if (string.IsNullOrEmpty(box.Position) || box.Position.Equals("static", StringComparison.OrdinalIgnoreCase))
+                box.Position = CssConstants.Relative;
+            if (string.IsNullOrEmpty(box.Overflow) || box.Overflow == CssConstants.Visible)
+                box.Overflow = CssConstants.Hidden;
+            // A border is authored as one thing, so it is guarded as one, on the single property
+            // that decides whether a border paints at all: with every side still at the initial
+            // `border-style: none` the author has declared no border, and an author who declared
+            // one keeps its width and colour along with its style.
+            if (HasNoDeclaredBorderStyle(box))
+                SetUniformBorder(box, "1px", "solid", "#767676");
+            if (string.IsNullOrEmpty(box.BackgroundColor)
+                || box.BackgroundColor.Equals("transparent", StringComparison.OrdinalIgnoreCase))
+                box.BackgroundColor = isMeter ? "#e6e6e6" : "#f0f0f0";
+            if (string.IsNullOrEmpty(box.VerticalAlign) || box.VerticalAlign == CssConstants.Baseline)
+                box.VerticalAlign = "middle";
+            if (box.Width == CssConstants.Auto)
+                box.Width = vertical ? "16px" : DefaultProgressTrackLengthPx;
+            if (box.Height == CssConstants.Auto)
+                box.Height = vertical ? DefaultProgressTrackLengthPx : "16px";
+            // The padding the pass used to zero here is already zero unless the author asked for
+            // some: `padding` has an initial value of 0 and no rule in §15 gives these controls
+            // any, so writing it could only discard the author's.
 
             // The element's fallback text/content does not paint; the fill bar replaces it.
             foreach (var child in box.Boxes)
                 child.Display = CssConstants.None;
 
             // Fill bar — absolutely positioned within the relative track, sized to the value ratio.
-            var fillExtent = (DefaultProgressTrackLengthPx * ratio)
-                .ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "px";
+            // As a fraction of the track and not of the 120px default: the fill's containing block
+            // is the track's padding box (CSS2.1 §10.1), so a percentage follows whatever used size
+            // the track ends up with, where the constant left a 300px track with a 120px bar.
+            var fillExtent = FormatPercent(ratio * 100);
             var fill = CssBoxHelper.CreateBlock(box, baseUrl);
             fill.Position = CssConstants.Absolute;
             fill.BackgroundColor = isMeter ? "#4caf50" : "#0a84ff";
@@ -1263,6 +1287,20 @@ internal sealed class DomParser
         foreach (var child in box.Boxes)
             CorrectProgressBoxes(child, baseUrl);
     }
+
+    /// <summary>
+    /// Whether the cascade left every side of <paramref name="box"/> at the initial
+    /// <c>border-style: none</c>, which is what a UA fix-up has to see before it puts a border of
+    /// its own on a form control the author has already styled.
+    /// </summary>
+    private static bool HasNoDeclaredBorderStyle(CssBox box) =>
+        IsInitialBorderStyle(box.BorderTopStyle)
+        && IsInitialBorderStyle(box.BorderRightStyle)
+        && IsInitialBorderStyle(box.BorderBottomStyle)
+        && IsInitialBorderStyle(box.BorderLeftStyle);
+
+    private static bool IsInitialBorderStyle(string? style) =>
+        string.IsNullOrEmpty(style) || style.Equals(CssConstants.None, StringComparison.OrdinalIgnoreCase);
 
     private static void SetUniformBorder(CssBox box, string width, string style, string color)
     {
