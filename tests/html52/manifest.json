@@ -1615,6 +1615,38 @@
       "status": "active"
     },
     {
+      "id": "html52-form-render-progress-meter-author-css-001",
+      "title": "Keep author CSS on progress and meter widgets",
+      "cluster": "forms",
+      "subcluster": "phase3-forms-render",
+      "featureId": "elements-forms",
+      "spec": [
+        {
+          "section": "15.5.12",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/rendering.html#the-progress-element-0"
+        }
+      ],
+      "input": "cases/forms/progress-meter-author-css.html",
+      "assertions": [
+        "An author width, height, border and background on progress and meter outrank the user-agent widget chrome.",
+        "display: none on a progress element is honoured instead of being replaced by the widget box.",
+        "The fill bar is a fraction of the track it sits in rather than a fixed length."
+      ],
+      "expectations": {
+        "layout": "references/layout/form-progress-meter-author-css.json",
+        "displayList": "references/display-list/form-progress-meter-author-css.json"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "form-controls",
+        "layout",
+        "paint"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
       "id": "html52-form-render-disabled-readonly-required-001",
       "title": "Render disabled, readonly, and required form attributes",
       "cluster": "forms",
@@ -1798,6 +1830,36 @@
       "requires": [
         "html-parser",
         "resource-log"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
+      "id": "html52-resource-render-base-resolution-001",
+      "title": "Render sub-resources resolved against the base element",
+      "cluster": "resources",
+      "subcluster": "phase4-render",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "4.2.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/document-metadata.html#the-base-element"
+        }
+      ],
+      "input": "cases/resources/base-resolution-render.html",
+      "assertions": [
+        "A stylesheet linked before the base element loads from the document base URL.",
+        "An image src resolves against the document base URL and lays out at its intrinsic size.",
+        "A url() in an inline style sheet resolves against the document base URL."
+      ],
+      "expectations": {
+        "layout": "references/layout/base-resolution-render.json",
+        "displayList": "references/display-list/base-resolution-render.json"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout"
       ],
       "scripts": "not-required",
       "status": "active"

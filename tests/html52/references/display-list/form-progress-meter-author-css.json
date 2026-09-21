@@ -1,0 +1,256 @@
+{
+  "items": [
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 0, "y": 25.98, "width": 120, "height": 16 },
+      "color": "#F0F0F0"
+    },
+    {
+      "$type": "DrawBorder",
+      "bounds": { "x": 0, "y": 25.98, "width": 120, "height": 16 },
+      "topColor": "#767676",
+      "rightColor": "#767676",
+      "bottomColor": "#767676",
+      "leftColor": "#767676",
+      "topStyle": "solid",
+      "rightStyle": "solid",
+      "bottomStyle": "solid",
+      "leftStyle": "solid",
+      "widths": { "top": 1, "right": 1, "bottom": 1, "left": 1 },
+      "cornerNw": 0,
+      "cornerNe": 0,
+      "cornerSe": 0,
+      "cornerSw": 0
+    },
+    {
+      "$type": "Clip",
+      "bounds": { "x": 0, "y": 25.98, "width": 120, "height": 16 },
+      "clipRect": { "x": 1, "y": 26.98, "width": 118, "height": 14 },
+      "cornerNw": 0,
+      "cornerNwY": 0,
+      "cornerNe": 0,
+      "cornerNeY": 0,
+      "cornerSe": 0,
+      "cornerSeY": 0,
+      "cornerSw": 0,
+      "cornerSwY": 0
+    },
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 1, "y": 26.98, "width": 35.4, "height": 14 },
+      "color": "#0A84FF"
+    },
+    {
+      "$type": "Restore",
+      "bounds": { "x": 0, "y": 25.98, "width": 120, "height": 16 }
+    },
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 120, "y": 25.98, "width": 120, "height": 16 },
+      "color": "#E6E6E6"
+    },
+    {
+      "$type": "DrawBorder",
+      "bounds": { "x": 120, "y": 25.98, "width": 120, "height": 16 },
+      "topColor": "#767676",
+      "rightColor": "#767676",
+      "bottomColor": "#767676",
+      "leftColor": "#767676",
+      "topStyle": "solid",
+      "rightStyle": "solid",
+      "bottomStyle": "solid",
+      "leftStyle": "solid",
+      "widths": { "top": 1, "right": 1, "bottom": 1, "left": 1 },
+      "cornerNw": 0,
+      "cornerNe": 0,
+      "cornerSe": 0,
+      "cornerSw": 0
+    },
+    {
+      "$type": "Clip",
+      "bounds": { "x": 120, "y": 25.98, "width": 120, "height": 16 },
+      "clipRect": { "x": 121, "y": 26.98, "width": 118, "height": 14 },
+      "cornerNw": 0,
+      "cornerNwY": 0,
+      "cornerNe": 0,
+      "cornerNeY": 0,
+      "cornerSe": 0,
+      "cornerSeY": 0,
+      "cornerSw": 0,
+      "cornerSwY": 0
+    },
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 121, "y": 26.98, "width": 76.7, "height": 14 },
+      "color": "#4CAF50"
+    },
+    {
+      "$type": "Restore",
+      "bounds": { "x": 120, "y": 25.98, "width": 120, "height": 16 }
+    },
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 0, "y": 67.17, "width": 220, "height": 24 },
+      "color": "#BAC8FF"
+    },
+    {
+      "$type": "DrawBorder",
+      "bounds": { "x": 0, "y": 67.17, "width": 220, "height": 24 },
+      "topColor": "#364FC7",
+      "rightColor": "#364FC7",
+      "bottomColor": "#364FC7",
+      "leftColor": "#364FC7",
+      "topStyle": "solid",
+      "rightStyle": "solid",
+      "bottomStyle": "solid",
+      "leftStyle": "solid",
+      "widths": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+      "cornerNw": 0,
+      "cornerNe": 0,
+      "cornerSe": 0,
+      "cornerSw": 0
+    },
+    {
+      "$type": "Clip",
+      "bounds": { "x": 0, "y": 67.17, "width": 220, "height": 24 },
+      "clipRect": { "x": 3, "y": 70.17, "width": 214, "height": 18 },
+      "cornerNw": 0,
+      "cornerNwY": 0,
+      "cornerNe": 0,
+      "cornerNeY": 0,
+      "cornerSe": 0,
+      "cornerSeY": 0,
+      "cornerSw": 0,
+      "cornerSwY": 0
+    },
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 3, "y": 70.17, "width": 64.2, "height": 18 },
+      "color": "#0A84FF"
+    },
+    {
+      "$type": "Restore",
+      "bounds": { "x": 0, "y": 67.17, "width": 220, "height": 24 }
+    },
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 220, "y": 67.17, "width": 220, "height": 24 },
+      "color": "#BAC8FF"
+    },
+    {
+      "$type": "DrawBorder",
+      "bounds": { "x": 220, "y": 67.17, "width": 220, "height": 24 },
+      "topColor": "#364FC7",
+      "rightColor": "#364FC7",
+      "bottomColor": "#364FC7",
+      "leftColor": "#364FC7",
+      "topStyle": "solid",
+      "rightStyle": "solid",
+      "bottomStyle": "solid",
+      "leftStyle": "solid",
+      "widths": { "top": 3, "right": 3, "bottom": 3, "left": 3 },
+      "cornerNw": 0,
+      "cornerNe": 0,
+      "cornerSe": 0,
+      "cornerSw": 0
+    },
+    {
+      "$type": "Clip",
+      "bounds": { "x": 220, "y": 67.17, "width": 220, "height": 24 },
+      "clipRect": { "x": 223, "y": 70.17, "width": 214, "height": 18 },
+      "cornerNw": 0,
+      "cornerNwY": 0,
+      "cornerNe": 0,
+      "cornerNeY": 0,
+      "cornerSe": 0,
+      "cornerSeY": 0,
+      "cornerSw": 0,
+      "cornerSwY": 0
+    },
+    {
+      "$type": "FillRect",
+      "bounds": { "x": 223, "y": 70.17, "width": 139.1, "height": 18 },
+      "color": "#4CAF50"
+    },
+    {
+      "$type": "Restore",
+      "bounds": { "x": 220, "y": 67.17, "width": 220, "height": 24 }
+    },
+    {
+      "$type": "DrawText",
+      "bounds": { "x": 0, "y": 102.37, "width": 32.02, "height": 18.56 },
+      "text": "after",
+      "fontFamily": "Arial, sans-serif",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#000000",
+      "origin": { "x": 0, "y": 102.37 },
+      "isRtl": false,
+      "glyphRotationDeg": 0,
+      "textShadowOffsetX": 0,
+      "textShadowOffsetY": 0,
+      "textShadowColor": "#00000000",
+      "gradientAngle": 180,
+      "gradientInterpolationSpace": "srgb",
+      "gradientBounds": { "x": 0, "y": 102.37, "width": 32.02, "height": 18.56 },
+      "gradientStops": []
+    },
+    {
+      "$type": "DrawText",
+      "bounds": { "x": 36.46, "y": 102.37, "width": 22.24, "height": 18.56 },
+      "text": "the",
+      "fontFamily": "Arial, sans-serif",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#000000",
+      "origin": { "x": 36.46, "y": 102.37 },
+      "isRtl": false,
+      "glyphRotationDeg": 0,
+      "textShadowOffsetX": 0,
+      "textShadowOffsetY": 0,
+      "textShadowColor": "#00000000",
+      "gradientAngle": 180,
+      "gradientInterpolationSpace": "srgb",
+      "gradientBounds": { "x": 36.46, "y": 102.37, "width": 22.24, "height": 18.56 },
+      "gradientStops": []
+    },
+    {
+      "$type": "DrawText",
+      "bounds": { "x": 63.15, "y": 102.37, "width": 48.05, "height": 18.56 },
+      "text": "hidden",
+      "fontFamily": "Arial, sans-serif",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#000000",
+      "origin": { "x": 63.15, "y": 102.37 },
+      "isRtl": false,
+      "glyphRotationDeg": 0,
+      "textShadowOffsetX": 0,
+      "textShadowOffsetY": 0,
+      "textShadowColor": "#00000000",
+      "gradientAngle": 180,
+      "gradientInterpolationSpace": "srgb",
+      "gradientBounds": { "x": 63.15, "y": 102.37, "width": 48.05, "height": 18.56 },
+      "gradientStops": []
+    },
+    {
+      "$type": "DrawText",
+      "bounds": { "x": 115.64, "y": 102.37, "width": 23.12, "height": 18.56 },
+      "text": "bar",
+      "fontFamily": "Arial, sans-serif",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#000000",
+      "origin": { "x": 115.64, "y": 102.37 },
+      "isRtl": false,
+      "glyphRotationDeg": 0,
+      "textShadowOffsetX": 0,
+      "textShadowOffsetY": 0,
+      "textShadowColor": "#00000000",
+      "gradientAngle": 180,
+      "gradientInterpolationSpace": "srgb",
+      "gradientBounds": { "x": 115.64, "y": 102.37, "width": 23.12, "height": 18.56 },
+      "gradientStops": []
+    }
+  ]
+}

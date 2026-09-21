@@ -123,6 +123,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// </summary>
     public string? BaseUrl { get; set; }
 
+    /// <summary>
+    /// The base URL the document currently in this container resolves its relative URLs
+    /// against: <see cref="BaseUrl"/> unless the document carries a <c>&lt;base href&gt;</c>
+    /// (HTML §4.2.3), which replaces it. Published by the parse, which is the first point at
+    /// which the <c>&lt;base&gt;</c> is known, and read by the loaders that resolve a
+    /// sub-resource against something other than a box's own base URL.
+    /// </summary>
+    internal Uri? DocumentBaseUrl { get; set; }
+
     public SizeF ActualSize { get; set; }
 
     public SizeF PageSize { get; set; }
@@ -876,6 +885,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     public void Clear()
     {
+        DocumentBaseUrl = null;
         _boundDocument = null;
         _boundBaseStyleSet = null;
         _boundDocumentInvalidation?.Dispose();
@@ -1581,23 +1591,21 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     }
 
     /// <summary>
-    /// Resolves an href value against <see cref="BaseUrl"/> when the href is a
-    /// relative path. If <see cref="BaseUrl"/> is not set or the href is already
-    /// absolute, the original href is returned unchanged.
+    /// Resolves an href value against the document base URL when the href is a relative path:
+    /// the document's own <c>&lt;base href&gt;</c> if it declared one (HTML §4.2.3), otherwise
+    /// <see cref="BaseUrl"/>. If neither is available or the href is already absolute, the
+    /// original href is returned unchanged.
     /// </summary>
     internal string ResolveHref(string href)
     {
-        if (string.IsNullOrEmpty(BaseUrl))
-            return href;
-
         if (Uri.TryCreate(href, UriKind.Absolute, out _))
             return href;
 
-        if (Uri.TryCreate(BaseUrl, UriKind.Absolute, out var baseUri))
-        {
-            var resolved = new Uri(baseUri, href);
-            return resolved.AbsoluteUri;
-        }
+        if (DocumentBaseUrl is { IsAbsoluteUri: true } documentBaseUrl)
+            return new Uri(documentBaseUrl, href).AbsoluteUri;
+
+        if (!string.IsNullOrEmpty(BaseUrl) && Uri.TryCreate(BaseUrl, UriKind.Absolute, out var baseUri))
+            return new Uri(baseUri, href).AbsoluteUri;
 
         return href;
     }

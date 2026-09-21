@@ -1,13 +1,13 @@
 using Broiler.Dom.Html;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 
+using CommonUtils = Broiler.HTML.Core.Utils.CommonUtils;
 using HtmlTag = Broiler.Layout.HtmlTag;
 using Broiler.Layout;
 using Broiler.Layout.Engine;
@@ -65,7 +65,7 @@ public static class HtmlParserDump
             ? new Uri(baseUrl, UriKind.Absolute)
             : new Uri("about:blank");
         var root = HtmlParser.ParseDocument(html, initialBaseUrl);
-        var documentBaseUrl = FindDocumentBaseUrl(root, initialBaseUrl);
+        var documentBaseUrl = DocumentBaseUrl.Resolve(root, initialBaseUrl);
         var resources = new List<ResourceLogEntry>();
 
         CollectResources(root, documentBaseUrl, initialBaseUrl, resources);
@@ -166,26 +166,6 @@ public static class HtmlParserDump
             sb.AppendLine(index < entries.Count - 1 ? "," : string.Empty);
         }
         sb.Append(pad).Append('}');
-    }
-
-    private static Uri FindDocumentBaseUrl(CssBox box, Uri fallbackBaseUrl)
-    {
-        if (box.HtmlTag != null &&
-            box.HtmlTag.Name.Equals("base", StringComparison.OrdinalIgnoreCase) &&
-            box.HtmlTag.TryGetAttribute("href") is { } href &&
-            TryResolveUri(href, fallbackBaseUrl, out var baseUrl))
-        {
-            return baseUrl;
-        }
-
-        foreach (var child in box.Boxes)
-        {
-            var childBase = FindDocumentBaseUrl(child, fallbackBaseUrl);
-            if (!childBase.Equals(fallbackBaseUrl))
-                return childBase;
-        }
-
-        return fallbackBaseUrl;
     }
 
     private static void CollectResources(CssBox box, Uri baseUrl, Uri referenceBaseUrl, List<ResourceLogEntry> resources)
@@ -364,7 +344,7 @@ public static class HtmlParserDump
             return;
         }
 
-        if (!TryResolveUri(resource, baseUrl, out var resolvedUri))
+        if (!CommonUtils.TryResolveUri(resource, baseUrl, out var resolvedUri))
         {
             entry.UrlKind = "invalid";
             entry.Classification = "invalid-url";
@@ -424,21 +404,6 @@ public static class HtmlParserDump
         if (entry.Element == "link" && entry.Role == "stylesheet")
             return "loadable-stylesheet";
         return "logged-resource";
-    }
-
-    private static bool TryResolveUri(string raw, Uri? baseUrl, [NotNullWhen(true)] out Uri? resolvedUri)
-    {
-        resolvedUri = null;
-        if (Uri.TryCreate(raw, UriKind.Absolute, out var absoluteUri))
-        {
-            resolvedUri = absoluteUri;
-            return true;
-        }
-
-        if (baseUrl is null)
-            return false;
-
-        return Uri.TryCreate(baseUrl, raw, out resolvedUri);
     }
 
     private static string GuessDataUriMime(string resource)
