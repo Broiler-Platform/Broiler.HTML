@@ -73,8 +73,15 @@ internal sealed class DomParser
         // — and carry it instead of the URL this method was handed. Until this ran, the only
         // thing in the repository that read <base> was the resource-log dump, which is why that
         // dump could report a base-resolved file the render path would then fail to find.
+        var embedderBaseUrl = baseUrl;
         baseUrl = DocumentBaseUrl.Apply(root, baseUrl);
-        htmlContainer.DocumentBaseUrl = baseUrl;
+
+        // Published only when the document moved the base itself. BaseUrl is public and settable,
+        // so an embedder may change it after the parse and expect a later link or sheet to follow;
+        // recording the embedder's own URL here would pin that to whatever it was when this ran.
+        // A <base> the document declared is different — it belongs to the document, and outranks a
+        // later change to the URL the document was loaded from.
+        htmlContainer.DocumentBaseUrl = baseUrl.Equals(embedderBaseUrl) ? null : baseUrl;
 
         root.ContainerInt = htmlContainer;
         // Bind the layout environment at construction so font/colour and the
