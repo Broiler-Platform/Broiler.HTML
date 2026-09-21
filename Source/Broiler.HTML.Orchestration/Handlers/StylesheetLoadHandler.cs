@@ -3,6 +3,7 @@ using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 
@@ -111,13 +112,28 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
             && absolute.Scheme != Uri.UriSchemeFile)
             return src;
 
-        if (!string.IsNullOrWhiteSpace(_htmlContainer.BaseUrl) &&
-            Uri.TryCreate(_htmlContainer.BaseUrl, UriKind.Absolute, out var baseUri))
-        {
+        if (TryGetDocumentBaseUri(out var baseUri))
             return new Uri(baseUri, src).AbsoluteUri;
-        }
 
         return src;
+    }
+
+    /// <summary>
+    /// The URL a relative stylesheet href resolves against: the document's own
+    /// <c>&lt;base href&gt;</c> when it declared one (HTML §4.2.3, published by the parse
+    /// before it collects the sheets), otherwise the document URL the embedder supplied.
+    /// </summary>
+    private bool TryGetDocumentBaseUri([NotNullWhen(true)] out Uri? baseUri)
+    {
+        baseUri = null;
+        if (_htmlContainer.DocumentBaseUrl is { IsAbsoluteUri: true } documentBaseUrl)
+        {
+            baseUri = documentBaseUrl;
+            return true;
+        }
+
+        return !string.IsNullOrWhiteSpace(_htmlContainer.BaseUrl)
+            && Uri.TryCreate(_htmlContainer.BaseUrl, UriKind.Absolute, out baseUri);
     }
 
     /// <summary>

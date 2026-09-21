@@ -65,6 +65,17 @@ internal sealed class DomParser
 
     private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
+        // HTML §4.2.3: a <base href> makes the document base URL something other than the
+        // document's own URL, and everything the document references resolves against it. The
+        // tree was built against the embedder's URL because the <base> is only known once the
+        // document is parsed, so settle it here — before the stylesheet collection below loads
+        // the first <link rel=stylesheet>, and before the box fix-ups create boxes of their own
+        // — and carry it instead of the URL this method was handed. Until this ran, the only
+        // thing in the repository that read <base> was the resource-log dump, which is why that
+        // dump could report a base-resolved file the render path would then fail to find.
+        baseUrl = DocumentBaseUrl.Apply(root, baseUrl);
+        htmlContainer.DocumentBaseUrl = baseUrl;
+
         root.ContainerInt = htmlContainer;
         // Bind the layout environment at construction so font/colour and the
         // initial-containing-block inputs resolve through it (roadmap §4, Phase 4 prep).

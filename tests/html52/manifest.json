@@ -1803,6 +1803,36 @@
       "status": "active"
     },
     {
+      "id": "html52-resource-render-base-resolution-001",
+      "title": "Render sub-resources resolved against the base element",
+      "cluster": "resources",
+      "subcluster": "phase4-render",
+      "featureId": "attributes-resource-url",
+      "spec": [
+        {
+          "section": "4.2.3",
+          "url": "https://www.w3.org/TR/2017/REC-html52-20171214/document-metadata.html#the-base-element"
+        }
+      ],
+      "input": "cases/resources/base-resolution-render.html",
+      "assertions": [
+        "A stylesheet linked before the base element loads from the document base URL.",
+        "An image src resolves against the document base URL and lays out at its intrinsic size.",
+        "A url() in an inline style sheet resolves against the document base URL."
+      ],
+      "expectations": {
+        "layout": "references/layout/base-resolution-render.json",
+        "displayList": "references/display-list/base-resolution-render.json"
+      },
+      "requires": [
+        "html-parser",
+        "css",
+        "layout"
+      ],
+      "scripts": "not-required",
+      "status": "active"
+    },
+    {
       "id": "html52-resource-log-input-image-001",
       "title": "Classify input type image resources",
       "cluster": "forms",

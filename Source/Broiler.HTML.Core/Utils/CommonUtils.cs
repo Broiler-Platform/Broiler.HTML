@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -78,6 +79,27 @@ internal static class CommonUtils
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Resolves <paramref name="raw"/> against <paramref name="baseUrl"/>. A URL that already
+    /// carries a scheme is returned as it stands; a relative one needs an absolute base to
+    /// resolve against, and a base that is itself relative (the placeholder the render path
+    /// builds when the embedder supplied no document URL) cannot serve as one.
+    /// </summary>
+    public static bool TryResolveUri(string raw, Uri? baseUrl, [NotNullWhen(true)] out Uri? resolvedUri)
+    {
+        resolvedUri = null;
+        if (Uri.TryCreate(raw, UriKind.Absolute, out var absoluteUri))
+        {
+            resolvedUri = absoluteUri;
+            return true;
+        }
+
+        if (baseUrl is null || !baseUrl.IsAbsoluteUri)
+            return false;
+
+        return Uri.TryCreate(baseUrl, raw, out resolvedUri);
     }
 
     public static TValue? GetFirstValueOrDefault<TKey, TValue>(IDictionary<TKey, TValue>? dic, TValue? defaultValue = default)
