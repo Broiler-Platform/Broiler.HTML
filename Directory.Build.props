@@ -15,6 +15,24 @@
   <PropertyGroup>
     <PackageProjectUrl>https://github.com/Broiler-Platform/Broiler.HTML</PackageProjectUrl>
     <PackageTags>broiler;html;css;renderer;rendering</PackageTags>
+
+    <!--
+      First preview number the Publish workflow may use. The retired GitHub Packages
+      feed already spent 0.1.0-preview.1 through preview.3 on these package IDs, and
+      nuget.org cannot see that feed, so this floor keeps nuget.org from reusing them.
+      The resolver takes the higher of this floor and the next number after every
+      preview already on nuget.org; it never needs lowering.
+    -->
+    <VersionSuffix>preview.4</VersionSuffix>
+
+    <!-- Inherited HTML Renderer code stays under BSD-3-Clause (see THIRD_PARTY_NOTICES.md). -->
+    <PackageLicenseExpression>Apache-2.0 AND BSD-3-Clause</PackageLicenseExpression>
   </PropertyGroup>
+
+  <!-- BSD-3-Clause requires its text in binary redistributions; the notices file links here. -->
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)LICENSES\HTML-Renderer-BSD-3-Clause.txt"
+          Pack="true" PackagePath="LICENSES\" Visible="false" />
+  </ItemGroup>
 
 </Project>

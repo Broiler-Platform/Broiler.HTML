@@ -14,6 +14,15 @@ test('configured preview is a floor and other release lines do not affect it', (
   ]), '0.1.0-preview.4');
 });
 
+test('numbers spent on the retired GitHub feed are never reused on nuget.org', () => {
+  // GitHub Packages holds preview.1..3, recorded as the preview.4 floor; nuget.org may lag.
+  assert.equal(chooseVersion('0.1.0-preview.4', []), '0.1.0-preview.4');
+  assert.equal(chooseVersion('0.1.0-preview.4', ['0.1.0-preview.2']), '0.1.0-preview.4');
+  assert.equal(chooseVersion('0.1.0-preview.4', ['0.1.0-preview.2', '0.1.0-preview.4']), '0.1.0-preview.5');
+  assert.equal(chooseVersion('0.1.0-preview.4', ['0.1.0-preview.7']), '0.1.0-preview.8');
+  assert.throws(() => chooseVersion('0.1.0-preview.4', ['0.1.0-preview.2'], { suffix: 'preview.3' }));
+});
+
 test('only unused previews on the configured release line are accepted', () => {
   const published = ['0.1.0-preview.1'];
   assert.equal(chooseVersion('0.1.0-preview.1', published, { suffix: 'preview.3' }), '0.1.0-preview.3');
