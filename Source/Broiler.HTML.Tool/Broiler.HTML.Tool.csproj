@@ -13,7 +13,6 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>broiler-html-render</ToolCommandName>
     <PackageId>Broiler.HTML.Tool</PackageId>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>

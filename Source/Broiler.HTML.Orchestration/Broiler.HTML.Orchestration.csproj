@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <Description>Box-tree construction, the HTML container, and painting into a display list for the Broiler.HTML renderer.</Description>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">

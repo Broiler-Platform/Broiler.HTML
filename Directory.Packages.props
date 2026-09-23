@@ -2,12 +2,13 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
+  <!-- Every pin must exist on nuget.org, the only restore source. -->
   <ItemGroup>
-    <PackageVersion Include="Broiler.CSS" Version="0.1.0-preview.2" />
-    <PackageVersion Include="Broiler.Dom.Html" Version="0.1.0-preview.2" />
-    <PackageVersion Include="Broiler.Graphics" Version="0.1.0-preview.4" />
-    <PackageVersion Include="Broiler.Graphics.Windows" Version="0.1.0-preview.4" />
+    <PackageVersion Include="Broiler.CSS" Version="0.1.0-preview.7" />
+    <PackageVersion Include="Broiler.Dom.Html" Version="0.1.0-preview.8" />
+    <PackageVersion Include="Broiler.Graphics" Version="0.1.0-preview.5" />
+    <PackageVersion Include="Broiler.Graphics.Windows" Version="0.1.0-preview.5" />
     <PackageVersion Include="Broiler.Layout" Version="0.1.0-preview.3" />
-    <PackageVersion Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.11" />
+    <PackageVersion Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.14" />
   </ItemGroup>
 </Project>

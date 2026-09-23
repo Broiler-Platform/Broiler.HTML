@@ -4,8 +4,31 @@ Broiler.HTML is a modular .NET HTML renderer split into focused assemblies for p
 
 > **Preview status:** APIs, rendering behavior, and platform support are unstable.
 > Substantial implementation work was AI-assisted. Human-review approval is
-> revision-scoped; consult [HUMAN_REVIEW.md](HUMAN_REVIEW.md) for the reviewed
+> revision-scoped; consult [HUMAN_REVIEW.md](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/HUMAN_REVIEW.md) for the reviewed
 > revision and conditions before describing the current checkout as approved.
+
+> **Security warning:** Broiler.HTML is not hardened and is not approved for hostile or
+> untrusted HTML/CSS. It may still contain security-sensitive rendering paths (parsing,
+> resource resolution, fonts, images, and file or network access through adapters). Use
+> it only with controlled inputs; where untrusted content cannot be avoided, sandbox the
+> process and restrict resource loading.
+
+## Packages
+
+Preview packages are published to [nuget.org](https://www.nuget.org/packages?q=Broiler.HTML) in lockstep under one `0.1.0-preview.N` version:
+
+| Package | Contents |
+| --- | --- |
+| `Broiler.HTML.Image` | Render HTML to in-memory bitmaps, PNG bytes, and files |
+| `Broiler.HTML.Graphics` | Render HTML to `Broiler.Graphics` bitmaps, encoded images, and render command lists |
+| `Broiler.HTML.Image.Compat` | Backend-neutral image adapter with a bundled fallback font |
+| `Broiler.HTML.Orchestration` | Box-tree construction, the HTML container, and painting |
+| `Broiler.HTML.Dom` | HTML parsing into the Broiler DOM |
+| `Broiler.HTML.Core` | Shared entities and handler contracts |
+
+```bash
+dotnet add package Broiler.HTML.Image --prerelease
+```
 
 ## Origin, independence, and development
 
@@ -22,7 +45,7 @@ Much of that later work was created with AI coding tools under maintainer direct
 
 Broiler.HTML is maintained independently. It is not an official version, continuation, or
 release of HTML Renderer, and the upstream authors have not reviewed or endorsed it. See
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for provenance and license details.
+[THIRD_PARTY_NOTICES.md](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/THIRD_PARTY_NOTICES.md) for provenance and license details.
 
 ## Repository goals
 
@@ -60,11 +83,7 @@ Run the repository build from the repository root:
 dotnet build Broiler.HTML.slnx
 ```
 
-The Broiler components this renderer builds on - Broiler.CSS, Broiler.Dom.Html, Broiler.Graphics, Broiler.Layout and Broiler.Media - are NuGet packages from the Broiler-Platform GitHub Packages feed, pinned in `Directory.Packages.props`. GitHub Packages needs credentials even for public packages. Supply a token with `read:packages` through NuGet's environment variable for the `github` source rather than writing it into `NuGet.config`:
-
-```bash
-export NuGetPackageSourceCredentials_github="Username=<github-user>;Password=<token>;ValidAuthenticationTypes=Basic"
-```
+The Broiler components this renderer builds on - Broiler.CSS, Broiler.Dom.Html, Broiler.Graphics, Broiler.Layout and Broiler.Media - are nuget.org packages pinned in `Directory.Packages.props`. `NuGet.config` restores from nuget.org only, so no credentials are needed.
 
 NuGet never re-downloads a package id and version it already has in its global cache, so a locally packed build of the same version will shadow the published one. Remove the stale entry from `~/.nuget/packages` if a restore resolves types that the feed package does not have.
 
@@ -72,9 +91,9 @@ The solution does not contain .NET test projects yet. The checked-in automated t
 
 ### Continuous integration and publishing
 
-`.github/workflows/ci.yml` follows the other Broiler components. On every push to `main` and every pull request it builds `Release` on Ubuntu and Windows, runs the script tests and the HTML 5.2 corpus consistency checks, then packs and verifies every package on Ubuntu and attaches them as `nuget-packages`. In GitHub Actions the job token reaches NuGet through `NuGetPackageSourceCredentials_github`. Each Broiler dependency must grant this repository Actions read access, because `packages: read` alone does not reach packages owned by another repository.
+`.github/workflows/ci.yml` follows the other Broiler components. On every push to `main` and every pull request it builds `Release` on Ubuntu and Windows, runs the script tests and the HTML 5.2 corpus consistency checks, then packs and verifies every package on Ubuntu and attaches them as `nuget-packages`.
 
-`.github/workflows/publish.yml` resolves the next free `0.1.0-preview.N`, reruns CI with that version, proves that a consumer can restore the packages from the destination feed, and pushes them. Dispatch it manually to publish to GitHub Packages or nuget.org (`dry-run` is on by default), or push a `v*` tag to publish to nuget.org.
+`.github/workflows/publish.yml` resolves the next free `0.1.0-preview.N`, reruns CI with that version, proves that a consumer can restore the packages with nuget.org as its only feed, and pushes them to nuget.org with the `NUGET_TOKEN` secret. Dispatch it manually (`dry-run` is on by default) or push a `v*` tag. The version is one past the highest preview of any of these packages on nuget.org, and never below the `VersionSuffix` floor in `Directory.Build.props`, which records the `preview.1`-`preview.3` numbers already spent on the retired GitHub Packages feed.
 
 The HTML 5.2 and non-JS WPT render/diff suites are the two manually dispatched workflows beside them.
 
@@ -212,30 +231,31 @@ The repository includes a demo that renders a URL with `Broiler.HTML.Graphics` d
 dotnet run --project Source/Broiler.HTML.Graphics.Win32.Demo -- https://example.com/
 ```
 
-The repository also includes a manually dispatched GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It restores the Broiler packages from GitHub Packages, prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a bounded render/diff sample across CSS2, modern CSS modules, and HTML rendering/semantics directories. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
+The repository also includes a manually dispatched GitHub Actions workflow at `.github/workflows/wpt-non-js.yml`. It restores the Broiler packages from nuget.org, prepares a fresh WPT checkout in CI, inventories the full discoverable non-JS corpus with `--scan-only`, then runs a bounded render/diff sample across CSS2, modern CSS modules, and HTML rendering/semantics directories. Both steps use the same checked-in exclusion manifest so CI, the generated summaries, and the developer documentation stay aligned.
 
 When the workflow records WPT failures and the `ISSUE_TOKEN` secret is configured, the CI job also opens a new GitHub issue for the most common failure signature in that run. The automation uses `ISSUE_TOKEN` only for GitHub Issues API calls that create the issue and expects a fine-grained PAT or GitHub App token with **Issues: Write** access to this repository.
 
 ## Documentation
 
-- [Architecture and API notes](docs/architecture.md)
-- [Graphics backend and fallback](docs/graphics-backend.md)
-- [Compliance suites and status tracking](docs/compliance.md)
-- [Current roadmap](docs/roadmap.md)
+- [Architecture and API notes](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/docs/architecture.md)
+- [Graphics backend and fallback](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/docs/graphics-backend.md)
+- [Compliance suites and status tracking](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/docs/compliance.md)
+- [Current roadmap](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/docs/roadmap.md)
 
 ## Compliance status
 
-Broiler.HTML already contains deterministic render and pixel-diff primitives that can be used to benchmark output against public suites. The tracked suites, current status, and explicit skip reasons are documented in [docs/compliance.md](docs/compliance.md).
+Broiler.HTML already contains deterministic render and pixel-diff primitives that can be used to benchmark output against public suites. The tracked suites, current status, and explicit skip reasons are documented in [docs/compliance.md](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/docs/compliance.md).
 
 Passing tests or compliance cases does not replace source-level human review and is not a
 security guarantee. The scoped review record for a release must name the exact reviewed
-commit in [HUMAN_REVIEW.md](HUMAN_REVIEW.md).
+commit in [HUMAN_REVIEW.md](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/HUMAN_REVIEW.md).
 
 ## License
 
 Broiler.HTML's current project work is licensed under the
-[Apache License 2.0](LICENSE). Inherited HTML Renderer material remains subject to the
+[Apache License 2.0](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/LICENSE). Inherited HTML Renderer material remains subject to the
 BSD 3-Clause License included in
-[LICENSES/HTML-Renderer-BSD-3-Clause.txt](LICENSES/HTML-Renderer-BSD-3-Clause.txt).
+[LICENSES/HTML-Renderer-BSD-3-Clause.txt](https://github.com/Broiler-Platform/Broiler.HTML/blob/main/LICENSES/HTML-Renderer-BSD-3-Clause.txt).
+`Broiler.HTML.Image.Compat` embeds the Vazirmatn font under the SIL Open Font License 1.1.
 Other dependencies and test data retain their own terms. Redistributors must preserve
 the applicable notices. All included licenses disclaim warranties.

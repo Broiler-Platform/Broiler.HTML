@@ -386,7 +386,8 @@ test('non-JS WPT workflow restores the Broiler packages rather than checking out
   const workflow = await readFile(path.join(repositoryRoot, '.github', 'workflows', 'wpt-non-js.yml'), 'utf8');
 
   assert.doesNotMatch(workflow, /submodules:/);
-  assert.match(workflow, /NuGetPackageSourceCredentials_github:/);
+  // nuget.org is the only restore source, so the workflow needs no feed credentials.
+  assert.doesNotMatch(workflow, /NuGetPackageSourceCredentials_github|nuget\.pkg\.github\.com/);
   assert.match(workflow, /dotnet build Broiler\.HTML\.slnx/);
 });
 

@@ -4,8 +4,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    <Description>Backend-neutral image adapter for Broiler.HTML, with the bundled Vazirmatn fallback font for unregistered and default CSS font families.</Description>
+    <PackageLicenseExpression>Apache-2.0 AND BSD-3-Clause AND OFL-1.1</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SharedAssemblyInfo.cs">
@@ -22,5 +23,7 @@
     <EmbeddedResource Include="Fonts\Vazirmatn-Regular.ttf">
       <LogicalName>Broiler.HTML.Image.Compat.Fonts.Vazirmatn-Regular.ttf</LogicalName>
     </EmbeddedResource>
+    <!-- The OFL requires its copyright notice and license to travel with the font. -->
+    <None Include="Fonts\Vazirmatn-OFL.txt" Pack="true" PackagePath="LICENSES\" />
   </ItemGroup>
 </Project>

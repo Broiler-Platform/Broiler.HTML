@@ -9,5 +9,16 @@ Broiler.HTML has diverged substantially and is maintained independently. The ups
 authors have not reviewed, sponsored, or endorsed Broiler.HTML. The upstream project
 name is used only to provide accurate provenance.
 
+## Vazirmatn font
+
+`Broiler.HTML.Image.Compat` embeds `Vazirmatn-Regular.ttf` as its fallback font.
+Copyright 2015 The Vazirmatn Project Authors (https://github.com/rastikerdar/vazirmatn).
+The font is licensed under the SIL Open Font License, Version 1.1. The full text ships as
+`LICENSES/Vazirmatn-OFL.txt` in that package and as
+[`Source/Broiler.HTML.Image.Compat/Fonts/Vazirmatn-OFL.txt`](Source/Broiler.HTML.Image.Compat/Fonts/Vazirmatn-OFL.txt)
+in the repository.
+
+## Other dependencies
+
 Other third-party dependencies and test data retain their own copyright and license
 terms as identified in their source files, package metadata, or accompanying notices.
