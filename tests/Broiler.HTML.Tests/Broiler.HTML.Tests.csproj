@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Broiler.HTML.Tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+    Image.Compat is the top of the renderer's default closure: HtmlContainer finds its image
+    adapter by loading that assembly, so a suite that renders needs it next to the tests. Broiler.Net
+    comes transitively through Broiler.HTML.Core.
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Broiler.HTML.Image.Compat\Broiler.HTML.Image.Compat.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

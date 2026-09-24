@@ -10,5 +10,13 @@
     <PackageVersion Include="Broiler.Graphics.Windows" Version="0.1.0-preview.5" />
     <PackageVersion Include="Broiler.Layout" Version="0.1.0-preview.3" />
     <PackageVersion Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.14" />
+    <!-- The profile network session the renderer's loaders send through; it must reach nuget.org before this pin ships. -->
+    <PackageVersion Include="Broiler.Net" Version="0.1.0-preview.1" />
+  </ItemGroup>
+  <!-- Test-only packages, the same versions as the sibling Broiler repositories. -->
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageVersion Include="xunit" Version="2.5.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.5.3" />
   </ItemGroup>
 </Project>

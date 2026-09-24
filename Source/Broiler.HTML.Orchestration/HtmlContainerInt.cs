@@ -22,6 +22,8 @@ using Broiler.Graphics.Color;
 using Broiler.Graphics.Adapters;
 using Broiler.HTML.Core.Handlers;
 using Broiler.HTML.Core.Utils;
+using Broiler.Net.Http;
+using System.Threading;
 
 namespace Broiler.HTML.Orchestration;
 
@@ -39,6 +41,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private Broiler.Dom.DomDocument? _boundDocument;
     private ulong _boundDocumentVersion;
     private HtmlStyleSet? _boundBaseStyleSet;
+    private IBrowserRequestTransport? _requestTransport;
+    private DocumentRequestContext? _documentContext;
+    private SubresourceCache _subresourceCache = new();
+    private SubresourceScope? _subresourceScope;
 
     // Multithreading roadmap item #14. The version counter above says "something changed";
     // this says whether any of it reached the render tree. See
@@ -66,6 +72,119 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// Populated after each <see cref="PerformPaint"/> call.
     /// </summary>
     internal DisplayList? LatestDisplayList { get; private set; }
+
+    /// <summary>
+    /// The host's network session for this container's subresources: images, <c>&lt;link&gt;</c>
+    /// stylesheets and <c>@font-face</c> fonts are sent through it as requests of
+    /// <see cref="DocumentContext"/>, so they carry and store the profile's cookies under Fetch's
+    /// credentials and CORS rules (an element's <c>crossorigin</c> attribute applies; fonts are CORS
+    /// requests with same-origin credentials).
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The <see cref="StylesheetLoad"/> and <see cref="ImageLoad"/> events, <c>data:</c> URLs, local
+    /// files and the host's offline-subresource policy still come first; only what would go to the
+    /// network goes through the transport. Loads through it bypass the shared image cache in
+    /// <c>%TEMP%\HtmlRenderer</c> and use an in-memory cache of this container instead, kept across
+    /// reparses and dropped when this property or <see cref="DocumentContext"/> changes. Non-2xx
+    /// responses and <see cref="TransportException"/>s are load failures.
+    /// </para>
+    /// <para>
+    /// <see langword="null"/> (the default) keeps the process-wide clients, which send no cookies and
+    /// store none. With a transport but no <see cref="DocumentContext"/>, network subresources fail to
+    /// load: the container never derives a document identity from <see cref="BaseUrl"/>.
+    /// </para>
+    /// <para>
+    /// Both values are read when a render tree is built (<see cref="SetHtmlWithStyleSet"/>,
+    /// <see cref="SetDocumentWithStyleSet"/> or a rebuild of the bound document); a tree keeps
+    /// using the values it was built with. Its loads are cancelled when it is replaced, cleared or
+    /// the container is disposed. The transport is called synchronously, from the thread that builds
+    /// or lays out the tree and, unless <see cref="AvoidAsyncImagesLoading"/> is set, from thread-pool
+    /// workers, so it must be thread-safe and must not depend on a synchronization context.
+    /// </para>
+    /// </remarks>
+    public IBrowserRequestTransport? RequestTransport
+    {
+        get => _requestTransport;
+        set
+        {
+            if (ReferenceEquals(_requestTransport, value))
+                return;
+
+            _requestTransport = value;
+            DropSubresourceCache();
+        }
+    }
+
+    /// <summary>
+    /// The identity of the document this container renders, for cookie and request decisions: the
+    /// client of every subresource request sent through <see cref="RequestTransport"/>. Its
+    /// <see cref="DocumentRequestContext.DocumentUrl"/> is the URL whose cookies the document uses,
+    /// which for about:blank and srcdoc documents is their creator's, never the base URL; the
+    /// container therefore never derives it from <see cref="BaseUrl"/> or a <c>&lt;base href&gt;</c>.
+    /// </summary>
+    /// <remarks>
+    /// Set it with <see cref="RequestTransport"/> before the document is set. A new value drops the
+    /// container's subresource cache and applies from the next render tree on.
+    /// </remarks>
+    public DocumentRequestContext? DocumentContext
+    {
+        get => _documentContext;
+        set
+        {
+            if (ReferenceEquals(_documentContext, value))
+                return;
+
+            _documentContext = value;
+            DropSubresourceCache();
+        }
+    }
+
+    /// <summary>
+    /// The network settings, cache and cancellation of the current render tree, or
+    /// <see langword="null"/> before the first tree is built. Created before the tree's stylesheets
+    /// load and cancelled when the tree is torn down.
+    /// </summary>
+    internal SubresourceScope? SubresourceScope => _subresourceScope;
+
+    /// <summary>The number of subresources this container keeps in memory; for tests.</summary>
+    internal int CachedSubresourceCount => _subresourceCache.Count;
+
+    // A cache is valid for one transport and one document. A tree still loading keeps the old one,
+    // so what it stores after the change never reaches a later tree.
+    private void DropSubresourceCache() => _subresourceCache = new SubresourceCache();
+
+    /// <summary>
+    /// Makes this container load its subresources through <paramref name="source"/>'s in-memory cache
+    /// (and add to it), for a host that renders one document in several containers — the Broiler
+    /// browser builds one per painted frame of a page's load window and another for the finished page.
+    /// </summary>
+    /// <param name="source">Another container rendering the same document.</param>
+    /// <returns>
+    /// True when the cache is now shared: both containers hold the same <see cref="RequestTransport"/>
+    /// and the same <see cref="DocumentContext"/> object. Otherwise nothing changes, because a cache
+    /// is keyed without the document and is only valid for one transport and one document.
+    /// </returns>
+    /// <remarks>
+    /// Set <see cref="RequestTransport"/> and <see cref="DocumentContext"/> first and share before the
+    /// document is set: the tree built next uses the shared cache. Changing either property later
+    /// gives this container a cache of its own again. The cache lives as long as a container that
+    /// uses it; disposing <paramref name="source"/> afterwards does not affect this container.
+    /// </remarks>
+    public bool ShareSubresourceCacheWith(HtmlContainerInt source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        if (_requestTransport == null || _documentContext == null ||
+            !ReferenceEquals(_requestTransport, source._requestTransport) ||
+            !ReferenceEquals(_documentContext, source._documentContext))
+        {
+            return false;
+        }
+
+        _subresourceCache = source._subresourceCache;
+        return true;
+    }
 
     internal HtmlContainerInt(IAdapter adapter, IHandlerFactory handlerFactory)
     {
@@ -535,6 +654,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         CssTreeFactory createTree)
     {
         _loadComplete = false;
+
+        // Before the tree, whose parse loads the link sheets: every load of this tree, fonts and
+        // images included, uses the transport and document the container holds now.
+        _subresourceScope?.Cancel();
+        _subresourceScope = new SubresourceScope(_requestTransport, _documentContext, _subresourceCache);
+
         _styleSet = baseStyleSet ?? Adapter.DefaultStyleSet;
         Root = createTree(ref _styleSet);
 
@@ -549,7 +674,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         ResolveFontFeatureValues(Root);
 
         _selectionHandler = _handlerFactory.CreateSelectionHandler(Root);
-        _imageDownloader = new ImageDownloader();
+        _imageDownloader = new ImageDownloader(_subresourceScope);
     }
 
     private void BuildBoundDocument()
@@ -611,6 +736,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (fontFaces.Count == 0)
             return;
 
+        var scope = _subresourceScope;
+
         foreach (var face in fontFaces)
         {
             if (string.IsNullOrEmpty(face.Source) || string.IsNullOrEmpty(face.Family))
@@ -618,7 +745,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
             var src = face.Source.Trim('\'', '"');
 
-            string? resolvedFile = ResolveLocalFontPath(src, baseUrl);
+            // Not even probed for a web page: on Windows a protocol-relative src (//host/share/f.woff2)
+            // is a rooted path, and asking whether it exists opens an SMB session to that host.
+            string? resolvedFile = scope is { AllowsLocalFiles: false } ? null : ResolveLocalFontPath(src, baseUrl);
             if (!string.IsNullOrEmpty(resolvedFile) && File.Exists(resolvedFile))
             {
                 Adapter.LoadFontFromFile(resolvedFile, face.Family);
@@ -626,9 +755,52 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             }
 
             // Remote source: resolve to an absolute HTTP(S) URL and fetch it.
-            if (TryResolveHttpFontUrl(src, baseUrl, out Uri? fontUri))
-                TryLoadRemoteFont(fontUri, face.Family);
+            if (scope is { UsesTransport: true })
+            {
+                if (TryResolveDocumentFontUrl(src, scope, out Uri? documentFontUri))
+                    TryLoadRemoteFont(scope, documentFontUri, face.Family);
+            }
+            else if (TryResolveHttpFontUrl(src, baseUrl, out Uri? fontUri))
+            {
+                TryLoadRemoteFont(fontUri, face.Family, scope?.Token ?? CancellationToken.None);
+            }
         }
+    }
+
+    /// <summary>
+    /// Resolves a remote font <paramref name="src"/> for a load through the host's transport against
+    /// the document's base URL: its <c>&lt;base href&gt;</c> when it has one (HTML §4.2.3), otherwise
+    /// the URL the embedder gave the document (<see cref="BaseUrl"/>), otherwise the URL of
+    /// <see cref="DocumentContext"/>. Sources in external sheets are already absolute: the sheet's
+    /// <c>url()</c> references were rebased on its final URL when it loaded.
+    /// </summary>
+    private bool TryResolveDocumentFontUrl(string src, SubresourceScope scope, [NotNullWhen(true)] out Uri? fontUri)
+    {
+        fontUri = null;
+
+        // Only a src with a real scheme is absolute: on Unix "/font.woff" parses as file:///font.woff.
+        if (Uri.TryCreate(src, UriKind.Absolute, out var absolute) && absolute.Scheme != Uri.UriSchemeFile)
+        {
+            if (!IsHttp(absolute))
+                return false;
+
+            fontUri = absolute;
+            return true;
+        }
+
+        Uri? documentBase = DocumentBaseUrl is { IsAbsoluteUri: true } baseElementUrl
+            ? baseElementUrl
+            : !string.IsNullOrEmpty(BaseUrl) && Uri.TryCreate(BaseUrl, UriKind.Absolute, out var embedderUrl)
+                ? embedderUrl
+                : scope.Document?.DocumentUrl;
+
+        if (documentBase != null && Uri.TryCreate(documentBase, src, out var combined) && IsHttp(combined))
+        {
+            fontUri = combined;
+            return true;
+        }
+
+        return false;
     }
 
     private static bool TryResolveHttpFontUrl(string src, string? baseUrl, [NotNullWhen(true)] out Uri? fontUri)
@@ -667,18 +839,61 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     // Never disposed: it is owned by the process and outlives every container.
     //
     // Identified: a host that refuses an unidentified request refuses the font file too.
-    private static readonly HttpClient SharedFontHttpClient =
-        Broiler.Layout.Net.BroilerUserAgent.Apply(new HttpClient { Timeout = TimeSpan.FromSeconds(10) });
+    //
+    // Used only when the host supplies no transport, and without cookies (see LegacySubresourceClient).
+    private static readonly HttpClient SharedFontHttpClient = LegacySubresourceClient.Create(TimeSpan.FromSeconds(10));
 
-    private void TryLoadRemoteFont(Uri fontUri, string family)
+    // The same ten seconds for a font loaded through the host's transport.
+    private static readonly TimeSpan FontTransportBudget = SharedFontHttpClient.Timeout;
+
+    // A bound on a font body held in memory; large CJK faces stay well below it.
+    private const long MaxFontBytes = 64L * 1024 * 1024;
+
+    private void TryLoadRemoteFont(Uri fontUri, string family, CancellationToken cancellationToken)
     {
+        byte[] bytes;
+        try
+        {
+            bytes = SharedFontHttpClient.GetByteArrayAsync(fontUri, cancellationToken).GetAwaiter().GetResult();
+        }
+        catch
+        {
+            // Network failure → leave the family unresolved (falls back).
+            return;
+        }
+
+        RegisterRemoteFont(bytes, family);
+    }
+
+    /// <summary>
+    /// Loads an <c>@font-face</c> source through the host's transport. CSS Fonts fetches fonts as CORS
+    /// requests with same-origin credentials, so a cross-origin font needs
+    /// <c>Access-Control-Allow-Origin</c> and never carries or stores cookies.
+    /// </summary>
+    private void TryLoadRemoteFont(SubresourceScope scope, Uri fontUri, string family)
+    {
+        byte[] bytes;
+        try
+        {
+            bytes = scope.Fetch(fontUri, RequestDestination.Font, CorsSetting.None, FontTransportBudget, MaxFontBytes).Body;
+        }
+        catch
+        {
+            // Network, CORS or status failure, or a torn-down tree → leave the family unresolved (falls back).
+            return;
+        }
+
+        RegisterRemoteFont(bytes, family);
+    }
+
+    private void RegisterRemoteFont(byte[] bytes, string family)
+    {
+        if (bytes == null || bytes.Length == 0)
+            return;
+
         string? tempPath = null;
         try
         {
-            byte[] bytes = SharedFontHttpClient.GetByteArrayAsync(fontUri).GetAwaiter().GetResult();
-            if (bytes == null || bytes.Length == 0)
-                return;
-
             // The adapter parses fonts from a file path; stage the downloaded
             // bytes in a temp file (TrueTypeFont/WOFF decoding handles the rest).
             tempPath = Path.Combine(Path.GetTempPath(), "broiler-font-" + Guid.NewGuid().ToString("N") + ".bin");
@@ -687,7 +902,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
         catch
         {
-            // Network/parse failure → leave the family unresolved (falls back).
+            // Parse failure → leave the family unresolved (falls back).
         }
         finally
         {
@@ -895,6 +1110,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     private void DisposeRenderTree()
     {
+        // Whether or not the tree got built: a parse that failed may have left loads in flight.
+        CancelSubresourceLoads();
+
         if (Root == null)
             return;
 
@@ -907,6 +1125,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         _imageDownloader?.Dispose();
         _imageDownloader = null;
 
+    }
+
+    /// <summary>
+    /// Stops every load the current render tree started; the next tree gets a scope of its own.
+    /// </summary>
+    private void CancelSubresourceLoads()
+    {
+        _subresourceScope?.Cancel();
+        _subresourceScope = null;
     }
 
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline)
@@ -1635,6 +1862,14 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     void IHtmlContainerInt.DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception?, bool> callback)
         => _imageDownloader?.DownloadImage(uri, filePath, async, (imageUri, fp, error, canceled) => callback(imageUri, fp, error, canceled));
 
+    bool IHtmlContainerInt.UsesRequestTransport => _subresourceScope?.UsesTransport == true;
+
+    bool IHtmlContainerInt.AllowsLocalFiles =>
+        _subresourceScope?.AllowsLocalFiles ?? Broiler.HTML.Core.Handlers.SubresourceScope.LocalFilesAllowed(_requestTransport, _documentContext);
+
+    void IHtmlContainerInt.DownloadImage(Uri uri, CorsSetting crossOrigin, bool async, Action<Uri, byte[]?, Exception?, bool> callback)
+        => _imageDownloader?.DownloadImage(uri, crossOrigin, async, (imageUri, body, error, canceled) => callback(imageUri, body, error, canceled));
+
     IImageLoadHandler IHtmlContainerInt.CreateImageLoadHandler(ActionInt<BImage?, RectangleF, bool> loadCompleteCallback)
         => new ImageLoadHandler(this, loadCompleteCallback);
 
@@ -1661,10 +1896,16 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         try
         {
+            // First: a disposed container must not go on exchanging cookies for a document it
+            // no longer renders. The image downloader was not disposed here at all.
+            CancelSubresourceLoads();
+
             if (all)
             {
+                LoadComplete = null;
                 LinkClicked = null;
                 Refresh = null;
+                ScrollChange = null;
                 RenderError = null;
                 StylesheetLoad = null;
                 ImageLoad = null;
@@ -1677,6 +1918,14 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
             _selectionHandler?.Dispose();
             _selectionHandler = null;
+
+            _imageDownloader?.Dispose();
+            _imageDownloader = null;
+
+            // Nothing may reach the profile's session or the document through a disposed container.
+            _requestTransport = null;
+            _documentContext = null;
+            DropSubresourceCache();
 
             // The ledger holds a DomDocument.Mutated subscription; a container that is disposed
             // without Clear() would otherwise keep the document alive through it.

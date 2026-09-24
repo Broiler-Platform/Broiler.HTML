@@ -60,8 +60,13 @@ jobs:
           fi
           dotnet build Broiler.HTML.slnx -c Release --nologo "${args[@]}"
 
-      # There is no .NET test project. What this repository does check in is the WPT
-      # and HTML 5.2 tooling and its corpus, and none of these need a renderer or
+      # tests/Broiler.HTML.Tests: the renderer's subresource loading against loopback
+      # HTTP servers (cookies, CORS, redirects, cancellation). It needs no network beyond
+      # 127.0.0.1 and ::1.
+      - name: Test (.NET)
+        run: dotnet test Broiler.HTML.slnx -c Release --no-build --nologo
+
+      # The WPT and HTML 5.2 tooling and its corpus, none of which needs a renderer or
       # node_modules. The render/diff suites stay in the two workflow_dispatch workflows.
       - name: Test
         run: |

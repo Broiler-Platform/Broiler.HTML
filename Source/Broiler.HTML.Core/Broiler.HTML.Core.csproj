@@ -15,5 +15,6 @@
     <PackageReference Include="Broiler.CSS" />
     <PackageReference Include="Broiler.Graphics" />
     <PackageReference Include="Broiler.Layout" />
+    <PackageReference Include="Broiler.Net" />
   </ItemGroup>
 </Project>
