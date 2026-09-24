@@ -4,11 +4,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
-using Broiler.Layout.Net;
+using Broiler.Net.Http;
 
 namespace Broiler.HTML.Core.Handlers;
 
 public delegate void DownloadFileAsyncCallback(Uri imageUri, string filePath, Exception? error, bool canceled);
+
+/// <summary>Completion of an image loaded through the host's transport: the body, or the error, or a cancellation.</summary>
+internal delegate void TransportImageCallback(Uri imageUri, byte[]? body, Exception? error, bool canceled);
 
 internal sealed class ImageDownloader : IDisposable
 {
@@ -28,37 +31,37 @@ internal sealed class ImageDownloader : IDisposable
     // Identified, too: HttpClient sends no User-Agent unless given one, and a host that refuses an
     // unidentified request refuses the image rather than serving a different one — every
     // upload.wikimedia.org image on a mediawiki.org page came back 403 Forbidden.
-    private static readonly HttpClient SharedHttpClient = BroilerUserAgent.Apply(new HttpClient { Timeout = TimeSpan.FromSeconds(5) });
+    //
+    // Used only when the host supplies no transport, and without cookies (see LegacySubresourceClient).
+    private static readonly HttpClient SharedHttpClient = LegacySubresourceClient.Create(TimeSpan.FromSeconds(5));
+
+    // The same five seconds for a load through the host's transport, whose own timeout is a navigation's.
+    private static readonly TimeSpan TransportBudget = SharedHttpClient.Timeout;
 
     // Far above any image a page displays, and still a bound: the body is streamed to disk, and
     // a response that does not stop would otherwise fill it.
     private const long MaxImageBytes = 64L * 1024 * 1024;
 
+    private readonly SubresourceScope _scope;
     private readonly Dictionary<string, List<DownloadFileAsyncCallback>> _imageDownloadCallbacks = [];
-    private readonly CancellationTokenSource _cts = new();
+    private readonly Dictionary<string, List<TransportImageCallback>> _transportCallbacks = [];
+
+    /// <param name="scope">
+    /// The render tree's scope. Its cancellation stops this downloader's requests; the container cancels it when it
+    /// tears the tree down, before it disposes the downloader.
+    /// </param>
+    public ImageDownloader(SubresourceScope scope)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        _scope = scope;
+    }
 
     public void DownloadImage(Uri imageUri, string filePath, bool async, DownloadFileAsyncCallback cachedFileCallback)
     {
         ArgumentNullException.ThrowIfNull(imageUri);
         ArgumentNullException.ThrowIfNull(cachedFileCallback);
 
-        // to handle if the file is already been downloaded
-        bool download = true;
-
-        lock (_imageDownloadCallbacks)
-        {
-            if (_imageDownloadCallbacks.TryGetValue(filePath, out List<DownloadFileAsyncCallback>? value))
-            {
-                download = false;
-                value.Add(cachedFileCallback);
-            }
-            else
-            {
-                _imageDownloadCallbacks[filePath] = [cachedFileCallback];
-            }
-        }
-
-        if (!download)
+        if (!Enlist(_imageDownloadCallbacks, filePath, cachedFileCallback))
             return;
 
         if (async)
@@ -67,35 +70,116 @@ internal sealed class ImageDownloader : IDisposable
             DownloadImageFromUrl(imageUri, filePath);
     }
 
+    /// <summary>
+    /// Loads an image through the host's transport as an image request with the element's CORS setting. The body stays
+    /// in memory: nothing is written to the shared disk cache, which is keyed by URL alone and would hand one profile's
+    /// or document's response to another.
+    /// </summary>
+    public void DownloadImage(Uri imageUri, CorsSetting crossOrigin, bool async, TransportImageCallback callback)
+    {
+        ArgumentNullException.ThrowIfNull(imageUri);
+        ArgumentNullException.ThrowIfNull(callback);
+
+        // One request per distinct request: the same URL with another CORS setting has other credentials.
+        var key = ((int)crossOrigin).ToString(System.Globalization.CultureInfo.InvariantCulture) + " " + imageUri.AbsoluteUri;
+        if (!Enlist(_transportCallbacks, key, callback))
+            return;
+
+        if (async)
+            ThreadPool.QueueUserWorkItem(_ => LoadImageThroughTransport(imageUri, crossOrigin, key), null);
+        else
+            LoadImageThroughTransport(imageUri, crossOrigin, key);
+    }
+
     public void Dispose()
     {
-        // Cancelling is the point, not a side effect: the render tree these callbacks target is
-        // being torn down, so a download still in flight has nowhere left to deliver to.  It does
-        // abort that request's socket, and the aborted read surfaces as `IOException: Unable to
-        // read data from the transport connection` (SocketError.OperationAborted) on a
-        // thread-pool thread — the price of stopping work whose result is already worthless.
-        _cts.Cancel();
-
-        // Deliberately not disposed.  DownloadImageFromUrl hands _cts.Token to HttpClient.Send on
-        // a thread-pool thread, and disposing the source under an in-flight send throws
-        // ObjectDisposedException out of the token's registration — a race as wide as whatever the
-        // request has left to run.  A cancelled source with no timer and no WaitHandle holds
-        // nothing that needs reclaiming on this schedule; it is collected with the downloader once
-        // those sends finish.  Dispose stays idempotent, since Cancel on a cancelled source is a
-        // no-op.
-
+        // Cancelling in-flight requests is the scope's job: the container cancels it before this runs, and a
+        // request still in flight has nowhere left to deliver to. Aborting one surfaces on its thread-pool thread as
+        // `IOException: Unable to read data from the transport connection` (SocketError.OperationAborted), which
+        // is the price of stopping work whose result is already worthless.
+        //
         // Under the lock the download path already takes.  The clear ran unsynchronised while
         // DownloadImage and OnDownloadImageCompleted were free to be inside TryGetValue/Add on
         // another thread, which is a torn Dictionary rather than merely a lost entry.
         lock (_imageDownloadCallbacks)
+        {
             _imageDownloadCallbacks.Clear();
+            _transportCallbacks.Clear();
+        }
     }
+
+    // True when the caller is the first to ask for this key and so has to start the download.
+    private bool Enlist<TCallback>(Dictionary<string, List<TCallback>> callbacks, string key, TCallback callback)
+    {
+        lock (_imageDownloadCallbacks)
+        {
+            if (callbacks.TryGetValue(key, out List<TCallback>? waiting))
+            {
+                waiting.Add(callback);
+                return false;
+            }
+
+            callbacks[key] = [callback];
+            return true;
+        }
+    }
+
+    private List<TCallback>? TakeCallbacks<TCallback>(Dictionary<string, List<TCallback>> callbacks, string key)
+    {
+        lock (_imageDownloadCallbacks)
+        {
+            if (callbacks.Remove(key, out var waiting))
+                return waiting;
+        }
+
+        return null;
+    }
+
+    private void LoadImageThroughTransport(Uri source, CorsSetting crossOrigin, string key)
+    {
+        byte[]? body = null;
+        Exception? error = null;
+        bool cancelled = false;
+
+        try
+        {
+            body = _scope.Fetch(source, RequestDestination.Image, crossOrigin, TransportBudget, MaxImageBytes, IsImageMediaType).Body;
+        }
+        catch (OperationCanceledException)
+        {
+            cancelled = true;
+        }
+        catch (Exception ex)
+        {
+            error = ex;
+        }
+
+        var callbacks = TakeCallbacks(_transportCallbacks, key);
+        if (callbacks == null)
+            return;
+
+        foreach (var callback in callbacks)
+        {
+            try
+            {
+                callback(source, body, error, cancelled);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[HtmlRenderer] ImageDownloader callback error: {ex.Message}");
+            }
+        }
+    }
+
+    private static bool IsImageMediaType(string? mediaType) =>
+        mediaType != null && mediaType.StartsWith("image", StringComparison.OrdinalIgnoreCase);
 
     private void DownloadImageFromUrl(Uri source, string filePath)
     {
         string? tempPath = null;
         Exception? error = null;
         bool cancelled = false;
+        var token = _scope.Token;
 
         try
         {
@@ -103,12 +187,12 @@ internal sealed class ImageDownloader : IDisposable
 
             // Headers first. Reading the whole response before looking at it buffered the body in
             // memory, however large, only to discard it when it turned out not to be an image.
-            using var response = SharedHttpClient.Send(request, HttpCompletionOption.ResponseHeadersRead, _cts.Token);
+            using var response = SharedHttpClient.Send(request, HttpCompletionOption.ResponseHeadersRead, token);
             response.EnsureSuccessStatusCode();
 
             string? contentType = response.Content.Headers.ContentType?.MediaType;
 
-            if (contentType == null || !contentType.StartsWith("image", StringComparison.OrdinalIgnoreCase))
+            if (!IsImageMediaType(contentType))
                 throw new InvalidDataException("Failed to load image, not image content type: " + contentType);
 
             if (response.Content.Headers.ContentLength > MaxImageBytes)
@@ -117,7 +201,7 @@ internal sealed class ImageDownloader : IDisposable
             // Read this way, the client's Timeout ends with the headers, so the body gets the same
             // budget of its own. A synchronous read cannot observe a token; cancelling aborts the
             // response under it instead.
-            using var bodyBudget = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+            using var bodyBudget = CancellationTokenSource.CreateLinkedTokenSource(token);
             bodyBudget.CancelAfter(SharedHttpClient.Timeout);
             using var abortRead = bodyBudget.Token.Register(response.Dispose);
 
@@ -131,9 +215,9 @@ internal sealed class ImageDownloader : IDisposable
         {
             cancelled = true;
         }
-        catch (Exception) when (_cts.IsCancellationRequested)
+        catch (Exception) when (token.IsCancellationRequested)
         {
-            // Dispose cancelled the downloader and the aborted read threw something else.
+            // The tree was torn down and the aborted read threw something else.
             cancelled = true;
         }
         catch (Exception ex)
@@ -166,13 +250,7 @@ internal sealed class ImageDownloader : IDisposable
         if (tempPath != null)
             TryDeleteFile(tempPath);
 
-        List<DownloadFileAsyncCallback>? callbacksList;
-        lock (_imageDownloadCallbacks)
-        {
-            if (_imageDownloadCallbacks.TryGetValue(filePath, out callbacksList))
-                _imageDownloadCallbacks.Remove(filePath);
-        }
-
+        var callbacksList = TakeCallbacks(_imageDownloadCallbacks, filePath);
         if (callbacksList == null)
             return;
 

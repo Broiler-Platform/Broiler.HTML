@@ -7,6 +7,7 @@ using System.Drawing;
 using Broiler.HTML.Core.Entities;
 using Broiler.Graphics.Adapters;
 using Broiler.HTML.Core.Utils;
+using Broiler.Net.Http;
 
 namespace Broiler.HTML.Core.Handlers;
 
@@ -15,6 +16,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     private readonly IHtmlContainerInt _htmlContainer;
     private readonly ActionInt<BImage?, RectangleF, bool> _loadCompleteCallback;
     private RectangleF _imageRectangle;
+    private IReadOnlyDictionary<string, string>? _attributes;
     private bool _asyncCallback;
     private bool _releaseImageObject;
     private bool _disposed;
@@ -35,6 +37,8 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     {
         try
         {
+            // Kept for a network load, which takes the element's crossorigin setting from them.
+            _attributes = attributes;
             var args = new HtmlImageLoadEventArgs(src, attributes, OnHtmlImageLoadEventCallback, baseUrl);
             _htmlContainer.RaiseHtmlImageLoadEvent(args);
             _asyncCallback = !_htmlContainer.AvoidAsyncImagesLoading;
@@ -136,7 +140,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
 
     private void SetImageFromPath(string path, Uri baseUrl)
     {
-        var uri = CommonUtils.TryGetUri(path);
+        var uri = CommonUtils.TryGetUri(path) ?? ParseAsBrowserWould(path, baseUrl);
 
         bool isRootRelativePath = path.StartsWith('/')
             && !path.StartsWith("//", StringComparison.Ordinal);
@@ -144,7 +148,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         if (uri != null
             && uri.IsAbsoluteUri == false
             && baseUrl != null
-            && (isRootRelativePath || !Path.IsPathRooted(path)))
+            && (isRootRelativePath || !Path.IsPathRooted(path) || !_htmlContainer.AllowsLocalFiles))
         {
             uri = new Uri(baseUrl, uri);
         }
@@ -152,6 +156,12 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         if (uri != null && uri.IsAbsoluteUri && uri.Scheme != "file")
         {
             SetImageFromUrl(uri);
+        }
+        else if (!_htmlContainer.AllowsLocalFiles)
+        {
+            // A web page's image never comes off the file system, nor off a UNC share a rooted path names.
+            _htmlContainer.ReportError(HtmlRenderErrorType.Image, "Refused to load a local image into a network document: " + path);
+            ImageLoadComplete(false);
         }
         else
         {
@@ -166,6 +176,26 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
                 ImageLoadComplete(false);
             }
         }
+    }
+
+    /// <summary>
+    /// A source <see cref="CommonUtils.TryGetUri"/> refused, parsed the way a browser's URL parser takes
+    /// it: an <c>http(s)</c> URL with an unescaped space or <c>|</c>, which it percent-encodes and
+    /// loads, and -- for a document that may not read local files, where the source can only be a URL
+    /// -- anything that resolves against the document's base. <see langword="null"/> otherwise, which
+    /// leaves a local document's source to the file-path handling it has always had.
+    /// </summary>
+    private Uri? ParseAsBrowserWould(string path, Uri? baseUrl)
+    {
+        if (Uri.TryCreate(path, UriKind.Absolute, out var absolute) &&
+            (absolute.Scheme == Uri.UriSchemeHttp || absolute.Scheme == Uri.UriSchemeHttps))
+            return absolute;
+
+        return !_htmlContainer.AllowsLocalFiles &&
+               baseUrl is { IsAbsoluteUri: true } &&
+               Uri.TryCreate(baseUrl, path, out var resolved)
+            ? resolved
+            : null;
     }
 
     private void SetImageFromFile(FileInfo source)
@@ -213,6 +243,19 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
 
     private void SetImageFromUrl(Uri source)
     {
+        if (_htmlContainer.UsesRequestTransport)
+        {
+            // The host's transport sends the profile's cookies for the container's document, so the
+            // shared %TEMP% cache below - keyed by URL alone, shared by every process, container and
+            // profile - must neither answer nor record the load. The container keeps its own cache.
+            _htmlContainer.DownloadImage(
+                source,
+                SubresourceScope.GetCrossOrigin(_attributes),
+                !_htmlContainer.AvoidAsyncImagesLoading,
+                OnImageLoadedThroughTransport);
+            return;
+        }
+
         var filePath = CommonUtils.GetLocalfileName(source);
         if (filePath == null)
         {
@@ -241,6 +284,39 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         else
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.Image, "Failed to load image from URL: " + imageUri, error);
+            ImageLoadComplete();
+        }
+    }
+
+    private void OnImageLoadedThroughTransport(Uri imageUri, byte[]? body, Exception? error, bool canceled)
+    {
+        if (canceled || _disposed)
+            return;
+
+        if (error != null || body == null)
+        {
+            _htmlContainer.ReportError(HtmlRenderErrorType.Image, "Failed to load image from URL: " + imageUri, error);
+            ImageLoadComplete();
+            return;
+        }
+
+        try
+        {
+            using var stream = new MemoryStream(body, writable: false);
+
+            lock (_loadCompleteCallback)
+            {
+                if (!_disposed)
+                    Image = _htmlContainer.ImageFromStream(stream);
+
+                _releaseImageObject = true;
+            }
+
+            ImageLoadComplete();
+        }
+        catch (Exception ex)
+        {
+            _htmlContainer.ReportError(HtmlRenderErrorType.Image, "Failed to decode image from URL: " + imageUri, ex);
             ImageLoadComplete();
         }
     }

@@ -6,3 +6,4 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 [assembly: InternalsVisibleTo("Broiler.HTML.Core")]
 [assembly: InternalsVisibleTo("Broiler.HTML.Image.Compat")]
+[assembly: InternalsVisibleTo("Broiler.HTML.Tests")]

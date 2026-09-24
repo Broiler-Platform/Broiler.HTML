@@ -2,6 +2,7 @@ using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Color;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.Utils;
+using Broiler.Net.Http;
 using System;
 using System.Drawing;
 using System.IO;
@@ -114,6 +115,27 @@ internal interface IHtmlContainerInt
     /// Downloads an image from a URI.
     /// </summary>
     void DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception?, bool> callback);
+
+    /// <summary>
+    /// Whether the current render tree loads network images through the host's
+    /// <see cref="Broiler.Net.Http.IBrowserRequestTransport"/> (see
+    /// <see cref="DownloadImage(Uri, CorsSetting, bool, Action{Uri, byte[], Exception, bool})"/>)
+    /// rather than the legacy cookie-less client and its disk cache.
+    /// </summary>
+    bool UsesRequestTransport { get; }
+
+    /// <summary>
+    /// Whether the current render tree may read images from the local file system: false for a web
+    /// page (see <see cref="Handlers.SubresourceScope.AllowsLocalFiles"/>).
+    /// </summary>
+    bool AllowsLocalFiles { get; }
+
+    /// <summary>
+    /// Loads an image through the host's transport for the container's document, with the
+    /// element's CORS setting. The callback receives the body, or the error, or a cancellation
+    /// when the render tree was torn down first.
+    /// </summary>
+    void DownloadImage(Uri uri, CorsSetting crossOrigin, bool async, Action<Uri, byte[]?, Exception?, bool> callback);
 
     /// <summary>
     /// Creates a new <see cref="IImageLoadHandler"/> for loading images with

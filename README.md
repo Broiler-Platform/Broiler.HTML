@@ -74,6 +74,21 @@ The solution file is `Broiler.HTML.slnx` at the repository root and the codebase
 - `Broiler.HTML.Image.PixelDiffRunner` compares rendered output to a baseline image.
 - `Broiler.HTML.Image.MismatchClassifier` classifies visual mismatches for compliance triage.
 - `Broiler.HTML.Adapters.RAdapter` is the backend extension point for graphics, fonts, images, clipboard, and context-menu services.
+- `HtmlContainer.RequestTransport` and `HtmlContainer.DocumentContext` route the container's images, stylesheets and fonts through a host's [Broiler.Net](https://github.com/Broiler-Platform/Broiler.Net) network session; see below.
+
+### Subresource loading and cookies
+
+A browser host gives each container its profile's `IBrowserRequestTransport` (a Broiler.Net `BrowserNetworkSession`) and the `DocumentRequestContext` of the document it renders. Images, `<link>` stylesheets and `@font-face` fonts are then sent through that transport as Fetch subresource requests of that document, so they carry and store the profile's cookies:
+
+| Load | Request |
+| --- | --- |
+| `<img>`, CSS images | `image`, the element's `crossorigin` attribute (none: no-cors with credentials; `anonymous`: CORS, same-origin credentials; `use-credentials`: CORS with credentials) |
+| `<link rel="stylesheet">` | `style`, the element's `crossorigin` attribute; the response must be `text/css` (a quirks-mode document may use a same-origin or CORS response of another type, never one sent with `X-Content-Type-Options: nosniff`); relative `url()` references, quoted or not, resolve against the response's final URL, after redirects |
+| `@font-face` | `font`, always CORS with same-origin credentials; relative sources resolve against the document's `<base href>`, then the document URL |
+
+The `StylesheetLoad` and `ImageLoad` events, `data:` URLs, local files and the offline-subresource policy still come first. Local files are read only for a `file:` document, or for a container with no document context and no transport: a web page's stylesheets, images and fonts never come off the file system, nor off a UNC share (`file://host/share`, `\\host\share` and, on Windows, a protocol-relative `//host/share`). Non-2xx responses and transport errors (CORS failures included) are load failures. Budgets are unchanged: 5 s for images and stylesheets, 10 s for fonts. Transport loads skip the shared image cache in `%TEMP%\HtmlRenderer`; the container keeps an in-memory cache instead, kept across reparses of the same document and dropped when the transport or the document context changes. A host that renders one document in several containers (one per painted frame of a page that is still loading, say) shares one cache between them with `HtmlContainer.ShareSubresourceCacheWith`, so each subresource is fetched once. A render tree's loads are cancelled when it is replaced, cleared or the container is disposed. The container never derives a document identity from `BaseUrl`: a transport without a `DocumentContext` loads no network subresources.
+
+Without a transport (`HtmlRender`, the command-line tool, the WPT runner), the renderer loads through process-wide clients that send the Broiler User-Agent and follow redirects as before, but send and store no cookies.
 
 ## Build and validation
 
@@ -83,15 +98,21 @@ Run the repository build from the repository root:
 dotnet build Broiler.HTML.slnx
 ```
 
-The Broiler components this renderer builds on - Broiler.CSS, Broiler.Dom.Html, Broiler.Graphics, Broiler.Layout and Broiler.Media - are nuget.org packages pinned in `Directory.Packages.props`. `NuGet.config` restores from nuget.org only, so no credentials are needed.
+The Broiler components this renderer builds on - Broiler.CSS, Broiler.Dom.Html, Broiler.Graphics, Broiler.Layout, Broiler.Media and Broiler.Net - are nuget.org packages pinned in `Directory.Packages.props`. `NuGet.config` restores from nuget.org only, so no credentials are needed.
 
 NuGet never re-downloads a package id and version it already has in its global cache, so a locally packed build of the same version will shadow the published one. Remove the stale entry from `~/.nuget/packages` if a restore resolves types that the feed package does not have.
 
-The solution does not contain .NET test projects yet. The checked-in automated tests live under `scripts/wpt/*.test.mjs`.
+`tests/Broiler.HTML.Tests` covers subresource loading against loopback HTTP servers: cookies through a Broiler.Net session, CORS, redirects, the cache and cancellation, and the cookie-less legacy path. Run it with:
+
+```bash
+dotnet test Broiler.HTML.slnx -c Release
+```
+
+The WPT tooling has its own script tests under `scripts/wpt/*.test.mjs`.
 
 ### Continuous integration and publishing
 
-`.github/workflows/ci.yml` follows the other Broiler components. On every push to `main` and every pull request it builds `Release` on Ubuntu and Windows, runs the script tests and the HTML 5.2 corpus consistency checks, then packs and verifies every package on Ubuntu and attaches them as `nuget-packages`.
+`.github/workflows/ci.yml` follows the other Broiler components. On every push to `main` and every pull request it builds `Release` on Ubuntu and Windows, runs the .NET tests, the script tests and the HTML 5.2 corpus consistency checks, then packs and verifies every package on Ubuntu and attaches them as `nuget-packages`.
 
 `.github/workflows/publish.yml` resolves the next free `0.1.0-preview.N`, reruns CI with that version, proves that a consumer can restore the packages with nuget.org as its only feed, and pushes them to nuget.org with the `NUGET_TOKEN` secret. Dispatch it manually (`dry-run` is on by default) or push a `v*` tag. The version is one past the highest preview of any of these packages on nuget.org, and never below the `VersionSuffix` floor in `Directory.Build.props`, which records the `preview.1`-`preview.3` numbers already spent on the retired GitHub Packages feed.
 

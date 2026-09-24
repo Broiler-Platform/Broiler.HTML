@@ -10,6 +10,7 @@ using Broiler.Layout.IR;
 using Broiler.HTML.Core;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Adapters;
+using Broiler.Net.Http;
 
 namespace Broiler.HTML.Image;
 
@@ -127,6 +128,47 @@ public sealed class HtmlContainer : IDisposable
     {
         get => HtmlContainerInt.BaseUrl;
         set => HtmlContainerInt.BaseUrl = value;
+    }
+
+    /// <summary>
+    /// The host's network session (the profile's <see cref="IBrowserRequestTransport"/>) for this
+    /// container's images, <c>&lt;link&gt;</c> stylesheets and <c>@font-face</c> fonts. They are sent
+    /// as subresource requests of <see cref="DocumentContext"/>, so they carry and store the profile's
+    /// cookies under Fetch's credentials and CORS rules. <see langword="null"/> (the default) loads
+    /// them through process-wide clients that send and store no cookies.
+    /// See <see cref="HtmlContainerInt.RequestTransport"/>.
+    /// </summary>
+    public IBrowserRequestTransport? RequestTransport
+    {
+        get => HtmlContainerInt.RequestTransport;
+        set => HtmlContainerInt.RequestTransport = value;
+    }
+
+    /// <summary>
+    /// The identity of the document this container renders: the client of every request sent through
+    /// <see cref="RequestTransport"/>. Never derived from <see cref="BaseUrl"/>; a transport without it
+    /// loads no network subresources. See <see cref="HtmlContainerInt.DocumentContext"/>.
+    /// </summary>
+    public DocumentRequestContext? DocumentContext
+    {
+        get => HtmlContainerInt.DocumentContext;
+        set => HtmlContainerInt.DocumentContext = value;
+    }
+
+    /// <summary>
+    /// Makes this container answer its transport loads from <paramref name="source"/>'s in-memory
+    /// subresource cache, and add to it, when both render the same document: the same
+    /// <see cref="RequestTransport"/> and the same <see cref="DocumentContext"/> object. A host that
+    /// builds several containers for one document (one per painted frame of a page that is still
+    /// loading, then one for the finished page) then fetches each image, stylesheet and font once.
+    /// Call it after setting both properties and before setting the document.
+    /// See <see cref="HtmlContainerInt.ShareSubresourceCacheWith"/>.
+    /// </summary>
+    /// <returns>True when the cache is shared; false, changing nothing, for another transport or document.</returns>
+    public bool ShareSubresourceCacheWith(HtmlContainer source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        return HtmlContainerInt.ShareSubresourceCacheWith(source.HtmlContainerInt);
     }
 
     [Obsolete("Use SetHtmlWithStyleSet.")]
