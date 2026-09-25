@@ -1477,9 +1477,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             _selectionHandler?.HandleMouseDown(parent, OffsetByScroll(location), IsMouseInContainer(location));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse);
+            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed to handle mouse down", ex);
         }
     }
 
@@ -1505,9 +1505,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             throw;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse);
+            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed to handle mouse up", ex);
         }
     }
 
@@ -1521,9 +1521,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             if (_selectionHandler != null && IsMouseInContainer(location))
                 _selectionHandler.HandleMouseMove(parent, loc);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse);
+            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed to handle mouse move", ex);
         }
     }
 
@@ -1535,9 +1535,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             _selectionHandler?.HandleMouseLeave(parent);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse);
+            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed to handle mouse leave", ex);
         }
     }
 
@@ -1559,9 +1559,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             if (e.CKeyCode)
                 _selectionHandler.CopySelectedHtml();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.KeyboardMouse);
+            ReportError(HtmlRenderErrorType.KeyboardMouse, "Failed to handle key down", ex);
         }
     }
 
@@ -1571,9 +1571,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             StylesheetLoad?.Invoke(this, args);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.CssParsing);
+            ReportError(HtmlRenderErrorType.CssParsing, "A StylesheetLoad handler threw for " + args.Src, ex);
         }
     }
 
@@ -1583,9 +1583,9 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             ImageLoad?.Invoke(this, args);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.Image);
+            ReportError(HtmlRenderErrorType.Image, "An ImageLoad handler threw for " + args.Src, ex);
         }
     }
 
@@ -1607,17 +1607,21 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             Refresh?.Invoke(this, new HtmlRefreshEventArgs(layout));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            ReportError(HtmlRenderErrorType.General);
+            ReportError(HtmlRenderErrorType.General, "A Refresh handler threw", ex);
         }
     }
 
-    internal void ReportError(HtmlRenderErrorType type)
+    /// <summary>
+    /// Raises <see cref="RenderError"/> with what failed and why. A handler that throws is not allowed
+    /// to turn a recovered failure into an unrecovered one.
+    /// </summary>
+    internal void ReportError(HtmlRenderErrorType type, string? message = null, Exception? exception = null)
     {
         try
         {
-            RenderError?.Invoke(this, new HtmlRenderErrorEventArgs(type));
+            RenderError?.Invoke(this, new HtmlRenderErrorEventArgs(type, message, exception));
         }
         catch
         { }
@@ -1840,7 +1844,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     #region IHtmlContainerInt
 
     void IHtmlContainerInt.ReportError(HtmlRenderErrorType type, string message, Exception? exception)
-        => ReportError(type);
+        => ReportError(type, message, exception);
 
     BColor IHtmlContainerInt.SelectionForeColor => SelectionForeColor;
 

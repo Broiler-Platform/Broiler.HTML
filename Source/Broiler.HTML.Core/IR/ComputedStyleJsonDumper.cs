@@ -19,9 +19,14 @@ namespace Broiler.HTML.Core.IR;
 /// </summary>
 public static class ComputedStyleJsonDumper
 {
+    // Each box nests two levels — its object and its children array — so the serializer's default limit
+    // of 64 fails at 32 nested boxes, which a real page passes (a Wikipedia article's tree is about
+    // forty deep). The limit only guards against unbounded recursion, and a box tree is bounded by
+    // its document.
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        WriteIndented = true
+        WriteIndented = true,
+        MaxDepth = 4096,
     };
 
     public static string ToJson(Fragment root)
