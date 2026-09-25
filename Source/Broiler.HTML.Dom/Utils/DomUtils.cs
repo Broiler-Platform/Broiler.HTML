@@ -77,7 +77,11 @@ internal sealed class DomUtils
 
         if (box.IsClickable && box.Visibility == CssConstants.Visible)
         {
-            if (IsInBox(box, location))
+            // A link laid out as a block (display: block, flex, grid...) has no line rectangles of its
+            // own, and IsInBox looks only at line rectangles, so such a link answered on its words and
+            // nowhere else: a menu item whose link fills its padding could be clicked on its text only.
+            // A browser takes the whole border box, as it does for any box's own area.
+            if (IsInBox(box, location) || (box.Rectangles.Count == 0 && box.Bounds.Contains(location)))
                 return box;
         }
 
