@@ -62,9 +62,9 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         {
             // The tree this sheet was for was torn down; that is not a CSS error.
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Failed to load stylesheet " + src, ex);
         }
     }
 
@@ -92,7 +92,7 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
             // A web page's sheet never comes off the file system: see SubresourceScope.AllowsLocalFiles.
             if (scope is { AllowsLocalFiles: false })
             {
-                _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
+                _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Refused to load a local stylesheet into a network document: " + src);
                 return string.Empty;
             }
 
@@ -195,12 +195,12 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
             }
             else
             {
-                _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
+                _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Stylesheet file not found: " + fileInfo.FullName);
             }
         }
         else
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Stylesheet path is not a file: " + path);
         }
 
         return string.Empty;
@@ -251,9 +251,9 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         {
             stylesheet = CorrectRelativeUrls(stylesheet, response.FinalUrl);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Failed to rebase the url() references of " + response.FinalUrl, ex);
         }
 
         return stylesheet;
@@ -292,9 +292,9 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
         {
             stylesheet = CorrectRelativeUrls(stylesheet, uri);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing, "Failed to rebase the url() references of " + uri, ex);
         }
 
         return stylesheet;

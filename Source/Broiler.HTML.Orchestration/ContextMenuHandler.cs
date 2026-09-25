@@ -212,9 +212,9 @@ internal sealed class ContextMenuHandler : IDisposable
                 _contextMenu.Show(parent, parent.MouseLocation);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to show the context menu", ex);
         }
     }
 
@@ -248,9 +248,9 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             throw;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to open the link from the context menu", ex);
         }
         finally
         {
@@ -265,9 +265,9 @@ internal sealed class ContextMenuHandler : IDisposable
             if (_currentLink != null)
                 _adapter.SetToClipboard(_currentLink.HrefLink);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy the link from the context menu", ex);
         }
         finally
         {
@@ -285,9 +285,9 @@ internal sealed class ContextMenuHandler : IDisposable
                 _adapter.SaveToFile((BImage)_currentRect.Image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to save the image from the context menu", ex);
         }
         finally
         {
@@ -302,9 +302,9 @@ internal sealed class ContextMenuHandler : IDisposable
             if (_currentRect != null)
                 _adapter.SetToClipboard(_currentRect.OwnerBox.GetAttribute("src"));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy the image URL from the context menu", ex);
         }
         finally
         {
@@ -319,9 +319,9 @@ internal sealed class ContextMenuHandler : IDisposable
             if (_currentRect != null)
                 _adapter.SetToClipboard((BImage)_currentRect.Image);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy the image from the context menu", ex);
         }
         finally
         {
@@ -335,9 +335,9 @@ internal sealed class ContextMenuHandler : IDisposable
         {
             _selectionHandler.CopySelectedHtml();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to copy the selection from the context menu", ex);
         }
         finally
         {
@@ -352,9 +352,9 @@ internal sealed class ContextMenuHandler : IDisposable
             if (_parentControl != null)
                 _selectionHandler.SelectAll(_parentControl);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu);
+            _htmlContainer.ReportError(HtmlRenderErrorType.ContextMenu, "Failed to select all from the context menu", ex);
         }
         finally
         {
