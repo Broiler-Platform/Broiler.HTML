@@ -40,6 +40,21 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private readonly IHandlerFactory _handlerFactory;
     private Broiler.Dom.DomDocument? _boundDocument;
     private ulong _boundDocumentVersion;
+
+    /// <summary>
+    /// This document's quirks-mode flag, as its parse or its binding found it, or null before either.
+    /// </summary>
+    /// <remarks>
+    /// The layout and the cascade read the mode from thread-static state
+    /// (<c>DocumentModeContext</c>, <c>CssDocumentMode</c>), and the tree caches it on its root the
+    /// first time layout asks. A host that parses on one thread and lays out on another — the
+    /// browser window, which parses a page off its UI thread and lays it out on it — therefore laid
+    /// every page out in the mode of whatever that thread published last: the window's start page,
+    /// which has no doctype, so every standards-mode page got the quirks-mode layout, and Acid1's
+    /// body filled the viewport. The container keeps its own document's flag and publishes it on the
+    /// thread that lays out or paints.
+    /// </remarks>
+    private bool? _documentQuirksMode;
     private HtmlStyleSet? _boundBaseStyleSet;
     private IBrowserRequestTransport? _requestTransport;
     private DocumentRequestContext? _documentContext;
@@ -557,6 +572,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         Clear();
         _boundDocument = null;
+        _documentQuirksMode = null;
 
         if (baseUrl != null)
             BaseUrl = baseUrl;
@@ -573,9 +589,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // like a layout bug rather than a threading one. That is the residual
         // recorded in docs/architecture/multithreading-static-state.md, and it has
         // to close before a render-path worker pool exists rather than after.
-        Layout.DocumentModeContext.CurrentQuirksMode =
-            Layout.DocumentModeContext.IsQuirksHtml(htmlSource);
-        PublishCssDocumentMode(Layout.DocumentModeContext.CurrentQuirksMode);
+        _documentQuirksMode = Layout.DocumentModeContext.IsQuirksHtml(htmlSource);
+        EstablishDocumentMode();
 
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
         DomParser parser = new(new StylesheetLoadHandler(this));
@@ -604,36 +619,32 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (baseUrl != null)
             BaseUrl = baseUrl;
 
-        PublishCssDocumentMode(null);
+        // The bound path's caller (the DOM bridge, the WPT renderer) has published this document's
+        // mode on this thread; keep it, so a rebuild or a layout on another thread uses it too.
+        _documentQuirksMode = AmbientQuirksMode();
+        EstablishDocumentMode();
 
         BuildBoundDocument();
     }
 
     /// <summary>
-    /// Mirrors this document's quirks-mode flag into <see cref="Broiler.CSS.CssDocumentMode"/>,
-    /// which the cascade reads for the quirks-only value relaxations (the unitless-length
-    /// quirk, https://quirks.spec.whatwg.org/#the-unitless-length-quirk).
+    /// Publishes this document's mode on the calling thread, to the layout
+    /// (<c>DocumentModeContext</c>) and to the cascade (<c>CssDocumentMode</c>), which both read it
+    /// from thread-static state. Called where the document is parsed or bound, and again before
+    /// every layout and paint, which may run on another thread.
     /// </summary>
-    /// <param name="quirksMode">
-    /// The flag, or <see langword="null"/> to take it from <c>DocumentModeContext</c> — which is
-    /// what the bound-document path does, its caller (the DOM bridge, the WPT renderer) having
-    /// published it already.
-    /// </param>
-    /// <remarks>
-    /// The flag's canonical home is <c>Broiler.Layout.DocumentModeContext</c>, but the cascade
-    /// lives in Broiler.CSS.Dom, which cannot reference Broiler.Layout — the dependency runs the
-    /// other way. Mirroring here rather than from <c>DocumentModeContext</c>'s own setter keeps
-    /// the type Broiler.CSS owns out of the main repository, which has to build against the
-    /// pinned submodule pointers.
-    /// </remarks>
-    private static void PublishCssDocumentMode(bool? quirksMode)
+    private void EstablishDocumentMode()
     {
-        if (quirksMode is { } known)
-        {
-            Broiler.CSS.CssDocumentMode.QuirksMode = known;
+        if (_documentQuirksMode is not { } quirksMode)
             return;
-        }
 
+        Layout.DocumentModeContext.CurrentQuirksMode = quirksMode;
+        PublishCssDocumentMode(quirksMode);
+    }
+
+    /// <summary>The mode this thread has published, or standards mode when it has published none.</summary>
+    private static bool AmbientQuirksMode()
+    {
         // Reading an ambient slot this thread never established throws when the render-state
         // assertion is armed, so ask first: an unestablished slot simply means nothing is known
         // about the document mode, and standards mode is the safe reading.
@@ -642,9 +653,24 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 & Layout.AmbientRenderState.Slots.DocumentMode)
             == Layout.AmbientRenderState.Slots.DocumentMode;
 
-        Broiler.CSS.CssDocumentMode.QuirksMode =
-            established && Layout.DocumentModeContext.CurrentQuirksMode;
+        return established && Layout.DocumentModeContext.CurrentQuirksMode;
     }
+
+    /// <summary>
+    /// Mirrors this document's quirks-mode flag into <see cref="Broiler.CSS.CssDocumentMode"/>,
+    /// which the cascade reads for the quirks-only value relaxations (the unitless-length
+    /// quirk, https://quirks.spec.whatwg.org/#the-unitless-length-quirk).
+    /// </summary>
+    /// <param name="quirksMode">The flag.</param>
+    /// <remarks>
+    /// The flag's canonical home is <c>Broiler.Layout.DocumentModeContext</c>, but the cascade
+    /// lives in Broiler.CSS.Dom, which cannot reference Broiler.Layout — the dependency runs the
+    /// other way. Mirroring here rather than from <c>DocumentModeContext</c>'s own setter keeps
+    /// the type Broiler.CSS owns out of the main repository, which has to build against the
+    /// pinned submodule pointers.
+    /// </remarks>
+    private static void PublishCssDocumentMode(bool quirksMode) =>
+        Broiler.CSS.CssDocumentMode.QuirksMode = quirksMode;
 
     private delegate CssBox CssTreeFactory(ref HtmlStyleSet styleSet);
 
@@ -1342,6 +1368,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         ArgumentNullException.ThrowIfNull(g);
         LayoutPassCounter.RecordCall();
+
+        // First, because the rebuild check may cascade again: the cascade and the layout both read
+        // the document's mode from this thread, which need not be the one that parsed it.
+        EstablishDocumentMode();
         EnsureBoundDocumentCurrent();
 
         ActualSize = SizeF.Empty;
@@ -1399,6 +1429,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public void PerformPaint(BGraphics g)
     {
         ArgumentNullException.ThrowIfNull(g);
+        EstablishDocumentMode();
 
         RectangleF viewport = GetPaintViewport();
 
