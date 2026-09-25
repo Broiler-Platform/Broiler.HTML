@@ -754,6 +754,8 @@ internal sealed class DomParser
 
     private void TranslateAttributes(HtmlTag tag, CssBox box)
     {
+        InheritRowAlignment(tag, box);
+
         if (!tag.HasAttributes())
             return;
 
@@ -774,10 +776,7 @@ internal sealed class DomParser
             switch (att)
             {
                 case HtmlConstants.Align:
-                    if (value == HtmlConstants.Left || value == HtmlConstants.Center || value == HtmlConstants.Right || value == HtmlConstants.Justify)
-                        box.TextAlign = value.ToLowerInvariant();
-                    else
-                        box.VerticalAlign = value.ToLowerInvariant();
+                    TranslateAlign(tag, box, value);
                     break;
                 case HtmlConstants.Background:
                     box.BackgroundImage = value.ToLowerInvariant();
@@ -856,7 +855,8 @@ internal sealed class DomParser
                     }
                     break;
                 case HtmlConstants.Valign:
-                    box.VerticalAlign = value.ToLowerInvariant();
+                    box.VerticalAlign = value.Trim().ToLowerInvariant();
+                    RecordPresentationalHint(box, "vertical-align");
                     break;
                 case HtmlConstants.Vspace:
                     box.MarginTop = box.MarginBottom = TranslateLength(value);
@@ -867,6 +867,108 @@ internal sealed class DomParser
             }
         }
     }
+
+    /// <summary>
+    /// Maps an <c>align</c> attribute the way the HTML Standard's rendering section does, as a
+    /// presentational hint.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <b>What it means depends on the element.</b> On a <c>&lt;table&gt;</c> it places the table
+    /// (§15.3.8: <c>left</c> and <c>right</c> float it, <c>center</c> gives it auto inline margins);
+    /// it did not move the table at all here, and <c>center</c> centred the text of every cell
+    /// instead. On an image or another embedded element <c>left</c> and <c>right</c> float it
+    /// (§15.4.3). Anywhere else a horizontal value is <c>text-align</c> and any other value the
+    /// legacy vertical alignment.
+    /// </para>
+    /// <para>
+    /// <b>The values are ASCII case-insensitive</b>, and legacy markup writes them in capitals —
+    /// <c>&lt;TD ALIGN=RIGHT&gt;</c> matched none of the lowercase constants, and became
+    /// <c>vertical-align: right</c>.
+    /// </para>
+    /// <para>
+    /// <b>Each is recorded as a hint</b>, so a user-agent rule on the same property cannot replace
+    /// it and an author rule still does: <c>th { text-align: center }</c> overrode
+    /// <c>&lt;th align=left&gt;</c>, and <c>td, th { vertical-align: inherit }</c> overrode every
+    /// <c>align</c> and <c>valign</c> on a cell.
+    /// </para>
+    /// </remarks>
+    private void TranslateAlign(HtmlTag tag, CssBox box, string value)
+    {
+        string align = value.Trim().ToLowerInvariant();
+        bool horizontal = align is HtmlConstants.Left or HtmlConstants.Center or HtmlConstants.Right or HtmlConstants.Justify;
+
+        if (tag.Name.Equals(HtmlConstants.Table, StringComparison.OrdinalIgnoreCase))
+        {
+            if (align is HtmlConstants.Left or HtmlConstants.Right)
+            {
+                box.Float = align;
+                RecordPresentationalHint(box, "float");
+            }
+            else if (align is HtmlConstants.Center)
+            {
+                box.MarginLeft = box.MarginRight = CssConstants.Auto;
+                RecordPresentationalHint(box, "margin-left", "margin-right");
+            }
+
+            return;
+        }
+
+        if ((align is HtmlConstants.Left or HtmlConstants.Right) && IsFloatedByAlign(tag.Name))
+        {
+            box.Float = align;
+            RecordPresentationalHint(box, "float");
+            return;
+        }
+
+        if (horizontal)
+        {
+            box.TextAlign = align;
+            RecordPresentationalHint(box, "text-align");
+        }
+        else
+        {
+            box.VerticalAlign = align;
+            RecordPresentationalHint(box, "vertical-align");
+        }
+    }
+
+    /// <summary>
+    /// Gives a cell or row without a <c>valign</c> of its own its parent's vertical alignment, as a
+    /// hint, when that parent's came from a hint.
+    /// </summary>
+    /// <remarks>
+    /// A row's <c>valign</c> reaches its cells through the user-agent rule
+    /// <c>td, th { vertical-align: inherit }</c>, and a row group's reaches its rows the same way in
+    /// the HTML Standard. The style engine resolves that <c>inherit</c> against the parent's
+    /// cascade, where the hint is not, so every cell of a <c>&lt;tr valign=top&gt;</c> came out
+    /// <c>middle</c>. The parent's box has already been styled when its children are, so its value
+    /// is final, and an author rule that overrode the hint on the row is what the cell inherits.
+    /// </remarks>
+    private void InheritRowAlignment(HtmlTag tag, CssBox box)
+    {
+        bool rowOrCell =
+            tag.Name.Equals("td", StringComparison.OrdinalIgnoreCase) ||
+            tag.Name.Equals("th", StringComparison.OrdinalIgnoreCase) ||
+            tag.Name.Equals("tr", StringComparison.OrdinalIgnoreCase);
+        if (!rowOrCell || tag.HasAttribute(HtmlConstants.Valign))
+            return;
+
+        if (box.ParentBox is not { } parent ||
+            !_presentationalHints.TryGetValue(parent, out var parentHints) ||
+            !parentHints.Contains("vertical-align"))
+            return;
+
+        box.VerticalAlign = parent.VerticalAlign;
+        RecordPresentationalHint(box, "vertical-align");
+    }
+
+    /// <summary>The embedded elements whose <c>align=left|right</c> floats them (HTML §15.4.3).</summary>
+    private static bool IsFloatedByAlign(string tagName) =>
+        tagName.Equals(HtmlConstants.Img, StringComparison.OrdinalIgnoreCase) ||
+        tagName.Equals(HtmlConstants.Iframe, StringComparison.OrdinalIgnoreCase) ||
+        tagName.Equals("object", StringComparison.OrdinalIgnoreCase) ||
+        tagName.Equals("embed", StringComparison.OrdinalIgnoreCase);
 
     private static string TranslateLength(string htmlLength)
     {

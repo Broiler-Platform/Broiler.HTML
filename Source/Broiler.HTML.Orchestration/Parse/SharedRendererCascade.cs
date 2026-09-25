@@ -52,7 +52,10 @@ internal static class SharedRendererCascade
     /// inline declarations). Used to decide whether a property a presentation
     /// attribute set is also claimed by an author declaration: if it is not, the
     /// only competing rule is a UA default, and the presentation hint must win.
-    /// Returns <c>null</c> when there are no author sheets at all.
+    /// Returns <c>null</c> only when there is no document: with no author sheet at all the engine still
+    /// answers for the <c>style</c> attribute, which is author origin too. Returning null there left
+    /// <c>&lt;td valign=top style="vertical-align: bottom"&gt;</c> on a page with no style sheet at the
+    /// hint's <c>top</c>, because nothing asked whether an author declaration claimed the property.
     /// </summary>
     internal static CSS.Dom.CssStyleEngine? BuildAuthorEngine(
         Broiler.Dom.DomDocument? document,
@@ -60,11 +63,12 @@ internal static class SharedRendererCascade
         int viewportWidth,
         int viewportHeight)
     {
-        if (document is null || styleSet.AuthorStyleSheet.Rules.Count == 0)
+        if (document is null)
             return null;
 
         var engine = new Broiler.CSS.Dom.CssStyleEngine();
-        engine.AddStyleSheet(styleSet.AuthorStyleSheet, CSS.Dom.CssOrigin.Author);
+        if (styleSet.AuthorStyleSheet.Rules.Count > 0)
+            engine.AddStyleSheet(styleSet.AuthorStyleSheet, CSS.Dom.CssOrigin.Author);
         engine.UpdateEnvironment(new Broiler.CSS.Dom.CssEnvironment(viewportWidth, viewportHeight));
         return engine;
     }
