@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "component": "Broiler.HTML",
+  // The six shipping libraries. Source/Broiler.HTML.Tool (IsPackable=false, a conformance
+  // harness) and Source/Broiler.HTML.Graphics.Win32.Demo (a sample) do not ship, and
+  // tests/Broiler.HTML.Tests is the test project. Source/SharedAssemblyInfo.cs is covered
+  // through the <Compile Include> each of these projects states.
+  "projects": [
+    "Source/Broiler.HTML.Core/Broiler.HTML.Core.csproj",
+    "Source/Broiler.HTML.Dom/Broiler.HTML.Dom.csproj",
+    "Source/Broiler.HTML.Graphics/Broiler.HTML.Graphics.csproj",
+    "Source/Broiler.HTML.Image/Broiler.HTML.Image.csproj",
+    "Source/Broiler.HTML.Image.Compat/Broiler.HTML.Image.Compat.csproj",
+    "Source/Broiler.HTML.Orchestration/Broiler.HTML.Orchestration.csproj"
+  ],
+  "exemptionPredicate": "owning-component",
+  // No generated sources: there are no *.g.cs files, tables or source generators. The seven
+  // git-tracked Source/*/obj/*/net8.0/.NETCoreApp,Version=v8.0.AssemblyAttributes.cs files
+  // are stale MSBuild output inside each project's own obj directory, which the walk leaves out.
+  "exclude": [],
+  "spdx": {
+    "copyright": ["2026 Broiler Platform contributors"],
+    "license": "Apache-2.0"
+  },
+  // Derived from HTML Renderer 1.5.2 (BSD-3-Clause). The copyright lines are those of
+  // LICENSES/HTML-Renderer-BSD-3-Clause.txt; the notice ships through THIRD_PARTY_NOTICES.md
+  // and every package (Directory.Build.props, PackageLicenseExpression "Apache-2.0 AND
+  // BSD-3-Clause"). The upstream baseline is HTML-Renderer-1.5.2/Source as vendored in the
+  // platform repository's first commit c45df220; each file below descends from an upstream
+  // file of the same name, or declares the member set of one (IAdapter from RAdapter,
+  // IHtmlContainerInt from HtmlContainerInt, ISelectionHandler from SelectionHandler,
+  // StubImageAdapter the RAdapter overrides).
+  "spdxOverrides": [
+    // Broiler.HTML.Core
+    { "glob": "Source/Broiler.HTML.Core/Core/ISelectionHandler.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/CssData.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/CssDefaults.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlGenerationStyle.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlImageLoadEventArgs.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlLinkClickedEventArgs.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlLinkClickedException.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlRefreshEventArgs.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlRenderErrorEventArgs.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlRenderErrorType.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlScrollEventArgs.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/HtmlStylesheetLoadEventArgs.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Entities/LinkElementData.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Handlers/ImageDownloader.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Handlers/ImageLoadHandler.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/IAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/IHtmlContainerInt.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Utils/CommonUtils.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Utils/HtmlConstants.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Core/Utils/HtmlUtils.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    // Broiler.HTML.Dom
+    { "glob": "Source/Broiler.HTML.Dom/Parse/HtmlParser.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Dom/Utils/DomUtils.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    // Broiler.HTML.Image: the adapters and facade of the upstream WinForms and PdfSharp front ends
+    { "glob": "Source/Broiler.HTML.Image/Adapters/BrushAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/Adapters/ControlAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/Adapters/FontAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/Adapters/FontFamilyAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/Adapters/GraphicsAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/Adapters/GraphicsPathAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/Adapters/ImageAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/Adapters/PenAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/HtmlContainer.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Image/HtmlRender.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    // Broiler.HTML.Image.Compat
+    { "glob": "Source/Broiler.HTML.Image.Compat/Adapters/StubImageAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    // Broiler.HTML.Orchestration
+    { "glob": "Source/Broiler.HTML.Orchestration/Adapters/RAdapter.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/Adapters/RContextMenu.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/Adapters/RControl.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/ContextMenuHandler.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/Core/SelectionHandler.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/Handlers/StylesheetLoadHandler.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/HtmlContainerInt.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/HtmlRendererUtils.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    { "glob": "Source/Broiler.HTML.Orchestration/Parse/DomParser.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" },
+    // Shared by every project; descends from upstream Source/SharedAssemblyInfo.cs.
+    { "glob": "Source/SharedAssemblyInfo.cs", "copyright": ["2026 Broiler Platform contributors", "2009 José Manuel Menéndez Poo", "2013-2025 Arthur Teplitzki"], "license": "Apache-2.0 AND BSD-3-Clause" }
+  ],
+  // HUMAN_REVIEW.md at the root is a hand-written, signed review record; it stays as it is.
+  "artefacts": {
+    "report": "CODE-ASSURANCE.md",
+    "humanReview": "HUMAN_REVIEW.units.md",
+    "manifest": "assurance.manifest.json"
+  },
+  "forbidDirectives": false,
+  "forgeryVocabulary": "narrow",
+  "regenerateCommand": "dotnet run --project Broiler.Code/src/Broiler.Code.Review.Cli -c Release -- assurance generate --root Broiler.HTML"
+}
