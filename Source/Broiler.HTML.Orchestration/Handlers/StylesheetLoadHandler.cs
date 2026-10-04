@@ -160,27 +160,20 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
     }
 
     /// <summary>
-    /// Extracts CSS content from a <c>data:</c> URI.
-    /// Supports both percent-encoded (<c>data:text/css,.picture%20%7B...%7D</c>)
-    /// and base64-encoded (<c>data:text/css;base64,...</c>) payloads.
+    /// The text of a <c>data:</c> stylesheet — percent-encoded (<c>data:text/css,.picture%20%7B...%7D</c>)
+    /// or base64-encoded (<c>data:text/css;base64,...</c>) — decoded as UTF-8. Empty, with an error
+    /// reported, when the URL does not decode as a browser decodes it (<see cref="DataUrl"/>).
     /// </summary>
-    private static string LoadStylesheetFromDataUri(string src)
+    private string LoadStylesheetFromDataUri(string src)
     {
-        // Format: data:[<mediatype>][;base64],<data>
-        var commaIdx = src.IndexOf(',');
-        if (commaIdx < 0)
-            return string.Empty;
-
-        var meta = src.Substring(5, commaIdx - 5); // between "data:" and ","
-        var payload = src.Substring(commaIdx + 1);
-
-        if (meta.Contains("base64", StringComparison.OrdinalIgnoreCase))
+        if (!DataUrl.TryParse(src, out var dataUrl))
         {
-            var bytes = Convert.FromBase64String(payload);
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing,
+                "Failed to decode stylesheet data URL " + (src.Length > 64 ? src[..64] + "…" : src));
+            return string.Empty;
         }
 
-        return Uri.UnescapeDataString(payload);
+        return dataUrl.DecodeUtf8();
     }
 
     private string LoadStylesheetFromFile(string path)

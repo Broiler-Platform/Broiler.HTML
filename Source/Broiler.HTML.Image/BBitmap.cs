@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
 using Broiler.Media;
@@ -148,14 +149,36 @@ public sealed class BBitmap : IDisposable
     /// At <see cref="TimeSpan.Zero"/> — the default for callers with no clock — the later frames
     /// are not decoded at all, so the common still-image path costs exactly what it did before.
     /// </remarks>
-    public static BBitmap DecodeFrameAt(byte[] data, TimeSpan presentationTime)
+    public static BBitmap DecodeFrameAt(byte[] data, TimeSpan presentationTime) =>
+        TryDecodeFrameAt(data, presentationTime, out var bitmap)
+            ? bitmap
+            : throw new NotSupportedException("Unrecognized image data. The media image codec catalog matched no image codec.");
+
+    /// <summary>
+    /// <see cref="DecodeFrameAt"/> for data that may not be an image at all: <see langword="false"/>,
+    /// without an exception, when no codec in the catalog recognises it.
+    /// </summary>
+    /// <remarks>
+    /// A page's images are decoded through this, because a resource that is not an image is an
+    /// ordinary outcome for a page: a broken link, a server's error page, a <c>data:</c> URL whose
+    /// bytes are something else. Throwing for it cost a first-chance exception per image, which
+    /// stops a debugger set to break on thrown exceptions.
+    /// Data a codec recognises but cannot decode still throws, as it does from <see cref="DecodeFrameAt"/>.
+    /// </remarks>
+    public static bool TryDecodeFrameAt(byte[] data, TimeSpan presentationTime, [NotNullWhen(true)] out BBitmap? bitmap)
     {
         ArgumentNullException.ThrowIfNull(data);
 
         bool needsTimeline = presentationTime > TimeSpan.Zero;
-        ImageSequence sequence = DecodeMedia(data, preserveAnimation: needsTimeline);
-        return FromImageBuffer(
+        if (!TryDecodeMedia(data, needsTimeline, out ImageSequence? sequence))
+        {
+            bitmap = null;
+            return false;
+        }
+
+        bitmap = FromImageBuffer(
             needsTimeline ? sequence.FrameAt(presentationTime).Pixels : sequence.FirstFrame);
+        return true;
     }
 
     public static BBitmap Decode(Stream stream)
@@ -192,18 +215,22 @@ public sealed class BBitmap : IDisposable
         return new BBitmap(buffer.Width, buffer.Height, (byte[])buffer.Rgba.Clone());
     }
 
-    private static ImageSequence DecodeMedia(byte[] data, bool preserveAnimation = false)
+    private static bool TryDecodeMedia(byte[] data, bool preserveAnimation, [NotNullWhen(true)] out ImageSequence? sequence)
     {
         using var probeInput = new MediaInput(new MemoryStream(data), leaveOpen: false);
         MediaCodecMatch? match = ImageCodecs.SelectAsync(MediaKind.Image, probeInput).AsTask().GetAwaiter().GetResult();
         if (match?.Codec is not ImageCodec codec)
-            throw new NotSupportedException("Unrecognized image data. The media image codec catalog matched no image codec.");
+        {
+            sequence = null;
+            return false;
+        }
 
         using var decodeInput = new MediaInput(new MemoryStream(data), leaveOpen: false);
-        return codec.DecodeAsync(decodeInput, new ImageDecodeOptions(preserveAnimation: preserveAnimation))
+        sequence = codec.DecodeAsync(decodeInput, new ImageDecodeOptions(preserveAnimation: preserveAnimation))
             .AsTask()
             .GetAwaiter()
             .GetResult();
+        return true;
     }
 
     private static byte[] EncodeMedia(ImageSequence sequence, ImageEncodeFormat format, int quality)

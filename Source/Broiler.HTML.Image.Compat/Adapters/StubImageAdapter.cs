@@ -378,16 +378,21 @@ internal sealed class StubImageAdapter : RAdapter
             // presentation time. This is the only seam where the frame is chosen — everything
             // above holds one decoded bitmap — so the clock is read here rather than threaded
             // down through the container and the load handlers.
-            return new ImageAdapter(BBitmap.DecodeFrameAt(data, ImageAnimationClock.PresentationTime));
+            //
+            // Data no codec recognises is an ordinary load failure, answered without an exception:
+            // a page is full of resources that turn out not to be images.
+            return BBitmap.TryDecodeFrameAt(data, ImageAnimationClock.PresentationTime, out var bitmap)
+                ? new ImageAdapter(bitmap)
+                : null;
         }
         catch (ArgumentException)
         {
-            // Unrecognised or corrupt image data.
+            // Corrupt image data a codec recognised but could not decode.
             return null;
         }
         catch (NotSupportedException)
         {
-            // Encoded image loading is handled by Broiler.Media-backed image paths.
+            // A variant of a recognised format that its codec does not support.
             return null;
         }
     }
