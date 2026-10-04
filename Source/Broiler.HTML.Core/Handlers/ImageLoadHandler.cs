@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Drawing;
 using Broiler.HTML.Core.Entities;
@@ -109,31 +108,15 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         ImageLoadComplete(false);
     }
 
+    /// <summary>
+    /// The image a <c>data:</c> URL carries, or <see langword="null"/> when the URL does not decode
+    /// as a browser decodes it (<see cref="DataUrl"/>) or does not declare an image type.
+    /// </summary>
     private BImage? GetImageFromData(string src)
     {
-        var s = src[(src.IndexOf(':') + 1)..].Split([','], 2);
-
-        if (s.Length != 2)
+        if (!DataUrl.TryParse(src, out var mimeType, out var imageData)
+            || !mimeType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
             return null;
-
-        int imagePartsCount = 0, base64PartsCount = 0;
-        foreach (var part in s[0].Split([';']))
-        {
-            var pPart = part.Trim();
-
-            if (pPart.StartsWith("image/", StringComparison.InvariantCultureIgnoreCase))
-                imagePartsCount++;
-
-            if (pPart.Equals("base64", StringComparison.InvariantCultureIgnoreCase))
-                base64PartsCount++;
-        }
-
-        if (imagePartsCount <= 0)
-            return null;
-
-        byte[] imageData = base64PartsCount > 0
-            ? Convert.FromBase64String(Uri.UnescapeDataString(s[1].Trim()))
-            : new UTF8Encoding().GetBytes(Uri.UnescapeDataString(s[1].Trim()));
 
         return _htmlContainer.ImageFromStream(new MemoryStream(imageData));
     }
