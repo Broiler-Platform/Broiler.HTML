@@ -8,7 +8,7 @@
     <PackageVersion Include="Broiler.Dom.Html" Version="0.1.0-preview.11" />
     <PackageVersion Include="Broiler.Graphics" Version="0.1.0-preview.7" />
     <PackageVersion Include="Broiler.Graphics.Windows" Version="0.1.0-preview.7" />
-    <PackageVersion Include="Broiler.Layout" Version="0.1.0-preview.10" />
+    <PackageVersion Include="Broiler.Layout" Version="0.1.0-preview.12" />
     <PackageVersion Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.14" />
     <!-- The profile network session the renderer's loaders send through; it must reach nuget.org before this pin ships. -->
     <PackageVersion Include="Broiler.Net" Version="0.1.0-preview.2" />
