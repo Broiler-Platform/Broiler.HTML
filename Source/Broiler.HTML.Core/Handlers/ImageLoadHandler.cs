@@ -114,11 +114,10 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     /// </summary>
     private BImage? GetImageFromData(string src)
     {
-        if (!DataUrl.TryParse(src, out var mimeType, out var imageData)
-            || !mimeType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        if (!DataUrl.TryParse(src, out var dataUrl) || !dataUrl.MimeType.IsImage)
             return null;
 
-        return _htmlContainer.ImageFromStream(new MemoryStream(imageData));
+        return _htmlContainer.ImageFromStream(new MemoryStream(dataUrl.Body.ToArray()));
     }
 
     private void SetImageFromPath(string path, Uri baseUrl)

@@ -166,14 +166,14 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
     /// </summary>
     private string LoadStylesheetFromDataUri(string src)
     {
-        if (!DataUrl.TryParse(src, out _, out var body))
+        if (!DataUrl.TryParse(src, out var dataUrl))
         {
             _htmlContainer.ReportError(HtmlRenderErrorType.CssParsing,
                 "Failed to decode stylesheet data URL " + (src.Length > 64 ? src[..64] + "…" : src));
             return string.Empty;
         }
 
-        return DataUrl.Utf8Decode(body);
+        return dataUrl.DecodeUtf8();
     }
 
     private string LoadStylesheetFromFile(string path)
