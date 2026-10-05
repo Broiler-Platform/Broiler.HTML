@@ -110,7 +110,7 @@ internal static class CssDefaults
         :before, :after { white-space: pre-line }
         center          { text-align: center }
         :link, :visited { text-decoration: underline }
-        :focus          { outline: thin dotted invert }
+        :focus-visible  { outline: thin dotted invert }
 
         /* Begin bidirectionality settings (do not change) */
         BDO[DIR=""ltr""]  { direction: ltr; unicode-bidi: bidi-override }
