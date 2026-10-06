@@ -95,6 +95,9 @@ internal sealed class DomParser
         // animation, and ::selection rule through the shared model and style engine.
         var viewport = htmlContainer.ViewportSize;
         var canonicalDocument = SharedRendererCascade.FindCanonicalDocument(root);
+        // :target of the fragment the host navigated to, and :visited of the links it has been to, when
+        // the host says (RendererSelectorState); the markup's stamps otherwise.
+        var selectorState = RendererSelectorState.For(htmlContainer, canonicalDocument, baseUrl);
         Broiler.CSS.Dom.CssStyleEngine? engine;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.CascadeResolve))
         {
@@ -102,12 +105,14 @@ internal sealed class DomParser
                 canonicalDocument,
                 styleSet,
                 (int)viewport.Width,
-                (int)viewport.Height);
+                (int)viewport.Height,
+                selectorState);
             _authorEngine = SharedRendererCascade.BuildAuthorEngine(
                 canonicalDocument,
                 styleSet,
                 (int)viewport.Width,
-                (int)viewport.Height);
+                (int)viewport.Height,
+                selectorState);
 
             // Item #12: resolve every element's cascade on the thread budget first, so the ordered
             // box walk below reads the engine's memo instead of computing. See CssStyleRecalc for

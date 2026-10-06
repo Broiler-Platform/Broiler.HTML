@@ -200,6 +200,33 @@ public sealed class HtmlContainer : IDisposable
         set => HtmlContainerInt.ContentDocumentResolver = value;
     }
 
+    /// <summary>
+    /// Whether the user has visited a page, asked of each link's resolved URL so that <c>:visited</c>
+    /// styles it, in colour only. Null means no link is visited. Read when the document is styled.
+    /// </summary>
+    public Func<Uri, bool>? VisitedLinkPredicate
+    {
+        get => HtmlContainerInt.VisitedLinkPredicate;
+        set => HtmlContainerInt.VisitedLinkPredicate = value;
+    }
+
+    /// <summary>
+    /// The fragment of the URL the document was navigated to, whose element is <c>:target</c>; null for
+    /// none. A target a scripting host stamped wins. Read when the document is styled.
+    /// </summary>
+    public string? TargetFragment
+    {
+        get => HtmlContainerInt.TargetFragment;
+        set => HtmlContainerInt.TargetFragment = value;
+    }
+
+    /// <summary>
+    /// Styles the document again as it is now, without parsing it again -- after a change of what
+    /// <see cref="TargetFragment"/> or <see cref="VisitedLinkPredicate"/> answers. Values the user typed
+    /// into its fields stay.
+    /// </summary>
+    public void RestyleDocument() => HtmlContainerInt.RestyleDocument();
+
     public string GetHtml(HtmlGenerationStyle styleGen = HtmlGenerationStyle.Inline) => HtmlContainerInt.GetHtml(styleGen);
 
     public string? GetAttributeAt(PointF location, string attribute) => HtmlContainerInt.GetAttributeAt(location, attribute);

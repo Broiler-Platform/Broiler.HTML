@@ -56,6 +56,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// </remarks>
     private bool? _documentQuirksMode;
     private HtmlStyleSet? _boundBaseStyleSet;
+
+    // The base style set the last SetHtmlWithStyleSet was given, so RestyleDocument can style the same
+    // document again from it: _styleSet is that set with the document's own sheets already added.
+    private HtmlStyleSet? _htmlBaseStyleSet;
     private IBrowserRequestTransport? _requestTransport;
     private DocumentRequestContext? _documentContext;
     private SubresourceCache _subresourceCache = new();
@@ -76,6 +80,21 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// Null on the renderer's own parse paths.
     /// </summary>
     public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument?>? ContentDocumentResolver { get; set; }
+
+    /// <summary>
+    /// Whether the user has visited a page, asked of each link's resolved URL so that <c>:visited</c>
+    /// styles it -- in colour only, as browsers paint it. Null, as for a still render, means no link is
+    /// visited. Read when the document is styled: set it before <c>SetHtml</c>, or set the HTML again.
+    /// </summary>
+    public Func<Uri, bool>? VisitedLinkPredicate { get; set; }
+
+    /// <summary>
+    /// The fragment of the URL the document was navigated to (<c>section</c>, without the <c>#</c>), whose
+    /// element is <c>:target</c>; null for none. For a document a scripting host serialized, the target it
+    /// stamped (<c>data-broiler-state</c>) wins. Read when the document is styled, as
+    /// <see cref="VisitedLinkPredicate"/> is.
+    /// </summary>
+    public string? TargetFragment { get; set; }
 
     /// <summary>
     /// The most recent fragment tree snapshot, built after layout completes.
@@ -573,6 +592,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         Clear();
         _boundDocument = null;
         _documentQuirksMode = null;
+        _htmlBaseStyleSet = baseStyleSet;
 
         if (baseUrl != null)
             BaseUrl = baseUrl;
@@ -625,6 +645,27 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         EstablishDocumentMode();
 
         BuildBoundDocument();
+    }
+
+    /// <summary>
+    /// Styles the document again as it is now, without parsing it again -- after a change of what
+    /// <see cref="TargetFragment"/> or <see cref="VisitedLinkPredicate"/> answers, which only a cascade
+    /// reads. A value the user typed into a field stays, since the field's element keeps it.
+    /// </summary>
+    /// <remarks>
+    /// A document set as HTML is bound from then on (<see cref="SetDocumentWithStyleSet"/>), with the base
+    /// style set it was given; its own style sheets are collected from it again.
+    /// </remarks>
+    public void RestyleDocument()
+    {
+        if (_boundDocument is not null)
+        {
+            BuildBoundDocument();
+            return;
+        }
+
+        if (Root is not null && Parse.SharedRendererCascade.FindCanonicalDocument(Root) is { } document)
+            SetDocumentWithStyleSet(document, _htmlBaseStyleSet, BaseUrl);
     }
 
     /// <summary>
@@ -1812,6 +1853,16 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             (box.HtmlTag ?? throw new InvalidOperationException("Form input box has no HTML tag.")).SetAttribute("value", value);
 
         box.SetGeneratedTextContent(value);
+
+        // The document's own element holds it too, so styling the document again (RestyleDocument)
+        // keeps what the user typed.
+        if (box.SourceElement is { } element)
+        {
+            if (IsTextArea(box))
+                element.TextContent = value;
+            else
+                element.SetAttribute("value", value);
+        }
     }
 
     /// <summary>
