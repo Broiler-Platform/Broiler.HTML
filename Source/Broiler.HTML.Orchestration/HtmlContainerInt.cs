@@ -622,8 +622,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // standards-mode render — which is a wrong render, not a crash, and looks
         // like a layout bug rather than a threading one. That is the residual
         // recorded in docs/architecture/multithreading-static-state.md, and it has
-        // to close before a render-path worker pool exists rather than after.
-        _documentQuirksMode = Layout.DocumentModeContext.IsQuirksHtml(htmlSource);
+        // to close before a render-path worker pool exists rather than after. The mode is
+        // Broiler.Dom.Html's, read with the tokenizer and initial-insertion-mode rule its tree
+        // builder applies, so it is the mode the DOM path's parse gives the same markup.
+        _documentQuirksMode = Broiler.Dom.Html.HtmlDocumentQueries.IsQuirksMode(htmlSource);
         EstablishDocumentMode();
 
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
@@ -781,8 +783,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     // rather than cached because _styleSet is not final until GenerateCssTree returns — <style>
     // elements and @import are appended to it during the parse — and because a scan of the sheets
     // is nothing against the rebuild it is attached to.
-    private Broiler.Layout.Engine.CascadeInvalidationSet BuildCascadeDependencies() =>
-        Broiler.Layout.Engine.CascadeInvalidationSet.Build(
+    private Broiler.CSS.Dom.CascadeInvalidationSet BuildCascadeDependencies() =>
+        Broiler.CSS.Dom.CascadeInvalidationSet.Build(
             [_styleSet?.UserAgentStyleSheet, _styleSet?.AuthorStyleSheet]);
 
     private void EnsureBoundDocumentCurrent()
