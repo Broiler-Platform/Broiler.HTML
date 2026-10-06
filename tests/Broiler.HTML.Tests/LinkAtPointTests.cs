@@ -57,6 +57,19 @@ public sealed class LinkAtPointTests
     }
 
     /// <summary>
+    /// An open popover's link is found where the popover is drawn, in the middle of the viewport (a scripting host
+    /// stamps the open one); a closed one's is not. The open one stood at the top-left corner, in the flow.
+    /// </summary>
+    [Fact]
+    public void An_Open_Popovers_Link_Is_Found_In_The_Middle()
+    {
+        const string Link = "<a href=\"/menu\" style=\"display: block; width: 100px; height: 30px\">Menu</a>";
+
+        Assert.Null(LinkAt($"<div popover>{Link}</div>", 400, 300));
+        Assert.Equal("/menu", LinkAt($"<div popover data-broiler-state=\"popover-open\">{Link}</div>", 400, 300));
+    }
+
+    /// <summary>
     /// Controls, which pass before and after: no link where there is none, and none outside a box that clips
     /// what it holds -- a link there is hidden.
     /// </summary>

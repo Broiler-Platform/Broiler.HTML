@@ -174,6 +174,11 @@ public sealed class RendererSelectorStateTests
         }
     }
 
+    // The text a reader sees: a box that is not displayed shows none, though the engine lays out a hidden
+    // fixed box -- a closed popover is one, by the user agent's rules -- all the same.
     private static string Text(Fragment fragment) =>
-        string.Concat(Flatten(fragment).SelectMany(static f => f.Lines ?? []).SelectMany(static l => l.Inlines).Select(static i => i.Text));
+        fragment.Style.Display == "none"
+            ? string.Empty
+            : string.Concat((fragment.Lines ?? []).SelectMany(static l => l.Inlines).Select(static i => i.Text)) +
+              string.Concat(fragment.Children.Select(Text));
 }
