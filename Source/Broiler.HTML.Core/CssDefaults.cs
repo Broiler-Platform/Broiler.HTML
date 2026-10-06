@@ -163,6 +163,11 @@ internal static class CssDefaults
         dialog          { display: block; border: 1px solid black; padding: 1em; background-color: white }
         dialog:not([open]) { display: none }
 
+        /* HTML Rendering (popovers): a popover that is not showing generates no box, unless it is an
+           open dialog. Showing is the scripting host's state, which it stamps into the markup it hands
+           the renderer (:popover-open); without the rule every closed popover was drawn in the flow. */
+        [popover]:not(:popover-open):not(dialog[open]) { display: none }
+
         /* Hidden elements (HTML5) */
         template,
         [hidden]        { display: none }

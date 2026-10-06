@@ -128,6 +128,27 @@ public sealed class RendererSelectorStateTests
         Assert.NotEqual("rgb(255, 0, 0)", Rgb(inputs[2].Style.ActualBackgroundColor));
     }
 
+    /// <summary>
+    /// A popover that is not showing generates no box; one a scripting host stamped as showing does, and so
+    /// does a closed one an author gives a <c>display</c> of their own, as the rule is the user agent's.
+    /// Every closed popover used to be drawn where it stands in the flow.
+    /// </summary>
+    [Fact]
+    public void A_Closed_Popover_Generates_No_Box()
+    {
+        var tree = Layout(
+            "<style>#styled { display: flex }</style>" +
+            "<div popover>closedmarker</div><div popover data-broiler-state=\"popover-open\">shownmarker</div>" +
+            "<div id=\"styled\" popover=\"manual\">styledmarker</div><dialog popover open>dialogmarker</dialog><p>pagemarker</p>");
+
+        var text = Text(tree);
+        Assert.DoesNotContain("closedmarker", text, StringComparison.Ordinal);
+        Assert.Contains("shownmarker", text, StringComparison.Ordinal);
+        Assert.Contains("styledmarker", text, StringComparison.Ordinal);
+        Assert.Contains("dialogmarker", text, StringComparison.Ordinal);
+        Assert.Contains("pagemarker", text, StringComparison.Ordinal);
+    }
+
     private static string Rgb(object? color) => color switch
     {
         Broiler.Graphics.Color.BColor c => $"rgb({c.R}, {c.G}, {c.B})",
