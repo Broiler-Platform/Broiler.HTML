@@ -16,13 +16,14 @@ public sealed class PopoverGeometryTests
     private const string PageUrl = "https://example.test/page";
     private const string Shown = "popover data-broiler-state=\"popover-open\"";
 
-    private static Fragment Layout(string body)
+    private static Fragment Layout(string body, bool placesAnchoredBoxes = false)
     {
         using var container = new HtmlContainer
         {
             AvoidAsyncImagesLoading = true,
             AvoidImagesLateLoading = true,
             MaxSize = new SizeF(800, 600),
+            PlacesAnchoredBoxes = placesAnchoredBoxes,
         };
         container.SetHtmlWithStyleSet("<!DOCTYPE html><html><body>" + body + "</body></html>", null, PageUrl);
         container.PerformLayout();
@@ -102,6 +103,75 @@ public sealed class PopoverGeometryTests
         Assert.Equal("fixed", dialog.Style.Position);
         Assert.Equal((800 - dialog.Size.Width) / 2, dialog.Location.X, 1);
         Assert.Equal((600 - dialog.Size.Height) / 2, dialog.Location.Y, 1);
+    }
+
+    /// <summary>
+    /// A dialog's border is Chromium's <c>border: solid</c>, medium (3px), in the dialog's own text colour,
+    /// which is black even in a red block. It was 1px, and the text took the block's red. (In a red
+    /// <c>p</c> it would prove nothing: a <c>dialog</c> start tag closes an open <c>p</c>.)
+    /// </summary>
+    [Fact]
+    public void A_Dialog_Has_A_Medium_Border_And_Its_Own_Black_Text()
+    {
+        var dialog = Find(Layout("<div style=\"color: red\">red <dialog open>colouredmarker</dialog></div>"), "colouredmarker");
+
+        Assert.Equal(3, dialog.Border.Top, 1);
+        Assert.Equal(3, dialog.Border.Left, 1);
+        Assert.Equal("solid", dialog.Style.BorderTopStyle);
+        Assert.Equal((0, 0, 0), (dialog.Style.ActualColor.R, dialog.Style.ActualColor.G, dialog.Style.ActualColor.B));
+        Assert.Equal((0, 0, 0), (dialog.Style.ActualBorderTopColor.R, dialog.Style.ActualBorderTopColor.G, dialog.Style.ActualBorderTopColor.B));
+    }
+
+    /// <summary>
+    /// A modal dialog in the top layer is centred in the viewport and its <c>::backdrop</c> covers the viewport, even
+    /// inside a transformed container of definite size, which is the containing block of an ordinary fixed box
+    /// (Chromium, measured). Layout took that container for the dialog's too: the dialog
+    /// sat in the 200x20 container and the backdrop was its size.
+    /// </summary>
+    [Fact]
+    public void A_Top_Layer_Dialog_Escapes_A_Transformed_Container()
+    {
+        var tree = Layout(
+            "<div style=\"overflow: hidden; height: 20px; width: 200px; transform: translateX(10px)\">" +
+            "<dialog open data-broiler-state=\"modal\" data-broiler-top-layer=\"1\" data-broiler-backdrop=\"rgba(0, 0, 0, 0.1)\">" +
+            "toplayermarker</dialog></div>");
+
+        var dialog = Find(tree, "toplayermarker");
+        Assert.Equal((800 - dialog.Size.Width) / 2, dialog.Location.X, 1);
+        Assert.Equal((600 - dialog.Size.Height) / 2, dialog.Location.Y, 1);
+
+        var backdrop = Flatten(tree).Single(f => f.Style.Position == "fixed" && f.TopLayerOrder is not null && Text(f).Length == 0);
+        Assert.Equal(new SizeF(800, 600), backdrop.Size);
+    }
+
+    /// <summary>
+    /// With <see cref="HtmlContainer.PlacesAnchoredBoxes"/>, a popover with <c>position-anchor: --a; position-area:
+    /// bottom</c> is placed under its anchor and centred on it, as Chromium places it (measured: (100.15, 130) under an 80x30 anchor at (100, 100)); without, as though it had no anchor --
+    /// HTML's rules centre it in the viewport. The window never had the layout engine place anchored boxes: the
+    /// switch is internal to Broiler.Layout, and its scripting host left these boxes to it.
+    /// </summary>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void An_Anchored_Popover_Is_Placed_When_The_Container_Places_Anchored_Boxes(bool places)
+    {
+        var tree = Layout(
+            "<style>#anc { position: absolute; left: 100px; top: 100px; width: 80px; height: 30px; anchor-name: --a }" +
+            "#p { position-anchor: --a; position-area: bottom; margin: 0 }</style>" +
+            $"<div id=\"anc\">anchor</div><div id=\"p\" {Shown}>anchoredmarker</div>",
+            places);
+
+        var popover = Find(tree, "anchoredmarker");
+        if (places)
+        {
+            Assert.Equal(130, popover.Location.Y, 1);
+            Assert.Equal(140 - popover.Size.Width / 2, popover.Location.X, 1);
+        }
+        else
+        {
+            Assert.Equal(0, popover.Location.Y, 1);
+            Assert.Equal(0, popover.Location.X, 1);
+        }
     }
 
     private static Fragment Find(Fragment tree, string marker) =>

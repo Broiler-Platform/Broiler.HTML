@@ -97,6 +97,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     public string? TargetFragment { get; set; }
 
     /// <summary>
+    /// Whether layout places anchor-positioned boxes itself -- <c>position-area</c>, <c>anchor()</c>,
+    /// <c>anchor-size()</c>, <c>position-try</c>, <c>anchor-center</c>, <c>position-visibility</c> -- with the
+    /// layout engine's own pass, given the document's <c>@position-try</c> rules. Off, a box with an anchor is
+    /// laid out as though it had none.
+    /// </summary>
+    /// <remarks>
+    /// A scripting host that leaves those boxes to the renderer turns it on for every layout of the page:
+    /// the window does, for what it draws, its frames, and the geometry its scripts read. The host's bridge
+    /// bakes only the boxes the engine's pass does not take. The switch is the engine's
+    /// <c>NativeAnchorPlacement</c>, which a host cannot reach itself: it is internal to Broiler.Layout.
+    /// </remarks>
+    public bool PlacesAnchoredBoxes { get; set; }
+
+    /// <summary>
     /// The most recent fragment tree snapshot, built after layout completes.
     /// </summary>
     internal Fragment? LatestFragmentTree { get; private set; }
@@ -1445,16 +1459,35 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         var layoutEnvironment = Root.LayoutEnvironment as HtmlLayoutEnvironment ?? new HtmlLayoutEnvironment(this);
         layoutEnvironment.SetGraphics(g);
         Root.LayoutEnvironment = layoutEnvironment;
-        LayoutPassCounter.Record();
-        Root.PerformLayout(layoutEnvironment);
 
-        if (MaxSize.Width <= 0.1)
+        // The engine's anchor placement for this layout only: the switch is thread-static, and another
+        // container may be laid out on this thread with it off.
+        var anchorPlacementBefore = NativeAnchorPlacement.Enabled;
+        var positionTryRulesBefore = NativeAnchorPlacement.PositionTryRules;
+        if (PlacesAnchoredBoxes)
         {
-            // in case the width is not restricted we need to double layout, first will find the width so second can layout by it (center alignment)
-            Root.Size = new SizeF((int)Math.Ceiling(ActualSize.Width), 0);
-            ActualSize = SizeF.Empty;
+            NativeAnchorPlacement.Enabled = true;
+            NativeAnchorPlacement.PositionTryRules = CollectPositionTryRules(Root);
+        }
+
+        try
+        {
             LayoutPassCounter.Record();
             Root.PerformLayout(layoutEnvironment);
+
+            if (MaxSize.Width <= 0.1)
+            {
+                // in case the width is not restricted we need to double layout, first will find the width so second can layout by it (center alignment)
+                Root.Size = new SizeF((int)Math.Ceiling(ActualSize.Width), 0);
+                ActualSize = SizeF.Empty;
+                LayoutPassCounter.Record();
+                Root.PerformLayout(layoutEnvironment);
+            }
+        }
+        finally
+        {
+            NativeAnchorPlacement.Enabled = anchorPlacementBefore;
+            NativeAnchorPlacement.PositionTryRules = positionTryRulesBefore;
         }
 
         if (!_loadComplete)
@@ -1465,6 +1498,37 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         // Build fragment tree after layout — consumed by PaintWalker during paint.
         LatestFragmentTree = FragmentTreeBuilder.Build(Root);
+    }
+
+    /// <summary>
+    /// The document's <c>@position-try</c> rules, by name, from its <c>&lt;style&gt;</c> elements in document order
+    /// (a later rule of a name wins), as the engine's anchor placement takes them; null for none.
+    /// </summary>
+    private static Dictionary<string, IReadOnlyDictionary<string, string>>? CollectPositionTryRules(CssBox root)
+    {
+        Dictionary<string, IReadOnlyDictionary<string, string>>? rules = null;
+        Collect(root);
+        return rules;
+
+        void Collect(CssBox box)
+        {
+            if (box.HtmlTag is { } tag && tag.Name.Equals("style", StringComparison.OrdinalIgnoreCase) &&
+                tag.TryGetAttribute("disabled") == null)
+            {
+                foreach (var child in box.Boxes)
+                {
+                    var text = child.Text.ToString();
+                    if (!text.Contains("@position-try", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    foreach (var rule in PositionTryRule.Parse(text))
+                        (rules ??= new(StringComparer.Ordinal))[rule.Key] = rule.Value;
+                }
+            }
+
+            foreach (var child in box.Boxes)
+                Collect(child);
+        }
     }
 
     public void PerformPaint(BGraphics g)

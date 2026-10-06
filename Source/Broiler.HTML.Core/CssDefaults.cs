@@ -155,12 +155,14 @@ internal static class CssDefaults
         mark            { background-color: yellow; color: black }
 
         /* HTML <dialog> — native UA display + box chrome (open dialogs are block boxes
-           with a border, padding and white background; closed are display:none).
+           with a border, padding and white background; closed are display:none). The border is
+           Chromium's `border: solid`, medium (3px) in the dialog's own text colour, and that is
+           CanvasText, black, whatever colour the dialog's parent has.
            Requires the :not([open]) selector-matcher fix, and — so an author reset such
            as `dialog { border:0; background:transparent }` overrides these equal-
            specificity UA rules — the shorthand-vs-longhand origin-precedence cascade fix
            (author `background` shorthand must beat this UA `background-color` longhand). */
-        dialog          { display: block; border: 1px solid black; padding: 1em; background-color: white }
+        dialog          { display: block; border: solid; padding: 1em; color: black; background-color: white }
         dialog:not([open]) { display: none }
 
         /* HTML Rendering (dialogs), as Chromium's sheet has them: an open dialog is an absolutely

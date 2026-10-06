@@ -221,6 +221,17 @@ public sealed class HtmlContainer : IDisposable
     }
 
     /// <summary>
+    /// Whether layout places anchor-positioned boxes itself -- <c>position-area</c>, <c>anchor()</c>,
+    /// <c>position-try</c> and the rest -- as a scripting host that leaves them to the renderer needs. Off by
+    /// default, when a box with an anchor is laid out as though it had none.
+    /// </summary>
+    public bool PlacesAnchoredBoxes
+    {
+        get => HtmlContainerInt.PlacesAnchoredBoxes;
+        set => HtmlContainerInt.PlacesAnchoredBoxes = value;
+    }
+
+    /// <summary>
     /// Styles the document again as it is now, without parsing it again -- after a change of what
     /// <see cref="TargetFragment"/> or <see cref="VisitedLinkPredicate"/> answers. Values the user typed
     /// into its fields stay.
