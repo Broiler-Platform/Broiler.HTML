@@ -32,12 +32,13 @@ internal static class SharedRendererCascade
         Broiler.Dom.DomDocument? document,
         HtmlStyleSet styleSet,
         int viewportWidth,
-        int viewportHeight)
+        int viewportHeight,
+        CSS.Dom.ICssSelectorStateProvider? stateProvider = null)
     {
         if (document is null)
             return null;
 
-        var engine = new Broiler.CSS.Dom.CssStyleEngine();
+        var engine = new Broiler.CSS.Dom.CssStyleEngine(stateProvider);
         if (styleSet.UserAgentStyleSheet.Rules.Count > 0)
             engine.AddStyleSheet(styleSet.UserAgentStyleSheet, CSS.Dom.CssOrigin.UserAgent);
         if (styleSet.AuthorStyleSheet.Rules.Count > 0)
@@ -61,12 +62,13 @@ internal static class SharedRendererCascade
         Broiler.Dom.DomDocument? document,
         HtmlStyleSet styleSet,
         int viewportWidth,
-        int viewportHeight)
+        int viewportHeight,
+        CSS.Dom.ICssSelectorStateProvider? stateProvider = null)
     {
         if (document is null)
             return null;
 
-        var engine = new Broiler.CSS.Dom.CssStyleEngine();
+        var engine = new Broiler.CSS.Dom.CssStyleEngine(stateProvider);
         if (styleSet.AuthorStyleSheet.Rules.Count > 0)
             engine.AddStyleSheet(styleSet.AuthorStyleSheet, CSS.Dom.CssOrigin.Author);
         engine.UpdateEnvironment(new Broiler.CSS.Dom.CssEnvironment(viewportWidth, viewportHeight));

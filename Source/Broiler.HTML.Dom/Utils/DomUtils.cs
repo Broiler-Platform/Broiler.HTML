@@ -85,7 +85,13 @@ internal sealed class DomUtils
                 return box;
         }
 
-        if (box.ClientRectangle.IsEmpty || box.ClientRectangle.Contains(location))
+        // A box bounds what it holds only when it clips it: an absolutely positioned link stands where its
+        // containing block puts it, and one placed 40px down beside a paragraph whose margin collapsed
+        // through the body lay below the body's box -- the search, which went into a box only for a point
+        // inside it, never reached it, and a click on it followed nothing. A box whose overflow is not
+        // visible hides what lies outside it, which a click there must not find.
+        if (box.ClientRectangle.IsEmpty || box.ClientRectangle.Contains(location) ||
+            string.IsNullOrEmpty(box.Overflow) || box.Overflow == CssConstants.Visible)
         {
             foreach (var childBox in box.Boxes)
             {

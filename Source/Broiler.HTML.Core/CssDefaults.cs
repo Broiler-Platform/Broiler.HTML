@@ -155,13 +155,35 @@ internal static class CssDefaults
         mark            { background-color: yellow; color: black }
 
         /* HTML <dialog> — native UA display + box chrome (open dialogs are block boxes
-           with a border, padding and white background; closed are display:none).
+           with a border, padding and white background; closed are display:none). The border is
+           Chromium's `border: solid`, medium (3px) in the dialog's own text colour, and that is
+           CanvasText, black, whatever colour the dialog's parent has.
            Requires the :not([open]) selector-matcher fix, and — so an author reset such
            as `dialog { border:0; background:transparent }` overrides these equal-
            specificity UA rules — the shorthand-vs-longhand origin-precedence cascade fix
            (author `background` shorthand must beat this UA `background-color` longhand). */
-        dialog          { display: block; border: 1px solid black; padding: 1em; background-color: white }
+        dialog          { display: block; border: solid; padding: 1em; color: black; background-color: white }
         dialog:not([open]) { display: none }
+
+        /* HTML Rendering (dialogs), as Chromium's sheet has them: an open dialog is an absolutely
+           positioned box at its place in the flow, centred across and sized to its content; a modal one
+           (:modal, which the scripting host stamps) is fixed and centred in the viewport too, and scrolls
+           what does not fit within 6px and 2em of its edges. Without them an open dialog was a block in
+           the flow, as wide as the page, and a modal one stood at the top of it. */
+        dialog          { position: absolute; left: 0; right: 0; width: fit-content; height: fit-content; margin: auto }
+        dialog:modal    { position: fixed; overflow: auto; top: 0; bottom: 0; max-width: calc(100% - 6px - 2em); max-height: calc(100% - 6px - 2em) }
+
+        /* HTML Rendering (popovers): a popover that is not showing generates no box, unless it is an
+           open dialog. Showing is the scripting host's state, which it stamps into the markup it hands
+           the renderer (:popover-open); without the rule every closed popover was drawn in the flow. */
+        [popover]:not(:popover-open):not(dialog[open]) { display: none }
+
+        /* HTML Rendering (popovers), as Chromium's sheet has it: a popover is a fixed box centred in the
+           viewport and sized to its content -- all four insets 0 with auto margins, so an author's top or
+           left alone still leaves it centred in what remains -- with a border and padding of its own; and
+           a dialog showing as a popover is displayed though it has no open attribute. */
+        [popover]       { position: fixed; top: 0; right: 0; bottom: 0; left: 0; width: fit-content; height: fit-content; margin: auto; border: solid; padding: 0.25em; overflow: auto; color: black; background-color: white }
+        dialog:popover-open { display: block }
 
         /* Hidden elements (HTML5) */
         template,

@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Broiler.HTML.Core\Broiler.HTML.Core.csproj" />
     <ProjectReference Include="..\Broiler.HTML.Dom\Broiler.HTML.Dom.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The selector state the renderer's cascade asks: what the page's markup carries, its target and its visited links. -->
+    <PackageReference Include="Broiler.CSS.Dom" />
+  </ItemGroup>
 </Project>
