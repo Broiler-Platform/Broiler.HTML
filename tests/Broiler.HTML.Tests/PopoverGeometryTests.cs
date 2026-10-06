@@ -146,7 +146,8 @@ public sealed class PopoverGeometryTests
 
     /// <summary>
     /// With <see cref="HtmlContainer.PlacesAnchoredBoxes"/>, a popover with <c>position-anchor: --a; position-area:
-    /// bottom</c> is placed under its anchor and centred on it, as Chromium places it (measured: (100.15, 130) under an 80x30 anchor at (100, 100)); without, as though it had no anchor --
+    /// bottom</c> is placed under its anchor and centred on it, as Chromium places it (measured: (100.15, 130) under
+    /// an 80x30 anchor at (100, 100)); without, as though it had no anchor --
     /// HTML's rules centre it in the viewport. The window never had the layout engine place anchored boxes: the
     /// switch is internal to Broiler.Layout, and its scripting host left these boxes to it.
     /// </summary>

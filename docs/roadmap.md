@@ -136,12 +136,17 @@ where the parser or layout cannot yet support the spec rule, or where legacy rul
   parentheses are the only separator between an `rt` and its base text; hiding them
   changes the ruby references. Broiler.CSS.Dom's `CssUserAgentDefaults.DisplayValues`
   leaves both out for the same reasons, so change both sheets together.
+- **Buttons are `content-box`.** Chromium's sheet gives `button` `box-sizing: border-box`
+  (measured: a `<button style="height: 30px">` is 30px tall in Chromium and 34px here, its
+  padding and border added). Nothing here sets it, so every author height or width on a
+  button measures its content. Check the button-like `input` types and `select` in the same
+  pass, and change Broiler.CSS.Dom's `CssUserAgentDefaults` with it.
 
 Exit gate:
 
 - none of the departures above remains in `CssDefaults.cs`, and Broiler.CSS.Dom's
   `CssUserAgentDefaults` matches it; and
-- owned cases pin the leading-line-feed, `pre` sizing, `basefont` and `rp` behavior.
+- owned cases pin the leading-line-feed, `pre` sizing, `basefont`, `rp` and button sizing behavior.
 
 ## 6. Release and review gates
 
