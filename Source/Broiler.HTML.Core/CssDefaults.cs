@@ -33,10 +33,16 @@ internal static class CssDefaults
         h3              { font-size: 1.17em; margin: .83em 0 }
         h4, p,
         blockquote, ul,
-        fieldset, form,
         ol, dl, dir,
         menu, listing,
         plaintext, xmp  { margin: 1em 0 }
+        /* HTML §15.3.13 (The fieldset and legend elements), as Chromium has it: a 2px groove
+           around the fieldset, the legend's 2px of inline padding, and no block margins on a
+           fieldset or a form, which CSS 2.1's sample sheet gave both. Chromium's ThreeDFace is
+           rgb(239, 239, 239). */
+        fieldset        { margin: 0 2px; padding: 0.35em 0.75em 0.625em;
+                          border: 2px groove rgb(239, 239, 239); }
+        legend          { padding: 0 2px }
         h5              { font-size: .83em; margin: 1.5em 0 }
         h6              { font-size: .75em; margin: 1.67em 0 }
         h1, h2, h3, h4,

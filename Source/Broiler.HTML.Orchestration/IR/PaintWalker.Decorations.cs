@@ -596,6 +596,7 @@ internal static partial class PaintWalker
             return;
 
         var rects = GetPaintRects(fragment);
+        var legendGap = GetFieldsetLegendGap(fragment);
 
         for (int i = 0; i < rects.Count; i++)
         {
@@ -606,6 +607,35 @@ internal static partial class PaintWalker
             bool isFirst = i == 0;
             bool isLast = i == rects.Count - 1;
 
+            if (legendGap is { } gap && gap.Right > gap.Left)
+            {
+                // HTML §15.3.13: the rendered legend interrupts the block-start border. The border
+                // is drawn whole three times, clipped to what lies left of the legend, right of it
+                // and below the border's band under it, which leaves nothing behind the legend.
+                ReadOnlySpan<RectangleF> clips =
+                [
+                    RectangleF.FromLTRB(rect.Left, rect.Top, gap.Left, rect.Bottom),
+                    RectangleF.FromLTRB(gap.Right, rect.Top, rect.Right, rect.Bottom),
+                    RectangleF.FromLTRB(gap.Left, rect.Top + (float)border.Top, gap.Right, rect.Bottom),
+                ];
+                foreach (var clip in clips)
+                {
+                    if (clip.Width <= 0 || clip.Height <= 0)
+                        continue;
+
+                    items.Add(new ClipItem { Bounds = clip, ClipRect = clip });
+                    EmitRings(rect, isFirst, isLast);
+                    items.Add(new RestoreItem { Bounds = clip });
+                }
+            }
+            else
+            {
+                EmitRings(rect, isFirst, isLast);
+            }
+        }
+
+        void EmitRings(RectangleF rect, bool isFirst, bool isLast)
+        {
             // CSS 2.1 §8.5.3: a bevelled border is not four flat sides.  `inset`/`outset` shade
             // two sides down and light the other two; `groove`/`ridge` carry the same two shades
             // but split each side lengthwise, so they paint as two nested rings.  Every other
