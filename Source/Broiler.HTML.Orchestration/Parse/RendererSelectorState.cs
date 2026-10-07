@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using Broiler.CSS.Dom;
@@ -25,13 +26,20 @@ namespace Broiler.HTML.Orchestration.Parse;
 /// A target a host stamped wins over the fragment: a page whose script moved its fragment says which
 /// element that made the target, and the fragment the host loaded may be older.
 /// </para>
+/// <para>
+/// <b>Asked on several threads at once.</b> The renderer resolves a document's styles on several threads
+/// before its box walk (Broiler.Layout's <c>CssStyleRecalc.Warm</c>), and each of them asks whether the
+/// links it styles are visited. So the answers are kept in a concurrent map. Two threads that ask about
+/// one link both work its answer out, and they agree. A plain dictionary was corrupted by their inserts,
+/// and the next lookup threw.
+/// </para>
 /// </remarks>
 internal sealed class RendererSelectorState : ICssSelectorStateProvider
 {
     private readonly Func<Uri, bool>? _isVisited;
     private readonly Uri? _baseUrl;
     private readonly DomElement? _fragmentTarget;
-    private readonly Dictionary<DomElement, bool> _visited = new(ReferenceEqualityComparer.Instance);
+    private readonly ConcurrentDictionary<DomElement, bool> _visited = new(ReferenceEqualityComparer.Instance);
 
     private RendererSelectorState(Func<Uri, bool>? isVisited, Uri? baseUrl, DomElement? fragmentTarget)
     {

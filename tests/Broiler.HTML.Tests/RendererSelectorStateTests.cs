@@ -1,5 +1,8 @@
 using System.Drawing;
+using Broiler.CSS.Dom;
+using Broiler.Dom;
 using Broiler.HTML.Image;
+using Broiler.HTML.Orchestration.Parse;
 using Broiler.Layout.IR;
 
 namespace Broiler.HTML.Tests;
@@ -56,6 +59,42 @@ public sealed class RendererSelectorStateTests
         var tree = Layout(Links);
 
         Assert.Equal("rgb(0, 0, 255)", Rgb(Run(tree, "seenmarker").Style.ActualColor));
+    }
+
+    /// <summary>
+    /// Links asked about on many threads at once each get the history's answer. The renderer resolves a
+    /// document's styles on several threads before it lays the document out, and each asks whether the
+    /// links it styles are visited. The answers were kept in a plain dictionary, which inserts from
+    /// several threads corrupted, and the next lookup threw ("operations that change non-concurrent
+    /// collections must have exclusive access"): the Broiler.Browser window crashed over html5test.com.
+    /// </summary>
+    [Fact]
+    public void Links_Asked_About_On_Many_Threads_Get_The_Historys_Answer()
+    {
+        const int linkCount = 2000;
+        var page = "<!DOCTYPE html><html><body>" +
+                   string.Concat(Enumerable.Range(0, linkCount).Select(static i => $"<a href=\"/p{i}\">{i}</a>")) +
+                   "</body></html>";
+        var document = Broiler.Dom.Html.HtmlDocumentParser.ParseDocument(page).Document;
+        var links = document.Descendants().OfType<DomElement>().Where(static e => e.LocalName == "a").ToArray();
+        Assert.Equal(linkCount, links.Length);
+        using var container = new HtmlContainer { VisitedLinkPredicate = static url => Number(url) % 2 == 0 };
+
+        for (var round = 0; round < 20; round++)
+        {
+            var state = RendererSelectorState.For(container.HtmlContainerInt, document, new Uri(PageUrl))
+                        ?? throw new InvalidOperationException("No selector state.");
+            var wrong = 0;
+            Parallel.For(0, linkCount * 4, new ParallelOptions { MaxDegreeOfParallelism = 8 }, i =>
+            {
+                var visited = (state.GetElementState(links[i % linkCount]) & CssElementState.Visited) != 0;
+                if (visited != (i % linkCount % 2 == 0))
+                    Interlocked.Increment(ref wrong);
+            });
+            Assert.Equal(0, wrong);
+        }
+
+        static int Number(Uri url) => int.Parse(url.AbsolutePath.AsSpan(2), System.Globalization.CultureInfo.InvariantCulture);
     }
 
     private const string Sections =
