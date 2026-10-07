@@ -88,6 +88,13 @@ internal static class CssDefaults
                           background-color: #f0f0f0; text-align: center; }
         select           { min-width: 60px; height: 1.4em; }
         button           { padding: 1px 6px; background-color: #f0f0f0; text-align: center; }
+        /* Chromium's disabled controls: greyed text on a faint grey field. */
+        input:disabled,
+        textarea:disabled { color: rgb(84, 84, 84); background-color: rgba(239, 239, 239, 0.3); }
+        button:disabled,
+        input[type=""submit""]:disabled,
+        input[type=""button""]:disabled,
+        input[type=""reset""]:disabled { color: rgba(16, 16, 16, 0.3); background-color: rgba(239, 239, 239, 0.3); }
         /* HTML §15.3.10 (Form controls): textarea { white-space: pre-wrap }. Its text content
            is the control's value, so its line breaks and indentation must show. Known gap,
            tracked in docs/roadmap.md: the tree builder drops a line feed right after the
