@@ -360,35 +360,11 @@ internal sealed class DomParser
             }
         }
 
-        // CSS2.1 §9.7: Relationships between 'display', 'position', and 'float'.
-        // When 'float' is not 'none', the computed value of 'display' is adjusted
-        // so that inline-level elements become block-level.  This must happen
-        // after all CSS properties are resolved (including 'inherit') and before
-        // child style cascading so children see the correct parent display value.
-        if (box.Display != CssConstants.None && box.Float != CssConstants.None)
-        {
-            if (box.Display == CssConstants.Inline || box.Display == CssConstants.InlineBlock)
-                box.Display = CssConstants.Block;
-        }
+        // This must happen after all CSS properties are resolved (including 'inherit') and
+        // before child style cascading so children see the correct parent display value.
+        BlockifyFloat(box);
 
-        if (box.TextDecoration != string.Empty && box.Text.IsEmpty)
-        {
-            // The decoration goes down whole: its style, and its colour as this box has it, which is
-            // its own colour for currentcolor (CSS Text Decoration 3 §2.1) — a red link's underline
-            // under a black word in it is red, and text-decoration: underline red is red.
-            var decorationColor = string.IsNullOrWhiteSpace(box.TextDecorationColor)
-                || box.TextDecorationColor.Equals("currentcolor", StringComparison.OrdinalIgnoreCase)
-                    ? box.Color
-                    : box.TextDecorationColor;
-            foreach (var childBox in box.Boxes)
-            {
-                childBox.TextDecoration = box.TextDecoration;
-                childBox.TextDecorationStyle = box.TextDecorationStyle;
-                childBox.TextDecorationColor = decorationColor;
-            }
-
-            box.TextDecoration = string.Empty;
-        }
+        PushTextDecorationDown(box);
 
         // CSS Animations §3: Resolve animation keyframe values for static
         // rendering.  After all CSS rules and inline styles are applied,
@@ -410,6 +386,46 @@ internal sealed class DomParser
         // during iteration.
         if (box.HtmlTag != null && (hasBeforeRules || hasAfterRules))
             ApplyPseudoElementBoxes(box, engine, baseUrl, hasBeforeRules, hasAfterRules);
+    }
+
+    /// <summary>
+    /// CSS2.1 §9.7: Relationships between 'display', 'position', and 'float'. When 'float' is
+    /// not 'none', the computed value of 'display' is adjusted so that inline-level boxes become
+    /// block-level.
+    /// </summary>
+    private static void BlockifyFloat(CssBox box)
+    {
+        if (box.Display != CssConstants.None && box.Float != CssConstants.None)
+        {
+            if (box.Display == CssConstants.Inline || box.Display == CssConstants.InlineBlock)
+                box.Display = CssConstants.Block;
+        }
+    }
+
+    /// <summary>
+    /// Hands a box's own text decoration down to the boxes that hold its words, and takes it off
+    /// the box itself, which has none of its own to draw it under.
+    /// </summary>
+    private static void PushTextDecorationDown(CssBox box)
+    {
+        if (box.TextDecoration == string.Empty || !box.Text.IsEmpty)
+            return;
+
+        // The decoration goes down whole: its style, and its colour as this box has it, which is
+        // its own colour for currentcolor (CSS Text Decoration 3 §2.1) — a red link's underline
+        // under a black word in it is red, and text-decoration: underline red is red.
+        var decorationColor = string.IsNullOrWhiteSpace(box.TextDecorationColor)
+            || box.TextDecorationColor.Equals("currentcolor", StringComparison.OrdinalIgnoreCase)
+                ? box.Color
+                : box.TextDecorationColor;
+        foreach (var childBox in box.Boxes)
+        {
+            childBox.TextDecoration = box.TextDecoration;
+            childBox.TextDecorationStyle = box.TextDecorationStyle;
+            childBox.TextDecorationColor = decorationColor;
+        }
+
+        box.TextDecoration = string.Empty;
     }
 
     private static void ApplyClosedDetailsVisibility(CssBox box)
@@ -560,6 +576,10 @@ internal sealed class DomParser
             CssUtils.SetPropertyValue(pseudoBox, prop.Key, value);
         }
 
+        // A floated pseudo-element is block-level, as a floated element is (CSS2.1 §9.7); left
+        // inline, a floated ::after with text laid out no content and painted nothing.
+        BlockifyFloat(pseudoBox);
+
         if (TryExtractPseudoElementImageUrl(contentValue, out var imageUrl))
         {
             // The image is rendered by the nested CssBoxImage below. Reset the
@@ -582,8 +602,23 @@ internal sealed class DomParser
 
         // Set text content (strip surrounding quotes from CSS content value).
         var text = contentValue.Trim('\'', '"');
-        if (text.Length > 0)
-            pseudoBox.Text = text.AsMemory();
+        if (text.Length == 0)
+            return;
+
+        // CSS Generated Content 3 §2: the generated text is the pseudo-element's content, so it
+        // goes in an anonymous inline box inside it, the way an element's text does, rather than on
+        // the pseudo-element's box itself. Layout reaches a positioned or floated box's content only
+        // through its children, so text set on the box was laid out in the parent's line and the
+        // box came out 0×0: Acid3's absolutely positioned `map::after` was a white "X" in normal
+        // flow, with no fuchsia square at 638,18 to cover the body's red one. In flow, the inline
+        // box inside the inline pseudo-element lays out just as the text of an inline element does.
+        // The text box is made after the declarations above, so it inherits the pseudo-element's
+        // font, colour, white-space and text-transform; its own decoration goes down to the text,
+        // as the cascade hands an element's down to the element's text.
+        var textBox = CssBoxHelper.CreateBox(pseudoBox, baseUrl);
+        textBox.Display = CssConstants.Inline;
+        textBox.Text = text.AsMemory();
+        PushTextDecorationDown(pseudoBox);
     }
 
     // Bridge markers (mirrored from DomBridge.AnchorResolver.Dialogs): the resolved backdrop
