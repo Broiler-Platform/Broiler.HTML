@@ -266,6 +266,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     public bool AvoidImagesLateLoading { get; set; }
 
+    /// <summary>
+    /// Whether the images this container loads are read for their size alone, from their headers, and
+    /// none is decoded: for a container that is laid out and never painted.
+    /// </summary>
+    /// <remarks>
+    /// A host that asks one container for geometry and paints with another (the Broiler browser's
+    /// script bridge does, for every layout question a page's scripts ask) decoded every image in both,
+    /// though layout reads only an image's size. reCAPTCHA's image challenge shows one picture in all of
+    /// its tiles, so the bridge's container decoded it once a tile, on the window's thread, every time
+    /// a click changed the page: 0.7 to 1.5 seconds of each click on a tile. An image whose codec
+    /// cannot read its size from the header, and an SVG, are still loaded whole.
+    /// </remarks>
+    public bool ImageSizesOnly { get; set; }
+
     public bool IsSelectionEnabled { get; set; } = true;
 
     public bool IsContextMenuEnabled { get; set; } = true;
@@ -2011,6 +2025,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     BImage IHtmlContainerInt.ConvertImage(object image) => Adapter.ConvertImage(image);
 
     BImage? IHtmlContainerInt.ImageFromStream(Stream stream) => Adapter.ImageFromStream(stream);
+
+    BImage? IHtmlContainerInt.ImageSizeFromStream(Stream stream) => Adapter.ImageSizeFromStream(stream);
+
+    BImage? IHtmlContainerInt.ImageFromBody(byte[] body) => Adapter.ImageFromBody(body);
 
     void IHtmlContainerInt.DownloadImage(Uri uri, string filePath, bool async, Action<Uri, string, Exception?, bool> callback)
         => _imageDownloader?.DownloadImage(uri, filePath, async, (imageUri, fp, error, canceled) => callback(imageUri, fp, error, canceled));

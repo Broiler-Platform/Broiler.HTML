@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Broiler.Media;
 using Broiler.Media.Image;
 using Broiler.Media.Image.Managed;
@@ -213,6 +214,83 @@ public sealed class BBitmap : IDisposable
     {
         ArgumentNullException.ThrowIfNull(buffer);
         return new BBitmap(buffer.Width, buffer.Height, (byte[])buffer.Rgba.Clone());
+    }
+
+    // The frames decoded from bodies that stay the same array for as long as they are the same resource,
+    // each kept for as long as its body is: a container's subresource cache hands every load of a URL the
+    // same response, so the boxes of a document showing one image, and its next parse, get the frame back
+    // as a copy instead of decoding it again.
+    private static readonly ConditionalWeakTable<byte[], RememberedFrame> RememberedFrames = new();
+
+    /// <summary>A frame kept for a body: its pixels, and whether a decode at any time gives it, or only one at time zero.</summary>
+    private sealed record RememberedFrame(int Width, int Height, byte[] Rgba, bool AtAnyTime);
+
+    /// <summary>A larger frame is decoded every time rather than kept.</summary>
+    private const long MaxRememberedFrameBytes = 32L * 1024 * 1024;
+
+    /// <summary>
+    /// <see cref="TryDecodeFrameAt"/> for a body that stays the same array for as long as it is the same
+    /// resource, as a response a container's subresource cache keeps is: a frame decoded from that array
+    /// before is copied rather than decoded again.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// The window parses a page again whenever its scripts change it, and each parse decoded every image
+    /// of the page again, on the window's thread, though the cache had kept their bytes; so did each box
+    /// that shows an image another box shows. reCAPTCHA's image challenge shows one picture in each tile,
+    /// and a click on a tile spent a quarter to half a second decoding it again.
+    /// </para>
+    /// <para>
+    /// A frame is kept only when every later decode would give it again: the first frame of a decode at
+    /// time zero, which answers decodes at time zero, and the only frame of an image that does not
+    /// animate, which answers any. The caller gets its own copy, which it owns and disposes as before.
+    /// </para>
+    /// </remarks>
+    internal static bool TryDecodeRememberedFrameAt(byte[] data, TimeSpan presentationTime, [NotNullWhen(true)] out BBitmap? bitmap)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        bool needsTimeline = presentationTime > TimeSpan.Zero;
+        if (RememberedFrames.TryGetValue(data, out var remembered) && (remembered.AtAnyTime || !needsTimeline))
+        {
+            bitmap = new BBitmap(remembered.Width, remembered.Height, (byte[])remembered.Rgba.Clone());
+            return true;
+        }
+
+        if (!TryDecodeMedia(data, needsTimeline, out ImageSequence? sequence))
+        {
+            bitmap = null;
+            return false;
+        }
+
+        ImageBuffer frame = needsTimeline ? sequence.FrameAt(presentationTime).Pixels : sequence.FirstFrame;
+        byte[] rgba = frame.Rgba;
+        bitmap = new BBitmap(frame.Width, frame.Height, (byte[])rgba.Clone());
+
+        bool stillHereafter = !needsTimeline || !sequence.IsAnimated;
+        if (stillHereafter && (long)rgba.Length <= MaxRememberedFrameBytes)
+            RememberedFrames.AddOrUpdate(data, new RememberedFrame(frame.Width, frame.Height, rgba, AtAnyTime: needsTimeline));
+
+        return true;
+    }
+
+    /// <summary>
+    /// The size <paramref name="data"/>'s header gives the image, read without decoding a pixel:
+    /// <see langword="false"/> when no codec recognises the data, or its codec cannot read the size
+    /// from the header alone.
+    /// </summary>
+    internal static bool TryReadSize(byte[] data, out int width, out int height)
+    {
+        ArgumentNullException.ThrowIfNull(data);
+        width = height = 0;
+
+        using var probeInput = new MediaInput(new MemoryStream(data), leaveOpen: false);
+        MediaCodecMatch? match = ImageCodecs.SelectAsync(MediaKind.Image, probeInput).AsTask().GetAwaiter().GetResult();
+        if (match?.Codec is not ImageCodec codec || !codec.TryInspect(data, out ImageInfo? info) || info is null || info.Width <= 0 || info.Height <= 0)
+            return false;
+
+        width = (int)info.Width;
+        height = (int)info.Height;
+        return true;
     }
 
     private static bool TryDecodeMedia(byte[] data, bool preserveAnimation, [NotNullWhen(true)] out ImageSequence? sequence)

@@ -345,7 +345,28 @@ internal sealed class StubImageAdapter : RAdapter
         throw new NotSupportedException(
             "Converting a platform bitmap is not supported without an OS graphics backend; use ImageFromStream with encoded image data.");
 
-    protected override BImage? ImageFromStreamInt(Stream memoryStream)
+    protected override BImage? ImageFromStreamInt(Stream memoryStream) => ImageFromData(ReadAll(memoryStream));
+
+    /// <summary>
+    /// The image a response body holds, decoded once for as long as the body is kept: the body is the same
+    /// array for every load of the resource (<see cref="BBitmap.TryDecodeRememberedFrameAt"/>).
+    /// </summary>
+    protected override BImage? ImageFromBodyInt(byte[] body) => ImageFromData(body, rememberFrames: true);
+
+    /// <summary>
+    /// The image's size, from its header, with no pixel decoded: what layout needs of it. An SVG, and data
+    /// whose codec cannot read its size from the header, are loaded whole, so their size is what a decoding
+    /// container would measure.
+    /// </summary>
+    protected override BImage? ImageSizeFromStreamInt(Stream memoryStream)
+    {
+        byte[] data = ReadAll(memoryStream);
+        return !BSvgRasterizer.IsSvgData(data) && BBitmap.TryReadSize(data, out int width, out int height)
+            ? new ImageSizeAdapter(width, height)
+            : ImageFromData(data);
+    }
+
+    private static byte[] ReadAll(Stream memoryStream)
     {
         // Read the stream into a byte array so we can inspect the content
         // before attempting a bitmap decode and can still route SVG input
@@ -367,6 +388,11 @@ internal sealed class StubImageAdapter : RAdapter
             data = copy.ToArray();
         }
 
+        return data;
+    }
+
+    private static BImage? ImageFromData(byte[] data, bool rememberFrames = false)
+    {
         if (BSvgRasterizer.IsSvgData(data))
         {
             return RasterizeSvg(data);
@@ -381,9 +407,11 @@ internal sealed class StubImageAdapter : RAdapter
             //
             // Data no codec recognises is an ordinary load failure, answered without an exception:
             // a page is full of resources that turn out not to be images.
-            return BBitmap.TryDecodeFrameAt(data, ImageAnimationClock.PresentationTime, out var bitmap)
-                ? new ImageAdapter(bitmap)
-                : null;
+            BBitmap? bitmap;
+            bool decoded = rememberFrames
+                ? BBitmap.TryDecodeRememberedFrameAt(data, ImageAnimationClock.PresentationTime, out bitmap)
+                : BBitmap.TryDecodeFrameAt(data, ImageAnimationClock.PresentationTime, out bitmap);
+            return decoded ? new ImageAdapter(bitmap!) : null;
         }
         catch (ArgumentException)
         {

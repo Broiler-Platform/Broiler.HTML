@@ -38,6 +38,10 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
 
     public BImage? ImageFromStream(Stream memoryStream) => ImageFromStreamInt(memoryStream);
 
+    public BImage? ImageSizeFromStream(Stream memoryStream) => ImageSizeFromStreamInt(memoryStream);
+
+    public BImage? ImageFromBody(byte[] body) => ImageFromBodyInt(body);
+
     public bool IsFontExists(string font) => _fontsHandler.IsFontExists(font);
 
     public void AddFontFamily(BFontFamily fontFamily) => _fontsHandler.AddFontFamily(fontFamily);
@@ -73,6 +77,18 @@ public abstract class RAdapter : IColorResolver, IResourceFactory, IFontCreator,
     protected abstract BImage ConvertImageInt(object image);
 
     protected abstract BImage? ImageFromStreamInt(Stream memoryStream);
+
+    /// <summary>
+    /// The image a stream holds, known by its size: for a container that is measured and never painted.
+    /// An adapter that cannot read an image's size without decoding it decodes it.
+    /// </summary>
+    protected virtual BImage? ImageSizeFromStreamInt(Stream memoryStream) => ImageFromStreamInt(memoryStream);
+
+    /// <summary>
+    /// The image a response body holds, the body being the same array for as long as it is the same
+    /// resource. An adapter that keeps nothing it decoded decodes it each time.
+    /// </summary>
+    protected virtual BImage? ImageFromBodyInt(byte[] body) => ImageFromStreamInt(new MemoryStream(body, writable: false));
 
     protected abstract BFont CreateFontInt(string family, double size, FontStyle style);
 
