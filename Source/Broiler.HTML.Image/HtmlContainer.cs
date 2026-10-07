@@ -202,7 +202,8 @@ public sealed class HtmlContainer : IDisposable
 
     /// <summary>
     /// Whether the user has visited a page, asked of each link's resolved URL so that <c>:visited</c>
-    /// styles it, in colour only. Null means no link is visited. Read when the document is styled.
+    /// styles it, in colour only. Null means no link is visited. Read when the document is styled, on
+    /// several threads at once.
     /// </summary>
     public Func<Uri, bool>? VisitedLinkPredicate
     {

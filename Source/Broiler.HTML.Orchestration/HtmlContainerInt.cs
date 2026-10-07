@@ -84,7 +84,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// <summary>
     /// Whether the user has visited a page, asked of each link's resolved URL so that <c>:visited</c>
     /// styles it -- in colour only, as browsers paint it. Null, as for a still render, means no link is
-    /// visited. Read when the document is styled: set it before <c>SetHtml</c>, or set the HTML again.
+    /// visited. Read when the document is styled, on several threads at once: set it before <c>SetHtml</c>,
+    /// or set the HTML again.
     /// </summary>
     public Func<Uri, bool>? VisitedLinkPredicate { get; set; }
 
