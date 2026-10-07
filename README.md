@@ -114,7 +114,7 @@ The WPT tooling has its own script tests under `scripts/wpt/*.test.mjs`.
 
 `.github/workflows/ci.yml` follows the other Broiler components. On every push to `main` and every pull request it builds `Release` on Ubuntu and Windows, runs the .NET tests, the script tests and the HTML 5.2 corpus consistency checks, then packs and verifies every package on Ubuntu and attaches them as `nuget-packages`.
 
-`.github/workflows/publish.yml` resolves the next free `0.1.0-preview.N`, reruns CI with that version, proves that a consumer can restore the packages with nuget.org as its only feed, and pushes them to nuget.org with the `NUGET_TOKEN` secret. Dispatch it manually (`dry-run` is on by default) or push a `v*` tag. The version is one past the highest preview of any of these packages on nuget.org, and never below the `VersionSuffix` floor in `Directory.Build.props`, which records the `preview.1`-`preview.3` numbers already spent on the retired GitHub Packages feed.
+`.github/workflows/publish.yml` resolves the next free `0.1.0-preview.N`, reruns CI with that version, proves that a consumer can restore the packages with nuget.org as its only feed, and pushes them to nuget.org with the `NUGET_TOKEN` secret. Dispatch it manually or push a `v*` tag; every run pushes, and the no-push pack and consumer-restore check is CI's job. The version is one past the highest preview of any of these packages on nuget.org, and never below the `VersionSuffix` floor in `Directory.Build.props`, which records the `preview.1`-`preview.3` numbers already spent on the retired GitHub Packages feed.
 
 The HTML 5.2 and non-JS WPT render/diff suites are the two manually dispatched workflows beside them.
 
