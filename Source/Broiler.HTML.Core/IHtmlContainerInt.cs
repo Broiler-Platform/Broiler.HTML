@@ -80,6 +80,12 @@ internal interface IHtmlContainerInt
     bool AvoidImagesLateLoading { get; }
 
     /// <summary>
+    /// Whether the images this container loads are read for their size alone, and none decoded: the
+    /// container is measured and never painted.
+    /// </summary>
+    bool ImageSizesOnly { get; }
+
+    /// <summary>
     /// The top margin of the container (used for page-break calculations).
     /// </summary>
     int MarginTop { get; }
@@ -110,6 +116,17 @@ internal interface IHtmlContainerInt
     /// Creates an <see cref="BImage"/> from a stream.
     /// </summary>
     BImage? ImageFromStream(Stream stream);
+
+    /// <summary>
+    /// Creates an <see cref="BImage"/> known by its size alone from a stream (<see cref="ImageSizesOnly"/>).
+    /// </summary>
+    BImage? ImageSizeFromStream(Stream stream);
+
+    /// <summary>
+    /// Creates an <see cref="BImage"/> from a body the subresource cache keeps, which stays the same array
+    /// for every load of the resource: what was decoded from it before is copied rather than decoded again.
+    /// </summary>
+    BImage? ImageFromBody(byte[] body);
 
     /// <summary>
     /// Downloads an image from a URI.

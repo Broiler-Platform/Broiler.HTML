@@ -117,7 +117,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
         if (!DataUrl.TryParse(src, out var dataUrl) || !dataUrl.MimeType.IsImage)
             return null;
 
-        return _htmlContainer.ImageFromStream(new MemoryStream(dataUrl.Body.ToArray()));
+        return ImageFrom(new MemoryStream(dataUrl.Body.ToArray()));
     }
 
     private void SetImageFromPath(string path, Uri baseUrl)
@@ -209,7 +209,7 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
             lock (_loadCompleteCallback)
             {
                 if (!_disposed)
-                    Image = _htmlContainer.ImageFromStream(imageFileStream);
+                    Image = ImageFrom(imageFileStream);
 
                 _releaseImageObject = true;
             }
@@ -284,12 +284,16 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
 
         try
         {
-            using var stream = new MemoryStream(body, writable: false);
-
             lock (_loadCompleteCallback)
             {
+                // The body is the subresource cache's, the same array for every load of the resource, so
+                // what was decoded from it before is copied (IHtmlContainerInt.ImageFromBody).
                 if (!_disposed)
-                    Image = _htmlContainer.ImageFromStream(stream);
+                {
+                    Image = _htmlContainer.ImageSizesOnly
+                        ? ImageFrom(new MemoryStream(body, writable: false))
+                        : _htmlContainer.ImageFromBody(body);
+                }
 
                 _releaseImageObject = true;
             }
@@ -302,6 +306,13 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
             ImageLoadComplete();
         }
     }
+
+    /// <summary>
+    /// The image <paramref name="stream"/> holds: decoded, or known by its size alone for a container
+    /// that is measured and never painted (<see cref="IHtmlContainerInt.ImageSizesOnly"/>).
+    /// </summary>
+    private BImage? ImageFrom(Stream stream) =>
+        _htmlContainer.ImageSizesOnly ? _htmlContainer.ImageSizeFromStream(stream) : _htmlContainer.ImageFromStream(stream);
 
     private void ImageLoadComplete(bool async = true)
     {

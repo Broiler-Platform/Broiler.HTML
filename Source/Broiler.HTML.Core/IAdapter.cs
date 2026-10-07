@@ -30,6 +30,19 @@ internal interface IAdapter : IColorResolver
     BImage? ImageFromStream(Stream stream);
 
     /// <summary>
+    /// Creates an <see cref="BImage"/> known by its size alone from a stream, reading no more of it
+    /// than its header where its format allows: for a container that is measured and never painted.
+    /// </summary>
+    BImage? ImageSizeFromStream(Stream stream);
+
+    /// <summary>
+    /// Creates an <see cref="BImage"/> from a response body that stays the same array for as long as it
+    /// is the same resource, as a body the subresource cache keeps is: what was decoded from that array
+    /// before may be copied rather than decoded again.
+    /// </summary>
+    BImage? ImageFromBody(byte[] body);
+
+    /// <summary>
     /// Loads a font from a file path and registers it as an available font family.
     /// </summary>
     /// <param name="path">Absolute path to a font file.</param>

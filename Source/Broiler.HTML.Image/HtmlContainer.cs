@@ -85,6 +85,18 @@ public sealed class HtmlContainer : IDisposable
         set => HtmlContainerInt.AvoidImagesLateLoading = value;
     }
 
+    /// <summary>
+    /// Whether the images this container loads are read for their size alone, from their headers, and
+    /// none is decoded: for a container a host lays out for its geometry (<see cref="GetLayoutGeometry"/>)
+    /// and never paints, since there are no pixels to paint. Set it before the document.
+    /// See <see cref="HtmlContainerInt.ImageSizesOnly"/>.
+    /// </summary>
+    public bool ImageSizesOnly
+    {
+        get => HtmlContainerInt.ImageSizesOnly;
+        set => HtmlContainerInt.ImageSizesOnly = value;
+    }
+
     public PointF ScrollOffset
     {
         get => HtmlContainerInt.ScrollOffset;
