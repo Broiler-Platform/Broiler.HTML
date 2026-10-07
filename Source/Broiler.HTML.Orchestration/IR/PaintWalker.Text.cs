@@ -103,78 +103,172 @@ internal static partial class PaintWalker
         }
     }
 
+    /// <summary>
+    /// Emits the text decorations of a block's lines: each in-flow inline box's lines across that
+    /// box's own extent on each line, so a link is underlined beneath its words and the spaces between
+    /// them, not across the rest of the line (CSS Text Decoration 3 §2.1).
+    /// </summary>
+    /// <remarks>
+    /// The box tree hands a decoration down from a box with no text of its own to its children
+    /// (<c>DomParser.CascadeApplyStyles</c>), so it ends on the anonymous boxes that hold the words:
+    /// the <c>&lt;a&gt;</c> of a link, a <c>&lt;u&gt;</c> or a <c>p { text-decoration: underline }</c>
+    /// keeps none itself. Only the block's own decoration was read, or its first child's drawn across
+    /// the whole line, so the box one level further down never was: no link and no <c>&lt;u&gt;</c>
+    /// was underlined.
+    /// </remarks>
     private static void EmitTextDecoration(Fragment fragment, List<DisplayItem> items, BColor? bgClipTextColor = null)
     {
         if (fragment.Lines == null || fragment.Lines.Count == 0)
             return;
 
-        // Check text-decoration on the fragment itself and on its inline children.
-        // In the box tree, text-decoration may be on the block or on anonymous inline children.
-        string decoration = fragment.Style.TextDecoration;
-        var decorationStyleSource = fragment.Style;
-
-        // If the block fragment doesn't have decoration, check children and inlines.
-        // First child with a decoration wins (consistent with old CssBox.PaintDecoration
-        // which only supported a single TextDecoration per box).
-        if (string.IsNullOrEmpty(decoration) || decoration == "none")
+        var lines = fragment.Lines;
+        if (DecorationLines(fragment.Style.TextDecoration) != TextDecorationLines.None)
         {
-            // Check if any child fragment has text-decoration
-            foreach (var child in fragment.Children)
-            {
-                if (!string.IsNullOrEmpty(child.Style.TextDecoration) && child.Style.TextDecoration != "none")
-                {
-                    decoration = child.Style.TextDecoration;
-                    decorationStyleSource = child.Style;
-                    break;
-                }
-            }
+            foreach (var line in lines)
+                EmitDecoration(fragment.Style, new RectangleF(line.X, line.Y, line.Width, line.Height), lines, items, bgClipTextColor);
         }
 
-        if (string.IsNullOrEmpty(decoration) || decoration == "none")
+        EmitInlineTextDecorations(fragment, lines, items, bgClipTextColor);
+    }
+
+    /// <summary>
+    /// The decorations of the in-flow inline boxes under <paramref name="parent"/>, whose words are in
+    /// the containing block's <paramref name="lines"/>: one set per line the box is on.
+    /// </summary>
+    private static void EmitInlineTextDecorations(
+        Fragment parent, IReadOnlyList<LineFragment> lines, List<DisplayItem> items, BColor? bgClipTextColor)
+    {
+        foreach (var child in parent.Children)
+        {
+            if (!string.Equals(child.Style.Display, "inline", StringComparison.Ordinal))
+                continue;
+
+            if (child.InlineRects is { Count: > 0 } rects
+                && child.Style.Visibility == "visible"
+                && DecorationLines(child.Style.TextDecoration) != TextDecorationLines.None)
+            {
+                foreach (var rect in rects)
+                    EmitDecoration(child.Style, rect, lines, items, bgClipTextColor);
+            }
+
+            EmitInlineTextDecorations(child, lines, items, bgClipTextColor);
+        }
+    }
+
+    /// <summary>
+    /// One box's decoration lines across <paramref name="rect"/>, its extent on one line: an underline
+    /// where the font of the words there puts it, an overline along the top, a line-through across the
+    /// middle, each as thick as the 0.07em stroke of the common sans-serif faces.
+    /// </summary>
+    private static void EmitDecoration(
+        ComputedStyle style, RectangleF rect, IReadOnlyList<LineFragment> lines, List<DisplayItem> items, BColor? bgClipTextColor)
+    {
+        if (rect.Width <= 0 || rect.Height <= 0)
             return;
 
         // CSS Backgrounds Level 4: background-clip: text — text-decoration
         // uses the composited color so decorations also show the background.
-        BColor decoColor = decorationStyleSource.ActualTextDecorationColor;
+        BColor color = style.ActualTextDecorationColor;
         if (bgClipTextColor.HasValue)
-            decoColor = CompositeTextColor(bgClipTextColor.Value, decoColor);
+            color = CompositeTextColor(bgClipTextColor.Value, color);
 
-        var rects = GetPaintRects(fragment);
-
-        foreach (var rect in rects)
+        var font = FontWithin(lines, rect);
+        double sizePt = font?.Size ?? ParseFontSize(style.FontSize);
+        float thickness = MathF.Max(1f, MathF.Round((float)(sizePt * 96.0 / 72.0) / 14f));
+        var decoration = DecorationLines(style.TextDecoration);
+        if ((decoration & TextDecorationLines.Underline) != 0)
         {
-            if (rect.Width <= 0 || rect.Height <= 0)
+            // The font's underline offset is measured from the top of its line box, which is where the
+            // words' boxes, and so the rect, start.
+            float offset = font is { UnderlineOffset: > 0 } && font.UnderlineOffset < rect.Height
+                ? (float)font.UnderlineOffset
+                : rect.Height * 0.85f;
+            EmitDecorationStroke(items, rect, MathF.Round(rect.Y + offset), thickness, color, style.TextDecorationStyle);
+        }
+
+        if ((decoration & TextDecorationLines.Overline) != 0)
+            EmitDecorationStroke(items, rect, MathF.Round(rect.Y), thickness, color, style.TextDecorationStyle);
+
+        if ((decoration & TextDecorationLines.LineThrough) != 0)
+            EmitDecorationStroke(items, rect, MathF.Round(rect.Y + (rect.Height - thickness) / 2f), thickness, color, style.TextDecorationStyle);
+    }
+
+    /// <summary>
+    /// A decoration stroke whose top edge is <paramref name="top"/>; <c>double</c> adds a second one a
+    /// stroke's width below it, and <c>wavy</c> is drawn straight.
+    /// </summary>
+    private static void EmitDecorationStroke(List<DisplayItem> items, RectangleF rect, float top, float thickness, BColor color, string? style)
+    {
+        var dashStyle = style is "dotted" or "dashed" ? style : "solid";
+        AddStroke(top);
+        if (style == "double")
+            AddStroke(top + (2 * thickness));
+
+        void AddStroke(float strokeTop)
+        {
+            float y = strokeTop + (thickness / 2f);
+            items.Add(new DrawLineItem
+            {
+                Bounds = new RectangleF(rect.X, strokeTop, rect.Width, thickness),
+                Start = new PointF(rect.X, y),
+                End = new PointF(rect.Right, y),
+                Color = color,
+                Width = thickness,
+                DashStyle = dashStyle,
+            });
+        }
+    }
+
+    /// <summary>The font of the first word of <paramref name="lines"/> inside <paramref name="rect"/>.</summary>
+    private static Broiler.Graphics.Text.ILayoutFont? FontWithin(IReadOnlyList<LineFragment> lines, RectangleF rect)
+    {
+        foreach (var line in lines)
+        {
+            if (line.Y > rect.Bottom || line.Y + line.Height < rect.Y)
                 continue;
 
-            var border = fragment.Border;
-            var padding = fragment.Padding;
-
-            float x1 = rect.X + (float)padding.Left + (float)border.Left;
-            float x2 = rect.Right - (float)padding.Right - (float)border.Right;
-
-            foreach (var line in fragment.Lines)
+            foreach (var inline in line.Inlines)
             {
-                float y;
-                if (decoration == "underline")
-                    y = line.Y + line.Height * 0.85f; // approximate underline offset (~85% of line height)
-                else if (decoration == "line-through")
-                    y = line.Y + line.Height / 2f; // center of line
-                else if (decoration == "overline")
-                    y = line.Y; // top of line
-                else
-                    continue;
-
-                items.Add(new DrawLineItem
+                if (inline.FontHandle is Broiler.Graphics.Text.ILayoutFont font
+                    && inline.X >= rect.X - 0.5f && inline.X + inline.Width <= rect.Right + 0.5f
+                    && inline.Y >= rect.Y - 0.5f && inline.Y < rect.Bottom)
                 {
-                    Bounds = new RectangleF(x1, y, x2 - x1, 1),
-                    Start = new PointF(x1, y),
-                    End = new PointF(x2, y),
-                    Color = decoColor,
-                    Width = 1,
-                    DashStyle = "solid",
-                });
+                    return font;
+                }
             }
         }
+
+        return null;
+    }
+
+    [Flags]
+    private enum TextDecorationLines
+    {
+        None = 0,
+        Underline = 1,
+        Overline = 2,
+        LineThrough = 4,
+    }
+
+    /// <summary>The lines a <c>text-decoration-line</c> value names, which may be several.</summary>
+    private static TextDecorationLines DecorationLines(string? value)
+    {
+        if (string.IsNullOrEmpty(value) || value == "none")
+            return TextDecorationLines.None;
+
+        var lines = TextDecorationLines.None;
+        foreach (var token in value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            lines |= token.ToLowerInvariant() switch
+            {
+                "underline" => TextDecorationLines.Underline,
+                "overline" => TextDecorationLines.Overline,
+                "line-through" => TextDecorationLines.LineThrough,
+                _ => TextDecorationLines.None,
+            };
+        }
+
+        return lines;
     }
 
     /// <summary>

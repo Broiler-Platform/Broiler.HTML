@@ -364,8 +364,19 @@ internal sealed class DomParser
 
         if (box.TextDecoration != string.Empty && box.Text.IsEmpty)
         {
+            // The decoration goes down whole: its style, and its colour as this box has it, which is
+            // its own colour for currentcolor (CSS Text Decoration 3 §2.1) — a red link's underline
+            // under a black word in it is red, and text-decoration: underline red is red.
+            var decorationColor = string.IsNullOrWhiteSpace(box.TextDecorationColor)
+                || box.TextDecorationColor.Equals("currentcolor", StringComparison.OrdinalIgnoreCase)
+                    ? box.Color
+                    : box.TextDecorationColor;
             foreach (var childBox in box.Boxes)
+            {
                 childBox.TextDecoration = box.TextDecoration;
+                childBox.TextDecorationStyle = box.TextDecorationStyle;
+                childBox.TextDecorationColor = decorationColor;
+            }
 
             box.TextDecoration = string.Empty;
         }
