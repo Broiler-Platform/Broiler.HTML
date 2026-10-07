@@ -14,14 +14,79 @@ internal static partial class PaintWalker
 {
     /// <summary>
     /// Returns the list of rectangles to paint for a fragment. For inline elements
-    /// that have per-line-box rectangles, returns those; otherwise returns
-    /// the single <see cref="Fragment.Bounds"/> rectangle.
+    /// that have per-line-box rectangles, returns those; for a fieldset with a rendered legend,
+    /// the border box from its block-start border down (see
+    /// <see cref="GetFieldsetLegendGap"/>); otherwise the single <see cref="Fragment.Bounds"/>
+    /// rectangle.
     /// </summary>
     private static IReadOnlyList<RectangleF> GetPaintRects(Fragment fragment)
     {
         if (fragment.InlineRects != null && fragment.InlineRects.Count > 0)
             return fragment.InlineRects;
+        if (GetFieldsetLegendGap(fragment) is { } gap)
+            return [gap.BorderBox];
         return [fragment.Bounds];
+    }
+
+    /// <summary>
+    /// Where a fieldset with a rendered legend draws its border and background: the border box
+    /// from the block-start border down, that border centred on the legend's border box, and the
+    /// span of it the legend interrupts.
+    /// </summary>
+    private readonly record struct FieldsetLegendGap(RectangleF BorderBox, float Left, float Right);
+
+    /// <summary>
+    /// HTML §15.3.13: a fieldset's block-start border runs through the middle of its rendered
+    /// legend and stops behind it, and its background starts at that border, as Chromium draws
+    /// them. Layout puts a legend taller than the border at the top of the fieldset's border box
+    /// (and one thinner than it in the middle of the border), so the border is lowered by however
+    /// far the legend's middle is below the border's; <c>null</c> for any other box.
+    /// </summary>
+    private static FieldsetLegendGap? GetFieldsetLegendGap(Fragment fragment)
+    {
+        if (!string.Equals(fragment.Style.TagName, "fieldset", StringComparison.OrdinalIgnoreCase)
+            || RenderedLegend(fragment) is not { } legend)
+        {
+            return null;
+        }
+
+        var bounds = fragment.Bounds;
+        var legendBox = legend.Bounds;
+        float border = (float)fragment.Border.Top;
+        float lowered = Math.Clamp(
+            legendBox.Top + (legendBox.Height / 2) - (border / 2) - bounds.Top,
+            0,
+            Math.Max(0, bounds.Height - border));
+        return new FieldsetLegendGap(
+            new RectangleF(bounds.X, bounds.Y + lowered, bounds.Width, bounds.Height - lowered),
+            legendBox.Left,
+            legendBox.Right);
+    }
+
+    /// <summary>
+    /// A fieldset's rendered legend: its first in-flow child, when that is a block-level
+    /// <c>&lt;legend&gt;</c> — the rule Layout's <c>CssBox.RenderedLegend</c> places it by.
+    /// </summary>
+    private static Fragment? RenderedLegend(Fragment fieldset)
+    {
+        foreach (var child in fieldset.Children)
+        {
+            var style = child.Style;
+            if (style.Display == CssConstants.None
+                || style.Position is CssConstants.Absolute or CssConstants.Fixed
+                || (!string.IsNullOrEmpty(style.Float) && style.Float != CssConstants.None))
+            {
+                continue;
+            }
+
+            return string.Equals(style.TagName, "legend", StringComparison.OrdinalIgnoreCase)
+                && !string.IsNullOrEmpty(style.Display)
+                && !style.Display.StartsWith(CssConstants.Inline, StringComparison.OrdinalIgnoreCase)
+                    ? child
+                    : null;
+        }
+
+        return null;
     }
 
     /// <summary>

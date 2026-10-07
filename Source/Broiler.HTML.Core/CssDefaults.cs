@@ -33,10 +33,16 @@ internal static class CssDefaults
         h3              { font-size: 1.17em; margin: .83em 0 }
         h4, p,
         blockquote, ul,
-        fieldset, form,
         ol, dl, dir,
         menu, listing,
         plaintext, xmp  { margin: 1em 0 }
+        /* HTML §15.3.13 (The fieldset and legend elements), as Chromium has it: a 2px groove
+           around the fieldset, the legend's 2px of inline padding, and no block margins on a
+           fieldset or a form, which CSS 2.1's sample sheet gave both. Chromium's ThreeDFace is
+           rgb(239, 239, 239). */
+        fieldset        { margin: 0 2px; padding: 0.35em 0.75em 0.625em;
+                          border: 2px groove rgb(239, 239, 239); }
+        legend          { padding: 0 2px }
         h5              { font-size: .83em; margin: 1.5em 0 }
         h6              { font-size: .75em; margin: 1.67em 0 }
         h1, h2, h3, h4,
@@ -71,7 +77,10 @@ internal static class CssDefaults
                           border: none; padding: 0; }
         input[type=""checkbox""],
         input[type=""radio""] { min-width: 13px; width: 13px; height: 13px;
-                          padding: 0; }
+                          padding: 0; box-sizing: border-box; }
+        /* 13px square with the border, and the margins Chromium and Firefox give the two. */
+        input[type=""radio""]    { margin: 3px 3px 0 5px; }
+        input[type=""checkbox""] { margin: 3px 3px 3px 4px; }
         input[type=""range""] { min-width: 0; height: auto; padding: 0; border: none; }
         input[type=""submit""],
         input[type=""button""],
@@ -79,6 +88,13 @@ internal static class CssDefaults
                           background-color: #f0f0f0; text-align: center; }
         select           { min-width: 60px; height: 1.4em; }
         button           { padding: 1px 6px; background-color: #f0f0f0; text-align: center; }
+        /* Chromium's disabled controls: greyed text on a faint grey field. */
+        input:disabled,
+        textarea:disabled { color: rgb(84, 84, 84); background-color: rgba(239, 239, 239, 0.3); }
+        button:disabled,
+        input[type=""submit""]:disabled,
+        input[type=""button""]:disabled,
+        input[type=""reset""]:disabled { color: rgba(16, 16, 16, 0.3); background-color: rgba(239, 239, 239, 0.3); }
         /* HTML §15.3.10 (Form controls): textarea { white-space: pre-wrap }. Its text content
            is the control's value, so its line breaks and indentation must show. Known gap,
            tracked in docs/roadmap.md: the tree builder drops a line feed right after the
