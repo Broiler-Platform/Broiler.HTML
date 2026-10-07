@@ -254,6 +254,15 @@ internal sealed class DomParser
             // so layout code can use these instead of accessing HtmlTag directly.
             AssignBoxKindAndAttributes(box);
 
+            // A checkbox or radio the browser draws itself is the widget and nothing around it:
+            // Blink's LayoutTheme takes its padding off, and Gecko does too. reCAPTCHA's own demo
+            // gives its second radio 5px 7px of padding, and it was drawn 14px wider and 10px taller
+            // than the first, its label pushed along, where Chromium draws the two alike.
+            // `appearance: none` hands the box back to the page's styles. The border stays: it is
+            // what draws the box where nothing hosts a widget over it.
+            if (IsNativelyDrawnToggle(box))
+                box.PaddingLeft = box.PaddingTop = box.PaddingRight = box.PaddingBottom = "0";
+
             // HTML5 §4.8.9: <video> and <audio> are replaced elements. Browsers
             // that support these media types never display the fallback content
             // between the tags; they render the poster frame or first frame
@@ -1426,6 +1435,16 @@ internal sealed class DomParser
 
     private static bool IsInitialBorderStyle(string? style) =>
         string.IsNullOrEmpty(style) || style.Equals(CssConstants.None, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Whether <paramref name="box"/> is a checkbox or radio <c>&lt;input&gt;</c> drawn with its native
+    /// appearance.
+    /// </summary>
+    private static bool IsNativelyDrawnToggle(CssBox box) =>
+        box.HtmlTag is { } tag
+        && tag.Name.Equals("input", StringComparison.OrdinalIgnoreCase)
+        && tag.TryGetAttribute("type")?.Trim().ToLowerInvariant() is "checkbox" or "radio"
+        && !string.Equals(box.Appearance?.Trim(), "none", StringComparison.OrdinalIgnoreCase);
 
     private static void SetUniformBorder(CssBox box, string width, string style, string color)
     {

@@ -77,7 +77,10 @@ internal static class CssDefaults
                           border: none; padding: 0; }
         input[type=""checkbox""],
         input[type=""radio""] { min-width: 13px; width: 13px; height: 13px;
-                          padding: 0; }
+                          padding: 0; box-sizing: border-box; }
+        /* 13px square with the border, and the margins Chromium and Firefox give the two. */
+        input[type=""radio""]    { margin: 3px 3px 0 5px; }
+        input[type=""checkbox""] { margin: 3px 3px 3px 4px; }
         input[type=""range""] { min-width: 0; height: auto; padding: 0; border: none; }
         input[type=""submit""],
         input[type=""button""],
