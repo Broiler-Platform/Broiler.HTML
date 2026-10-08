@@ -26,6 +26,14 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
     private readonly Dictionary<string, TrueTypeFont> _byFamily = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
+    /// Every program <see cref="RegisterFontFile"/> has accepted, by identity: the fonts no backend
+    /// can find by family name, whose face a render list must carry (<see cref="GetRegisteredFace"/>).
+    /// Kept apart from <see cref="_byFamily"/> because a family registered again replaces its entry
+    /// there while text already measured in the earlier program still has to draw in it.
+    /// </summary>
+    private readonly HashSet<TrueTypeFont> _registered = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
     /// Faces found on the machine, keyed by family <em>and</em> style. A family names a whole
     /// set of files — DejaVuSans.ttf, DejaVuSans-Bold.ttf, DejaVuSans-Oblique.ttf — so caching
     /// one of them under the bare family name answers every later request with whichever style
@@ -94,6 +102,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
 
         lock (_sync)
         {
+            _registered.Add(font);
             _byFamily[family] = font;
             if (!string.IsNullOrWhiteSpace(alias))
                 _byFamily[alias] = font;
@@ -125,6 +134,20 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
         // text still renders glyphs (instead of nothing).  Returns
         // MissingTypeface only if the bundled font is unavailable.
         return (object?)GetFallbackFont() ?? MissingTypeface.Instance;
+    }
+
+    public BFontFace? GetRegisteredFace(object typeface)
+    {
+        if (typeface is not TrueTypeFont font)
+            return null;
+
+        lock (_sync)
+        {
+            if (!_registered.Contains(font))
+                return null;
+        }
+
+        return BFontFace.For(font);
     }
 
     /// <summary>

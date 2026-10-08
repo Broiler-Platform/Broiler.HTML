@@ -835,7 +835,12 @@ internal sealed class StubImageAdapter : RAdapter
 
     protected override BFont CreateFontInt(string family, double size, Graphics.Text.FontStyle style)
     {
-        return new FontAdapter(family, size, style, () => _typefaceResolver.ResolveTypeface(family, style));
+        return new FontAdapter(
+            family,
+            size,
+            style,
+            () => _typefaceResolver.ResolveTypeface(family, style),
+            registeredFaceResolver: _typefaceResolver.GetRegisteredFace);
     }
 
     protected override BFont CreateFontInt(BFontFamily family, double size, Graphics.Text.FontStyle style) => CreateFontInt(family.Name, size, style);

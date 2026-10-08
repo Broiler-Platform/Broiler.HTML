@@ -406,7 +406,12 @@ public static class HtmlGraphicsRenderListBuilder
                 string.IsNullOrWhiteSpace(measured.Family) ? FirstFontFamily(item.FontFamily) : measured.Family,
                 BFontStyle.PointsToPixels(measured.Size),
                 (measured.Style & FontStyle.Bold) != 0 ? BFontWeight.Bold : BFontWeight.Normal,
-                (measured.Style & FontStyle.Italic) != 0 ? BFontSlant.Italic : BFontSlant.Normal);
+                (measured.Style & FontStyle.Italic) != 0 ? BFontSlant.Italic : BFontSlant.Normal)
+            {
+                // A web font is installed nowhere, so its family names nothing a backend can find;
+                // the measured font's own program is what draws the face layout measured.
+                Face = measured.Face,
+            };
         }
 
         // An ILayoutFont that is not an RFont still states the used size in points, which is
