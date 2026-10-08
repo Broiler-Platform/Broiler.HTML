@@ -220,10 +220,70 @@ public static class HtmlGraphicsRenderListBuilder
         if (TryDrawRoundedBorder(list, item, opacity))
             return;
 
-        DrawBorderSide(list, new RectangleF(bounds.Left, bounds.Top, bounds.Width, (float)widths.Top), item.TopColor, item.TopStyle, widths.Top, opacity);
-        DrawBorderSide(list, new RectangleF(bounds.Right - (float)widths.Right, bounds.Top, (float)widths.Right, bounds.Height), item.RightColor, item.RightStyle, widths.Right, opacity);
-        DrawBorderSide(list, new RectangleF(bounds.Left, bounds.Bottom - (float)widths.Bottom, bounds.Width, (float)widths.Bottom), item.BottomColor, item.BottomStyle, widths.Bottom, opacity);
-        DrawBorderSide(list, new RectangleF(bounds.Left, bounds.Top, (float)widths.Left, bounds.Height), item.LeftColor, item.LeftStyle, widths.Left, opacity);
+        float top = (float)widths.Top, right = (float)widths.Right, bottom = (float)widths.Bottom, left = (float)widths.Left;
+        bool topLeft = IsMitred(item.TopColor, item.TopStyle, widths.Top, item.LeftColor, item.LeftStyle, widths.Left, opacity);
+        bool topRight = IsMitred(item.TopColor, item.TopStyle, widths.Top, item.RightColor, item.RightStyle, widths.Right, opacity);
+        bool bottomLeft = IsMitred(item.BottomColor, item.BottomStyle, widths.Bottom, item.LeftColor, item.LeftStyle, widths.Left, opacity);
+        bool bottomRight = IsMitred(item.BottomColor, item.BottomStyle, widths.Bottom, item.RightColor, item.RightStyle, widths.Right, opacity);
+
+        // A side stops short of a mitred corner, which is drawn on its own below.
+        DrawBorderSide(list, RectangleF.FromLTRB(bounds.Left + (topLeft ? left : 0), bounds.Top, bounds.Right - (topRight ? right : 0), bounds.Top + top), item.TopColor, item.TopStyle, widths.Top, opacity);
+        DrawBorderSide(list, RectangleF.FromLTRB(bounds.Right - right, bounds.Top + (topRight ? top : 0), bounds.Right, bounds.Bottom - (bottomRight ? bottom : 0)), item.RightColor, item.RightStyle, widths.Right, opacity);
+        DrawBorderSide(list, RectangleF.FromLTRB(bounds.Left + (bottomLeft ? left : 0), bounds.Bottom - bottom, bounds.Right - (bottomRight ? right : 0), bounds.Bottom), item.BottomColor, item.BottomStyle, widths.Bottom, opacity);
+        DrawBorderSide(list, RectangleF.FromLTRB(bounds.Left, bounds.Top + (topLeft ? top : 0), bounds.Left + left, bounds.Bottom - (bottomLeft ? bottom : 0)), item.LeftColor, item.LeftStyle, widths.Left, opacity);
+
+        if (topLeft)
+            DrawMitredCorner(list, RectangleF.FromLTRB(bounds.Left, bounds.Top, bounds.Left + left, bounds.Top + top),
+                item.LeftColor, item.TopColor, new PointF(bounds.Left, bounds.Top), new PointF(bounds.Left + left, bounds.Top), new PointF(bounds.Left + left, bounds.Top + top), opacity);
+        if (topRight)
+            DrawMitredCorner(list, RectangleF.FromLTRB(bounds.Right - right, bounds.Top, bounds.Right, bounds.Top + top),
+                item.RightColor, item.TopColor, new PointF(bounds.Right, bounds.Top), new PointF(bounds.Right - right, bounds.Top), new PointF(bounds.Right - right, bounds.Top + top), opacity);
+        if (bottomLeft)
+            DrawMitredCorner(list, RectangleF.FromLTRB(bounds.Left, bounds.Bottom - bottom, bounds.Left + left, bounds.Bottom),
+                item.LeftColor, item.BottomColor, new PointF(bounds.Left, bounds.Bottom), new PointF(bounds.Left + left, bounds.Bottom), new PointF(bounds.Left + left, bounds.Bottom - bottom), opacity);
+        if (bottomRight)
+            DrawMitredCorner(list, RectangleF.FromLTRB(bounds.Right - right, bounds.Bottom - bottom, bounds.Right, bounds.Bottom),
+                item.RightColor, item.BottomColor, new PointF(bounds.Right, bounds.Bottom), new PointF(bounds.Right - right, bounds.Bottom), new PointF(bounds.Right - right, bounds.Bottom - bottom), opacity);
+    }
+
+    /// <summary>
+    /// Whether the corner between a horizontal and a vertical side is split along its diagonal, as
+    /// CSS joins two sides of different colours (CSS Backgrounds 3 §4.4): both sides solid-filled,
+    /// opaque, and of different colours.
+    /// </summary>
+    /// <remarks>
+    /// Each side used to be a rectangle the full length of its edge, so at a corner the side drawn
+    /// last covered the other. Acid2's nose is two boxes of nothing but borders, a black side between
+    /// two yellow ones, whose joins draw a black diamond; Broiler drew a black square. A corner whose
+    /// sides agree keeps the overlapping rectangles, which look the same and need no triangle, and a
+    /// translucent one keeps them too, since the mitre is drawn over a filled corner and would
+    /// composite twice.
+    /// </remarks>
+    private static bool IsMitred(BColor horizontalColor, string horizontalStyle, double horizontalWidth,
+        BColor verticalColor, string verticalStyle, double verticalWidth, double opacity) =>
+        opacity >= 1
+        && horizontalColor != verticalColor
+        && horizontalColor.A == 255 && verticalColor.A == 255
+        && IsSolidFill(horizontalStyle, horizontalWidth)
+        && IsSolidFill(verticalStyle, verticalWidth);
+
+    /// <summary>Whether <see cref="DrawBorderSide"/> fills a side of this style as one solid rectangle.</summary>
+    private static bool IsSolidFill(string style, double width) =>
+        width > 0
+        && IsBorderStyleVisible(style)
+        && !IsDashedStyle(style)
+        && !(string.Equals(style, "double", StringComparison.OrdinalIgnoreCase) && width >= 3);
+
+    /// <summary>
+    /// A mitred corner: the square in the vertical side's colour, then the horizontal side's half,
+    /// the triangle from the outer corner along the horizontal edge to the inner corner, over it.
+    /// Filling the square first keeps the page out of the antialiased diagonal.
+    /// </summary>
+    private static void DrawMitredCorner(BRenderList list, RectangleF corner, BColor verticalColor, BColor horizontalColor,
+        PointF outer, PointF alongEdge, PointF inner, double opacity)
+    {
+        FillRect(list, corner, verticalColor, opacity);
+        list.FillTriangle(ToPoint(outer), ToPoint(alongEdge), ToPoint(inner), ToColor(horizontalColor, opacity));
     }
 
     /// <summary>
@@ -808,6 +868,8 @@ public static class HtmlGraphicsRenderListBuilder
     }
 
     private static BRect ToRect(RectangleF rect) => new(rect.X, rect.Y, rect.Width, rect.Height);
+
+    private static BPoint ToPoint(PointF point) => new(point.X, point.Y);
 
     private static BColor ToColor(BColor color, double opacity)
     {
