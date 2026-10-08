@@ -556,6 +556,15 @@ public static class HtmlGraphicsRenderListBuilder
         RectangleF fill = item.FillRect;
         list.PushClip(ToRect(fill));
 
+        // A tile drawn at the image's own size is a pattern laid pixel for pixel: it keeps its pixels
+        // whole and meets the next tile edge to edge, at whatever scale the display adds. Blended,
+        // Acid2's two layers of 2×2 checkerboard behind its eyes, which together make solid yellow,
+        // let the red behind them through as an orange dither in the Windows window at 150%. A tile
+        // the page scales (background-size) is a picture, and stays smooth.
+        BImageSampling sampling = tileWidth == source.Width && tileHeight == source.Height
+            ? BImageSampling.NearestNeighbor
+            : BImageSampling.Linear;
+
         bool repeatX = !string.Equals(item.Repeat, "no-repeat", StringComparison.OrdinalIgnoreCase)
             && !string.Equals(item.Repeat, "repeat-y", StringComparison.OrdinalIgnoreCase);
         bool repeatY = !string.Equals(item.Repeat, "no-repeat", StringComparison.OrdinalIgnoreCase)
@@ -578,7 +587,7 @@ public static class HtmlGraphicsRenderListBuilder
         {
             for (float x = startX; x < fill.Right; x += repeatX ? tileWidth : Math.Max(tileWidth, fill.Width + tileWidth))
             {
-                list.DrawImage(image, ToRect(source), ToRect(new RectangleF(x, y, tileWidth, tileHeight)), opacity);
+                list.DrawImage(image, ToRect(source), ToRect(new RectangleF(x, y, tileWidth, tileHeight)), opacity, sampling);
 
                 if (!repeatX)
                     break;
