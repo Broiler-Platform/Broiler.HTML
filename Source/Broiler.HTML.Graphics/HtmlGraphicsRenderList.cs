@@ -80,7 +80,7 @@ public static class HtmlGraphicsRenderListBuilder
                     DrawBorder(list, border, opacity);
                     break;
                 case DrawTextItem text:
-                    DrawText(list, text, opacity);
+                    DrawText(list, text, opacity, LayoutBaseline(text));
                     break;
                 case DrawImageItem image:
                     DrawImage(list, renderer, images, imageCache, image.ImageHandle, image.SourceRect, image.DestRect, opacity);
@@ -124,7 +124,8 @@ public static class HtmlGraphicsRenderListBuilder
                             Color = svgText.Fill,
                             Origin = new PointF(svgText.Bounds.X + svgText.X, svgText.Bounds.Y + svgText.Y),
                         },
-                        opacity);
+                        opacity,
+                        baseline: null);
                     break;
                 case ClipItem clipItem:
                     if (IsDrawable(clipItem.ClipRect))
@@ -347,7 +348,7 @@ public static class HtmlGraphicsRenderListBuilder
         FillRect(list, rect, color, opacity);
     }
 
-    private static void DrawText(BRenderList list, DrawTextItem item, double opacity)
+    private static void DrawText(BRenderList list, DrawTextItem item, double opacity, double? baseline)
     {
         if (string.IsNullOrEmpty(item.Text) || item.Color.A == 0 || opacity <= 0)
             return;
@@ -360,14 +361,29 @@ public static class HtmlGraphicsRenderListBuilder
             && (item.TextShadowOffsetX != 0 || item.TextShadowOffsetY != 0))
         {
             list.DrawText(
-                new BTextRun(item.Text, font, ToColor(item.TextShadowColor, opacity)),
+                new BTextRun(item.Text, font, ToColor(item.TextShadowColor, opacity)) { Baseline = baseline },
                 new BPoint(item.Origin.X + item.TextShadowOffsetX, item.Origin.Y + item.TextShadowOffsetY));
         }
 
         list.DrawText(
-            new BTextRun(item.Text, font, ToColor(item.Color, opacity)),
+            new BTextRun(item.Text, font, ToColor(item.Color, opacity)) { Baseline = baseline },
             new BPoint(item.Origin.X, item.Origin.Y));
     }
+
+    /// <summary>
+    /// How far below a run's origin layout put its baseline: 0.8 of the measured font's height
+    /// below the top of the glyphs, as Broiler.Layout aligns a line (its TypicalAscentRatio, applied
+    /// to <see cref="BFont.Height"/>), or <see langword="null"/> for a run with no measured font.
+    /// </summary>
+    /// <remarks>
+    /// Images, inline blocks, underlines and neighbouring text stand on that line, so the glyphs
+    /// have to as well. Every backend used to choose the baseline from its own face — the managed
+    /// renderer 0.8em below the origin, DirectWrite its face's ascent — while layout's is 0.928em
+    /// down for an installed font (0.8 of a 1.16em font height): Acid3's 100px score was drawn
+    /// 13px above the line layout made for it, and every other line proportionally.
+    /// </remarks>
+    private static double? LayoutBaseline(DrawTextItem item) =>
+        item.FontHandle is BFont measured && measured.Height > 0 ? measured.Height * 0.8 : null;
 
     /// <summary>
     /// Describes the run's font to the backend as the font layout actually <i>measured</i> it with.

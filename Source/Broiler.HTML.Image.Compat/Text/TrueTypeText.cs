@@ -297,7 +297,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         if (!string.IsNullOrEmpty(text) && TryGetFont(font, out var ttf, out float scale)
             && !IsRunBelowOrAboveTheClip(canvas, ttf, scale, point))
         {
-            DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures, glyphRotationDeg);
+            DrawGlyphs(canvas, ttf, scale, LayoutBaseline(font), text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures, glyphRotationDeg);
         }
 
         // Returning true reports the text as handled (glyphs drawn, or
@@ -349,10 +349,22 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         return canvas.IsRowBandCulled(point.Y - em, point.Y + (em * 2f));
     }
 
-    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string? features = null, float glyphRotationDeg = 0f)
+    /// <summary>
+    /// How far below the run's top layout put its baseline: 0.8 of the font's height, as
+    /// Broiler.Layout aligns a line (its TypicalAscentRatio applied to <see cref="FontAdapter.Height"/>).
+    /// </summary>
+    /// <remarks>
+    /// Images, inline blocks and underlines stand on that line. The glyphs hung from the face's own
+    /// ascender instead, which for an installed font (1.16em tall here) is above it: Arial's 0.905em
+    /// against layout's 0.928em put Acid3's 100px heading 2px high. HtmlGraphicsRenderList states
+    /// the same baseline on every render-list run, so the window and this raster agree.
+    /// </remarks>
+    private static float LayoutBaseline(FontAdapter font) => (float)(font.Height * 0.8);
+
+    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, float baseline, string text, BColor color, PointF point, string? features = null, float glyphRotationDeg = 0f)
     {
         float penX = point.X;
-        float baselineY = point.Y + ttf.Ascender * scale;
+        float baselineY = point.Y + baseline;
 
         // PROTOTYPE Stage 2: text-orientation:mixed rotates each glyph 90°
         // clockwise about the centre of its em box.  The layout transform has
