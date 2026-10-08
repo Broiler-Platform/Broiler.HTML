@@ -26,6 +26,14 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
     private readonly Dictionary<string, TrueTypeFont> _byFamily = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
+    /// Every program <see cref="RegisterFontFile"/> has accepted, by identity: the fonts no backend
+    /// can find by family name, whose face a render list must carry (<see cref="GetRegisteredFace"/>).
+    /// Kept apart from <see cref="_byFamily"/> because a family registered again replaces its entry
+    /// there while text already measured in the earlier program still has to draw in it.
+    /// </summary>
+    private readonly HashSet<TrueTypeFont> _registered = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
     /// Faces found on the machine, keyed by family <em>and</em> style. A family names a whole
     /// set of files — DejaVuSans.ttf, DejaVuSans-Bold.ttf, DejaVuSans-Oblique.ttf — so caching
     /// one of them under the bare family name answers every later request with whichever style
@@ -94,6 +102,7 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
 
         lock (_sync)
         {
+            _registered.Add(font);
             _byFamily[family] = font;
             if (!string.IsNullOrWhiteSpace(alias))
                 _byFamily[alias] = font;
@@ -125,6 +134,20 @@ internal sealed class TrueTypeTypefaceResolver : IFontTypefaceResolver
         // text still renders glyphs (instead of nothing).  Returns
         // MissingTypeface only if the bundled font is unavailable.
         return (object?)GetFallbackFont() ?? MissingTypeface.Instance;
+    }
+
+    public BFontFace? GetRegisteredFace(object typeface)
+    {
+        if (typeface is not TrueTypeFont font)
+            return null;
+
+        lock (_sync)
+        {
+            if (!_registered.Contains(font))
+                return null;
+        }
+
+        return BFontFace.For(font);
     }
 
     /// <summary>
@@ -274,7 +297,7 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         if (!string.IsNullOrEmpty(text) && TryGetFont(font, out var ttf, out float scale)
             && !IsRunBelowOrAboveTheClip(canvas, ttf, scale, point))
         {
-            DrawGlyphs(canvas, ttf, scale, text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures, glyphRotationDeg);
+            DrawGlyphs(canvas, ttf, scale, LayoutBaseline(font), text, new BColor(color.R, color.G, color.B, color.A), point, font.FontFeatures, glyphRotationDeg);
         }
 
         // Returning true reports the text as handled (glyphs drawn, or
@@ -326,10 +349,22 @@ internal sealed class TrueTypeTextShaper : ITextShaper
         return canvas.IsRowBandCulled(point.Y - em, point.Y + (em * 2f));
     }
 
-    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, string text, BColor color, PointF point, string? features = null, float glyphRotationDeg = 0f)
+    /// <summary>
+    /// How far below the run's top layout put its baseline: 0.8 of the font's height, as
+    /// Broiler.Layout aligns a line (its TypicalAscentRatio applied to <see cref="FontAdapter.Height"/>).
+    /// </summary>
+    /// <remarks>
+    /// Images, inline blocks and underlines stand on that line. The glyphs hung from the face's own
+    /// ascender instead, which for an installed font (1.16em tall here) is above it: Arial's 0.905em
+    /// against layout's 0.928em put Acid3's 100px heading 2px high. HtmlGraphicsRenderList states
+    /// the same baseline on every render-list run, so the window and this raster agree.
+    /// </remarks>
+    private static float LayoutBaseline(FontAdapter font) => (float)(font.Height * 0.8);
+
+    private static void DrawGlyphs(BCanvas canvas, TrueTypeFont ttf, float scale, float baseline, string text, BColor color, PointF point, string? features = null, float glyphRotationDeg = 0f)
     {
         float penX = point.X;
-        float baselineY = point.Y + ttf.Ascender * scale;
+        float baselineY = point.Y + baseline;
 
         // PROTOTYPE Stage 2: text-orientation:mixed rotates each glyph 90°
         // clockwise about the centre of its em box.  The layout transform has

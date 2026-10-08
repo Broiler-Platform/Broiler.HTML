@@ -22,6 +22,8 @@
   -->
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Broiler.HTML.Image.Compat\Broiler.HTML.Image.Compat.csproj" />
+    <!-- The render list a window replays, for the suites that check what reaches a backend. -->
+    <ProjectReference Include="..\..\Source\Broiler.HTML.Graphics\Broiler.HTML.Graphics.csproj" />
   </ItemGroup>
 
   <ItemGroup>
