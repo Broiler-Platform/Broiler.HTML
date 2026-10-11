@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using Broiler.Net.Http;
 
 namespace Broiler.HTML.Core.Handlers;
@@ -86,7 +87,7 @@ internal sealed class ImageDownloader : IDisposable
             return;
 
         if (async)
-            ThreadPool.QueueUserWorkItem(_ => LoadImageThroughTransport(imageUri, crossOrigin, key), null);
+            _ = LoadImageThroughTransportAsync(imageUri, crossOrigin, key);
         else
             LoadImageThroughTransport(imageUri, crossOrigin, key);
     }
@@ -144,6 +145,43 @@ internal sealed class ImageDownloader : IDisposable
         try
         {
             body = _scope.Fetch(source, RequestDestination.Image, crossOrigin, TransportBudget, MaxImageBytes, IsImageMediaType).Body;
+        }
+        catch (OperationCanceledException)
+        {
+            cancelled = true;
+        }
+        catch (Exception ex)
+        {
+            error = ex;
+        }
+
+        var callbacks = TakeCallbacks(_transportCallbacks, key);
+        if (callbacks == null)
+            return;
+
+        foreach (var callback in callbacks)
+        {
+            try
+            {
+                callback(source, body, error, cancelled);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[HtmlRenderer] ImageDownloader callback error: {ex.Message}");
+            }
+        }
+    }
+
+    private async Task LoadImageThroughTransportAsync(Uri source, CorsSetting crossOrigin, string key)
+    {
+        byte[]? body = null;
+        Exception? error = null;
+        bool cancelled = false;
+
+        try
+        {
+            var response = await _scope.FetchAsync(source, RequestDestination.Image, crossOrigin, TransportBudget, MaxImageBytes, IsImageMediaType).ConfigureAwait(false);
+            body = response.Body;
         }
         catch (OperationCanceledException)
         {

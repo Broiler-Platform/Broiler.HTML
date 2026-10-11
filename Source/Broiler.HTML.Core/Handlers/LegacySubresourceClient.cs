@@ -18,5 +18,6 @@ internal static class LegacySubresourceClient
 {
     /// <summary>A client with <paramref name="timeout"/> and no cookie handling. Owned by the process; never disposed.</summary>
     public static HttpClient Create(TimeSpan timeout) =>
-        BroilerUserAgent.Apply(new HttpClient(new HttpClientHandler { UseCookies = false }) { Timeout = timeout });
+        BroilerHttpProtocol.Apply(
+            BroilerUserAgent.Apply(new HttpClient(new HttpClientHandler { UseCookies = false }) { Timeout = timeout }));
 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using Broiler.Net.Http;
 
 namespace Broiler.HTML.Core.Handlers;
@@ -199,6 +200,84 @@ internal sealed class SubresourceScope
     }
 
     /// <summary>
+    /// As <see cref="Fetch"/>, loading the subresource asynchronously through <see cref="IBrowserRequestTransport.SendAsync"/>.
+    /// </summary>
+    public async Task<SubresourceResponse> FetchAsync(
+        Uri url,
+        RequestDestination destination,
+        CorsSetting crossOrigin,
+        TimeSpan budget,
+        long maxBytes,
+        Func<string?, bool>? acceptMediaType = null,
+        Func<SubresourceResponseHead, bool>? acceptResponse = null,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+
+        var transport = Transport ?? throw new InvalidOperationException("This render tree has no request transport.");
+        var document = Document ?? throw new InvalidOperationException(
+            "RequestTransport is set without a DocumentContext; subresources are not loaded without the document they are for.");
+
+        var context = RequestContext.Subresource(document, destination, crossOrigin);
+        var key = new SubresourceCacheKey(url.AbsoluteUri, destination, context.Mode, context.Credentials);
+        if (_cache.TryGet(key, out var cached))
+        {
+            Accept(cached.Head, destination, acceptMediaType, acceptResponse);
+            if (cached.Body.LongLength > maxBytes)
+                throw new InvalidDataException($"The response is larger than {maxBytes} bytes.");
+            return cached;
+        }
+
+        Token.ThrowIfCancellationRequested();
+
+        using var budgetSource = CancellationTokenSource.CreateLinkedTokenSource(Token, cancellationToken);
+        budgetSource.CancelAfter(budget);
+        var token = budgetSource.Token;
+
+        try
+        {
+            using var request = new HttpRequestMessage(HttpMethod.Get, url);
+            using var response = await transport.SendAsync(request, context, token).ConfigureAwait(false);
+
+            if (response.StatusCode is < 200 or > 299)
+            {
+                throw new HttpRequestException(
+                    $"Response status code does not indicate success: {response.StatusCode}.",
+                    null,
+                    (HttpStatusCode)response.StatusCode);
+            }
+
+            var content = response.Message.Content;
+            var mediaType = content.Headers.ContentType?.MediaType;
+            var head = new SubresourceResponseHead(mediaType, response.Tainting, IsNoSniff(response));
+            Accept(head, destination, acceptMediaType, acceptResponse);
+
+            if (content.Headers.ContentLength > maxBytes)
+                throw new InvalidDataException($"The response is larger than {maxBytes} bytes.");
+
+            using var abortRead = token.Register(response.Dispose);
+            using var body = await content.ReadAsStreamAsync(token).ConfigureAwait(false);
+            var bytes = await ReadBoundedAsync(body, maxBytes, token).ConfigureAwait(false);
+            token.ThrowIfCancellationRequested();
+
+            var result = new SubresourceResponse(response.FinalUrl, mediaType, bytes) { Head = head };
+            _cache.Add(key, result);
+            return result;
+        }
+        catch (Exception ex) when (Token.IsCancellationRequested)
+        {
+            if (ex is OperationCanceledException)
+                throw;
+
+            throw new OperationCanceledException("The render tree that started this load was torn down.", ex, Token);
+        }
+        catch (Exception ex) when (budgetSource.IsCancellationRequested || ex is OperationCanceledException)
+        {
+            throw new TimeoutException($"Loading {url} did not complete within its time limit.", ex);
+        }
+    }
+
+    /// <summary>
     /// Applies a caller's checks on a response head: <paramref name="acceptMediaType"/> on its media type,
     /// then <paramref name="acceptResponse"/> on the whole head. Throws <see cref="InvalidDataException"/> for
     /// a response either refuses.
@@ -262,6 +341,23 @@ internal sealed class SubresourceScope
         int read;
 
         while ((read = source.Read(chunk, 0, chunk.Length)) > 0)
+        {
+            if (buffer.Length + read > maxBytes)
+                throw new InvalidDataException($"The response is larger than {maxBytes} bytes.");
+
+            buffer.Write(chunk, 0, read);
+        }
+
+        return buffer.ToArray();
+    }
+
+    private static async Task<byte[]> ReadBoundedAsync(Stream source, long maxBytes, CancellationToken cancellationToken)
+    {
+        using var buffer = new MemoryStream();
+        var chunk = new byte[81920];
+        int read;
+
+        while ((read = await source.ReadAsync(chunk.AsMemory(0, chunk.Length), cancellationToken).ConfigureAwait(false)) > 0)
         {
             if (buffer.Length + read > maxBytes)
                 throw new InvalidDataException($"The response is larger than {maxBytes} bytes.");

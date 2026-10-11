@@ -46,8 +46,22 @@ internal sealed class RecordingTransport(IBrowserRequestTransport inner) : IBrow
         return matching[0];
     }
 
-    public Task<TransportResponse> SendAsync(HttpRequestMessage request, RequestContext context, CancellationToken cancellationToken = default) =>
-        inner.SendAsync(request, context, cancellationToken);
+    public async Task<TransportResponse> SendAsync(HttpRequestMessage request, RequestContext context, CancellationToken cancellationToken = default)
+    {
+        var call = new TransportCall(request.RequestUri!, context, cancellationToken);
+        _calls.Enqueue(call);
+        try
+        {
+            var response = await inner.SendAsync(request, context, cancellationToken).ConfigureAwait(false);
+            call.Returned(response.StatusCode);
+            return response;
+        }
+        catch (Exception error)
+        {
+            call.Threw(error);
+            throw;
+        }
+    }
 
     public TransportResponse Send(HttpRequestMessage request, RequestContext context, CancellationToken cancellationToken = default)
     {

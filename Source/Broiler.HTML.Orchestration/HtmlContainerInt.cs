@@ -23,7 +23,9 @@ using Broiler.Graphics.Adapters;
 using Broiler.HTML.Core.Handlers;
 using Broiler.HTML.Core.Utils;
 using Broiler.Net.Http;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Broiler.HTML.Orchestration;
 
@@ -835,6 +837,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             return;
 
         var scope = _subresourceScope;
+        var pendingRemote = new List<(Uri Uri, string Family)>();
+        var pendingLegacyRemote = new List<(Uri Uri, string Family)>();
 
         foreach (var face in fontFaces)
         {
@@ -852,15 +856,52 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
                 continue;
             }
 
-            // Remote source: resolve to an absolute HTTP(S) URL and fetch it.
+            // Remote source: resolve to an absolute HTTP(S) URL and queue it.
             if (scope is { UsesTransport: true })
             {
                 if (TryResolveDocumentFontUrl(src, scope, out Uri? documentFontUri))
-                    TryLoadRemoteFont(scope, documentFontUri, face.Family);
+                    pendingRemote.Add((documentFontUri, face.Family));
             }
             else if (TryResolveHttpFontUrl(src, baseUrl, out Uri? fontUri))
             {
-                TryLoadRemoteFont(fontUri, face.Family, scope?.Token ?? CancellationToken.None);
+                pendingLegacyRemote.Add((fontUri, face.Family));
+            }
+        }
+
+        if (pendingRemote.Count != 0 && scope is not null)
+        {
+            if (pendingRemote.Count == 1)
+            {
+                TryLoadRemoteFont(scope, pendingRemote[0].Uri, pendingRemote[0].Family);
+            }
+            else
+            {
+                var tasks = pendingRemote.Select(item => LoadRemoteFontBytesAsync(scope, item.Uri)).ToArray();
+                try { Task.WaitAll(tasks); } catch { /* individual failures handled in LoadRemoteFontBytesAsync */ }
+                for (var i = 0; i < tasks.Length; i++)
+                {
+                    if (tasks[i].IsCompletedSuccessfully && tasks[i].Result is { } bytes)
+                        RegisterRemoteFont(bytes, pendingRemote[i].Family);
+                }
+            }
+        }
+
+        if (pendingLegacyRemote.Count != 0)
+        {
+            var token = scope?.Token ?? CancellationToken.None;
+            if (pendingLegacyRemote.Count == 1)
+            {
+                TryLoadRemoteFont(pendingLegacyRemote[0].Uri, pendingLegacyRemote[0].Family, token);
+            }
+            else
+            {
+                var tasks = pendingLegacyRemote.Select(item => SharedFontHttpClient.GetByteArrayAsync(item.Uri, token)).ToArray();
+                try { Task.WaitAll(tasks); } catch { }
+                for (var i = 0; i < tasks.Length; i++)
+                {
+                    if (tasks[i].IsCompletedSuccessfully && tasks[i].Result is { } bytes)
+                        RegisterRemoteFont(bytes, pendingLegacyRemote[i].Family);
+                }
             }
         }
     }
@@ -982,6 +1023,19 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
 
         RegisterRemoteFont(bytes, family);
+    }
+
+    private static async Task<byte[]?> LoadRemoteFontBytesAsync(SubresourceScope scope, Uri fontUri)
+    {
+        try
+        {
+            var response = await scope.FetchAsync(fontUri, RequestDestination.Font, CorsSetting.None, FontTransportBudget, MaxFontBytes).ConfigureAwait(false);
+            return response.Body;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private void RegisterRemoteFont(byte[] bytes, string family)
