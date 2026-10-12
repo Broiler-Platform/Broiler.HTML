@@ -7,3 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: InternalsVisibleTo("Broiler.HTML.Core")]
 [assembly: InternalsVisibleTo("Broiler.HTML.Image.Compat")]
 [assembly: InternalsVisibleTo("Broiler.HTML.Tests")]
+// The Broiler aggregate repository builds this component from source, and its CLI tests and
+// render-stage benchmarks reach these internals (the compat adapters, BRasterParallelism).
+[assembly: InternalsVisibleTo("Broiler.Cli.Tests")]
+[assembly: InternalsVisibleTo("Broiler.Render.Stage.Benchmarks")]
