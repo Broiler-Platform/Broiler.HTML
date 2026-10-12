@@ -43,4 +43,32 @@ public sealed class HtmlContainerPageSizeTests
         Assert.Equal(new SizeF(99999, 99999), container.PageSize);
         Assert.Equal(50f, container.GetElementRectangle("second")!.Value.Top, 1);
     }
+
+    [Fact]
+    public void A_Leading_Heading_Prints_On_The_First_Page()
+    {
+        // CSS 2.1's sample print sheet breaks before every h1; no browser does, and with that rule a
+        // page that opens with its title printed a blank first page.
+        using IDisposable print = Broiler.CSS.Dom.CssPagedMedia.Pin(300, 200);
+        using var container = new HtmlContainer { AvoidAsyncImagesLoading = true, AvoidImagesLateLoading = true };
+        container.SetHtmlWithStyleSet("<!DOCTYPE html><html><body><h1 id=\"title\">Title</h1><p>body</p></body></html>");
+        container.MaxSize = new SizeF(300, 200);
+        container.PageSize = new SizeF(300, 200);
+
+        container.PerformLayout(new RectangleF(0, 0, 300, 200));
+
+        Assert.True(container.GetElementRectangle("title")!.Value.Top < 100, "The heading was pushed off the first page.");
+    }
+
+    [Theory]
+    [InlineData("<!DOCTYPE html><html><body>x</body></html>", false)]
+    [InlineData("<html><body>x</body></html>", true)]
+    public void The_Document_Mode_Survives_Where_The_Serialization_Drops_It(string html, bool quirks)
+    {
+        using var container = new HtmlContainer();
+        container.SetHtmlWithStyleSet(html);
+
+        Assert.Equal(quirks, container.IsQuirksMode);
+        Assert.DoesNotContain("DOCTYPE", container.GetHtml(), StringComparison.OrdinalIgnoreCase);
+    }
 }

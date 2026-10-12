@@ -133,6 +133,13 @@ public sealed class HtmlContainer : IDisposable
         set => HtmlContainerInt.PageSize = value;
     }
 
+    /// <summary>
+    /// True when the document was parsed in quirks mode. <see cref="GetHtml"/> writes no doctype,
+    /// so a host laying the serialized document out again - to print it - reads this to keep the
+    /// copy in the same mode rather than let it fall into quirks.
+    /// </summary>
+    public bool IsQuirksMode => HtmlContainerInt.IsQuirksMode;
+
     public SizeF ActualSize
     {
         get => HtmlContainerInt.ActualSize;

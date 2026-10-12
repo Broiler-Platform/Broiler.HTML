@@ -716,6 +716,13 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         PublishCssDocumentMode(quirksMode);
     }
 
+    /// <summary>
+    /// True when the document was parsed in quirks mode - no doctype, or a legacy one. A host that
+    /// serializes the document to lay it out again elsewhere (<see cref="GetHtml"/> writes no
+    /// doctype) reads this to keep the copy in the same mode.
+    /// </summary>
+    public bool IsQuirksMode => _documentQuirksMode ?? false;
+
     /// <summary>The mode this thread has published, or standards mode when it has published none.</summary>
     private static bool AmbientQuirksMode()
     {
