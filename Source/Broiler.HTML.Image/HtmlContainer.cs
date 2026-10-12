@@ -119,6 +119,20 @@ public sealed class HtmlContainer : IDisposable
         set => HtmlContainerInt.MaxSize = value;
     }
 
+    /// <summary>
+    /// The page a paged layout fills, in CSS pixels: a page height under 90000 makes the layout
+    /// paginate - forced breaks, boxes that must not be split, and lines that would straddle a page
+    /// boundary move to the next page, the page origin being <see cref="Location"/>. The default,
+    /// 99999 by 99999, is continuous media. A print path sets it to the page area for
+    /// <see cref="PerformLayout(RectangleF)"/> and back to the default before it asks for the
+    /// display list, which would otherwise be clipped to the first page.
+    /// </summary>
+    public SizeF PageSize
+    {
+        get => HtmlContainerInt.PageSize;
+        set => HtmlContainerInt.PageSize = value;
+    }
+
     public SizeF ActualSize
     {
         get => HtmlContainerInt.ActualSize;
