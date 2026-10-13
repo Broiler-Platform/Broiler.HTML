@@ -135,8 +135,10 @@ internal static class CssDefaults
         *[DIR=""ltr""]    { direction: ltr; unicode-bidi: embed }
         *[DIR=""rtl""]    { direction: rtl; unicode-bidi: embed }
 
+        /* CSS 2.1 Appendix D's sample sheet also starts every h1 on a new page in print. No
+           browser's UA sheet does, and a page whose first element is an h1 then printed a blank
+           first page, so that rule is left out; the ones that only avoid a break stay. */
         @media print {
-          h1            { page-break-before: always }
           h1, h2, h3,
           h4, h5, h6    { page-break-after: avoid }
           ul, ol, dl    { page-break-before: avoid }
