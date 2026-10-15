@@ -1091,24 +1091,51 @@ internal sealed class DomParser
         });
     }
 
+    /// <summary>
+    /// Applies <paramref name="action"/> to the box of every cell of <paramref name="table"/>: each
+    /// <c>&lt;td&gt;</c> and <c>&lt;th&gt;</c> of the rows <c>HTMLTableElement.rows</c> lists, whether
+    /// the row is a direct child or sits in a <c>&lt;thead&gt;</c>, <c>&lt;tbody&gt;</c> or
+    /// <c>&lt;tfoot&gt;</c>, and nothing else — no caption content, no text between cells, no cell of
+    /// a nested table.
+    /// </summary>
+    /// <remarks>
+    /// This runs during the cascade walk, before the box fix-ups add anonymous table boxes, so the
+    /// boxes still mirror the DOM: a cell's box is at most three levels below its table's
+    /// (table, section, row, cell). Only those levels are mapped, once per table. The walk this
+    /// replaces counted levels instead of reading the table's structure, so it styled the children
+    /// of a <c>&lt;th&gt;</c> in a direct row instead of the header, and reached the caption's content
+    /// and the text between cells.
+    /// </remarks>
     private static void SetForAllCells(CssBox table, ActionInt<CssBox> action)
     {
-        foreach (var l1 in table.Boxes)
+        if (table.SourceElement is not { } tableElement)
+            return;
+
+        var boxes = new Dictionary<Broiler.Dom.DomElement, CssBox>(ReferenceEqualityComparer.Instance);
+        MapTablePartBoxes(table, boxes, depth: 0);
+
+        foreach (var row in Broiler.Dom.Html.HtmlElementQueries.CollectTableRows(tableElement))
         {
-            foreach (var l2 in l1.Boxes)
+            foreach (var cell in Broiler.Dom.Html.HtmlTableOperations.GetRowCells(row))
             {
-                if (l2.HtmlTag != null && l2.HtmlTag.Name == "td")
-                {
-                    action(l2);
-                }
-                else
-                {
-                    foreach (var l3 in l2.Boxes)
-                    {
-                        action(l3);
-                    }
-                }
+                if (boxes.TryGetValue(cell, out var cellBox))
+                    action(cellBox);
             }
+        }
+    }
+
+    private const int TableCellMaximumDepth = 3;
+
+    private static void MapTablePartBoxes(CssBox box, Dictionary<Broiler.Dom.DomElement, CssBox> boxes, int depth)
+    {
+        foreach (var child in box.Boxes)
+        {
+            if (child.SourceElement is not { } element)
+                continue;
+
+            boxes[element] = child;
+            if (depth + 1 < TableCellMaximumDepth)
+                MapTablePartBoxes(child, boxes, depth + 1);
         }
     }
 
@@ -1476,10 +1503,15 @@ internal sealed class DomParser
     /// Whether <paramref name="box"/> is a checkbox or radio <c>&lt;input&gt;</c> drawn with its native
     /// appearance.
     /// </summary>
+    /// <remarks>
+    /// The type is read as the shared predicates read it, ASCII case-insensitively and untrimmed, which
+    /// is how HTML matches an enumerated attribute and how the user-agent sheet's
+    /// <c>input[type="checkbox"]</c> rules match. Trimming made <c>type=" checkbox "</c> a toggle here
+    /// while it was a text field everywhere else.
+    /// </remarks>
     private static bool IsNativelyDrawnToggle(CssBox box) =>
-        box.HtmlTag is { } tag
-        && tag.Name.Equals("input", StringComparison.OrdinalIgnoreCase)
-        && tag.TryGetAttribute("type")?.Trim().ToLowerInvariant() is "checkbox" or "radio"
+        box.SourceElement is { } element
+        && (Broiler.Dom.Html.HtmlFormQueries.IsCheckboxInput(element) || Broiler.Dom.Html.HtmlFormQueries.IsRadioInput(element))
         && !string.Equals(box.Appearance?.Trim(), "none", StringComparison.OrdinalIgnoreCase);
 
     private static void SetUniformBorder(CssBox box, string width, string style, string color)
@@ -1503,15 +1535,6 @@ internal sealed class DomParser
         box.SourceElement is { } element
             ? Broiler.Dom.Html.HtmlElementQueries.ResolveProgressLikeValueRatio(element, tag)
             : 0;
-
-    private static double ReadNumericAttribute(CssBox box, string name, double fallback)
-    {
-        var raw = box.HtmlTag?.TryGetAttribute(name);
-        return !string.IsNullOrWhiteSpace(raw)
-               && double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
-            ? v
-            : fallback;
-    }
 
     private const int SelectMultipleDefaultVisibleTracks = 4;
     private const int SelectMultipleTrackThicknessPx = 16;
@@ -1548,8 +1571,15 @@ internal sealed class DomParser
             // lighter border) — CSS Basic UI; the box's Appearance is populated by the cascade.
             bool nativeAppearance = !string.Equals(box.Appearance, "none", StringComparison.OrdinalIgnoreCase);
 
+            // The renderer's own reading of size, kept as it was: the shared reader gives the
+            // fallback only for a missing or malformed value, so size="0" and size="2.5" clamp to
+            // two tracks. HtmlSelectQueries.GetSize is not used, because it reports all of those —
+            // and a missing size — as 0, which would draw four.
             int visibleTracks = (int)Math.Clamp(
-                ReadNumericAttribute(box, "size", SelectMultipleDefaultVisibleTracks), 2, 8);
+                box.SourceElement is { } select
+                    ? Broiler.Dom.Html.HtmlElementQueries.ReadNumericAttribute(select, "size", SelectMultipleDefaultVisibleTracks)
+                    : SelectMultipleDefaultVisibleTracks,
+                2, 8);
 
             int chromeInset = nativeAppearance ? SelectMultipleChromeThicknessPx : 2;
             int blockExtent = (visibleTracks * SelectMultipleTrackThicknessPx) + 4;
