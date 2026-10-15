@@ -8,7 +8,7 @@ using Broiler.HTML.Image;
 namespace Broiler.HTML.Tests;
 
 /// <summary>
-/// Whether an element box is a single tag — written <c>&lt;br/&gt;</c> with no end tag by the HTML export,
+/// Whether an element box is a single tag — written <c>&lt;br&gt;</c> with no end tag by the HTML export,
 /// reported as <c>isSingle</c> by the parser dump, and closed with <c>/&gt;</c> by Broiler.Layout's inline-SVG
 /// serialization — is the shared void classification the tree builder itself used
 /// (<see cref="HtmlSerializer.VoidElements"/>).
@@ -58,8 +58,8 @@ public sealed class VoidElementClassificationTests
 
         var html = container.GetHtml(HtmlGenerationStyle.None);
 
-        Assert.Contains("<br/>", html, StringComparison.Ordinal);
-        Assert.Contains("<wbr/>", html, StringComparison.Ordinal);
+        // HTML fragment serialization (§13.3) writes a void element's start tag as <br>, with no end tag.
+        Assert.Contains("a<br>b<wbr>c", html, StringComparison.Ordinal);
         Assert.DoesNotContain("</br>", html, StringComparison.Ordinal);
         Assert.DoesNotContain("</wbr>", html, StringComparison.Ordinal);
         Assert.Contains("<isindex>", html, StringComparison.Ordinal);

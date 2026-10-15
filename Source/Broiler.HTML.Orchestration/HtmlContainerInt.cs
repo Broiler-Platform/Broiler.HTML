@@ -1374,6 +1374,13 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         set => _formState = value ?? throw new ArgumentNullException(nameof(value));
     }
 
+    /// <summary>
+    /// The HTML of the current selection, as a copy puts it on the clipboard: the selected boxes with
+    /// the ancestors that hold them, inline styles, and the fragment comments around the selection
+    /// root. <see langword="null"/> when selection is disabled.
+    /// </summary>
+    internal string? GetSelectedHtml() => _selectionHandler?.GetSelectedHtml();
+
     public RectangleF? GetElementRectangle(string elementId)
     {
         ArgumentException.ThrowIfNullOrEmpty(elementId);
