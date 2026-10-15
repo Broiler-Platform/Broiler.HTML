@@ -10,7 +10,7 @@ namespace Broiler.HTML.Orchestration.Parse;
 /// Phase 5 renderer cutover: drives the renderer's element cascade through the shared
 /// <see cref="Broiler.CSS.Dom.CssStyleEngine"/> on the canonical
 /// <see cref="Broiler.Dom.DomDocument"/>. This is the sole renderer cascade path; the legacy
-/// per-element selector matching in <see cref="DomParser"/> was retired in Phase 7 cleanup
+/// per-element selector matching in <see cref="LayoutTreeBuilder"/> was retired in Phase 7 cleanup
 /// (RF-CSS-1) after the 2026-06-26 cutover verified Acid3 + WPT pixel parity.
 /// </summary>
 /// <remarks>

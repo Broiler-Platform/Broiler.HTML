@@ -154,7 +154,7 @@ internal static class CssDefaults
            css/CSS2/tables/border-conflict-*). Browsers default a border-color on
            the *table* only; Broiler's cascade can't honour that without breaking
            the author shorthand, so the legacy `<table border>` grey is applied
-           directly in DomParser (TranslateAttributes / ApplyTableBorder), not
+           directly in LayoutTreeBuilder (TranslateAttributes / ApplyTableBorder), not
            here, and author CSS is left to win normally. */
         /* Replaced inline elements — WHATWG default rendering */
         iframe          { border: 2px inset #EEEEEE; display: inline-block }
@@ -211,7 +211,7 @@ internal static class CssDefaults
         meta, area,
         base, param     { display:none }
         /* HTML §15.3.1 (Hidden elements) hides noembed and noframes everywhere, not only a
-           frameset's noframes (which DomParser also hides). The HTML Standard tokenizes both
+           frameset's noframes (which LayoutTreeBuilder also hides). The HTML Standard tokenizes both
            as RAWTEXT (Broiler.Dom.Html does so from its tokenizer update on), so a visible box
            would paint their fallback markup as literal text. datalist, from the same list, is
            a suggestion source, not content. basefont and rp from that list are left out on

@@ -18,7 +18,17 @@ using Broiler.Graphics.Color;
 using Broiler.HTML.Core.Utils;
 namespace Broiler.HTML.Orchestration.Parse;
 
-internal sealed class DomParser
+/// <summary>
+/// Builds a styled layout box tree from HTML or a canonical DomDocument.
+/// Delegates HTML parsing and initial box projection, coordinates the CSS
+/// cascade and presentational hints, and prepares boxes for layout.
+/// </summary>
+/// <remarks>
+/// The parse and the projection are <see cref="HtmlParser"/>'s (over
+/// <c>Broiler.Dom.Html.HtmlDocumentParser</c>); the core layout that follows is
+/// <c>Broiler.Layout</c>'s. Formerly named <c>DomParser</c>.
+/// </remarks>
+internal sealed class LayoutTreeBuilder
 {
     private readonly IStylesheetLoader _stylesheetLoader;
 
@@ -33,7 +43,7 @@ internal sealed class DomParser
     // presentation-hint property is also claimed by an author declaration.
     private CSS.Dom.CssStyleEngine? _authorEngine;
 
-    public DomParser(IStylesheetLoader stylesheetLoader)
+    public LayoutTreeBuilder(IStylesheetLoader stylesheetLoader)
     {
         ArgumentNullException.ThrowIfNull(stylesheetLoader);
         _stylesheetLoader = stylesheetLoader;
@@ -47,34 +57,35 @@ internal sealed class DomParser
             set.Add(longhand);
     }
 
-    public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
+    public CssBox BuildLayoutTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         CssBox root;
+        Uri documentBaseUrl;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
-            root = HtmlParser.ParseDocument(html, baseUrl);
-        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
+            root = HtmlParser.ParseDocument(html, baseUrl, out documentBaseUrl);
+        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl, documentBaseUrl);
     }
 
-    public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
+    public CssBox BuildLayoutTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         CssBox root;
+        Uri documentBaseUrl;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
-            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer.ContentDocumentResolver);
-        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
+            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer.ContentDocumentResolver, out documentBaseUrl);
+        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl, documentBaseUrl);
     }
 
-    private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
+    /// <param name="embedderBaseUrl">The document URL the embedder supplied.</param>
+    /// <param name="documentBaseUrl">
+    /// HTML §4.2.3: the base URL the projection settled from the document's first
+    /// <c>&lt;base href&gt;</c>, or <paramref name="embedderBaseUrl"/> when it declares none.
+    /// Everything the document references resolves against it, so it is carried from here on
+    /// instead of the embedder's URL: the stylesheet collection below loads the first
+    /// <c>&lt;link rel=stylesheet&gt;</c> against it, and the box fix-ups create their boxes with it.
+    /// </param>
+    private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri embedderBaseUrl, Uri documentBaseUrl)
     {
-        // HTML §4.2.3: a <base href> makes the document base URL something other than the
-        // document's own URL, and everything the document references resolves against it. The
-        // tree was built against the embedder's URL because the <base> is only known once the
-        // document is parsed, so settle it here — before the stylesheet collection below loads
-        // the first <link rel=stylesheet>, and before the box fix-ups create boxes of their own
-        // — and carry it instead of the URL this method was handed. Until this ran, the only
-        // thing in the repository that read <base> was the resource-log dump, which is why that
-        // dump could report a base-resolved file the render path would then fail to find.
-        var embedderBaseUrl = baseUrl;
-        baseUrl = DocumentBaseUrl.Apply(root, baseUrl);
+        var baseUrl = documentBaseUrl;
 
         // Published only when the document moved the base itself. BaseUrl is public and settable,
         // so an embedder may change it after the parse and expect a later link or sheet to follow;
@@ -1090,24 +1101,51 @@ internal sealed class DomParser
         });
     }
 
+    /// <summary>
+    /// Applies <paramref name="action"/> to the box of every cell of <paramref name="table"/>: each
+    /// <c>&lt;td&gt;</c> and <c>&lt;th&gt;</c> of the rows <c>HTMLTableElement.rows</c> lists, whether
+    /// the row is a direct child or sits in a <c>&lt;thead&gt;</c>, <c>&lt;tbody&gt;</c> or
+    /// <c>&lt;tfoot&gt;</c>, and nothing else — no caption content, no text between cells, no cell of
+    /// a nested table.
+    /// </summary>
+    /// <remarks>
+    /// This runs during the cascade walk, before the box fix-ups add anonymous table boxes, so the
+    /// boxes still mirror the DOM: a cell's box is at most three levels below its table's
+    /// (table, section, row, cell). Only those levels are mapped, once per table. The walk this
+    /// replaces counted levels instead of reading the table's structure, so it styled the children
+    /// of a <c>&lt;th&gt;</c> in a direct row instead of the header, and reached the caption's content
+    /// and the text between cells.
+    /// </remarks>
     private static void SetForAllCells(CssBox table, ActionInt<CssBox> action)
     {
-        foreach (var l1 in table.Boxes)
+        if (table.SourceElement is not { } tableElement)
+            return;
+
+        var boxes = new Dictionary<Broiler.Dom.DomElement, CssBox>(ReferenceEqualityComparer.Instance);
+        MapTablePartBoxes(table, boxes, depth: 0);
+
+        foreach (var row in Broiler.Dom.Html.HtmlElementQueries.CollectTableRows(tableElement))
         {
-            foreach (var l2 in l1.Boxes)
+            foreach (var cell in Broiler.Dom.Html.HtmlTableOperations.GetRowCells(row))
             {
-                if (l2.HtmlTag != null && l2.HtmlTag.Name == "td")
-                {
-                    action(l2);
-                }
-                else
-                {
-                    foreach (var l3 in l2.Boxes)
-                    {
-                        action(l3);
-                    }
-                }
+                if (boxes.TryGetValue(cell, out var cellBox))
+                    action(cellBox);
             }
+        }
+    }
+
+    private const int TableCellMaximumDepth = 3;
+
+    private static void MapTablePartBoxes(CssBox box, Dictionary<Broiler.Dom.DomElement, CssBox> boxes, int depth)
+    {
+        foreach (var child in box.Boxes)
+        {
+            if (child.SourceElement is not { } element)
+                continue;
+
+            boxes[element] = child;
+            if (depth + 1 < TableCellMaximumDepth)
+                MapTablePartBoxes(child, boxes, depth + 1);
         }
     }
 
@@ -1393,7 +1431,7 @@ internal sealed class DomParser
                 && (box.WritingMode.StartsWith("vertical", StringComparison.OrdinalIgnoreCase)
                     || box.WritingMode.StartsWith("sideways", StringComparison.OrdinalIgnoreCase));
             bool reverseInline = string.Equals(box.Direction, "rtl", StringComparison.OrdinalIgnoreCase);
-            double ratio = ResolveProgressValueRatio(box, isMeter);
+            double ratio = ResolveProgressValueRatio(box, isMeter ? "meter" : "progress");
 
             // Track (host) box — the UA-origin geometry and appearance, each one yielding to the
             // author declaration that claimed the same property.
@@ -1475,10 +1513,15 @@ internal sealed class DomParser
     /// Whether <paramref name="box"/> is a checkbox or radio <c>&lt;input&gt;</c> drawn with its native
     /// appearance.
     /// </summary>
+    /// <remarks>
+    /// The type is read as the shared predicates read it, ASCII case-insensitively and untrimmed, which
+    /// is how HTML matches an enumerated attribute and how the user-agent sheet's
+    /// <c>input[type="checkbox"]</c> rules match. Trimming made <c>type=" checkbox "</c> a toggle here
+    /// while it was a text field everywhere else.
+    /// </remarks>
     private static bool IsNativelyDrawnToggle(CssBox box) =>
-        box.HtmlTag is { } tag
-        && tag.Name.Equals("input", StringComparison.OrdinalIgnoreCase)
-        && tag.TryGetAttribute("type")?.Trim().ToLowerInvariant() is "checkbox" or "radio"
+        box.SourceElement is { } element
+        && (Broiler.Dom.Html.HtmlFormQueries.IsCheckboxInput(element) || Broiler.Dom.Html.HtmlFormQueries.IsRadioInput(element))
         && !string.Equals(box.Appearance?.Trim(), "none", StringComparison.OrdinalIgnoreCase);
 
     private static void SetUniformBorder(CssBox box, string width, string style, string color)
@@ -1489,27 +1532,19 @@ internal sealed class DomParser
     }
 
     /// <summary>
-    /// Resolves a <c>&lt;progress&gt;</c>/<c>&lt;meter&gt;</c> fill ratio in [0,1] from its numeric
-    /// <c>value</c>/<c>max</c> (and, for <c>&lt;meter&gt;</c>, <c>min</c>) attributes, mirroring the fallback.
+    /// A <c>&lt;progress&gt;</c>/<c>&lt;meter&gt;</c> fill ratio in [0,1], read from the element's
+    /// <c>value</c>/<c>max</c> (and, for <c>&lt;meter&gt;</c>, <c>min</c>) attributes by the shared
+    /// <see cref="Broiler.Dom.Html.HtmlElementQueries.ResolveProgressLikeValueRatio"/>.
     /// </summary>
-    private static double ResolveProgressValueRatio(CssBox box, bool isMeter)
-    {
-        double min = isMeter ? ReadNumericAttribute(box, "min", 0) : 0;
-        double max = ReadNumericAttribute(box, "max", 1);
-        if (max <= min)
-            max = min + 1;
-        double value = ReadNumericAttribute(box, "value", min);
-        return Math.Clamp((value - min) / (max - min), 0, 1);
-    }
-
-    private static double ReadNumericAttribute(CssBox box, string name, double fallback)
-    {
-        var raw = box.HtmlTag?.TryGetAttribute(name);
-        return !string.IsNullOrWhiteSpace(raw)
-               && double.TryParse(raw, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
-            ? v
-            : fallback;
-    }
+    /// <remarks>
+    /// The projection gives every element box its <see cref="CssBox.SourceElement"/>, so only a
+    /// box synthesised without one reaches the fallback. It has no attributes to read, and draws
+    /// as an element that sets none would: an empty bar.
+    /// </remarks>
+    private static double ResolveProgressValueRatio(CssBox box, string tag) =>
+        box.SourceElement is { } element
+            ? Broiler.Dom.Html.HtmlElementQueries.ResolveProgressLikeValueRatio(element, tag)
+            : 0;
 
     private const int SelectMultipleDefaultVisibleTracks = 4;
     private const int SelectMultipleTrackThicknessPx = 16;
@@ -1546,8 +1581,15 @@ internal sealed class DomParser
             // lighter border) — CSS Basic UI; the box's Appearance is populated by the cascade.
             bool nativeAppearance = !string.Equals(box.Appearance, "none", StringComparison.OrdinalIgnoreCase);
 
+            // The renderer's own reading of size, kept as it was: the shared reader gives the
+            // fallback only for a missing or malformed value, so size="0" and size="2.5" clamp to
+            // two tracks. HtmlSelectQueries.GetSize is not used, because it reports all of those —
+            // and a missing size — as 0, which would draw four.
             int visibleTracks = (int)Math.Clamp(
-                ReadNumericAttribute(box, "size", SelectMultipleDefaultVisibleTracks), 2, 8);
+                box.SourceElement is { } select
+                    ? Broiler.Dom.Html.HtmlElementQueries.ReadNumericAttribute(select, "size", SelectMultipleDefaultVisibleTracks)
+                    : SelectMultipleDefaultVisibleTracks,
+                2, 8);
 
             int chromeInset = nativeAppearance ? SelectMultipleChromeThicknessPx : 2;
             int blockExtent = (visibleTracks * SelectMultipleTrackThicknessPx) + 4;

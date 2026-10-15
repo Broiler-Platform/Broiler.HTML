@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using Broiler.Layout.Engine;
 using Broiler.Layout;
-using Broiler.HTML.Core.Utils;
 
 namespace Broiler.HTML.Dom.Parse;
 
@@ -19,13 +18,24 @@ namespace Broiler.HTML.Dom.Parse;
 internal static class HtmlParser
 {
     public static CssBox ParseDocument(string source, Uri baseUrl)
+        => ParseDocument(source, baseUrl, out _);
+
+    /// <summary>
+    /// Parses <paramref name="source"/> and projects it into boxes, against the document base
+    /// URL its first <c>&lt;base href&gt;</c> settles (<see cref="DocumentBaseUrl"/>), with
+    /// <paramref name="fallbackBaseUrl"/> as the URL of a document that declares none.
+    /// </summary>
+    public static CssBox ParseDocument(string source, Uri fallbackBaseUrl, out Uri documentBaseUrl)
     {
         var parsed = HtmlDocumentParser.ParseDocument(source);
-        return ParseDocument(parsed.Document, baseUrl);
+        return ParseDocument(parsed.Document, fallbackBaseUrl, contentDocumentResolver: null, out documentBaseUrl);
     }
 
     public static CssBox ParseDocument(DomDocument document, Uri baseUrl)
-        => ParseDocument(document, baseUrl, contentDocumentResolver: null);
+        => ParseDocument(document, baseUrl, contentDocumentResolver: null, out _);
+
+    public static CssBox ParseDocument(DomDocument document, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
+        => ParseDocument(document, baseUrl, contentDocumentResolver, out _);
 
     /// <summary>
     /// Builds a <see cref="CssBox"/> tree from <paramref name="document"/>.
@@ -38,10 +48,19 @@ internal static class HtmlParser
     /// projects that document's tree into it. <c>null</c> keeps the legacy behaviour where
     /// the sub-document is materialised as an in-tree subtree.
     /// </summary>
-    public static CssBox ParseDocument(DomDocument document, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
+    /// <remarks>
+    /// Every box is created against the base URL of the document it belongs to, settled from
+    /// the DOM before the first box exists: <paramref name="documentBaseUrl"/> for the document
+    /// itself, resolved against <paramref name="fallbackBaseUrl"/>, and for a nested sub-document
+    /// (in-tree or resolver-supplied) its own first <c>&lt;base href&gt;</c>, with its parent's
+    /// base as the fallback. A sub-document's base therefore stays in the sub-document.
+    /// </remarks>
+    public static CssBox ParseDocument(DomDocument document, Uri fallbackBaseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver, out Uri documentBaseUrl)
     {
         ArgumentNullException.ThrowIfNull(document);
 
+        documentBaseUrl = DocumentBaseUrl.Resolve(document, fallbackBaseUrl);
+        var baseUrl = documentBaseUrl;
         var root = CssBoxHelper.CreateBlock(baseUrl);
         if (document.DocumentElement is { } documentElement)
         {
@@ -116,7 +135,9 @@ internal static class HtmlParser
                 attrs[attribute.QualifiedName] = attribute.Value;
         }
 
-        var isSingle = HtmlUtils.IsSingleTag(element.LocalName);
+        // The tree builder's own classification: an element it closes at once is one the
+        // renderer's exports write as a single tag.
+        var isSingle = HtmlSerializer.VoidElements.Contains(element.LocalName);
         var tag = new HtmlTag(element.LocalName, isSingle, attrs);
         var box = CssBoxHelper.CreateBox(tag, baseUrl, parent);
         // Keep the link back to the canonical element so the shared Broiler.CSS.Dom
@@ -126,9 +147,14 @@ internal static class HtmlParser
         // HtmlBridge Phase 4 (P4.4b): a legacy in-tree "#subdoc-root" element roots a nested
         // browsing context. Flag its box so CssBox.LayoutNestedBrowsingContexts finds it by the
         // neutral flag rather than the fake tag name (the sever below produces the same box
-        // without any #subdoc-root element in the tree).
-        if (element.LocalName.Equals("#subdoc-root", StringComparison.OrdinalIgnoreCase))
+        // without any #subdoc-root element in the tree). Its subtree is another document, with
+        // a base URL of its own.
+        if (DocumentBaseUrl.IsNestedDocumentRoot(element))
+        {
             box.IsNestedBrowsingContextRoot = true;
+            baseUrl = DocumentBaseUrl.Resolve(element, baseUrl);
+            box.BaseUrl = baseUrl;
+        }
 
         if (element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase))
             AppendInputValueText(box, tag, baseUrl);
@@ -144,12 +170,13 @@ internal static class HtmlParser
         // is keyed and cascaded exactly as when they were in-tree.
         if (contentDocumentResolver?.Invoke(element) is { } contentDocument)
         {
-            var subViewportTag = new HtmlTag("#subdoc-root", false, null);
-            var subViewport = CssBoxHelper.CreateBox(subViewportTag, baseUrl, box);
+            var contentBaseUrl = DocumentBaseUrl.Resolve(contentDocument, baseUrl);
+            var subViewportTag = new HtmlTag(DocumentBaseUrl.NestedDocumentRootName, false, null);
+            var subViewport = CssBoxHelper.CreateBox(subViewportTag, contentBaseUrl, box);
             subViewport.IsNestedBrowsingContextRoot = true;
 
             if (contentDocument.DocumentElement is { } contentRoot)
-                AppendCanonicalNode(contentRoot, subViewport, baseUrl, contentDocumentResolver);
+                AppendCanonicalNode(contentRoot, subViewport, contentBaseUrl, contentDocumentResolver);
         }
     }
 

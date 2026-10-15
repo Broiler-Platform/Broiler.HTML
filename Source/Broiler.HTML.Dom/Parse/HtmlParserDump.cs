@@ -64,11 +64,12 @@ public static class HtmlParserDump
         var initialBaseUrl = !string.IsNullOrWhiteSpace(baseUrl)
             ? new Uri(baseUrl, UriKind.Absolute)
             : new Uri("about:blank");
-        var root = HtmlParser.ParseDocument(html, initialBaseUrl);
-        var documentBaseUrl = DocumentBaseUrl.Resolve(root, initialBaseUrl);
+        // The same projection the render path builds, so each box carries the base URL of the
+        // document it belongs to: a nested sub-document's resources resolve against its own.
+        var root = HtmlParser.ParseDocument(html, initialBaseUrl, out var documentBaseUrl);
         var resources = new List<ResourceLogEntry>();
 
-        CollectResources(root, documentBaseUrl, initialBaseUrl, resources);
+        CollectResources(root, initialBaseUrl, resources);
 
         for (var index = 0; index < resources.Count; index++)
             resources[index].Index = index;
@@ -168,13 +169,13 @@ public static class HtmlParserDump
         sb.Append(pad).Append('}');
     }
 
-    private static void CollectResources(CssBox box, Uri baseUrl, Uri referenceBaseUrl, List<ResourceLogEntry> resources)
+    private static void CollectResources(CssBox box, Uri referenceBaseUrl, List<ResourceLogEntry> resources)
     {
         if (box.HtmlTag != null)
-            AddTagResources(box.HtmlTag, baseUrl, referenceBaseUrl, resources);
+            AddTagResources(box.HtmlTag, box.BaseUrl, referenceBaseUrl, resources);
 
         foreach (var child in box.Boxes)
-            CollectResources(child, baseUrl, referenceBaseUrl, resources);
+            CollectResources(child, referenceBaseUrl, resources);
     }
 
     private static void AddTagResources(HtmlTag tag, Uri baseUrl, Uri referenceBaseUrl, List<ResourceLogEntry> resources)
