@@ -43,6 +43,12 @@ internal sealed class LayoutTreeBuilder
     // presentation-hint property is also claimed by an author declaration.
     private CSS.Dom.CssStyleEngine? _authorEngine;
 
+    // The style set before any document's own sheets were added (the user-agent sheet and the
+    // embedder's base CSS), which a nested sub-document starts from; and the container whose
+    // viewport and selector state its engines are built with. Set by PrepareCssTree.
+    private HtmlStyleSet? _documentIndependentStyleSet;
+    private HtmlContainerInt? _htmlContainer;
+
     public LayoutTreeBuilder(IStylesheetLoader stylesheetLoader)
     {
         ArgumentNullException.ThrowIfNull(stylesheetLoader);
@@ -99,6 +105,8 @@ internal sealed class LayoutTreeBuilder
         // initial-containing-block inputs resolve through it (roadmap §4, Phase 4 prep).
         root.LayoutEnvironment = new HtmlLayoutEnvironment(htmlContainer);
 
+        _documentIndependentStyleSet = styleSet;
+        _htmlContainer = htmlContainer;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.CssParse))
             CascadeParseStyles(root, ref styleSet);
 
@@ -186,8 +194,80 @@ internal sealed class LayoutTreeBuilder
         return root;
     }
 
+    /// <summary>
+    /// Cascades a nested browsing context's sub-document with its own style sheets: the
+    /// document-independent set (user-agent and embedder CSS) plus the sheets the sub-document
+    /// itself carries, through engines built for its document. The parent's author sheets do not
+    /// reach it, and its sheets do not reach the parent.
+    /// </summary>
+    /// <remarks>
+    /// The engines take the container's viewport for media queries and the host's visited-link
+    /// state; the parent's <c>:target</c> fragment is the parent's, so it is not applied here. A
+    /// sub-document's own viewport is the frame's box, which is not laid out yet at this stage.
+    /// </remarks>
+    private void ApplyNestedDocumentStyles(CssBox nestedRoot)
+    {
+        var styleSet = _documentIndependentStyleSet
+            ?? throw new InvalidOperationException("A nested document is styled only while a tree is prepared.");
+        var container = _htmlContainer
+            ?? throw new InvalidOperationException("A nested document is styled only while a tree is prepared.");
+
+        foreach (var child in nestedRoot.Boxes)
+            CascadeParseStyles(child, ref styleSet);
+
+        var baseUrl = nestedRoot.BaseUrl;
+        var viewport = container.ViewportSize;
+        var document = FindNestedCanonicalDocument(nestedRoot);
+        var selectorState = RendererSelectorState.For(container, document: null, baseUrl);
+        var engine = SharedRendererCascade.BuildEngine(document, styleSet, (int)viewport.Width, (int)viewport.Height, selectorState);
+        var authorEngine = SharedRendererCascade.BuildAuthorEngine(document, styleSet, (int)viewport.Width, (int)viewport.Height, selectorState);
+        if (engine != null)
+            Broiler.Layout.Engine.CssStyleRecalc.Warm(nestedRoot, engine);
+
+        var parentAuthorEngine = _authorEngine;
+        _authorEngine = authorEngine;
+        try
+        {
+            var combinedStyleSheet = styleSet.StyleSheet;
+            CascadeApplyStyles(
+                nestedRoot,
+                styleSet,
+                baseUrl,
+                engine,
+                RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: true),
+                RendererStyleQueries.HasGeneratedPseudoElementRules(combinedStyleSheet, before: false));
+        }
+        finally
+        {
+            _authorEngine = parentAuthorEngine;
+        }
+    }
+
+    /// <summary>
+    /// The document a nested sub-document's elements belong to. A resolver-supplied sub-viewport
+    /// has no element of its own, so this is read from its descendants, as for the root.
+    /// </summary>
+    private static Broiler.Dom.DomDocument? FindNestedCanonicalDocument(CssBox nestedRoot)
+    {
+        foreach (var child in nestedRoot.Boxes)
+        {
+            if (SharedRendererCascade.FindCanonicalDocument(child) is { } document)
+                return document;
+        }
+
+        return nestedRoot.SourceElement?.OwnerDocument;
+    }
+
     private void CascadeParseStyles(CssBox box, ref HtmlStyleSet styleSet)
     {
+        // A nested browsing context's sub-document is another document, and its <style> and
+        // <link rel=stylesheet> style that document only (CSSOM §6.1, "document or shadow root
+        // CSS style sheets"). Collected here, an iframe's `p { color: red }` turned every
+        // paragraph of the page around it red. ApplyNestedDocumentStyles collects them for the
+        // sub-document's own cascade.
+        if (box.IsNestedBrowsingContextRoot)
+            return;
+
         // HTML §4.12.3: a <template>'s children are its *template contents*, held in a separate
         // document fragment. They are inert — not rendered, and their <style>/<link> do not style
         // the host document; a template is a stamp, and nothing on it applies until it is stamped
@@ -384,7 +464,12 @@ internal sealed class LayoutTreeBuilder
         CssAnimationResolver.ResolveAnimations(box, styleSet.AuthorStyleSheet);
 
         foreach (var childBox in box.Boxes)
-            CascadeApplyStyles(childBox, styleSet, baseUrl, engine, hasBeforeRules, hasAfterRules);
+        {
+            if (childBox.IsNestedBrowsingContextRoot)
+                ApplyNestedDocumentStyles(childBox);
+            else
+                CascadeApplyStyles(childBox, styleSet, baseUrl, engine, hasBeforeRules, hasAfterRules);
+        }
 
         if (box.HtmlTag != null)
             ApplyClosedDetailsVisibility(box);

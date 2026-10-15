@@ -104,17 +104,40 @@ internal sealed class DomUtils
         return null;
     }
 
+    /// <summary>
+    /// The first box in tree order whose element's <c>id</c> is exactly <paramref name="id"/>. IDs
+    /// match case-sensitively (DOM §4.9, HTML §3.2.6): <c>id="Box"</c> is not <c>id="box"</c>.
+    /// </summary>
     public static CssBox? GetBoxById(CssBox? box, string id)
     {
         if (box == null || string.IsNullOrEmpty(id))
             return null;
 
-        if (box.HtmlTag != null && id.Equals(box.HtmlTag.TryGetAttribute("id"), StringComparison.OrdinalIgnoreCase))
+        if (box.HtmlTag != null && id.Equals(box.HtmlTag.TryGetAttribute("id"), StringComparison.Ordinal))
             return box;
 
         foreach (var childBox in box.Boxes)
         {
             var foundBox = GetBoxById(childBox, id);
+            if (foundBox != null)
+                return foundBox;
+        }
+
+        return null;
+    }
+
+    /// <summary>The first box in tree order projected from <paramref name="element"/>.</summary>
+    public static CssBox? GetBoxBySourceElement(CssBox? box, Broiler.Dom.DomElement element)
+    {
+        if (box == null)
+            return null;
+
+        if (ReferenceEquals(box.SourceElement, element))
+            return box;
+
+        foreach (var childBox in box.Boxes)
+        {
+            var foundBox = GetBoxBySourceElement(childBox, element);
             if (foundBox != null)
                 return foundBox;
         }
