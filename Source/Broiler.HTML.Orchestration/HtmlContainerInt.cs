@@ -1361,7 +1361,14 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         ArgumentException.ThrowIfNullOrEmpty(elementId);
         EnsureBoundDocumentCurrent();
 
-        var box = DomUtils.GetBoxById(Root, elementId.ToLowerInvariant());
+        // The document's own element first, as getElementById finds it: the first in tree order
+        // whose id is exactly this one. An id the document does not hold may still be in one of
+        // its nested sub-documents, whose boxes the renderer lays out in the same tree, so the
+        // box walk is kept for those. Both match case-sensitively; this lowercased the id and
+        // compared it case-insensitively, so "box" found an element with id="Box".
+        var element = Root is null ? null : SharedRendererCascade.FindCanonicalDocument(Root)?.GetElementById(elementId);
+        var box = (element is null ? null : DomUtils.GetBoxBySourceElement(Root, element))
+            ?? DomUtils.GetBoxById(Root, elementId);
         return box != null ? CommonUtils.GetFirstValueOrDefault(box.Rectangles, box.Bounds) : null;
     }
 
@@ -1846,7 +1853,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // Resolve the target URL: for <a> links use href, for form submit
         // buttons walk up to the enclosing <form> and use its action attribute.
         string? targetUrl = link.HrefLink;
-        if (string.IsNullOrEmpty(targetUrl) && IsFormSubmitControl(link))
+        if (string.IsNullOrEmpty(targetUrl) && IsSubmitButton(link))
         {
             targetUrl = FindFormAction(link);
         }
@@ -2008,41 +2015,57 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     }
 
     /// <summary>
-    /// Returns <c>true</c> if the given box represents a form submit control
-    /// (<c>&lt;input type="submit"&gt;</c>, <c>&lt;button&gt;</c>, etc.).
+    /// Whether <paramref name="box"/> is a submit button (HTML §4.10.6, §4.10.5.1.19-20): a
+    /// <c>&lt;button&gt;</c> in the Submit Button state, which a missing or invalid <c>type</c>
+    /// also selects, or an <c>&lt;input&gt;</c> of type <c>submit</c> or <c>image</c>.
     /// </summary>
-    private static bool IsFormSubmitControl(CssBox box)
+    /// <remarks>
+    /// A <c>type="button"</c> or <c>type="reset"</c> button, and an <c>&lt;input&gt;</c> of either
+    /// type, submit nothing; they were all taken for submit buttons here, so clicking one sent the
+    /// host the form's <c>action</c>.
+    /// </remarks>
+    private static bool IsSubmitButton(CssBox box)
     {
-        if (box.HtmlTag == null) return false;
-        var name = box.HtmlTag.Name;
-        if (name.Equals("button", StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (name.Equals("input", StringComparison.OrdinalIgnoreCase))
+        if (box.SourceElement is not { } element)
+            return false;
+
+        element.TryGetAttributeByQualifiedName("type", out var type);
+        if (element.LocalName.Equals("button", StringComparison.OrdinalIgnoreCase))
         {
-            var inputType = box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
-            return inputType is "submit" or "button" or "reset";
+            return type is null
+                || !(type.Equals("button", StringComparison.OrdinalIgnoreCase)
+                     || type.Equals("reset", StringComparison.OrdinalIgnoreCase));
         }
-        return false;
+
+        return element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase)
+            && type is not null
+            && (type.Equals("submit", StringComparison.OrdinalIgnoreCase) || type.Equals("image", StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
-    /// Walks up the box tree from a form submit control to find the
-    /// enclosing <c>&lt;form&gt;</c> element and returns its <c>action</c>
-    /// attribute value.  Returns <c>null</c> if no form is found.
+    /// The URL a submit button submits its form to (HTML §4.10.21.3): the button's
+    /// <c>formaction</c> when it has one, otherwise its form owner's <c>action</c>, and the
+    /// document's URL when that is empty or missing. <see langword="null"/> when the button has
+    /// no form owner, which submits nothing.
     /// </summary>
-    private static string? FindFormAction(CssBox box)
+    /// <remarks>
+    /// The form owner is <c>HtmlFormQueries.GetFormOwner</c>'s: the form a <c>form="id"</c>
+    /// attribute names, else the nearest ancestor form. Walking up the box tree found only the
+    /// ancestor, so a button associated by <c>form</c> from outside its form submitted to
+    /// whatever form happened to enclose it, or to none.
+    /// </remarks>
+    private string? FindFormAction(CssBox submitter)
     {
-        var current = box.ParentBox;
-        while (current != null)
+        if (submitter.SourceElement is not { } element
+            || Broiler.Dom.Html.HtmlFormQueries.GetFormOwner(element) is not { } form)
         {
-            if (current.HtmlTag != null &&
-                current.HtmlTag.Name.Equals("form", StringComparison.OrdinalIgnoreCase))
-            {
-                return current.HtmlTag.TryGetAttribute("action");
-            }
-            current = current.ParentBox;
+            return null;
         }
-        return null;
+
+        if (!element.TryGetAttributeByQualifiedName("formaction", out var action))
+            form.TryGetAttributeByQualifiedName("action", out action);
+
+        return string.IsNullOrEmpty(action) ? BaseUrl : action;
     }
 
     /// <summary>
