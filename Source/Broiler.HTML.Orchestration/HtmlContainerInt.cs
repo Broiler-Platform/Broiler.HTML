@@ -62,6 +62,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     // The base style set the last SetHtmlWithStyleSet was given, so RestyleDocument can style the same
     // document again from it: _styleSet is that set with the document's own sheets already added.
     private HtmlStyleSet? _htmlBaseStyleSet;
+    private Broiler.Dom.Html.HtmlFormState _formState = new();
     private IBrowserRequestTransport? _requestTransport;
     private DocumentRequestContext? _documentContext;
     private SubresourceCache _subresourceCache = new();
@@ -683,7 +684,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// <summary>
     /// Styles the document again as it is now, without parsing it again -- after a change of what
     /// <see cref="TargetFragment"/> or <see cref="VisitedLinkPredicate"/> answers, which only a cascade
-    /// reads. A value the user typed into a field stays, since the field's element keeps it.
+    /// reads. A value the user typed into a field stays, since <see cref="FormState"/> keeps it.
     /// </summary>
     /// <remarks>
     /// A document set as HTML is bound from then on (<see cref="SetDocumentWithStyleSet"/>), with the base
@@ -1356,6 +1357,18 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return link?.HrefLink;
     }
 
+    /// <summary>
+    /// The form controls' user-edited state (HTML §4.10.17): the dirty value
+    /// <see cref="SetEditableInputValueAtDocumentPoint"/> records, which the box tree shows in place of
+    /// a field's default value and which survives restyling. A host that keeps the document's form
+    /// state itself (a script bridge, a native control host) can hand its own instance here.
+    /// </summary>
+    public Broiler.Dom.Html.HtmlFormState FormState
+    {
+        get => _formState;
+        set => _formState = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
     public RectangleF? GetElementRectangle(string elementId)
     {
         ArgumentException.ThrowIfNullOrEmpty(elementId);
@@ -1955,7 +1968,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     private static bool IsTextArea(CssBox box) =>
         box.HtmlTag != null && box.HtmlTag.Name.Equals("textarea", StringComparison.OrdinalIgnoreCase);
 
-    private static FormInputElementData<RectangleF> CreateFormInputElementData(CssBox box, RectangleF rect)
+    private FormInputElementData<RectangleF> CreateFormInputElementData(CssBox box, RectangleF rect)
     {
         if (box.HtmlTag == null)
             throw new InvalidOperationException("Form input box has no HTML tag.");
@@ -1965,11 +1978,13 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             ? "textarea"
             : box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
 
-        // HTML Forms §the textarea element: a textarea's value is its text
-        // content, not a value attribute.
-        var value = isTextArea
-            ? CollectTextContent(box)
-            : box.HtmlTag.TryGetAttribute("value") ?? string.Empty;
+        // The control's value (HTML §4.10.5.4, §4.10.11): its dirty value once the user has typed,
+        // otherwise its default value, which is a textarea's text and an input's value attribute.
+        var value = box.SourceElement is { } element
+            ? FormState.GetEffectiveValue(element)
+            : isTextArea
+                ? CollectTextContent(box)
+                : box.HtmlTag.TryGetAttribute("value") ?? string.Empty;
 
         return new FormInputElementData<RectangleF>(
             box.HtmlTag.TryGetAttribute("id") ?? string.Empty,
@@ -1995,7 +2010,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             AppendTextContent(child, buffer);
     }
 
-    private static void SetEditableInputValue(CssBox box, string value)
+    private void SetEditableInputValue(CssBox box, string value)
     {
         value ??= string.Empty;
         if (!IsTextArea(box))
@@ -2003,15 +2018,12 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         box.SetGeneratedTextContent(value);
 
-        // The document's own element holds it too, so styling the document again (RestyleDocument)
-        // keeps what the user typed.
+        // Typing sets the control's dirty value (HTML §4.10.5.4, §4.10.11), which FormState holds and
+        // the projection shows, so styling the document again (RestyleDocument) keeps it. It used to be
+        // written into the element's value attribute, or a textarea's text: its default value, which
+        // the document's own selectors, a form reset and a script's getAttribute all read.
         if (box.SourceElement is { } element)
-        {
-            if (IsTextArea(box))
-                element.TextContent = value;
-            else
-                element.SetAttribute("value", value);
-        }
+            FormState.SetDirtyValue(element, value);
     }
 
     /// <summary>
