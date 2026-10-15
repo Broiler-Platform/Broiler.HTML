@@ -67,7 +67,10 @@ public sealed class ArchitectureBoundaryTests
         Assert.DoesNotContain(AllTypes(Orchestration), static t => t.Name == "DomParser");
 
         var builder = LayoutTreeBuilder();
-        Assert.Equal(2, builder.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly).Count(static m => m.Name == "BuildLayoutTree"));
+        // One input: the container parses an HTML string itself, so the parse's document mode is
+        // published before anything is styled, and hands the builder the document.
+        var build = Assert.Single(builder.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly), static m => m.Name == "BuildLayoutTree");
+        Assert.Equal(typeof(DomDocument), build.GetParameters()[0].ParameterType);
         Assert.DoesNotContain(builder.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly), static m => m.Name == "GenerateCssTree");
     }
 

@@ -34,11 +34,40 @@ public sealed class FormControlFallbackTests
     [InlineData("<input type=\"search\" value=\"query\">", "query")]
     [InlineData("<input type=\"checkbox\" value=\"on\">", "")]
     [InlineData("<input type=\"hidden\" value=\"secret\">", "")]
+    // A missing or invalid type is the Text state (HTML §4.10.5).
+    [InlineData("<input type=\"foo\" value=\"typed\">", "typed")]
+    [InlineData("<input type=\" text \" value=\"typed\">", "typed")]
+    [InlineData("<input type=\"SEARCH\" value=\"typed\">", "typed")]
     public void An_Input_Shows_Its_Value_Or_Its_Default_Label(string input, string expected)
     {
         var tree = Layout(input);
 
         Assert.Equal(expected, Text(Inputs(tree).Single()));
+    }
+
+    /// <summary>
+    /// An input whose type is invalid is a text field (HTML §4.10.5): editable, and reported as
+    /// <c>text</c>, where lowercasing the raw attribute reported <c>foo</c> and offered no editing.
+    /// </summary>
+    [Fact]
+    public void An_Invalid_Type_Is_An_Editable_Text_Field()
+    {
+        using var container = new HtmlContainer
+        {
+            AvoidAsyncImagesLoading = true,
+            AvoidImagesLateLoading = true,
+            MaxSize = new SizeF(800, 600),
+        };
+        container.SetHtmlWithStyleSet(
+            "<!DOCTYPE html><html><body style=\"margin: 0\"><input type=\"foo\" value=\"x\" style=\"position: absolute; left: 0; top: 0; width: 100px\"></body></html>",
+            null,
+            "about:blank");
+        container.PerformLayout();
+
+        var field = container.GetEditableInputAt(new PointF(5, 5));
+
+        Assert.NotNull(field);
+        Assert.Equal("text", field.Type);
     }
 
     /// <summary>

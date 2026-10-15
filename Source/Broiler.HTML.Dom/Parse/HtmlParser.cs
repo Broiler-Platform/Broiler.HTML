@@ -181,7 +181,7 @@ internal static class HtmlParser
         }
 
         if (element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase))
-            AppendInputValueText(box, tag, baseUrl);
+            AppendInputValueText(box, element, tag, baseUrl);
 
         if (isDirty && isTextArea)
         {
@@ -212,9 +212,14 @@ internal static class HtmlParser
         }
     }
 
-    private static void AppendInputValueText(CssBox inputBox, HtmlTag tag, Uri baseUrl)
+    /// <remarks>
+    /// The type is the input's state (HTML §4.10.5, <see cref="HtmlFormQueries.GetInputType"/>): a
+    /// missing or invalid <c>type</c> is the Text state, so <c>type="foo"</c> shows its value as a text
+    /// field does. Lowercasing the raw attribute left such an input showing nothing.
+    /// </remarks>
+    private static void AppendInputValueText(CssBox inputBox, DomElement element, HtmlTag tag, Uri baseUrl)
     {
-        var inputType = tag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
+        var inputType = HtmlFormQueries.GetInputType(element);
         var value = tag.TryGetAttribute("value");
         if (inputType is "submit" or "button" or "reset")
             value ??= inputType == "submit" ? "Submit" : inputType == "reset" ? "Reset" : "";

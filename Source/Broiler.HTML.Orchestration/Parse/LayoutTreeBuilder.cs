@@ -19,7 +19,7 @@ using Broiler.HTML.Core.Utils;
 namespace Broiler.HTML.Orchestration.Parse;
 
 /// <summary>
-/// Builds a styled layout box tree from HTML or a canonical DomDocument.
+/// Builds a styled layout box tree from a canonical DomDocument.
 /// Delegates HTML parsing and initial box projection, coordinates the CSS
 /// cascade and presentational hints, and prepares boxes for layout.
 /// </summary>
@@ -63,15 +63,11 @@ internal sealed class LayoutTreeBuilder
             set.Add(longhand);
     }
 
-    public CssBox BuildLayoutTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
-    {
-        CssBox root;
-        Uri documentBaseUrl;
-        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
-            root = HtmlParser.ParseDocument(html, baseUrl, out documentBaseUrl);
-        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl, documentBaseUrl);
-    }
-
+    /// <summary>
+    /// Builds the layout box tree of <paramref name="document"/>: the container's own parse of an
+    /// HTML string, or a document a host bound. The container parses a string itself, because the
+    /// document mode the parse decides has to be published before this styles anything.
+    /// </summary>
     public CssBox BuildLayoutTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         CssBox root;

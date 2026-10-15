@@ -640,10 +640,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         // standards-mode render — which is a wrong render, not a crash, and looks
         // like a layout bug rather than a threading one. That is the residual
         // recorded in docs/architecture/multithreading-static-state.md, and it has
-        // to close before a render-path worker pool exists rather than after. The mode is
-        // Broiler.Dom.Html's, read with the tokenizer and initial-insertion-mode rule its tree
-        // builder applies, so it is the mode the DOM path's parse gives the same markup.
-        _documentQuirksMode = Broiler.Dom.Html.HtmlDocumentQueries.IsQuirksMode(htmlSource);
+        // to close before a render-path worker pool exists rather than after. The mode is the
+        // one Broiler.Dom.Html's tree builder decides as it parses (HtmlDocumentParseResult.
+        // IsQuirksMode), so the source is parsed once, here, ahead of the cascade and layout that
+        // read the mode, and that parse is the one projected. The mode used to come from
+        // HtmlDocumentQueries.IsQuirksMode, a second tokenization of the whole source.
+        Broiler.Dom.Html.HtmlDocumentParseResult parsed;
+        using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
+            parsed = Broiler.Dom.Html.HtmlDocumentParser.ParseDocument(htmlSource);
+        _documentQuirksMode = parsed.IsQuirksMode;
         EstablishDocumentMode();
 
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
@@ -651,7 +656,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         InitialiseRoot(
             baseStyleSet,
             baseUrl,
-            (ref styleSet) => builder.BuildLayoutTree(htmlSource, this, ref styleSet, baseUri));
+            (ref styleSet) => builder.BuildLayoutTree(parsed.Document, this, ref styleSet, baseUri));
     }
 
     [Obsolete("Use SetDocumentWithStyleSet.")]
@@ -1961,9 +1966,19 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         if (!box.HtmlTag.Name.Equals("input", StringComparison.OrdinalIgnoreCase))
             return false;
 
-        var inputType = box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
-        return inputType is "text" or "search" or "email" or "url" or "tel" or "number" or "password";
+        return InputType(box) is "text" or "search" or "email" or "url" or "tel" or "number" or "password";
     }
+
+    /// <summary>
+    /// The state of an input box's <c>type</c> (HTML §4.10.5), as
+    /// <see cref="Broiler.Dom.Html.HtmlFormQueries.GetInputType"/> reads it from the element: its keyword,
+    /// or <c>text</c> for a missing or invalid value. Lowercasing the raw attribute, as this did, left
+    /// <c>type="foo"</c> a type of its own where HTML makes it a text field.
+    /// </summary>
+    private static string InputType(CssBox box) =>
+        box.SourceElement is { } element
+            ? Broiler.Dom.Html.HtmlFormQueries.GetInputType(element)
+            : box.HtmlTag?.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
 
     private static bool IsTextArea(CssBox box) =>
         box.HtmlTag != null && box.HtmlTag.Name.Equals("textarea", StringComparison.OrdinalIgnoreCase);
@@ -1974,9 +1989,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             throw new InvalidOperationException("Form input box has no HTML tag.");
 
         bool isTextArea = IsTextArea(box);
-        var type = isTextArea
-            ? "textarea"
-            : box.HtmlTag.TryGetAttribute("type")?.ToLowerInvariant() ?? "text";
+        var type = isTextArea ? "textarea" : InputType(box);
 
         // The control's value (HTML §4.10.5.4, §4.10.11): its dirty value once the user has typed,
         // otherwise its default value, which is a textarea's text and an input's value attribute.
@@ -2050,8 +2063,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
 
         return element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase)
-            && type is not null
-            && (type.Equals("submit", StringComparison.OrdinalIgnoreCase) || type.Equals("image", StringComparison.OrdinalIgnoreCase));
+            && Broiler.Dom.Html.HtmlFormQueries.GetInputType(element) is "submit" or "image";
     }
 
     /// <summary>
