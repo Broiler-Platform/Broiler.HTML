@@ -61,6 +61,20 @@ public sealed class ArchitectureBoundaryTests
     }
 
     [Fact]
+    public void The_Export_Has_No_Writer_Of_Its_Own()
+    {
+        var domUtils = HtmlDom.GetType("Broiler.HTML.Dom.Utils.DomUtils")
+            ?? throw new InvalidOperationException("DomUtils is missing.");
+
+        // Wave 3: the box export is serialized by Broiler.Dom.Html's HtmlSerializer from a view of the
+        // boxes (RendererHtmlExport); the recursive markup writer it replaced stays gone.
+        Assert.DoesNotContain(
+            domUtils.GetMethods(AnyStatic | BindingFlags.DeclaredOnly),
+            static m => m.Name is "WriteHtml" or "WriteHtmlTag" or "WriteStylesheet");
+        Assert.NotNull(HtmlDom.GetType("Broiler.HTML.Dom.Utils.RendererHtmlExport"));
+    }
+
+    [Fact]
     public void The_Coordinator_Is_The_Layout_Tree_Builder()
     {
         Assert.Null(Orchestration.GetType("Broiler.HTML.Orchestration.Parse.DomParser"));
