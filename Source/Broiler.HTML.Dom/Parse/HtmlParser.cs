@@ -37,6 +37,9 @@ internal static class HtmlParser
     public static CssBox ParseDocument(DomDocument document, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
         => ParseDocument(document, baseUrl, contentDocumentResolver, out _);
 
+    public static CssBox ParseDocument(DomDocument document, Uri fallbackBaseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver, out Uri documentBaseUrl)
+        => ParseDocument(document, fallbackBaseUrl, contentDocumentResolver, formState: null, out documentBaseUrl);
+
     /// <summary>
     /// Builds a <see cref="CssBox"/> tree from <paramref name="document"/>.
     /// <paramref name="contentDocumentResolver"/> (HtmlBridge Phase 4 P4.4b) lets a host
@@ -54,10 +57,15 @@ internal static class HtmlParser
     /// itself, resolved against <paramref name="fallbackBaseUrl"/>, and for a nested sub-document
     /// (in-tree or resolver-supplied) its own first <c>&lt;base href&gt;</c>, with its parent's
     /// base as the fallback. A sub-document's base therefore stays in the sub-document.
+    /// <para>
+    /// A control <paramref name="formState"/> holds a dirty value for shows that value, as it
+    /// shows its default value otherwise (see <see cref="AppendCanonicalNode"/>).
+    /// </para>
     /// </remarks>
-    public static CssBox ParseDocument(DomDocument document, Uri fallbackBaseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver, out Uri documentBaseUrl)
+    public static CssBox ParseDocument(DomDocument document, Uri fallbackBaseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver, HtmlFormState? formState, out Uri documentBaseUrl)
     {
         ArgumentNullException.ThrowIfNull(document);
+        var projection = new Projection(contentDocumentResolver, formState);
 
         documentBaseUrl = DocumentBaseUrl.Resolve(document, fallbackBaseUrl);
         var baseUrl = documentBaseUrl;
@@ -73,15 +81,18 @@ internal static class HtmlParser
             // root, matching the <html>-rooted structure the string parse produces.
             if (documentElement.LocalName == "#document")
                 foreach (var child in documentElement.ChildNodes)
-                    AppendCanonicalNode(child, root, baseUrl, contentDocumentResolver);
+                    AppendCanonicalNode(child, root, baseUrl, projection);
             else
-                AppendCanonicalNode(documentElement, root, baseUrl, contentDocumentResolver);
+                AppendCanonicalNode(documentElement, root, baseUrl, projection);
         }
 
         return root;
     }
 
-    private static void AppendCanonicalNode(DomNode node, CssBox parent, Uri baseUrl, Func<DomElement, DomDocument?>? contentDocumentResolver)
+    /// <summary>What a projection carries down the tree besides the base URL.</summary>
+    private sealed record Projection(Func<DomElement, DomDocument?>? ContentDocumentResolver, HtmlFormState? FormState);
+
+    private static void AppendCanonicalNode(DomNode node, CssBox parent, Uri baseUrl, Projection projection)
     {
         // Match text by canonical node type, not concrete class, and read it through
         // DomNode.NodeValue. The renderer's own parse path produces Broiler.Dom.DomText,
@@ -137,6 +148,19 @@ internal static class HtmlParser
 
         // The tree builder's own classification: an element it closes at once is one the
         // renderer's exports write as a single tag.
+        // HTML §4.10.5.4 / §4.10.11: what the user typed into a field is its dirty value, held in
+        // the form state; the value attribute and a textarea's text are its default value, which
+        // typing leaves alone. The box shows the dirty value where there is one, and the box's own
+        // attribute copy carries it, so the renderer's export writes what is on screen.
+        string? dirtyValue = null;
+        var isDirty = projection.FormState?.TryGetDirtyValue(element, out dirtyValue) == true;
+        var isTextArea = element.LocalName.Equals("textarea", StringComparison.OrdinalIgnoreCase);
+        if (isDirty && element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase))
+        {
+            attrs ??= new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            attrs["value"] = dirtyValue ?? string.Empty;
+        }
+
         var isSingle = HtmlSerializer.VoidElements.Contains(element.LocalName);
         var tag = new HtmlTag(element.LocalName, isSingle, attrs);
         var box = CssBoxHelper.CreateBox(tag, baseUrl, parent);
@@ -159,8 +183,16 @@ internal static class HtmlParser
         if (element.LocalName.Equals("input", StringComparison.OrdinalIgnoreCase))
             AppendInputValueText(box, tag, baseUrl);
 
-        foreach (var child in element.ChildNodes)
-            AppendCanonicalNode(child, box, baseUrl, contentDocumentResolver);
+        if (isDirty && isTextArea)
+        {
+            if (!string.IsNullOrEmpty(dirtyValue))
+                CssBoxHelper.CreateBox(box, baseUrl).Text = dirtyValue.AsMemory();
+        }
+        else
+        {
+            foreach (var child in element.ChildNodes)
+                AppendCanonicalNode(child, box, baseUrl, projection);
+        }
 
         // HtmlBridge Phase 4 (P4.4b) sever: if the host references a content document for this
         // element (an <iframe>/<object>/<frame> whose sub-document is no longer an in-tree
@@ -168,7 +200,7 @@ internal static class HtmlParser
         // the referenced document's tree into it. The box carries no SourceElement (it is not a
         // script-visible element); the sub-document's own elements keep theirs, so their geometry
         // is keyed and cascaded exactly as when they were in-tree.
-        if (contentDocumentResolver?.Invoke(element) is { } contentDocument)
+        if (projection.ContentDocumentResolver?.Invoke(element) is { } contentDocument)
         {
             var contentBaseUrl = DocumentBaseUrl.Resolve(contentDocument, baseUrl);
             var subViewportTag = new HtmlTag(DocumentBaseUrl.NestedDocumentRootName, false, null);
@@ -176,7 +208,7 @@ internal static class HtmlParser
             subViewport.IsNestedBrowsingContextRoot = true;
 
             if (contentDocument.DocumentElement is { } contentRoot)
-                AppendCanonicalNode(contentRoot, subViewport, contentBaseUrl, contentDocumentResolver);
+                AppendCanonicalNode(contentRoot, subViewport, contentBaseUrl, projection);
         }
     }
 

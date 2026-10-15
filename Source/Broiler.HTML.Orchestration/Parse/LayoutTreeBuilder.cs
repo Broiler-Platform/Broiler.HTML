@@ -77,7 +77,7 @@ internal sealed class LayoutTreeBuilder
         CssBox root;
         Uri documentBaseUrl;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
-            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer.ContentDocumentResolver, out documentBaseUrl);
+            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer.ContentDocumentResolver, htmlContainer.FormState, out documentBaseUrl);
         return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl, documentBaseUrl);
     }
 
@@ -290,8 +290,8 @@ internal sealed class LayoutTreeBuilder
             bool sheetDisabled = box.HtmlTag.TryGetAttribute("disabled") != null;
 
             // Check for the <link rel=stylesheet> tag
-            // Per CSS2.1 §6.4.1, the rel attribute is a space-separated list;
-            // match if any token equals "stylesheet" (e.g. rel="appendix stylesheet").
+            // HTML §4.6.1: rel is a set of tokens separated by ASCII whitespace; match if any token
+            // is "stylesheet" (e.g. rel="appendix stylesheet"). See HtmlLinkTypes.
             if (!sheetDisabled &&
                 box.HtmlTag.Name.Equals("link", StringComparison.OrdinalIgnoreCase) &&
                 ContainsStylesheetRel(box.GetAttribute("rel", string.Empty)))
@@ -848,19 +848,7 @@ internal sealed class LayoutTreeBuilder
     /// This allows <c>&lt;link rel="appendix stylesheet"&gt;</c> to be recognised
     /// as a stylesheet link, as required by CSS2.1 §6.4.1 and the Acid2 test.
     /// </summary>
-    private static bool ContainsStylesheetRel(string relValue)
-    {
-        if (string.IsNullOrEmpty(relValue))
-            return false;
-
-        foreach (var token in relValue.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-        {
-            if (token.Equals("stylesheet", StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
-    }
+    private static bool ContainsStylesheetRel(string relValue) => HtmlLinkTypes.Contains(relValue, "stylesheet");
 
     /// <summary>
     /// Phase 2: Sets <see cref="CssBoxProperties.Kind"/>, list attributes

@@ -226,9 +226,7 @@ public static class HtmlParserDump
 
     private static string GetLinkRole(HtmlTag tag)
     {
-        var rel = tag.TryGetAttribute("rel") ?? string.Empty;
-        return rel.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-            .Any(static token => token.Equals("stylesheet", StringComparison.OrdinalIgnoreCase))
+        return HtmlLinkTypes.Contains(tag.TryGetAttribute("rel"), "stylesheet")
             ? "stylesheet"
             : "link-resource";
     }

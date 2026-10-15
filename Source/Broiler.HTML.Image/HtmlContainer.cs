@@ -234,6 +234,18 @@ public sealed class HtmlContainer : IDisposable
     }
 
     /// <summary>
+    /// The form controls' user-edited state: the dirty value <see cref="SetEditableInputValueAtDocumentPoint"/>
+    /// records, which the rendering shows in place of a field's default value and which survives
+    /// <see cref="RestyleDocument"/>. A host that keeps the document's form state itself can hand its own
+    /// instance here, so the rendering shows the values it holds.
+    /// </summary>
+    public Broiler.Dom.Html.HtmlFormState FormState
+    {
+        get => HtmlContainerInt.FormState;
+        set => HtmlContainerInt.FormState = value;
+    }
+
+    /// <summary>
     /// Whether the user has visited a page, asked of each link's resolved URL so that <c>:visited</c>
     /// styles it, in colour only. Null means no link is visited. Read when the document is styled, on
     /// several threads at once.
