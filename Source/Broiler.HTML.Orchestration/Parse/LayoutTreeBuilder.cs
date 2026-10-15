@@ -18,7 +18,17 @@ using Broiler.Graphics.Color;
 using Broiler.HTML.Core.Utils;
 namespace Broiler.HTML.Orchestration.Parse;
 
-internal sealed class DomParser
+/// <summary>
+/// Builds a styled layout box tree from HTML or a canonical DomDocument.
+/// Delegates HTML parsing and initial box projection, coordinates the CSS
+/// cascade and presentational hints, and prepares boxes for layout.
+/// </summary>
+/// <remarks>
+/// The parse and the projection are <see cref="HtmlParser"/>'s (over
+/// <c>Broiler.Dom.Html.HtmlDocumentParser</c>); the core layout that follows is
+/// <c>Broiler.Layout</c>'s. Formerly named <c>DomParser</c>.
+/// </remarks>
+internal sealed class LayoutTreeBuilder
 {
     private readonly IStylesheetLoader _stylesheetLoader;
 
@@ -33,7 +43,7 @@ internal sealed class DomParser
     // presentation-hint property is also claimed by an author declaration.
     private CSS.Dom.CssStyleEngine? _authorEngine;
 
-    public DomParser(IStylesheetLoader stylesheetLoader)
+    public LayoutTreeBuilder(IStylesheetLoader stylesheetLoader)
     {
         ArgumentNullException.ThrowIfNull(stylesheetLoader);
         _stylesheetLoader = stylesheetLoader;
@@ -47,7 +57,7 @@ internal sealed class DomParser
             set.Add(longhand);
     }
 
-    public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
+    public CssBox BuildLayoutTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         CssBox root;
         Uri documentBaseUrl;
@@ -56,7 +66,7 @@ internal sealed class DomParser
         return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl, documentBaseUrl);
     }
 
-    public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
+    public CssBox BuildLayoutTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         CssBox root;
         Uri documentBaseUrl;

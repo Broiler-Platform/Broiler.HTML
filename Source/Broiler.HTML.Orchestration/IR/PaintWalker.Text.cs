@@ -110,7 +110,7 @@ internal static partial class PaintWalker
     /// </summary>
     /// <remarks>
     /// The box tree hands a decoration down from a box with no text of its own to its children
-    /// (<c>DomParser.CascadeApplyStyles</c>), so it ends on the anonymous boxes that hold the words:
+    /// (<c>LayoutTreeBuilder.CascadeApplyStyles</c>), so it ends on the anonymous boxes that hold the words:
     /// the <c>&lt;a&gt;</c> of a link, a <c>&lt;u&gt;</c> or a <c>p { text-decoration: underline }</c>
     /// keeps none itself. Only the block's own decoration was read, or its first child's drawn across
     /// the whole line, so the box one level further down never was: no link and no <c>&lt;u&gt;</c>

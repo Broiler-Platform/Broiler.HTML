@@ -646,11 +646,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         EstablishDocumentMode();
 
         var baseUri = new Uri(baseUrl ?? "/", UriKind.RelativeOrAbsolute);
-        DomParser parser = new(new StylesheetLoadHandler(this));
+        LayoutTreeBuilder builder = new(new StylesheetLoadHandler(this));
         InitialiseRoot(
             baseStyleSet,
             baseUrl,
-            (ref styleSet) => parser.GenerateCssTree(htmlSource, this, ref styleSet, baseUri));
+            (ref styleSet) => builder.BuildLayoutTree(htmlSource, this, ref styleSet, baseUri));
     }
 
     [Obsolete("Use SetDocumentWithStyleSet.")]
@@ -792,11 +792,11 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         DisposeRenderTree();
         var baseUri = new Uri(BaseUrl ?? "/", UriKind.RelativeOrAbsolute);
-        DomParser parser = new(new StylesheetLoadHandler(this));
+        LayoutTreeBuilder builder = new(new StylesheetLoadHandler(this));
         InitialiseRoot(
             _boundBaseStyleSet,
             BaseUrl,
-            (ref styleSet) => parser.GenerateCssTree(document, this, ref styleSet, baseUri));
+            (ref styleSet) => builder.BuildLayoutTree(document, this, ref styleSet, baseUri));
         _boundDocumentVersion = document.Version;
         _boundDocumentInvalidation?.MarkRebuilt(BuildCascadeDependencies());
     }
@@ -804,7 +804,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     // Item #14, second half. The tree just built cascaded these sheets, so this is what a
     // mutation arriving before the next build has to be judged against: an attribute no selector
     // filters on and no attr() reads cannot have changed what it shows. The set is rebuilt here
-    // rather than cached because _styleSet is not final until GenerateCssTree returns — <style>
+    // rather than cached because _styleSet is not final until BuildLayoutTree returns — <style>
     // elements and @import are appended to it during the parse — and because a scan of the sheets
     // is nothing against the rebuild it is attached to.
     private Broiler.CSS.Dom.CascadeInvalidationSet BuildCascadeDependencies() =>

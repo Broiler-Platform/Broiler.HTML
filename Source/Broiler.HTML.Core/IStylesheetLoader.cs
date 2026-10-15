@@ -4,8 +4,8 @@ using Broiler.CSS;
 namespace Broiler.HTML.Core;
 
 /// <summary>
-/// Interface for loading external stylesheets during DOM parsing.
-/// Breaks the direct dependency between <c>DomParser</c> and the concrete
+/// Interface for loading external stylesheets while the layout tree is built.
+/// Breaks the direct dependency between <c>LayoutTreeBuilder</c> and the concrete
 /// <c>StylesheetLoadHandler</c> class.
 /// </summary>
 internal interface IStylesheetLoader
