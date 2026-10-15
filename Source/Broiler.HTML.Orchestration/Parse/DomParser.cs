@@ -50,31 +50,32 @@ internal sealed class DomParser
     public CssBox GenerateCssTree(string html, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         CssBox root;
+        Uri documentBaseUrl;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
-            root = HtmlParser.ParseDocument(html, baseUrl);
-        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
+            root = HtmlParser.ParseDocument(html, baseUrl, out documentBaseUrl);
+        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl, documentBaseUrl);
     }
 
     public CssBox GenerateCssTree(Broiler.Dom.DomDocument document, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
     {
         CssBox root;
+        Uri documentBaseUrl;
         using (Broiler.Layout.Diagnostics.RenderStageTrace.Measure(Broiler.Layout.Diagnostics.RenderStageTrace.SubStages.HtmlParse))
-            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer.ContentDocumentResolver);
-        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl);
+            root = HtmlParser.ParseDocument(document, baseUrl, htmlContainer.ContentDocumentResolver, out documentBaseUrl);
+        return PrepareCssTree(root, htmlContainer, ref styleSet, baseUrl, documentBaseUrl);
     }
 
-    private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri baseUrl)
+    /// <param name="embedderBaseUrl">The document URL the embedder supplied.</param>
+    /// <param name="documentBaseUrl">
+    /// HTML §4.2.3: the base URL the projection settled from the document's first
+    /// <c>&lt;base href&gt;</c>, or <paramref name="embedderBaseUrl"/> when it declares none.
+    /// Everything the document references resolves against it, so it is carried from here on
+    /// instead of the embedder's URL: the stylesheet collection below loads the first
+    /// <c>&lt;link rel=stylesheet&gt;</c> against it, and the box fix-ups create their boxes with it.
+    /// </param>
+    private CssBox PrepareCssTree(CssBox root, HtmlContainerInt htmlContainer, ref HtmlStyleSet styleSet, Uri embedderBaseUrl, Uri documentBaseUrl)
     {
-        // HTML §4.2.3: a <base href> makes the document base URL something other than the
-        // document's own URL, and everything the document references resolves against it. The
-        // tree was built against the embedder's URL because the <base> is only known once the
-        // document is parsed, so settle it here — before the stylesheet collection below loads
-        // the first <link rel=stylesheet>, and before the box fix-ups create boxes of their own
-        // — and carry it instead of the URL this method was handed. Until this ran, the only
-        // thing in the repository that read <base> was the resource-log dump, which is why that
-        // dump could report a base-resolved file the render path would then fail to find.
-        var embedderBaseUrl = baseUrl;
-        baseUrl = DocumentBaseUrl.Apply(root, baseUrl);
+        var baseUrl = documentBaseUrl;
 
         // Published only when the document moved the base itself. BaseUrl is public and settable,
         // so an embedder may change it after the parse and expect a later link or sheet to follow;
@@ -1393,7 +1394,7 @@ internal sealed class DomParser
                 && (box.WritingMode.StartsWith("vertical", StringComparison.OrdinalIgnoreCase)
                     || box.WritingMode.StartsWith("sideways", StringComparison.OrdinalIgnoreCase));
             bool reverseInline = string.Equals(box.Direction, "rtl", StringComparison.OrdinalIgnoreCase);
-            double ratio = ResolveProgressValueRatio(box, isMeter);
+            double ratio = ResolveProgressValueRatio(box, isMeter ? "meter" : "progress");
 
             // Track (host) box — the UA-origin geometry and appearance, each one yielding to the
             // author declaration that claimed the same property.
@@ -1489,18 +1490,19 @@ internal sealed class DomParser
     }
 
     /// <summary>
-    /// Resolves a <c>&lt;progress&gt;</c>/<c>&lt;meter&gt;</c> fill ratio in [0,1] from its numeric
-    /// <c>value</c>/<c>max</c> (and, for <c>&lt;meter&gt;</c>, <c>min</c>) attributes, mirroring the fallback.
+    /// A <c>&lt;progress&gt;</c>/<c>&lt;meter&gt;</c> fill ratio in [0,1], read from the element's
+    /// <c>value</c>/<c>max</c> (and, for <c>&lt;meter&gt;</c>, <c>min</c>) attributes by the shared
+    /// <see cref="Broiler.Dom.Html.HtmlElementQueries.ResolveProgressLikeValueRatio"/>.
     /// </summary>
-    private static double ResolveProgressValueRatio(CssBox box, bool isMeter)
-    {
-        double min = isMeter ? ReadNumericAttribute(box, "min", 0) : 0;
-        double max = ReadNumericAttribute(box, "max", 1);
-        if (max <= min)
-            max = min + 1;
-        double value = ReadNumericAttribute(box, "value", min);
-        return Math.Clamp((value - min) / (max - min), 0, 1);
-    }
+    /// <remarks>
+    /// The projection gives every element box its <see cref="CssBox.SourceElement"/>, so only a
+    /// box synthesised without one reaches the fallback. It has no attributes to read, and draws
+    /// as an element that sets none would: an empty bar.
+    /// </remarks>
+    private static double ResolveProgressValueRatio(CssBox box, string tag) =>
+        box.SourceElement is { } element
+            ? Broiler.Dom.Html.HtmlElementQueries.ResolveProgressLikeValueRatio(element, tag)
+            : 0;
 
     private static double ReadNumericAttribute(CssBox box, string name, double fallback)
     {
