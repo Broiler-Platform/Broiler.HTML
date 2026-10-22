@@ -734,10 +734,11 @@ internal static class HtmlImageRendererCli
         if (!Uri.TryCreate(rawResource, UriKind.RelativeOrAbsolute, out var uri))
             return false;
 
-        if (!uri.IsAbsoluteUri && !string.IsNullOrWhiteSpace(baseUrl) &&
+        if ((!uri.IsAbsoluteUri || (uri.Scheme == Uri.UriSchemeFile && !rawResource.TrimStart().StartsWith("file:", StringComparison.OrdinalIgnoreCase)))
+            && !string.IsNullOrWhiteSpace(baseUrl) &&
             Uri.TryCreate(baseUrl, UriKind.Absolute, out var baseUri))
         {
-            uri = new Uri(baseUri, uri);
+            uri = new Uri(baseUri, rawResource);
         }
 
         return uri.IsAbsoluteUri &&

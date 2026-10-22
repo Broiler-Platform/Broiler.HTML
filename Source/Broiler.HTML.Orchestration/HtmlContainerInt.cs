@@ -1128,7 +1128,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     private void ResolveBoxFontFeatures(CssBox box)
     {
-        string fva = box.FontVariantAlternates;
+        string? fva = box.FontVariantAlternates;
         bool hasAlternates = !string.IsNullOrWhiteSpace(fva) && fva.Trim() != "normal";
 
         // The first (specified) family the element uses, unescaped for matching.
@@ -1152,7 +1152,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         ApplyFeatureSettings(enabled, faceFeatures);
         ApplyFeatureSettings(enabled, box.FontFeatureSettings);
         if (hasAlternates)
-            ApplyFontVariantAlternates(enabled, fva, family);
+            ApplyFontVariantAlternates(enabled, fva!, family);
 
         var sb = new System.Text.StringBuilder();
         foreach (var kv in enabled)
@@ -2088,7 +2088,8 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// </summary>
     internal string ResolveHref(string href)
     {
-        if (Uri.TryCreate(href, UriKind.Absolute, out _))
+        if (Uri.TryCreate(href, UriKind.Absolute, out var absolute)
+            && (absolute.Scheme != Uri.UriSchemeFile || href.TrimStart().StartsWith("file:", StringComparison.OrdinalIgnoreCase)))
             return href;
 
         if (DocumentBaseUrl is { IsAbsoluteUri: true } documentBaseUrl)

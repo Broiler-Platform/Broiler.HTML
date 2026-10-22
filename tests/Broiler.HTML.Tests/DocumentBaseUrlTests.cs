@@ -150,6 +150,25 @@ public sealed class DocumentBaseUrlTests
         Assert.Contains("/sub/inner.png", paths);
     }
 
+    [Theory]
+    [InlineData("/root/", "https://site.test/dir/page.html", true, "https://site.test/root/")]
+    [InlineData("sub/path", "https://site.test/dir/page.html", true, "https://site.test/dir/sub/path")]
+    [InlineData("https://other.test/abc", "https://site.test/dir/page.html", true, "https://other.test/abc")]
+    [InlineData("file:///foo/bar", "https://site.test/dir/page.html", true, "file:///foo/bar")]
+    [InlineData("data:text/plain,hello", "https://site.test/dir/page.html", true, "data:text/plain,hello")]
+    [InlineData("/root/", null, false, null)]
+    public void TryResolveUri_Resolves_Consistently_Across_Platforms(string raw, string? baseUrl, bool expectedSuccess, string? expectedUri)
+    {
+        var baseUri = baseUrl is not null ? new Uri(baseUrl) : null;
+        var success = Broiler.HTML.Core.Utils.CommonUtils.TryResolveUri(raw, baseUri, out var resolved);
+
+        Assert.Equal(expectedSuccess, success);
+        if (expectedSuccess)
+            Assert.Equal(new Uri(expectedUri!), resolved);
+        else
+            Assert.Null(resolved);
+    }
+
     /// <summary>An element the parser cannot create: the bridge's synthetic wrapper and sub-document root.</summary>
     private sealed class HostElement(DomDocument document, string name)
         : DomElement(document, DomName.CreateLocal(DomNamespaces.Html, name), DomNodeType.Element);

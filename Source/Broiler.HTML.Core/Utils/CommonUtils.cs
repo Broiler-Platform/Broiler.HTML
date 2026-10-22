@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
@@ -90,7 +90,8 @@ internal static class CommonUtils
     public static bool TryResolveUri(string raw, Uri? baseUrl, [NotNullWhen(true)] out Uri? resolvedUri)
     {
         resolvedUri = null;
-        if (Uri.TryCreate(raw, UriKind.Absolute, out var absoluteUri))
+        if (Uri.TryCreate(raw, UriKind.Absolute, out var absoluteUri)
+            && (absoluteUri.Scheme != Uri.UriSchemeFile || raw.TrimStart().StartsWith("file:", StringComparison.OrdinalIgnoreCase)))
         {
             resolvedUri = absoluteUri;
             return true;

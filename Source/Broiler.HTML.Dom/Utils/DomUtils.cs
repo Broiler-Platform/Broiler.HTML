@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -537,6 +537,9 @@ internal sealed class DomUtils
 
     private static string GetSelectedWord(CssRect rect, bool selectedText)
     {
+        if (rect.Text == null)
+            return string.Empty;
+
         if (selectedText && rect.SelectedStartIndex > -1 && rect.SelectedEndIndexOffset > -1)
         {
             return rect.Text[rect.SelectedStartIndex..rect.SelectedEndIndexOffset];

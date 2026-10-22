@@ -531,6 +531,9 @@ internal static partial class PaintWalker
     /// </summary>
     private static void EmitSvgContent(Fragment fragment, List<DisplayItem> items)
     {
+        if (string.IsNullOrEmpty(fragment.SvgContent))
+            return;
+
         var rects = GetPaintRects(fragment);
         var border = fragment.Border;
         var padding = fragment.Padding;

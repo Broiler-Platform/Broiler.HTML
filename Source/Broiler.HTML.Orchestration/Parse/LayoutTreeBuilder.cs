@@ -669,7 +669,8 @@ internal sealed class LayoutTreeBuilder
             var value = prop.Value;
             if (value == CssConstants.Inherit)
                 value = CssUtils.GetPropertyValue(parentBox, prop.Key);
-            CssUtils.SetPropertyValue(pseudoBox, prop.Key, value);
+            if (value is not null)
+                CssUtils.SetPropertyValue(pseudoBox, prop.Key, value);
         }
 
         // A floated pseudo-element is block-level, as a floated element is (CSS2.1 §9.7); left
@@ -2150,7 +2151,7 @@ internal sealed class LayoutTreeBuilder
         // FindPositionedContainingBlock() can still find it.
         bool wasPositioned = box.Position is CssConstants.Relative or CssConstants.Absolute or CssConstants.Fixed;
         // Also inherit any split-positioned-ancestor from a higher level.
-        CssBox splitAncestor = wasPositioned ? box : box.SplitPositionedAncestor;
+        CssBox? splitAncestor = wasPositioned ? box : box.SplitPositionedAncestor;
         if (box.Display == CssConstants.Inline)
         {
             box.Display = CssConstants.Block;
@@ -2263,7 +2264,7 @@ internal sealed class LayoutTreeBuilder
     /// recursive splitting so that hoisted blocks can carry a
     /// <see cref="CssBox.SplitPositionedAncestor"/> reference.
     /// </summary>
-    private static void CorrectBlockSplitBadBoxCore(CssBox parentBox, CssBox badBox, CssBox leftBlock, Uri baseUrl, CssBox posAncestor)
+    private static void CorrectBlockSplitBadBoxCore(CssBox parentBox, CssBox badBox, CssBox leftBlock, Uri baseUrl, CssBox? posAncestor)
     {
         // If the box being split is positioned, it becomes the reference
         // for any blocks hoisted out of its subtree.

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Diagnostics;
@@ -279,10 +279,10 @@ internal sealed class ContextMenuHandler : IDisposable
     {
         try
         {
-            if (_currentRect != null)
+            if (_currentRect?.Image is BImage image)
             {
                 var imageSrc = _currentRect.OwnerBox.GetAttribute("src");
-                _adapter.SaveToFile((BImage)_currentRect.Image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
+                _adapter.SaveToFile(image, Path.GetFileName(imageSrc) ?? "image", Path.GetExtension(imageSrc) ?? "png");
             }
         }
         catch (Exception ex)
@@ -300,7 +300,7 @@ internal sealed class ContextMenuHandler : IDisposable
         try
         {
             if (_currentRect != null)
-                _adapter.SetToClipboard(_currentRect.OwnerBox.GetAttribute("src"));
+                _adapter.SetToClipboard(_currentRect.OwnerBox.GetAttribute("src") ?? string.Empty);
         }
         catch (Exception ex)
         {
@@ -316,8 +316,8 @@ internal sealed class ContextMenuHandler : IDisposable
     {
         try
         {
-            if (_currentRect != null)
-                _adapter.SetToClipboard((BImage)_currentRect.Image);
+            if (_currentRect?.Image is BImage image)
+                _adapter.SetToClipboard(image);
         }
         catch (Exception ex)
         {
