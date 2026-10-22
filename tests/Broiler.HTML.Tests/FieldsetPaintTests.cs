@@ -97,8 +97,8 @@ public sealed class FieldsetPaintTests
         var (tree, items) = Paint("<fieldset><div>Content</div></fieldset>");
 
         var fieldset = Find(tree, "fieldset");
-        Assert.Empty(items.OfType<ClipItem>().Where(item => item.ClipRect.Top >= fieldset.Bounds.Top - 0.5f
-            && item.ClipRect.Bottom <= fieldset.Bounds.Bottom + 0.5f && item.ClipRect.Width < fieldset.Bounds.Width - 1));
+        Assert.DoesNotContain(items.OfType<ClipItem>(), item => item.ClipRect.Top >= fieldset.Bounds.Top - 0.5f
+            && item.ClipRect.Bottom <= fieldset.Bounds.Bottom + 0.5f && item.ClipRect.Width < fieldset.Bounds.Width - 1);
         Assert.Contains(items.OfType<DrawBorderItem>(), item => Math.Abs(item.Bounds.Top - fieldset.Bounds.Top) < 0.5f);
     }
 }

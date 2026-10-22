@@ -3,7 +3,7 @@ using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Image;
 using Broiler.Net.Http;
 
-[assembly: CollectionBehavior(DisableTestParallelization = true)]
+[assembly: Xunit.v3.Parallelization(Mode = Xunit.Sdk.ParallelMode.None)]
 
 namespace Broiler.HTML.Tests;
 
