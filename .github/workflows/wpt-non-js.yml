@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   wpt-non-js:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Keep the full workflow bounded while leaving enough room for a normal
     # WPT checkout, build, and focused 20-case render/diff run.
     timeout-minutes: 45
