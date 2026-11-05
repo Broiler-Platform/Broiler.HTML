@@ -18,6 +18,8 @@ internal interface ISelectionHandler : IDisposable
     void SelectAll(object parent);
     void CopySelectedHtml();
     string? GetSelectedText();
+    bool IsSelecting { get; }
+    void ClearSelectionOutside(object parent, PointF location);
     string? GetSelectedHtml();
     void ClearSelection();
 }

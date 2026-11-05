@@ -299,6 +299,8 @@ public sealed class HtmlContainer : IDisposable
 
     public string? GetLinkAt(PointF location) => HtmlContainerInt.GetLinkAt(location);
 
+    public HtmlLinkClickedEventArgs? GetLinkTargetAt(PointF location) => HtmlContainerInt.GetLinkTargetAt(location);
+
     public void PerformLayout()
     {
         using var bitmap = new BBitmap(1, 1);
@@ -375,16 +377,29 @@ public sealed class HtmlContainer : IDisposable
     /// </summary>
     public List<LinkElementData<RectangleF>> GetLinks() => HtmlContainerInt.GetLinks();
 
+    /// <summary>Raised when selection input changes the painted document.</summary>
+    public event Action? SelectionInvalidated;
+
+    public bool IsSelecting => HtmlContainerInt.IsSelecting;
+
+    public string? GetSelectedText() => HtmlContainerInt.GetSelectedText();
+
+    public void ClearSelectionOutside(PointF location) =>
+        HtmlContainerInt.ClearSelectionOutside(CreateControl(location, false, false), location);
+
     public void HandleMouseDown(PointF location, bool leftButton = true, bool rightButton = false)
     {
         var control = CreateControl(location, leftButton, rightButton);
         HtmlContainerInt.HandleMouseDown(control, location);
     }
 
-    public void HandleMouseUp(PointF location, bool leftButton = true, bool rightButton = false)
+    public void HandleMouseUp(PointF location, bool leftButton = true, bool rightButton = false) =>
+        HandleMouseUp(location, leftButton, rightButton, activateLink: true);
+
+    public void HandleMouseUp(PointF location, bool leftButton, bool rightButton, bool activateLink)
     {
         var control = CreateControl(location, leftButton, rightButton);
-        HtmlContainerInt.HandleMouseUp(control, location, new BMouseEvent(leftButton));
+        HtmlContainerInt.HandleMouseUp(control, location, new BMouseEvent(leftButton), activateLink);
     }
 
     public void HandleMouseMove(PointF mousePos, bool leftButton = false, bool rightButton = false)
@@ -423,6 +438,6 @@ public sealed class HtmlContainer : IDisposable
 
     public void Dispose() => HtmlContainerInt.Dispose();
 
-    private static ControlAdapter CreateControl(PointF mouseLocation, bool leftButton, bool rightButton) =>
-        new(mouseLocation, leftButton, rightButton);
+    private ControlAdapter CreateControl(PointF mouseLocation, bool leftButton, bool rightButton) =>
+        new(mouseLocation, leftButton, rightButton, SelectionInvalidated);
 }

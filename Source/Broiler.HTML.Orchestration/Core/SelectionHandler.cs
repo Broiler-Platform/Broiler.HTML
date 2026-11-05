@@ -25,6 +25,9 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
     private double _selectionEndOffset = -1;
     private bool _backwardSelection;
     private bool _inSelection;
+    private PointF _mouseDownPoint;
+
+    public bool IsSelecting => _inSelection;
     private bool _isDoubleClickSelect;
     private bool _mouseDownInControl;
     private bool _mouseDownOnSelectedWord;
@@ -96,6 +99,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         if (isMouseInContainer)
         {
             _mouseDownInControl = true;
+            _mouseDownPoint = loc;
             _isDoubleClickSelect = (DateTime.Now - _lastMouseDown).TotalMilliseconds < 400;
             _lastMouseDown = DateTime.Now;
             _mouseDownOnSelectedWord = false;
@@ -223,6 +227,18 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
     public double GetSelectedStartOffset(CssRect word) => word == (_backwardSelection ? _selectionEnd : _selectionStart) ? (_backwardSelection ? _selectionEndOffset : _selectionStartOffset) : -1;
     public double GetSelectedEndOffset(CssRect word) => word == (_backwardSelection ? _selectionStart : _selectionEnd) ? (_backwardSelection ? _selectionStartOffset : _selectionEndOffset) : -1;
 
+    void Core.ISelectionHandler.ClearSelectionOutside(object parent, PointF location)
+    {
+        var word = DomUtils.GetCssBoxWord(_root, location);
+        if (word is { Selected: true }
+            && (word.SelectedStartIndex < 0 || word.Left + word.SelectedStartOffset <= location.X)
+            && (word.SelectedEndOffset < 0 || word.Left + word.SelectedEndOffset >= location.X))
+            return;
+
+        ClearSelection();
+        ((RControl)parent).Invalidate();
+    }
+
     public void ClearSelection()
     {
         _dragDropData = null;
@@ -241,11 +257,11 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
 
     public void Dispose() => _contextMenuHandler.Dispose();
 
-    private void HandleSelection(RControl control, PointF loc, bool allowPartialSelect)
+    private static CssRect? GetSelectionWord(CssBox root, PointF loc)
     {
-        var lineBox = DomUtils.GetCssLineBox(_root, loc);
+        var lineBox = DomUtils.GetCssLineBox(root, loc);
         if (lineBox == null)
-            return;
+            return null;
 
         var word = DomUtils.GetCssBoxWord(lineBox, loc);
 
@@ -265,16 +281,24 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
             }
         }
 
+        return word;
+    }
+
+    private void HandleSelection(RControl control, PointF loc, bool allowPartialSelect)
+    {
+        var word = GetSelectionWord(_root, loc);
         if (word == null)
             return;
 
         if (_selectionStart == null)
         {
-            _selectionStartPoint = loc;
-            _selectionStart = word;
+            _selectionStartPoint = _mouseDownPoint;
+            _selectionStart = GetSelectionWord(_root, _selectionStartPoint);
+            if (_selectionStart == null)
+                return;
 
             if (allowPartialSelect)
-                CalculateWordCharIndexAndOffset(control, word, loc, true);
+                CalculateWordCharIndexAndOffset(control, _selectionStart, _selectionStartPoint, true);
         }
 
         _selectionEnd = word;

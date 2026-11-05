@@ -135,6 +135,9 @@ internal static class BRasterParallelism
             return threads;
         }
 
+        if (OperatingSystem.IsBrowser())
+            return 1;
+
         return Environment.ProcessorCount;
     }
 

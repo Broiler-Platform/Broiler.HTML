@@ -285,6 +285,13 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     public bool IsSelectionEnabled { get; set; } = true;
 
+    public bool IsSelecting => _selectionHandler?.IsSelecting == true;
+
+    public string? GetSelectedText() => _selectionHandler?.GetSelectedText();
+
+    public void ClearSelectionOutside(object parent, PointF location) =>
+        _selectionHandler?.ClearSelectionOutside(parent, OffsetByScroll(location));
+
     public bool IsContextMenuEnabled { get; set; } = true;
 
     public PointF ScrollOffset { get; set; }
@@ -1351,6 +1358,22 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return linkElements;
     }
 
+    public HtmlLinkClickedEventArgs? GetLinkTargetAt(PointF location)
+    {
+        var link = DomUtils.GetLinkBox(Root, OffsetByScroll(location));
+        if (link?.HtmlTag?.Attributes is not { } attributes || !attributes.TryGetValue("href", out string? href))
+            return null;
+
+        try
+        {
+            return new HtmlLinkClickedEventArgs(ResolveHref(href), new Dictionary<string, string>(attributes));
+        }
+        catch (UriFormatException)
+        {
+            return null;
+        }
+    }
+
     public string? GetLinkAt(PointF location)
     {
         var link = DomUtils.GetLinkBox(Root, OffsetByScroll(location));
@@ -1717,17 +1740,20 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         }
     }
 
-    public void HandleMouseUp(object parent, PointF location, BMouseEvent e)
+    public void HandleMouseUp(object parent, PointF location, BMouseEvent e) =>
+        HandleMouseUp(parent, location, e, activateLink: true);
+
+    public void HandleMouseUp(object parent, PointF location, BMouseEvent e, bool activateLink)
     {
         ArgumentNullException.ThrowIfNull(parent);
 
         try
         {
-            if (_selectionHandler == null || !IsMouseInContainer(location))
+            if (_selectionHandler == null)
                 return;
 
             var ignore = _selectionHandler.HandleMouseUp(parent, e.LeftButton);
-            if (!ignore && e.LeftButton)
+            if (activateLink && !ignore && e.LeftButton && IsMouseInContainer(location))
             {
                 var loc = OffsetByScroll(location);
                 var link = DomUtils.GetLinkBox(Root, loc);

@@ -8,10 +8,10 @@
     <PackageVersion Include="Broiler.CSS.Dom" Version="0.1.0-preview.18" />
     <PackageVersion Include="Broiler.Dom.Html" Version="0.1.0-preview.17" />
     <!-- BFontStyle.Face, the web-font program a render list carries to the backend; it must reach nuget.org before this pin ships. -->
-    <PackageVersion Include="Broiler.Graphics" Version="0.1.0-preview.15" />
-    <PackageVersion Include="Broiler.Graphics.Windows" Version="0.1.0-preview.15" />
+    <PackageVersion Include="Broiler.Graphics" Version="0.1.0-preview.18" />
+    <PackageVersion Include="Broiler.Graphics.Windows" Version="0.1.0-preview.18" />
     <PackageVersion Include="Broiler.Layout" Version="0.1.0-preview.24" />
-    <PackageVersion Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.16" />
+    <PackageVersion Include="Broiler.Media.Image.Managed" Version="0.1.0-preview.17" />
     <!-- The profile network session the renderer's loaders send through; it must reach nuget.org before this pin ships. -->
     <PackageVersion Include="Broiler.Net" Version="0.1.0-preview.4" />
     <PackageVersion Include="xunit.v3" Version="4.0.2" />
