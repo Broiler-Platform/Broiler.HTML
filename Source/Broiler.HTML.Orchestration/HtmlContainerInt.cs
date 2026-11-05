@@ -114,10 +114,14 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     /// </remarks>
     public bool PlacesAnchoredBoxes { get; set; }
 
+    private bool _selectionPaintDirty;
+
     /// <summary>
-    /// The most recent fragment tree snapshot, built after layout completes.
+    /// The most recent fragment tree snapshot, built after layout or refreshed for selection paint.
     /// </summary>
     internal Fragment? LatestFragmentTree { get; private set; }
+
+    internal void InvalidateSelectionPaint() => _selectionPaintDirty = true;
 
     /// <summary>
     /// The most recent display list produced by the paint path.
@@ -1279,6 +1283,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
     {
         // Whether or not the tree got built: a parse that failed may have left loads in flight.
         CancelSubresourceLoads();
+        _selectionPaintDirty = false;
 
         if (Root == null)
             return;
@@ -1619,6 +1624,7 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
         // Build fragment tree after layout — consumed by PaintWalker during paint.
         LatestFragmentTree = FragmentTreeBuilder.Build(Root);
+        _selectionPaintDirty = false;
     }
 
     /// <summary>
@@ -1685,6 +1691,15 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         {
             LatestDisplayList = new DisplayList();
             return LatestDisplayList;
+        }
+
+        // The layout snapshot also contains the selection offsets. Refresh it from the already
+        // laid-out boxes once per selection change, including when painting a series of tiles.
+        if (_selectionPaintDirty && Root is not null)
+        {
+            EstablishDocumentMode();
+            LatestFragmentTree = FragmentTreeBuilder.Build(Root);
+            _selectionPaintDirty = false;
         }
 
         // When scrolling, compute the viewport in layout-space coordinates so that

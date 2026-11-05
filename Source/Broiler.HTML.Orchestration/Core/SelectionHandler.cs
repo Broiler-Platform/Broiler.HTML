@@ -88,6 +88,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
             word.Selection = this;
             _selectionStartPoint = loc;
             _selectionStart = _selectionEnd = word;
+            _htmlContainer.InvalidateSelectionPaint();
             control.Invalidate();
         }
     }
@@ -253,6 +254,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         _selectionStartPoint = PointF.Empty;
         _selectionStart = null;
         _selectionEnd = null;
+        _htmlContainer.InvalidateSelectionPaint();
     }
 
     public void Dispose() => _contextMenuHandler.Dispose();
@@ -318,6 +320,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
             _selectionEnd = null;
         }
 
+        _htmlContainer.InvalidateSelectionPaint();
         _cursorChanged = true;
         control.SetCursorIBeam();
         control.Invalidate();
