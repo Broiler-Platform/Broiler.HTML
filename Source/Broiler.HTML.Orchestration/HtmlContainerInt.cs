@@ -293,6 +293,10 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
 
     public string? GetSelectedText() => _selectionHandler?.GetSelectedText();
 
+    public bool HasSelectableTextAt(PointF location) =>
+        IsSelectionEnabled && IsMouseInContainer(location) &&
+        DomUtils.GetCssBoxWord(Root, OffsetByScroll(location)) is { IsImage: false, Text.Length: > 0 };
+
     public void ClearSelectionOutside(object parent, PointF location) =>
         _selectionHandler?.ClearSelectionOutside(parent, OffsetByScroll(location));
 

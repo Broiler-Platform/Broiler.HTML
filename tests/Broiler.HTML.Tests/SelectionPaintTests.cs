@@ -18,6 +18,9 @@ public sealed class SelectionPaintTests
         var start = new PointF(word.Bounds.Left + word.Bounds.Width * .25f, y);
         var end = new PointF(word.Bounds.Left + word.Bounds.Width * .75f, y);
 
+        Assert.True(container.HasSelectableTextAt(start));
+        Assert.False(container.HasSelectableTextAt(new PointF(450, y)));
+
         container.HandleMouseDown(start);
         container.HandleMouseMove(end, leftButton: true);
         container.HandleMouseUp(end);

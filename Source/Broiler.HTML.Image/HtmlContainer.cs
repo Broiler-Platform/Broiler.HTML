@@ -384,6 +384,9 @@ public sealed class HtmlContainer : IDisposable
 
     public string? GetSelectedText() => HtmlContainerInt.GetSelectedText();
 
+    /// <summary>Whether the viewport point is over text the document selection can reach.</summary>
+    public bool HasSelectableTextAt(PointF location) => HtmlContainerInt.HasSelectableTextAt(location);
+
     public void ClearSelectionOutside(PointF location) =>
         HtmlContainerInt.ClearSelectionOutside(CreateControl(location, false, false), location);
 
