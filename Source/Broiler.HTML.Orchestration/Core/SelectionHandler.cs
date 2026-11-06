@@ -330,8 +330,8 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         
         if (CheckNonEmptySelection(loc, allowPartialSelect))
         {
-            CheckSelectionDirection(_selectionStart, _selectionEnd);
-            SelectWordsInRange(_root, _backwardSelection ? _selectionEnd : _selectionStart, _backwardSelection ? _selectionStart : _selectionEnd);
+            bool inSelection = false;
+            SelectWordsInRange(_root, _selectionStart, _selectionEnd, ref inSelection);
         }
         else
         {
@@ -386,25 +386,25 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         return _selectionStart != _selectionEnd || _selectionStartIndex != _selectionEndIndex;
     }
 
-    private void SelectWordsInRange(CssBox root, CssRect selectionStart, CssRect selectionEnd)
-    {
-        bool inSelection = false;
-        SelectWordsInRange(root, selectionStart, selectionEnd, ref inSelection);
-    }
-
     private bool SelectWordsInRange(CssBox box, CssRect selectionStart, CssRect selectionEnd, ref bool inSelection)
     {
         foreach (var boxWord in box.Words)
         {
-            if (!inSelection && boxWord == selectionStart)
-                inSelection = true;
-
             if (!inSelection)
-                continue;
+            {
+                if (boxWord != selectionStart && boxWord != selectionEnd)
+                    continue;
+
+                // Determine direction in the same order used to mark and copy the words.
+                _backwardSelection = selectionStart == selectionEnd
+                    ? _selectionStartIndex > _selectionEndIndex
+                    : boxWord == selectionEnd;
+                inSelection = true;
+            }
 
             boxWord.Selection = this;
 
-            if (selectionStart == selectionEnd || boxWord == selectionEnd)
+            if (boxWord == (_backwardSelection ? selectionStart : selectionEnd))
                 return true;
         }
 
@@ -444,7 +444,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
             selectionIndex = -1;
             selectionOffset = -1;
         }
-        else if (offset > word.Width - word.OwnerBox.ActualWordSpacing || loc.Y > DomUtils.GetCssLineBoxByWord(word).LineBottom)
+        else if (offset > word.Width - word.OwnerBox.ActualWordSpacing || loc.Y >= word.Bottom)
         {
             selectionIndex = word.Text.Length;
             selectionOffset = word.Width;
@@ -459,19 +459,4 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         }
     }
 
-    private void CheckSelectionDirection(CssRect selectionStart, CssRect selectionEnd)
-    {
-        if (selectionStart == selectionEnd)
-        {
-            _backwardSelection = _selectionStartIndex > _selectionEndIndex;
-        }
-        else if (DomUtils.GetCssLineBoxByWord(selectionStart) == DomUtils.GetCssLineBoxByWord(selectionEnd))
-        {
-            _backwardSelection = selectionStart.Left > selectionEnd.Left;
-        }
-        else
-        {
-            _backwardSelection = selectionStart.Top >= selectionEnd.Bottom;
-        }
-    }
 }
