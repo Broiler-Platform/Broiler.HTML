@@ -25,7 +25,10 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
     private double _selectionEndOffset = -1;
     private bool _backwardSelection;
     private bool _inSelection;
+    private const float ClickDistance = 4f;
     private PointF _mouseDownPoint;
+    private PointF? _previousClickPoint;
+    private bool _mouseMovedBeyondClick;
 
     public bool IsSelecting => _inSelection;
     private bool _isDoubleClickSelect;
@@ -101,14 +104,18 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
         {
             _mouseDownInControl = true;
             _mouseDownPoint = loc;
-            _isDoubleClickSelect = (DateTime.Now - _lastMouseDown).TotalMilliseconds < 400;
-            _lastMouseDown = DateTime.Now;
+            _mouseMovedBeyondClick = false;
+            var now = DateTime.Now;
+            _isDoubleClickSelect = parent.LeftMouseButton && _previousClickPoint is { } previous
+                && IsWithinClickDistance(previous, loc) && (now - _lastMouseDown).TotalMilliseconds < 400;
+            _previousClickPoint = null;
+            _lastMouseDown = now;
             _mouseDownOnSelectedWord = false;
 
             if (_htmlContainer.IsSelectionEnabled && parent.LeftMouseButton)
             {
                 var word = DomUtils.GetCssBoxWord(_root, loc);
-                if (word != null && word.Selected)
+                if (parent.SupportsDragDropCopy && word is { Selected: true })
                 {
                     _mouseDownOnSelectedWord = true;
                 }
@@ -140,6 +147,8 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
     {
         bool ignore = false;
 
+        _previousClickPoint = leftMouseButton && _mouseDownInControl && !_mouseMovedBeyondClick && !_inSelection
+            ? _mouseDownPoint : null;
         _mouseDownInControl = false;
 
         if (_htmlContainer.IsSelectionEnabled)
@@ -164,6 +173,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
     {
         if (_htmlContainer.IsSelectionEnabled && _mouseDownInControl && parent.LeftMouseButton)
         {
+            _mouseMovedBeyondClick |= !IsWithinClickDistance(_mouseDownPoint, loc);
             if (_mouseDownOnSelectedWord)
             {
                 if ((DateTime.Now - _lastMouseDown).TotalMilliseconds > 200)
@@ -172,7 +182,7 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
             else
             {
                 HandleSelection(parent, loc, !_isDoubleClickSelect);
-                _inSelection = _selectionStart != null && _selectionEnd != null && (_selectionStart != _selectionEnd || _selectionStartIndex != _selectionEndIndex);
+                _inSelection = _selectionEnd is not null;
             }
         }
         else
@@ -259,8 +269,16 @@ internal sealed class SelectionHandler : Core.ISelectionHandler, ISelectionHandl
 
     public void Dispose() => _contextMenuHandler.Dispose();
 
+    private static bool IsWithinClickDistance(PointF first, PointF second) =>
+        Math.Abs(first.X - second.X) <= ClickDistance && Math.Abs(first.Y - second.Y) <= ClickDistance;
+
     private static CssRect? GetSelectionWord(CssBox root, PointF loc)
     {
+        // Nested inline blocks can have their own lines at the same height as the outer line.
+        // Prefer the word under the pointer before falling back to line-edge selection.
+        if (DomUtils.GetCssBoxWord(root, loc) is { } hit)
+            return hit;
+
         var lineBox = DomUtils.GetCssLineBox(root, loc);
         if (lineBox == null)
             return null;

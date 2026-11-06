@@ -29,6 +29,8 @@ internal sealed class ControlAdapter(
 
     public override void SetCursorIBeam() => cursorChanged?.Invoke(GraphicsCursor.IBeam);
 
+    public override bool SupportsDragDropCopy => false;
+
     public override void DoDragDropCopy(object dragDropData)
     {
         // The platform-neutral image/graphics frontend has no drag-drop service.

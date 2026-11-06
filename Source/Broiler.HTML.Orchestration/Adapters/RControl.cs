@@ -21,6 +21,7 @@ public abstract class RControl
     public abstract void SetCursorDefault();
     public abstract void SetCursorHand();
     public abstract void SetCursorIBeam();
+    public virtual bool SupportsDragDropCopy => true;
     public abstract void DoDragDropCopy(object dragDropData);
     public abstract void MeasureString(string str, BFont font, double maxWidth, out int charFit, out double charFitWidth);
     public abstract void Invalidate();

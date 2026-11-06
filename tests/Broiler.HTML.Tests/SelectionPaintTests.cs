@@ -7,11 +7,15 @@ namespace Broiler.HTML.Tests;
 
 public sealed class SelectionPaintTests
 {
-    [Fact]
-    public void PartialSelectionPaintsAndClearsWithoutAnotherLayout()
+    [Theory]
+    [InlineData("Selection", false, false)]
+    [InlineData("<b><span>Selection</span></b>", true, false)]
+    [InlineData("<b>Selection</b>", false, true)]
+    [InlineData("Selection <b style='display:inline-block'><span>Adjacent</span></b>", false, false)]
+    public void PartialSelectionPaintsAndClearsWithoutAnotherLayout(string markup, bool quickRetry, bool selectAllFirst)
     {
         using var container = new HtmlContainer { MaxSize = new SizeF(600, 200) };
-        container.SetHtmlWithStyleSet("<!doctype html><p style='font:24px monospace'>Selection</p>");
+        container.SetHtmlWithStyleSet($"<!doctype html><p style='font:24px monospace'>{markup}</p>");
         container.PerformLayout();
         var word = container.CreateDisplayList().Items.OfType<DrawTextItem>().Single(item => item.Text == "Selection");
         float y = word.Bounds.Top + word.Bounds.Height / 2;
@@ -20,6 +24,15 @@ public sealed class SelectionPaintTests
 
         Assert.True(container.HasSelectableTextAt(start));
         Assert.False(container.HasSelectableTextAt(new PointF(450, y)));
+
+        if (quickRetry)
+        {
+            var elsewhere = new PointF(450, y);
+            container.HandleMouseDown(elsewhere);
+            container.HandleMouseUp(elsewhere);
+        }
+        if (selectAllFirst)
+            container.HandleKeyDown(controlKey: true, aKeyCode: true, cKeyCode: false);
 
         container.HandleMouseDown(start);
         container.HandleMouseMove(end, leftButton: true);
