@@ -6,23 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-
-using CommonUtils = Broiler.HTML.Core.Utils.CommonUtils;
-using HtmlTag = Broiler.Layout.HtmlTag;
+using System.Text.Json.Serialization;
 using Broiler.Layout;
 using Broiler.Layout.Engine;
+
 namespace Broiler.HTML.Dom.Parse;
 
 /// <summary>
 /// Deterministic JSON dump helpers for parser compliance tests.
 /// </summary>
-public static class HtmlParserDump
+public static partial class HtmlParserDump
 {
-    private static readonly JsonSerializerOptions ResourceLogJsonOptions = new()
-    {
-        WriteIndented = true
-    };
-
     public static string DumpTokensAsJson(string html)
     {
         ArgumentNullException.ThrowIfNull(html);
@@ -91,7 +85,7 @@ public static class HtmlParserDump
             }
         };
 
-        return JsonSerializer.Serialize(document, ResourceLogJsonOptions) + Environment.NewLine;
+        return JsonSerializer.Serialize(document, ResourceLogJsonContext.Default.ResourceLogDocument) + Environment.NewLine;
     }
 
     private static void WriteToken(StringBuilder sb, HtmlToken token, int indent)
@@ -231,14 +225,8 @@ public static class HtmlParserDump
             : "link-resource";
     }
 
-    private static void AddAttributeResource(
-        HtmlTag tag,
-        Uri baseUrl,
-        Uri referenceBaseUrl,
-        List<ResourceLogEntry> resources,
-        string element,
-        string attribute,
-        string role)
+    private static void AddAttributeResource(HtmlTag tag, Uri baseUrl, Uri referenceBaseUrl,
+        List<ResourceLogEntry> resources, string element, string attribute, string role)
     {
         if (tag.TryGetAttribute(attribute) is not { } raw)
             return;
@@ -246,14 +234,8 @@ public static class HtmlParserDump
         resources.Add(CreateResourceLogEntry(element, attribute, role, raw, raw, null, tag, baseUrl, referenceBaseUrl));
     }
 
-    private static void AddSrcsetResources(
-        HtmlTag tag,
-        Uri baseUrl,
-        Uri referenceBaseUrl,
-        List<ResourceLogEntry> resources,
-        string element,
-        string attribute,
-        string role)
+    private static void AddSrcsetResources(HtmlTag tag, Uri baseUrl, Uri referenceBaseUrl,
+        List<ResourceLogEntry> resources, string element, string attribute, string role)
     {
         if (tag.TryGetAttribute(attribute) is not { } raw)
             return;
@@ -282,16 +264,8 @@ public static class HtmlParserDump
         }
     }
 
-    private static ResourceLogEntry CreateResourceLogEntry(
-        string element,
-        string attribute,
-        string role,
-        string raw,
-        string resource,
-        string? descriptor,
-        HtmlTag tag,
-        Uri baseUrl,
-        Uri referenceBaseUrl)
+    private static ResourceLogEntry CreateResourceLogEntry(string element, string attribute, string role, string raw,
+        string resource, string? descriptor, HtmlTag tag, Uri baseUrl, Uri referenceBaseUrl)
     {
         var entry = new ResourceLogEntry
         {
@@ -343,7 +317,7 @@ public static class HtmlParserDump
             return;
         }
 
-        if (!CommonUtils.TryResolveUri(resource, baseUrl, out var resolvedUri))
+        if (!Core.Utils.CommonUtils.TryResolveUri(resource, baseUrl, out var resolvedUri))
         {
             entry.UrlKind = "invalid";
             entry.Classification = "invalid-url";
@@ -510,10 +484,7 @@ public static class HtmlParserDump
         return sb;
     }
 
-    private static StringBuilder AppendJsonOrNull(this StringBuilder sb, string? value)
-    {
-        return value is null ? sb.Append("null") : sb.AppendJson(value);
-    }
+    private static StringBuilder AppendJsonOrNull(this StringBuilder sb, string? value) => value is null ? sb.Append("null") : sb.AppendJson(value);
 
     private sealed class ResourceLogDocument
     {
@@ -554,6 +525,10 @@ public static class HtmlParserDump
         public int Empty { get; init; }
         public int Unsupported { get; init; }
     }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(ResourceLogDocument))]
+    private sealed partial class ResourceLogJsonContext : JsonSerializerContext;
 
     private sealed class SrcsetCandidate
     {

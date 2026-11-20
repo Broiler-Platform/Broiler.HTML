@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-using Broiler.Graphics;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using Broiler.Graphics.Color;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
@@ -23,9 +25,7 @@ internal interface ICompatProvider
 
     IFontTypefaceResolver CreateFontTypefaceResolver();
 
-    IBitmapCompatSurface CreateBitmapCompatSurface(
-        int width,
-        int height,
+    IBitmapCompatSurface CreateBitmapCompatSurface(int width, int height,
         Func<int, int, BColor> readPrimaryPixel,
         Action<int, int, BColor> writePrimaryPixel,
         object? initialBitmap = null,
@@ -72,6 +72,12 @@ internal static class CompatProvider
         _defaultProvider = provider;
     }
 
+    internal static void InitializeDefaultIfUnset(ICompatProvider provider)
+    {
+        ArgumentNullException.ThrowIfNull(provider);
+        Interlocked.CompareExchange(ref _defaultProvider, provider, null);
+    }
+
     private static ICompatProvider Current => EnsureDefaultProvider();
 
     private static ICompatProvider EnsureDefaultProvider()
@@ -82,7 +88,7 @@ internal static class CompatProvider
         TryLoadDefaultProvider();
         return _defaultProvider
             ?? throw new InvalidOperationException(
-                "No compatibility provider is registered. Reference Broiler.HTML.Image.Compat so the default provider can be loaded.");
+                "No compatibility provider is registered. Reference Broiler.HTML.Image.Compat and call StubCompatBootstrapper.EnsureRegistered() when publishing with NativeAOT.");
     }
 
     private static void TryLoadDefaultProvider()
@@ -96,14 +102,30 @@ internal static class CompatProvider
                 return;
 
             _defaultLoadAttempted = 1;
-            var assembly = Assembly.Load(CompatAssemblyName);
-            var bootstrapperType = assembly.GetType(CompatBootstrapperTypeName, throwOnError: true)
-                ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName} in {CompatAssemblyName}.");
-            var method = bootstrapperType.GetMethod(
-                CompatBootstrapperMethodName,
-                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
-                ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName}.{CompatBootstrapperMethodName}.");
-            method.Invoke(null, null);
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+                return;
+
+            TryLoadDynamicCompatProvider();
         }
+    }
+
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2026:RequiresUnreferencedCode",
+        Justification = "Dynamic fallback is only executed when RuntimeFeature.IsDynamicCodeSupported is true; NativeAOT callers register StubCompatBootstrapper statically.")]
+    [UnconditionalSuppressMessage(
+        "Trimming",
+        "IL2075:DynamicallyAccessedMembers",
+        Justification = "Dynamic fallback is only executed when RuntimeFeature.IsDynamicCodeSupported is true; NativeAOT callers register StubCompatBootstrapper statically.")]
+    private static void TryLoadDynamicCompatProvider()
+    {
+        var assembly = Assembly.Load(CompatAssemblyName);
+        var bootstrapperType = assembly.GetType(CompatBootstrapperTypeName, throwOnError: true)
+            ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName} in {CompatAssemblyName}.");
+        var method = bootstrapperType.GetMethod(
+            CompatBootstrapperMethodName,
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
+            ?? throw new InvalidOperationException($"Could not find {CompatBootstrapperTypeName}.{CompatBootstrapperMethodName}.");
+        method.Invoke(null, null);
     }
 }

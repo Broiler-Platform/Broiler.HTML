@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Broiler.HTML.Graphics.Win32.Demo": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "https://www.7-zip.org"
     }
   }
 }

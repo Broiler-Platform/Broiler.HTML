@@ -6,7 +6,6 @@ using Broiler.Graphics.Color;
 using Broiler.Graphics.Text;
 using Broiler.HTML.Core;
 using Broiler.HTML.Core.Entities;
-using Broiler.HTML.Core.Utils;
 using Broiler.Layout;
 
 namespace Broiler.HTML.Dom;
@@ -118,7 +117,7 @@ internal sealed class HtmlLayoutEnvironment(IHtmlContainerInt container) : ILayo
 
         public void LoadImage(string src, IReadOnlyDictionary<string, string>? attributes, Uri baseUrl) =>
             handler.LoadImage(src, attributes as Dictionary<string, string> ?? 
-                (attributes is null ? new Dictionary<string, string>() : new Dictionary<string, string>(attributes)), baseUrl);
+                (attributes is null ? [] : new Dictionary<string, string>(attributes)), baseUrl);
 
         public void Dispose() => handler.Dispose();
     }

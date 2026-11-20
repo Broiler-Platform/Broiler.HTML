@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.Graphics;
 using Broiler.HTML.Adapters;
 using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Orchestration;
@@ -11,6 +10,9 @@ using Broiler.HTML.Core;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Adapters;
 using Broiler.Net.Http;
+using Broiler.Dom.Html;
+using Broiler.Dom;
+using Broiler.Layout;
 
 namespace Broiler.HTML.Image;
 
@@ -204,30 +206,19 @@ public sealed class HtmlContainer : IDisposable
         return HtmlContainerInt.ShareSubresourceCacheWith(source.HtmlContainerInt);
     }
 
-    [Obsolete("Use SetHtmlWithStyleSet.")]
-    public void SetHtml(string htmlSource, CssData? baseCssData = null, string? baseUrl = null) => HtmlContainerInt.SetHtml(htmlSource, baseCssData, baseUrl);
-
     public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
         HtmlContainerInt.SetHtmlWithStyleSet(htmlSource, baseStyleSet, baseUrl);
 
-    /// <summary>
-    /// Binds a canonical DOM document directly to the renderer. The CSS-box
-    /// snapshot is rebuilt lazily when the document version changes.
-    /// </summary>
-    [Obsolete("Use SetDocumentWithStyleSet.")]
-    public void SetDocument(Broiler.Dom.DomDocument document, CssData? baseCssData = null, string? baseUrl = null) =>
-        HtmlContainerInt.SetDocument(document, baseCssData, baseUrl);
-
-    public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
+    public void SetDocumentWithStyleSet(DomDocument document, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null) =>
         HtmlContainerInt.SetDocumentWithStyleSet(document, baseStyleSet, baseUrl);
 
     /// <summary>
     /// HtmlBridge Phase 4 (P4.4b): host callback mapping a nested-browsing-context container
-    /// element to its referenced content <see cref="Broiler.Dom.DomDocument"/>, forwarded to the
+    /// element to its referenced content <see cref="DomDocument"/>, forwarded to the
     /// DOM→box builder so a severed sub-document (no in-tree <c>#subdoc-root</c> child) is still
     /// projected into the box tree. Null on the renderer's own parse paths.
     /// </summary>
-    public Func<Broiler.Dom.DomElement, Broiler.Dom.DomDocument?>? ContentDocumentResolver
+    public Func<DomElement, DomDocument?>? ContentDocumentResolver
     {
         get => HtmlContainerInt.ContentDocumentResolver;
         set => HtmlContainerInt.ContentDocumentResolver = value;
@@ -239,7 +230,7 @@ public sealed class HtmlContainer : IDisposable
     /// <see cref="RestyleDocument"/>. A host that keeps the document's form state itself can hand its own
     /// instance here, so the rendering shows the values it holds.
     /// </summary>
-    public Broiler.Dom.Html.HtmlFormState FormState
+    public HtmlFormState FormState
     {
         get => HtmlContainerInt.FormState;
         set => HtmlContainerInt.FormState = value;
@@ -359,11 +350,11 @@ public sealed class HtmlContainer : IDisposable
     /// Lays out the bound document headlessly at <paramref name="viewport"/> (using an
     /// internal temporary surface for text measurement — no paint backend required) and
     /// returns per-element box geometry from the real layout tree, keyed by the canonical
-    /// <see cref="Broiler.Dom.DomElement"/>. Intended for consumers (for example the script
+    /// <see cref="DomElement"/>. Intended for consumers (for example the script
     /// bridge) that need accurate element geometry without constructing a graphics backend.
     /// Requires the document to have been bound via <see cref="SetDocumentWithStyleSet"/>.
     /// </summary>
-    public IReadOnlyDictionary<Broiler.Dom.DomElement, Broiler.Layout.BoxGeometry> GetLayoutGeometry(SizeF viewport)
+    public IReadOnlyDictionary<DomElement, BoxGeometry> GetLayoutGeometry(SizeF viewport)
     {
         MaxSize = viewport;
         PerformLayout(new RectangleF(0, 0, viewport.Width, viewport.Height));

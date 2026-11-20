@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Geometry;
 
@@ -15,8 +14,7 @@ internal sealed class GraphicsPathAdapter : BGraphicsPath
     private readonly IPathCompat _pathCompat;
     private object? _path;
 
-    internal GraphicsPathAdapter(IPathCompat? pathCompat = null) =>
-        _pathCompat = pathCompat ?? CompatProvider.PathCompat;
+    internal GraphicsPathAdapter(IPathCompat? pathCompat = null) => _pathCompat = pathCompat ?? CompatProvider.PathCompat;
 
     public object Path => EnsurePath();
 

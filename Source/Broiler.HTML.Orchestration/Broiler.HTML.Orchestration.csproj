@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
+    <IsAotCompatible>true</IsAotCompatible>
     <Description>Box-tree construction, the HTML container, and painting into a display list for the Broiler.HTML renderer.</Description>
   </PropertyGroup>
   <ItemGroup>

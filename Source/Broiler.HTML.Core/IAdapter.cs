@@ -1,4 +1,3 @@
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Text;
 using System.IO;

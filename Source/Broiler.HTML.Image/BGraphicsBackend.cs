@@ -27,10 +27,7 @@ public static class BGraphicsBackend
 
     internal static bool UseBroilerRasterPipeline => string.Equals(CurrentId, BroilerRasterId, StringComparison.Ordinal);
 
-    private static BackendDefinition ResolveCurrent()
-    {
-        return new BackendDefinition(BroilerRasterId, "Broiler raster");
-    }
+    private static BackendDefinition ResolveCurrent() => new BackendDefinition(BroilerRasterId, "Broiler raster");
 
     private readonly record struct BackendDefinition(string Id, string DisplayName);
 }

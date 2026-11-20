@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Broiler.Dom.Html;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core.IR;
@@ -14,18 +15,14 @@ using Broiler.Media.Image;
 
 return HtmlImageRendererCli.Run(args);
 
-internal static class HtmlImageRendererCli
+internal static partial class HtmlImageRendererCli
 {
     private const int DefaultWidth = 1024;
     private const int DefaultHeight = 768;
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        WriteIndented = true
-    };
-
     public static int Run(string[] args)
     {
+        Broiler.HTML.Image.Compat.StubCompatBootstrapper.EnsureRegistered();
         try
         {
             if (args.Length == 0 || IsHelpArgument(args[0]) || string.Equals(args[0], "help", StringComparison.OrdinalIgnoreCase))
@@ -219,7 +216,7 @@ internal static class HtmlImageRendererCli
                 }
         };
 
-        var json = JsonSerializer.Serialize(report, JsonOptions);
+        var json = JsonSerializer.Serialize(report, ToolJsonContext.Default.CompareReport);
         if (!string.IsNullOrWhiteSpace(options.JsonOutputPath))
         {
             var jsonOutputPath = Path.GetFullPath(options.JsonOutputPath);
@@ -1149,6 +1146,10 @@ internal static class HtmlImageRendererCli
 
         public required int AffectedColumns { get; init; }
     }
+
+    [JsonSourceGenerationOptions(WriteIndented = true)]
+    [JsonSerializable(typeof(CompareReport))]
+    private sealed partial class ToolJsonContext : JsonSerializerContext;
 
     private sealed class ParseResult<T> where T : class
     {

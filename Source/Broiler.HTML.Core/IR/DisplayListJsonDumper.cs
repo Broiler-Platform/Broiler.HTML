@@ -404,17 +404,12 @@ public static class DisplayListJsonDumper
         return $"#{c.A:X2}{c.R:X2}{c.G:X2}{c.B:X2}";
     }
 
-    private static string Round(double value)
-    {
-        return Math.Round(value, 2).ToString("G", CultureInfo.InvariantCulture);
-    }
+    private static string Round(double value) => Math.Round(value, 2).ToString("G", CultureInfo.InvariantCulture);
 
-    private static string EscapeJsonString(string s)
-    {
-        return s.Replace("\\", "\\\\")
-                .Replace("\"", "\\\"")
-                .Replace("\n", "\\n")
-                .Replace("\r", "\\r")
-                .Replace("\t", "\\t");
-    }
+    private static string EscapeJsonString(string s) => s
+        .Replace("\\", "\\\\")
+        .Replace("\"", "\\\"")
+        .Replace("\n", "\\n")
+        .Replace("\r", "\\r")
+        .Replace("\t", "\\t");
 }

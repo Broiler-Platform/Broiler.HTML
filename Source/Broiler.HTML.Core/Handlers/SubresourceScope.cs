@@ -114,20 +114,13 @@ internal sealed class SubresourceScope
     /// <exception cref="HttpRequestException">The response status is not 2xx.</exception>
     /// <exception cref="InvalidDataException">The media type or the size is not acceptable.</exception>
     /// <exception cref="InvalidOperationException">There is no transport, or no document context to send it for.</exception>
-    public SubresourceResponse Fetch(
-        Uri url,
-        RequestDestination destination,
-        CorsSetting crossOrigin,
-        TimeSpan budget,
-        long maxBytes,
-        Func<string?, bool>? acceptMediaType = null,
-        Func<SubresourceResponseHead, bool>? acceptResponse = null)
+    public SubresourceResponse Fetch(Uri url, RequestDestination destination, CorsSetting crossOrigin, TimeSpan budget,
+        long maxBytes, Func<string?, bool>? acceptMediaType = null, Func<SubresourceResponseHead, bool>? acceptResponse = null)
     {
         ArgumentNullException.ThrowIfNull(url);
 
         var transport = Transport ?? throw new InvalidOperationException("This render tree has no request transport.");
-        var document = Document ?? throw new InvalidOperationException(
-            "RequestTransport is set without a DocumentContext; subresources are not loaded without the document they are for.");
+        var document = Document ?? throw new InvalidOperationException("RequestTransport is set without a DocumentContext; subresources are not loaded without the document they are for.");
 
         var context = RequestContext.Subresource(document, destination, crossOrigin);
         var key = new SubresourceCacheKey(url.AbsoluteUri, destination, context.Mode, context.Credentials);
@@ -202,14 +195,8 @@ internal sealed class SubresourceScope
     /// <summary>
     /// As <see cref="Fetch"/>, loading the subresource asynchronously through <see cref="IBrowserRequestTransport.SendAsync"/>.
     /// </summary>
-    public async Task<SubresourceResponse> FetchAsync(
-        Uri url,
-        RequestDestination destination,
-        CorsSetting crossOrigin,
-        TimeSpan budget,
-        long maxBytes,
-        Func<string?, bool>? acceptMediaType = null,
-        Func<SubresourceResponseHead, bool>? acceptResponse = null,
+    public async Task<SubresourceResponse> FetchAsync(Uri url, RequestDestination destination, CorsSetting crossOrigin, TimeSpan budget,
+        long maxBytes, Func<string?, bool>? acceptMediaType = null, Func<SubresourceResponseHead, bool>? acceptResponse = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(url);
@@ -282,11 +269,8 @@ internal sealed class SubresourceScope
     /// then <paramref name="acceptResponse"/> on the whole head. Throws <see cref="InvalidDataException"/> for
     /// a response either refuses.
     /// </summary>
-    private static void Accept(
-        SubresourceResponseHead head,
-        RequestDestination destination,
-        Func<string?, bool>? acceptMediaType,
-        Func<SubresourceResponseHead, bool>? acceptResponse)
+    private static void Accept(SubresourceResponseHead head, RequestDestination destination,
+        Func<string?, bool>? acceptMediaType, Func<SubresourceResponseHead, bool>? acceptResponse)
     {
         if (acceptMediaType != null && !acceptMediaType(head.MediaType))
             throw new InvalidDataException($"Unexpected content type for {destination}: {head.MediaType}");

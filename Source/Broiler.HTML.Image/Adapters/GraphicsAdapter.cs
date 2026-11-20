@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
@@ -40,18 +39,9 @@ internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBounds
     private int _activeCompatLayerDepth;
     private bool _nextLayerCanUseRaster;
 
-    public GraphicsAdapter(
-        Func<object> canvasFactory,
-        RectangleF initialClip,
-        BCanvas? rasterCanvas = null,
-        bool disposeCanvas = false,
-        bool restoreOnDispose = false,
-        Action? onDispose = null,
-        ITextShaper? textShaper = null,
-        ICanvasCompat? canvasCompat = null,
-        Action<object, object?>? initialCanvasOperation = null,
-        object? initialCanvasOperationState = null,
-        bool isTileView = false)
+    public GraphicsAdapter(Func<object> canvasFactory, RectangleF initialClip, BCanvas? rasterCanvas = null, bool disposeCanvas = false,
+        bool restoreOnDispose = false, Action? onDispose = null, ITextShaper? textShaper = null, ICanvasCompat? canvasCompat = null,
+        Action<object, object?>? initialCanvasOperation = null, object? initialCanvasOperationState = null, bool isTileView = false)
         : base(CompatProvider.ImageAdapter, initialClip)
     {
         _canvasFactory = canvasFactory ?? throw new ArgumentNullException(nameof(canvasFactory));
@@ -62,6 +52,7 @@ internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBounds
         _onDispose = onDispose;
         _textShaper = textShaper ?? CompatProvider.TextShaper;
         _canvasCompat = canvasCompat ?? CompatProvider.CanvasCompat;
+
         if (initialCanvasOperation is not null)
             _deferredCanvasOperations.Add(canvas => initialCanvasOperation(canvas, initialCanvasOperationState));
     }
@@ -77,8 +68,7 @@ internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBounds
     /// platform bitmap; and this adapter must not already have materialized a compat canvas, since
     /// the views share the factory that would make a second one.
     /// </remarks>
-    public Size TileParallelSurfaceSize =>
-        _rasterCanvas is { } canvas && !HasMaterializedCanvas && canvas.SupportsConcurrentPixelWrites
+    public Size TileParallelSurfaceSize => _rasterCanvas is { } canvas && !HasMaterializedCanvas && canvas.SupportsConcurrentPixelWrites
             ? new Size(canvas.SurfaceWidth, canvas.SurfaceHeight)
             : Size.Empty;
 
@@ -93,8 +83,7 @@ internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBounds
     /// <inheritdoc />
     public BGraphics CreateTileView(Rectangle tile)
     {
-        var canvas = _rasterCanvas
-            ?? throw new InvalidOperationException("This surface has no raster canvas to tile.");
+        var canvas = _rasterCanvas ?? throw new InvalidOperationException("This surface has no raster canvas to tile.");
 
         return new GraphicsAdapter(
             _canvasFactory,
@@ -186,12 +175,9 @@ internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBounds
 
     public override object? SetAntiAliasSmoothingMode() => null;
 
-    public override void ReturnPreviousSmoothingMode(object? prevMode)
-    {
-    }
+    public override void ReturnPreviousSmoothingMode(object? prevMode) { }
 
-    public override SizeF MeasureString(string str, BFont font) =>
-        _textShaper.MeasureString((FontAdapter)font, str);
+    public override SizeF MeasureString(string str, BFont font) => _textShaper.MeasureString((FontAdapter)font, str);
 
     public override void MeasureString(string str, BFont font, double maxWidth, out int charFit, out double charFitWidth) =>
         _textShaper.MeasureString((FontAdapter)font, str, maxWidth, out charFit, out charFitWidth);
@@ -221,9 +207,7 @@ internal sealed class GraphicsAdapter : BGraphics, ITileParallelSurface, IBounds
     public override BBrush GetTextureBrush(BImage image, RectangleF dstRect, PointF translateTransformLocation)
     {
         var imgAdapter = (ImageAdapter)image;
-        return new BrushAdapter(
-            () => _canvasCompat.CreateTexturePaint(imgAdapter.Bitmap, translateTransformLocation),
-            dispose: true)
+        return new BrushAdapter(() => _canvasCompat.CreateTexturePaint(imgAdapter.Bitmap, translateTransformLocation), dispose: true)
         {
             TextureBitmap = imgAdapter.Bitmap,
             TextureSourceRect = dstRect,

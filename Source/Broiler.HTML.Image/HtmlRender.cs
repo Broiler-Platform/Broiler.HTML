@@ -5,10 +5,10 @@ using Broiler.HTML.Image.Adapters;
 using Broiler.HTML.Orchestration;
 using Broiler.HTML.Core.Entities;
 using Broiler.HTML.Core;
-using Broiler.Graphics;
 using Broiler.Media.Image;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Imaging;
+using Broiler.CSS;
 
 namespace Broiler.HTML.Image;
 
@@ -22,9 +22,7 @@ public static class HtmlRender
     /// Parses CSS into the canonical shared model without exposing the legacy
     /// renderer block indexes.
     /// </summary>
-    public static CSS.CssStyleSheet ParseStyleSheetModel(
-        string stylesheet,
-        bool combineWithDefault = true) =>
+    public static CssStyleSheet ParseStyleSheetModel(string stylesheet, bool combineWithDefault = true) =>
         ParseStyleSet(stylesheet, combineWithDefault).StyleSheet;
 
     public static BBitmap RenderToImageWithStyleSet(
@@ -113,115 +111,6 @@ public static class HtmlRender
         bitmap.Save(filePath, format, quality);
     }
 
-    [Obsolete("Use RenderToImageWithStyleSet.")]
-    public static BBitmap RenderToImage(string html, int width, int height,
-        BColor backgroundColor = default,
-        CssData? cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
-        string? baseUrl = null) =>
-        RenderToImageCore(
-            html,
-            width,
-            height,
-            backgroundColor == default ? null : backgroundColor,
-            GetStyleSet(cssData),
-            stylesheetLoad,
-            imageLoad,
-            baseUrl);
-
-    [Obsolete("Use RenderToImageAutoSizedWithStyleSet.")]
-    public static BBitmap RenderToImageAutoSized(string html, int maxWidth = 0, int maxHeight = 0,
-        BColor backgroundColor = default,
-        CssData? cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
-        string? baseUrl = null) =>
-        RenderToImageAutoSizedCore(
-            html,
-            maxWidth,
-            maxHeight,
-            backgroundColor == default ? null : backgroundColor,
-            GetStyleSet(cssData),
-            stylesheetLoad,
-            imageLoad,
-            baseUrl);
-
-    [Obsolete("Use RenderToImageAtAnchorWithStyleSet.")]
-    public static BBitmap? RenderToImageAtAnchor(string html, string elementId, int width, int height,
-        BColor backgroundColor = default,
-        CssData? cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
-        string? baseUrl = null) =>
-        RenderToImageAtAnchorCore(
-            html,
-            elementId,
-            width,
-            height,
-            backgroundColor == default ? null : backgroundColor,
-            GetStyleSet(cssData),
-            stylesheetLoad,
-            imageLoad,
-            baseUrl);
-
-    [Obsolete("Use RenderToPngWithStyleSet.")]
-    public static byte[] RenderToPng(string html, int width, int height,
-        BColor backgroundColor,
-        CssData? cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null)
-        => RenderToPngCore(html, width, height, backgroundColor, GetStyleSet(cssData), stylesheetLoad, imageLoad);
-
-    [Obsolete("Use RenderToFileWithStyleSet.")]
-    public static void RenderToFile(string html, int width, int height, string filePath,
-        ImageEncodeFormat format,
-        int quality = 90,
-        BColor backgroundColor = default,
-        CssData? cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null, string? baseUrl = null)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(filePath);
-
-        using var bitmap = RenderToImageCore(
-            html,
-            width,
-            height,
-            backgroundColor == default ? null : backgroundColor,
-            GetStyleSet(cssData),
-            stylesheetLoad,
-            imageLoad,
-            baseUrl);
-        bitmap.Save(filePath, format, quality);
-    }
-
-    [Obsolete("Use RenderToFileAutoSizedWithStyleSet.")]
-    public static void RenderToFileAutoSized(string html, string filePath,
-        int maxWidth = 0,
-        int maxHeight = 0,
-        ImageEncodeFormat format = ImageEncodeFormat.Png,
-        int quality = 90,
-        BColor backgroundColor = default,
-        CssData? cssData = null,
-        EventHandler<HtmlStylesheetLoadEventArgs>? stylesheetLoad = null,
-        EventHandler<HtmlImageLoadEventArgs>? imageLoad = null,
-        string? baseUrl = null)
-    {
-        ArgumentException.ThrowIfNullOrEmpty(filePath);
-
-        using var bitmap = RenderToImageAutoSizedCore(
-            html,
-            maxWidth,
-            maxHeight,
-            backgroundColor == default ? null : backgroundColor,
-            GetStyleSet(cssData),
-            stylesheetLoad,
-            imageLoad,
-            baseUrl);
-        bitmap.Save(filePath, format, quality);
-    }
-
     /// <summary>
     /// Loads a TrueType/OpenType font from a file and registers it with
     /// the rendering adapter so that CSS <c>font-family</c> references
@@ -250,10 +139,6 @@ public static class HtmlRender
         pixelBuffer = null;
         return false;
     }
-
-#pragma warning disable CS0618
-    private static HtmlStyleSet? GetStyleSet(CssData? cssData) => cssData?.StyleSet;
-#pragma warning restore CS0618
 
     private static BBitmap RenderToImageCore(string html, int width, int height,
         BColor? backgroundColor,

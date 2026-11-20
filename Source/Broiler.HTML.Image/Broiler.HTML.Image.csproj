@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
+    <IsAotCompatible>true</IsAotCompatible>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <Description>Renders HTML to in-memory bitmaps, PNG bytes, and files, with deterministic pixel comparison and mismatch classification.</Description>
   </PropertyGroup>

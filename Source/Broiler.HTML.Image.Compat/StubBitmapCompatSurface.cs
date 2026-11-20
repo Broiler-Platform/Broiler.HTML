@@ -36,15 +36,12 @@ internal sealed class StubBitmapCompatSurface : IBitmapCompatSurface
 
 /// <summary>
 /// Inert canvas returned by <see cref="StubBitmapCompatSurface.OpenCanvas"/>.
-/// Exposes the Save/Restore/Translate members invoked by
-/// <c>CompatCanvasOperations</c> (via reflection) as no-ops.
+/// Implements <see cref="ICompatCanvas"/> Save/Restore/Translate operations as no-ops.
 /// </summary>
-internal sealed class StubCanvas
+internal sealed class StubCanvas : ICompatCanvas
 {
     // The managed raster pipeline owns transform/clip state, so these compat
-    // canvas operations are inert. They exist because CompatCanvasOperations
-    // invokes them by name via reflection; the exact signatures must match its
-    // call sites (parameterless Save/Restore, Translate(float, float)).
+    // canvas operations are inert.
     public void Save()
     {
     }

@@ -1,42 +1,48 @@
-#nullable enable
-
+using Broiler.CSS;
 using System;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Broiler.HTML.Core.IR;
 
 /// <summary>Serializes the canonical shared CSS model to deterministic JSON.</summary>
 public static class CssStyleSheetJsonDumper
 {
-    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
-
-    public static string ToJson(Broiler.CSS.CssStyleSheet styleSheet)
+    public static string ToJson(CssStyleSheet styleSheet)
     {
         ArgumentNullException.ThrowIfNull(styleSheet);
-        var model = new
+        var model = new CssStyleSheetJsonModel
         {
-            cssText = Broiler.CSS.CssSerializer.Serialize(styleSheet),
-            diagnostics = styleSheet.Diagnostics.Select(static diagnostic => new
+            cssText = CssSerializer.Serialize(styleSheet),
+            diagnostics = styleSheet.Diagnostics.Select(static diagnostic => new CssDiagnosticJsonModel
             {
-                diagnostic.Code,
-                diagnostic.Message,
+                Code = diagnostic.Code,
+                Message = diagnostic.Message,
                 severity = diagnostic.Severity.ToString(),
-                diagnostic.Range.Start,
-                diagnostic.Range.Length
+                Start = diagnostic.Range.Start,
+                Length = diagnostic.Range.Length
             }).ToArray()
         };
-        return JsonSerializer.Serialize(model, JsonOptions) + Environment.NewLine;
+        return JsonSerializer.Serialize(model, CssStyleSheetJsonContext.Default.CssStyleSheetJsonModel) + Environment.NewLine;
     }
 }
 
-/// <summary>Compatibility entry point for the former CssData dumper.</summary>
-[Obsolete("Use CssStyleSheetJsonDumper with Broiler.CSS.CssStyleSheet.")]
-public static class CssDataJsonDumper
+internal sealed class CssStyleSheetJsonModel
 {
-    public static string ToJson(CssData cssData)
-    {
-        ArgumentNullException.ThrowIfNull(cssData);
-        return CssStyleSheetJsonDumper.ToJson(cssData.StyleSheet);
-    }
+    public required string cssText { get; init; }
+    public required CssDiagnosticJsonModel[] diagnostics { get; init; }
 }
+
+internal sealed class CssDiagnosticJsonModel
+{
+    public required string Code { get; init; }
+    public required string Message { get; init; }
+    public required string severity { get; init; }
+    public required int Start { get; init; }
+    public required int Length { get; init; }
+}
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(CssStyleSheetJsonModel))]
+internal partial class CssStyleSheetJsonContext : JsonSerializerContext;

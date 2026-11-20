@@ -6,6 +6,33 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
+
+
+    <!-- NativeAOT -->
+    <PublishAot>true</PublishAot>
+    <SelfContained>true</SelfContained>
+
+    <!-- Compiler -->
+    <Optimize>true</Optimize>
+    <OptimizationPreference>Speed</OptimizationPreference>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+
+    <!-- Trimming / Analyse -->
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <TrimmerSingleWarn>false</TrimmerSingleWarn>
+
+    <!-- Runtime-Features -->
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <EventSourceSupport>false</EventSourceSupport>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
+
+    <!-- Build -->
+    <Deterministic>true</Deterministic>
+
+
   </PropertyGroup>
 
   <ItemGroup>

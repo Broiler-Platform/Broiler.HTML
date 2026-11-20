@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
+    <IsAotCompatible>true</IsAotCompatible>
     <Description>Shared entities, handler contracts, and image download and loading for the Broiler.HTML renderer.</Description>
   </PropertyGroup>
   <ItemGroup>

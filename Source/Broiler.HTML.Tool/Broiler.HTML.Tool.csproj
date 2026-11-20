@@ -7,6 +7,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
+    <IsAotCompatible>true</IsAotCompatible>
     <!-- Built with the solution so CI catches breakage, but never shipped: eng/pack.ps1 packs
          every packable project in the solution. -->
     <IsPackable>false</IsPackable>

@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
+    <IsAotCompatible>true</IsAotCompatible>
     <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
     <Description>Backend-neutral image adapter for Broiler.HTML, with the bundled Vazirmatn fallback font for unregistered and default CSS font families.</Description>
     <PackageLicenseExpression>Apache-2.0 AND BSD-3-Clause AND OFL-1.1</PackageLicenseExpression>

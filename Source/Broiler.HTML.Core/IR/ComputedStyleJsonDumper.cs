@@ -1,14 +1,11 @@
-#nullable enable
-
-using Broiler;
 using System;
-using System.Collections.Generic;
+using System.Buffers;
 using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
-
 using Broiler.Graphics.Color;
 using Broiler.Layout.IR;
 
@@ -19,69 +16,133 @@ namespace Broiler.HTML.Core.IR;
 /// </summary>
 public static class ComputedStyleJsonDumper
 {
+    private static readonly PropertyInfo[] StyleProperties = typeof(ComputedStyle)
+        .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+        .OrderBy(static property => property.Name, StringComparer.Ordinal)
+        .ToArray();
+
     // Each box nests two levels — its object and its children array — so the serializer's default limit
     // of 64 fails at 32 nested boxes, which a real page passes (a Wikipedia article's tree is about
     // forty deep). The limit only guards against unbounded recursion, and a box tree is bounded by
     // its document.
-    private static readonly JsonSerializerOptions JsonOptions = new()
+    private static readonly JsonWriterOptions WriterOptions = new()
     {
-        WriteIndented = true,
+        Indented = true,
         MaxDepth = 4096,
     };
 
     public static string ToJson(Fragment root)
     {
         ArgumentNullException.ThrowIfNull(root);
-        return JsonSerializer.Serialize(WriteFragment(root), JsonOptions) + Environment.NewLine;
-    }
 
-    private static Dictionary<string, object?> WriteFragment(Fragment fragment)
-    {
-        var result = new Dictionary<string, object?>
+        var buffer = new ArrayBufferWriter<byte>();
+        using (var writer = new Utf8JsonWriter(buffer, WriterOptions))
         {
-            ["tagName"] = fragment.Style.TagName,
-            ["kind"] = fragment.Style.Kind.ToString(),
-            ["text"] = GetText(fragment),
-            ["style"] = WriteStyle(fragment.Style),
-            ["children"] = fragment.Children.Select(WriteFragment).ToList()
-        };
-        return result;
-    }
-
-    private static SortedDictionary<string, object?> WriteStyle(ComputedStyle style)
-    {
-        var result = new SortedDictionary<string, object?>(StringComparer.Ordinal);
-        foreach (var property in typeof(ComputedStyle)
-            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .OrderBy(static property => property.Name, StringComparer.Ordinal))
-        {
-            result[property.Name] = NormalizeValue(property.GetValue(style));
+            WriteFragment(writer, root);
         }
-        return result;
+
+        return Encoding.UTF8.GetString(buffer.WrittenSpan) + Environment.NewLine;
     }
 
-    private static object? NormalizeValue(object? value) => value switch
+    private static void WriteFragment(Utf8JsonWriter writer, Fragment fragment)
     {
-        null => null,
-        string text => text,
-        bool boolean => boolean,
-        int integer => integer,
-        long integer => integer,
-        float number => Round(number),
-        double number => Round(number),
-        decimal number => decimal.Round(number, 2),
-        Enum enumValue => enumValue.ToString(),
-        BColor color => ColorToString(color),
-        Color color => ColorToString(color),
-        BoxEdges edges => new SortedDictionary<string, object?>(StringComparer.Ordinal)
+        writer.WriteStartObject();
+        writer.WriteString("tagName", fragment.Style.TagName);
+        writer.WriteString("kind", fragment.Style.Kind.ToString());
+        writer.WriteString("text", GetText(fragment));
+
+        writer.WritePropertyName("style");
+        WriteStyle(writer, fragment.Style);
+
+        writer.WriteStartArray("children");
+        foreach (var child in fragment.Children)
+            WriteFragment(writer, child);
+        writer.WriteEndArray();
+
+        writer.WriteEndObject();
+    }
+
+    private static void WriteStyle(Utf8JsonWriter writer, ComputedStyle style)
+    {
+        writer.WriteStartObject();
+        foreach (var property in StyleProperties)
         {
-            ["bottom"] = Round(edges.Bottom),
-            ["left"] = Round(edges.Left),
-            ["right"] = Round(edges.Right),
-            ["top"] = Round(edges.Top)
-        },
-        _ => value.ToString()
-    };
+            writer.WritePropertyName(property.Name);
+            WriteNormalizedValue(writer, property.GetValue(style));
+        }
+        writer.WriteEndObject();
+    }
+
+    private static void WriteNormalizedValue(Utf8JsonWriter writer, object? value)
+    {
+        switch (value)
+        {
+            case null:
+                writer.WriteNullValue();
+                break;
+            case string text:
+                writer.WriteStringValue(text);
+                break;
+            case bool boolean:
+                writer.WriteBooleanValue(boolean);
+                break;
+            case int integer:
+                writer.WriteNumberValue(integer);
+                break;
+            case long integer:
+                writer.WriteNumberValue(integer);
+                break;
+            case float number:
+                WriteNullableNumber(writer, Round(number));
+                break;
+            case double number:
+                WriteNullableNumber(writer, Round(number));
+                break;
+            case decimal number:
+                writer.WriteNumberValue(decimal.Round(number, 2));
+                break;
+            case Enum enumValue:
+                writer.WriteStringValue(enumValue.ToString());
+                break;
+            case BColor color:
+                WriteStringOrNull(writer, ColorToString(color));
+                break;
+            case Color color:
+                WriteStringOrNull(writer, ColorToString(color));
+                break;
+            case BoxEdges edges:
+                writer.WriteStartObject();
+                writer.WritePropertyName("bottom");
+                WriteNullableNumber(writer, Round(edges.Bottom));
+                writer.WritePropertyName("left");
+                WriteNullableNumber(writer, Round(edges.Left));
+                writer.WritePropertyName("right");
+                WriteNullableNumber(writer, Round(edges.Right));
+                writer.WritePropertyName("top");
+                WriteNullableNumber(writer, Round(edges.Top));
+                writer.WriteEndObject();
+                break;
+            default:
+                WriteStringOrNull(writer, value.ToString());
+                break;
+        }
+    }
+
+    private static void WriteNullableNumber(Utf8JsonWriter writer, double? value)
+    {
+        if (value.HasValue)
+            writer.WriteNumberValue(value.Value);
+        else
+            writer.WriteNullValue();
+    }
+
+    private static void WriteStringOrNull(Utf8JsonWriter writer, string? value)
+    {
+        if (value is null)
+            writer.WriteNullValue();
+        else
+            writer.WriteStringValue(value);
+    }
 
     private static string GetText(Fragment fragment)
     {
@@ -99,8 +160,10 @@ public static class ComputedStyleJsonDumper
     {
         if (color.IsEmpty)
             return null;
+
         if (color.A == 255)
             return string.Create(CultureInfo.InvariantCulture, $"#{color.R:X2}{color.G:X2}{color.B:X2}");
+
         return string.Create(CultureInfo.InvariantCulture, $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
     }
 
@@ -108,8 +171,10 @@ public static class ComputedStyleJsonDumper
     {
         if (color.IsEmpty)
             return null;
+
         if (color.A == 255)
             return string.Create(CultureInfo.InvariantCulture, $"#{color.R:X2}{color.G:X2}{color.B:X2}");
+
         return string.Create(CultureInfo.InvariantCulture, $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}");
     }
 }

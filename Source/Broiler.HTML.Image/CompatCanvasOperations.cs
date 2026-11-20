@@ -1,41 +1,50 @@
 using System;
 using System.Globalization;
-using System.Reflection;
 
 namespace Broiler.HTML.Image;
 
 internal static class CompatCanvasOperations
 {
-    internal static void Save(object canvas) => InvokeVoid(canvas, "Save");
-
-    internal static void Restore(object canvas) => InvokeVoid(canvas, "Restore");
-
-    internal static void Translate(object canvas, float x, float y) => InvokeVoid(canvas, "Translate", x, y);
-
-    private static void InvokeVoid(object canvas, string methodName, params object[] args)
+    internal static void Save(object canvas)
     {
         ArgumentNullException.ThrowIfNull(canvas);
-
-        var types = new Type[args.Length];
-        for (int i = 0; i < args.Length; i++)
-            types[i] = args[i].GetType();
-
-        var method = canvas.GetType().GetMethod(
-            methodName,
-            BindingFlags.Instance | BindingFlags.Public,
-            binder: null,
-            types,
-            modifiers: null);
-
-        if (method is null)
+        if (canvas is ICompatCanvas compatCanvas)
         {
-            throw new InvalidOperationException(string.Format(
-                CultureInfo.InvariantCulture,
-                "Canvas compat object '{0}' does not expose method '{1}'.",
-                canvas.GetType().FullName,
-                methodName));
+            compatCanvas.Save();
+            return;
         }
 
-        method.Invoke(canvas, args);
+        throw CreateUnsupportedCanvasException(canvas, nameof(Save));
     }
+
+    internal static void Restore(object canvas)
+    {
+        ArgumentNullException.ThrowIfNull(canvas);
+        if (canvas is ICompatCanvas compatCanvas)
+        {
+            compatCanvas.Restore();
+            return;
+        }
+
+        throw CreateUnsupportedCanvasException(canvas, nameof(Restore));
+    }
+
+    internal static void Translate(object canvas, float x, float y)
+    {
+        ArgumentNullException.ThrowIfNull(canvas);
+        if (canvas is ICompatCanvas compatCanvas)
+        {
+            compatCanvas.Translate(x, y);
+            return;
+        }
+
+        throw CreateUnsupportedCanvasException(canvas, nameof(Translate));
+    }
+
+    private static InvalidOperationException CreateUnsupportedCanvasException(object canvas, string methodName) =>
+        new(string.Format(
+            CultureInfo.InvariantCulture,
+            "Canvas compat object '{0}' does not implement ICompatCanvas for operation '{1}'.",
+            canvas.GetType().FullName,
+            methodName));
 }

@@ -1,5 +1,4 @@
 using System;
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Rendering;

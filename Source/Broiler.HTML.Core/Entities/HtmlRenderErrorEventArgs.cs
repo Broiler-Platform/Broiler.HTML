@@ -11,30 +11,20 @@ namespace Broiler.HTML.Core.Entities;
 /// exception when there was one. Both used to be dropped on the way to this event, which left a host
 /// with "an image failed" and no way to learn which image or why.
 /// </remarks>
-public sealed class HtmlRenderErrorEventArgs : EventArgs
+public sealed class HtmlRenderErrorEventArgs(HtmlRenderErrorType type, string? message, Exception? exception = null) : EventArgs
 {
-    public HtmlRenderErrorEventArgs(HtmlRenderErrorType type)
-        : this(type, message: null, exception: null)
-    {
-    }
+    public HtmlRenderErrorEventArgs(HtmlRenderErrorType type) : this(type, message: null, exception: null) { }
 
-    public HtmlRenderErrorEventArgs(HtmlRenderErrorType type, string? message, Exception? exception = null)
-    {
-        Type = type;
-        Message = message;
-        Exception = exception;
-    }
-
-    public HtmlRenderErrorType Type { get; }
+    public HtmlRenderErrorType Type { get; } = type;
 
     /// <summary>
     /// What failed, as the reporter described it — which image, which stylesheet, which step — or
     /// <see langword="null"/> when it said nothing more than its type.
     /// </summary>
-    public string? Message { get; }
+    public string? Message { get; } = message;
 
     /// <summary>The exception the renderer caught, when the failure was one.</summary>
-    public Exception? Exception { get; }
+    public Exception? Exception { get; } = exception;
 
     public override string ToString()
     {

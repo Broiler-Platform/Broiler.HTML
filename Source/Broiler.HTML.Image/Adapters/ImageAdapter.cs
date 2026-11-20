@@ -1,19 +1,12 @@
 using System.Drawing;
 using System;
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Color;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class ImageAdapter(
-    BBitmap bitmap,
-    bool hasIntrinsicRatio = true,
-    bool hasIntrinsicWidth = true,
-    bool hasIntrinsicHeight = true,
-    double? intrinsicAspectRatio = null,
-    double? intrinsicWidth = null,
-    double? intrinsicHeight = null) : BImage
+internal sealed class ImageAdapter(BBitmap bitmap, bool hasIntrinsicRatio = true, bool hasIntrinsicWidth = true, bool hasIntrinsicHeight = true,
+    double? intrinsicAspectRatio = null, double? intrinsicWidth = null, double? intrinsicHeight = null) : BImage
 {
     public BBitmap Bitmap { get; } = bitmap;
 

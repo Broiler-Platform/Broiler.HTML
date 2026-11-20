@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <OutputType>Library</OutputType>
+    <IsAotCompatible>true</IsAotCompatible>
     <Description>HTML parsing into the Broiler DOM and the layout environment for the Broiler.HTML renderer.</Description>
   </PropertyGroup>
   <ItemGroup>

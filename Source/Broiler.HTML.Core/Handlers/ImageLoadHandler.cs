@@ -124,13 +124,10 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
     {
         var uri = CommonUtils.TryGetUri(path) ?? ParseAsBrowserWould(path, baseUrl);
 
-        bool isRootRelativePath = path.StartsWith('/')
-            && !path.StartsWith("//", StringComparison.Ordinal);
+        bool isRootRelativePath = path.StartsWith('/') && !path.StartsWith("//", StringComparison.Ordinal);
 
-        if (uri != null
-            && uri.IsAbsoluteUri == false
-            && baseUrl != null
-            && (isRootRelativePath || !Path.IsPathRooted(path) || !_htmlContainer.AllowsLocalFiles))
+        if (uri != null && uri.IsAbsoluteUri == false && baseUrl != null &&
+            (isRootRelativePath || !Path.IsPathRooted(path) || !_htmlContainer.AllowsLocalFiles))
         {
             uri = new Uri(baseUrl, uri);
         }
@@ -173,11 +170,8 @@ internal sealed class ImageLoadHandler : IImageLoadHandler
             (absolute.Scheme == Uri.UriSchemeHttp || absolute.Scheme == Uri.UriSchemeHttps))
             return absolute;
 
-        return !_htmlContainer.AllowsLocalFiles &&
-               baseUrl is { IsAbsoluteUri: true } &&
-               Uri.TryCreate(baseUrl, path, out var resolved)
-            ? resolved
-            : null;
+        return !_htmlContainer.AllowsLocalFiles && baseUrl is { IsAbsoluteUri: true } &&
+               Uri.TryCreate(baseUrl, path, out var resolved) ? resolved : null;
     }
 
     private void SetImageFromFile(FileInfo source)

@@ -10,6 +10,7 @@ using Broiler.Graphics.Rendering;
 using Broiler.Graphics.RenderList;
 using Broiler.Graphics.Windowing;
 using Broiler.Graphics.Windows;
+using Broiler.HTML.Graphics;
 using Broiler.HTML.Image;
 
 namespace Broiler.HTML.Graphics.Win32.Demo;
@@ -22,6 +23,7 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        HtmlGraphicsRuntime.EnsureInitialized();
         _ = SetProcessDpiAwarenessContext(new IntPtr(-4)); // PER_MONITOR_AWARE_V2, best effort.
 
         if (args.Length > 1 || (args.Length == 1 && IsHelpArgument(args[0])))

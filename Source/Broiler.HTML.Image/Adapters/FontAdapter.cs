@@ -1,17 +1,11 @@
 using System;
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.Graphics.Text;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class FontAdapter(
-    string family,
-    double size,
-    FontStyle style,
-    Func<object>? compatTypefaceFactory = null,
-    IFontCompatFactory? fontCompatFactory = null,
-    Func<object, BFontFace?>? registeredFaceResolver = null) : BFont
+internal sealed class FontAdapter(string family, double size, FontStyle style, Func<object>? compatTypefaceFactory = null,
+    IFontCompatFactory? fontCompatFactory = null, Func<object, BFontFace?>? registeredFaceResolver = null) : BFont
 {
     private readonly IFontCompatFactory _fontCompatFactory = fontCompatFactory ?? CompatProvider.FontCompatFactory;
     private double _height = -1;

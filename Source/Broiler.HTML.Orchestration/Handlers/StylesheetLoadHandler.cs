@@ -43,12 +43,6 @@ internal sealed class StylesheetLoadHandler : IStylesheetLoader
             {
                 styleSheet = args.SetStyleSheetModel;
             }
-#pragma warning disable CS0618
-            else if (args.SetStyleSheetData != null)
-            {
-                styleSheet = args.SetStyleSheetData.StyleSheet;
-            }
-#pragma warning restore CS0618
             else if (args.SetSrc != null)
             {
                 stylesheet = LoadStylesheet(args.SetSrc, attributes, scope);

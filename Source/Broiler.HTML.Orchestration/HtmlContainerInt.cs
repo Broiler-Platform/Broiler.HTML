@@ -628,12 +628,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
         return Adapter.GetColor(value);
     }
 
-    [Obsolete("Use SetHtmlWithStyleSet.")]
-    public void SetHtml(string htmlSource, CssData? baseCssData = null, string? baseUrl = null)
-    {
-        SetHtmlWithStyleSet(htmlSource, baseCssData?.StyleSet, baseUrl);
-    }
-
     public void SetHtmlWithStyleSet(string htmlSource, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null)
     {
         Clear();
@@ -667,12 +661,6 @@ public sealed class HtmlContainerInt : IHtmlContainerInt, IDisposable
             baseStyleSet,
             baseUrl,
             (ref styleSet) => builder.BuildLayoutTree(htmlSource, this, ref styleSet, baseUri));
-    }
-
-    [Obsolete("Use SetDocumentWithStyleSet.")]
-    public void SetDocument(Broiler.Dom.DomDocument document, CssData? baseCssData = null, string? baseUrl = null)
-    {
-        SetDocumentWithStyleSet(document, baseCssData?.StyleSet, baseUrl);
     }
 
     public void SetDocumentWithStyleSet(Broiler.Dom.DomDocument document, HtmlStyleSet? baseStyleSet = null, string? baseUrl = null)

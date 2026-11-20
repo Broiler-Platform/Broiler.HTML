@@ -1,4 +1,3 @@
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;

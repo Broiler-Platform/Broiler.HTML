@@ -12,7 +12,5 @@ internal sealed class ImageSizeAdapter(int width, int height) : BImage
 
     public override double Height { get; } = height;
 
-    public override void Dispose()
-    {
-    }
+    public override void Dispose() { }
 }

@@ -1,16 +1,11 @@
 using System;
 using System.Drawing;
-using Broiler.Graphics;
 using Broiler.Graphics.Adapters;
 using Broiler.HTML.Adapters;
 
 namespace Broiler.HTML.Image.Adapters;
 
-internal sealed class ControlAdapter(
-    PointF mouseLocation,
-    bool leftMouseButton,
-    bool rightMouseButton,
-    Action? invalidate = null,
+internal sealed class ControlAdapter(PointF mouseLocation, bool leftMouseButton, bool rightMouseButton, Action? invalidate = null,
     Action<GraphicsCursor>? cursorChanged = null) : RControl(CompatProvider.ImageAdapter)
 {
     private PointF _mouseLocation = mouseLocation;

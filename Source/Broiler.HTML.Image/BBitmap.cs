@@ -7,7 +7,6 @@ using Broiler.Media;
 using Broiler.Media.Image;
 using Broiler.Media.Image.Managed;
 using Broiler.HTML.Image.Adapters;
-using Broiler.Graphics;
 using Broiler.Graphics.Color;
 using Broiler.Graphics.Imaging;
 
@@ -116,10 +115,8 @@ public sealed class BBitmap : IDisposable
 
     internal BBitmap ResizeNearest(int width, int height)
     {
-        if (width <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
 
         if (width == Width && height == Height)
             return Copy();
@@ -399,17 +396,12 @@ public sealed class BBitmap : IDisposable
         SyncPixelsFromCompatBitmap();
     }
 
-    private void SyncPixelsFromCompatBitmap()
-    {
-        _compatSurface.SyncToPrimaryBuffer();
-    }
+    private void SyncPixelsFromCompatBitmap() => _compatSurface.SyncToPrimaryBuffer();
 
     private static void ValidateDimensions(int width, int height)
     {
-        if (width <= 0)
-            throw new ArgumentOutOfRangeException(nameof(width));
-        if (height <= 0)
-            throw new ArgumentOutOfRangeException(nameof(height));
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(width);
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(height);
     }
 
     private IBitmapCompatSurface CreateDefaultCompatSurface(object? initialBitmap = null, bool ownsBitmap = true)

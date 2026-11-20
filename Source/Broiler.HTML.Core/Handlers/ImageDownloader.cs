@@ -209,8 +209,7 @@ internal sealed class ImageDownloader : IDisposable
         }
     }
 
-    private static bool IsImageMediaType(string? mediaType) =>
-        mediaType != null && mediaType.StartsWith("image", StringComparison.OrdinalIgnoreCase);
+    private static bool IsImageMediaType(string? mediaType) => mediaType != null && mediaType.StartsWith("image", StringComparison.OrdinalIgnoreCase);
 
     private void DownloadImageFromUrl(Uri source, string filePath)
     {
