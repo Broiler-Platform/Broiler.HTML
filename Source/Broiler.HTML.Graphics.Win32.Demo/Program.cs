@@ -12,6 +12,7 @@ using Broiler.Graphics.Windowing;
 using Broiler.Graphics.Windows;
 using Broiler.HTML.Graphics;
 using Broiler.HTML.Image;
+using Broiler.Native.Windows;
 
 namespace Broiler.HTML.Graphics.Win32.Demo;
 
@@ -24,7 +25,7 @@ internal static class Program
     private static int Main(string[] args)
     {
         HtmlGraphicsRuntime.EnsureInitialized();
-        _ = SetProcessDpiAwarenessContext(new IntPtr(-4)); // PER_MONITOR_AWARE_V2, best effort.
+        _ = WindowNative.SetProcessDpiAwarenessContext(new IntPtr(-4)); // PER_MONITOR_AWARE_V2, best effort.
 
         if (args.Length > 1 || (args.Length == 1 && IsHelpArgument(args[0])))
         {
@@ -57,7 +58,7 @@ internal static class Program
             "  Broiler.HTML.Graphics.Win32.Demo.exe https://example.com/\n\n" +
             "Press F5 in the window to reload the page.";
 
-        _ = MessageBox(IntPtr.Zero, usage, "Broiler.HTML.Graphics Win32 Demo", MbIconInformation | MbOk);
+        _ = WindowNative.MessageBox(IntPtr.Zero, usage, "Broiler.HTML.Graphics Win32 Demo", MbIconInformation | MbOk);
     }
 
     internal static string LoadHtml(string source, out string baseUrl)
@@ -90,18 +91,11 @@ internal static class Program
         return File.ReadAllText(path);
     }
 
-    internal static void ShowError(IntPtr hwnd, string message) => _ = MessageBox(hwnd, message, "Broiler.HTML.Graphics Win32 Demo", MbIconError | MbOk);
+    internal static void ShowError(IntPtr hwnd, string message) => _ = WindowNative.MessageBox(hwnd, message, "Broiler.HTML.Graphics Win32 Demo", MbIconError | MbOk);
 
     private const uint MbOk = 0x00000000;
     private const uint MbIconError = 0x00000010;
     private const uint MbIconInformation = 0x00000040;
-
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool SetProcessDpiAwarenessContext(IntPtr dpiContext);
-
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    private static extern int MessageBox(IntPtr hwnd, string text, string caption, uint type);
 }
 
 /// <summary>

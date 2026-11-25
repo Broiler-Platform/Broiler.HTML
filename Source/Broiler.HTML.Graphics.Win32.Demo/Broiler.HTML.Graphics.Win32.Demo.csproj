@@ -43,6 +43,7 @@
 
   <ItemGroup>
     <PackageReference Include="Broiler.Graphics.Windows" />
+    <PackageReference Include="Broiler.Native.Windows" />
   </ItemGroup>
 
   <ItemGroup>
